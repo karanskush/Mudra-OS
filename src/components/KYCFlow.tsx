@@ -53,6 +53,10 @@ import {
   BarChart3
 } from 'lucide-react';
 import KYCApi, { Country, KYCStatus } from '../lib/kycApi';
+import { DiditCountry, getAvailableDocuments, formatDocumentName } from '../lib/diditCountries';
+import { diditApi, convertFileToBase64, validateImageFile } from '../lib/diditApi';
+import EnhancedCountrySelector from './EnhancedCountrySelector';
+import { getSessionUserId } from '../lib/utils';
 
 // Enhanced animation variants with advanced fintech effects
 const containerVariants = {
@@ -161,7 +165,7 @@ const pulseVariants = {
 
 const KYCFlow: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<DiditCountry | null>(null);
   const [countries, setCountries] = useState<Country[]>([]);
   const [kycStatus, setKycStatus] = useState<KYCStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -172,6 +176,11 @@ const KYCFlow: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
   const [dragOver, setDragOver] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useState({
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    phone: '+1234567890'
+  });
 
   const steps = [
     { 
@@ -244,18 +253,22 @@ const KYCFlow: React.FC = () => {
     }
   };
 
-  const startKYC = async (country: Country) => {
+  const startKYC = async (country: DiditCountry) => {
     setIsLoading(true);
     setErrors({});
     try {
+      const userId = getSessionUserId();
       const kycData = await KYCApi.startKYC({
-        user_id: 'user_123',
-        country: country.country,
+        user_id: userId,
+        country: country.countryCode,
+        name: userInfo.name,
+        email: userInfo.email,
+        phone: userInfo.phone,
       });
       setKycStatus(kycData);
       setSelectedCountry(country);
       setCurrentStep(1);
-      setSuccessMessage(`KYC process initiated for ${country.description}`);
+      setSuccessMessage(`KYC process initiated for ${country.country}`);
     } catch (error) {
       console.error('Error starting KYC:', error);
       setErrors({ general: 'Failed to start KYC process. Please try again.' });
@@ -281,9 +294,10 @@ const KYCFlow: React.FC = () => {
     }
 
     try {
+      const userId = getSessionUserId();
       const verificationResult = await KYCApi.verifyDocument(documentType, {
         document_number: documentNumber,
-        user_id: 'user_123',
+        user_id: userId,
         country: selectedCountry?.country || 'IN',
       });
 
@@ -324,11 +338,54 @@ const KYCFlow: React.FC = () => {
     }
   };
 
-  const handleFileUpload = (documentType: string, file: File) => {
+  const handleFileUpload = async (documentType: string, file: File) => {
+    // Validate file first
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      setErrors(prev => ({ ...prev, [documentType]: validation.error || 'Invalid file' }));
+      return;
+    }
+
     setDocumentUploads(prev => ({
       ...prev,
       [documentType]: file
     }));
+
+    // Auto-verify with Didit if country is selected
+    if (selectedCountry) {
+      setIsLoading(true);
+      setErrors(prev => ({ ...prev, [documentType]: '' }));
+      
+      try {
+        const userId = getSessionUserId();
+        const verificationResult = await KYCApi.verifyDocumentWithDidit(
+          userId,
+          documentType,
+          file,
+          selectedCountry.countryCode
+        );
+
+        if (verificationResult.status === 'verified') {
+          if (kycStatus) {
+            const updatedStatus = { ...kycStatus };
+            updatedStatus.documents[documentType] = {
+              status: 'verified',
+              verifiedAt: new Date().toISOString(),
+            };
+            updatedStatus.progress += Math.floor(100 / getAvailableDocuments(selectedCountry.countryCode).length);
+            setKycStatus(updatedStatus);
+          }
+          setSuccessMessage(`${formatDocumentName(documentType)} verified successfully!`);
+        } else {
+          setErrors(prev => ({ ...prev, [documentType]: 'Document verification failed. Please try again.' }));
+        }
+      } catch (error) {
+        console.error('Error verifying document:', error);
+        setErrors(prev => ({ ...prev, [documentType]: 'Verification failed. Please try again.' }));
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   const handleDragOver = (e: React.DragEvent, documentType: string) => {
@@ -370,47 +427,12 @@ const KYCFlow: React.FC = () => {
         </p>
       </motion.div>
       
-      <motion.div variants={itemVariants} className="grid gap-4 max-w-2xl mx-auto">
-        {countries.map((country, index) => (
-          <motion.div
-            key={country.country}
-            variants={cardVariants}
-            whileHover="hover"
-            whileTap={{ scale: 0.98 }}
-            className="group bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 cursor-pointer hover:bg-white/10 transition-all duration-500 relative overflow-hidden"
-            onClick={() => startKYC(country)}
-            style={{ "--index": index } as React.CSSProperties}
-          >
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
-            <div className="relative flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-                  <Flag className="h-7 w-7 text-white" />
-                </div>
-                <div className="text-left">
-                  <h4 className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors duration-300">
-                    {country.description}
-                  </h4>
-                  <p className="text-white/60 text-sm mt-1">
-                    Required: <span className="text-blue-300">{country.documents.join(', ')}</span>
-                  </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                    <span className="text-green-400 text-xs font-medium">Instant Verification</span>
-                  </div>
-                </div>
-              </div>
-              <motion.div
-                className="text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all duration-300"
-                whileHover={{ scale: 1.1 }}
-              >
-                <ArrowRight className="h-6 w-6" />
-              </motion.div>
-            </div>
-          </motion.div>
-        ))}
+      <motion.div variants={itemVariants}>
+        <EnhancedCountrySelector
+          onCountrySelect={startKYC}
+          isLoading={isLoading}
+          selectedCountry={selectedCountry}
+        />
       </motion.div>
 
       {/* Trust indicators */}
@@ -452,7 +474,7 @@ const KYCFlow: React.FC = () => {
       </motion.div>
 
       <motion.div variants={itemVariants} className="grid gap-6 max-w-2xl mx-auto">
-        {selectedCountry?.documents.map((docType, index) => (
+        {selectedCountry && getAvailableDocuments(selectedCountry.countryCode).map((docType, index) => (
           <motion.div 
             key={docType} 
             variants={cardVariants}
@@ -463,8 +485,8 @@ const KYCFlow: React.FC = () => {
                 <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
                   <FileText className="h-5 w-5 text-white" />
                 </div>
-                <h4 className="text-lg font-semibold text-white capitalize">
-                  {docType} Document
+                <h4 className="text-lg font-semibold text-white">
+                  {formatDocumentName(docType)}
                 </h4>
               </div>
               {documentUploads[docType] && (
@@ -529,6 +551,18 @@ const KYCFlow: React.FC = () => {
                 </motion.div>
               </label>
             </div>
+
+            {/* Error display */}
+            {errors[docType] && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center space-x-3"
+              >
+                <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+                <p className="text-red-400 text-sm">{errors[docType]}</p>
+              </motion.div>
+            )}
 
             {/* Document requirements */}
             <div className="bg-white/5 rounded-lg p-4 space-y-2">

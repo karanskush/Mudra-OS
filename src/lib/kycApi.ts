@@ -1,8 +1,10 @@
-// KYC API client for frontend
+// KYC API client for frontend  
 export interface Country {
   country: string;
   documents: string[];
   description: string;
+  flag?: string;
+  countryCode?: string;
 }
 
 export interface DocumentStatus {
@@ -49,9 +51,13 @@ const BASE_URL = '/api/kyc';
 
 export class KYCApi {
   // Fetch available countries and their requirements
-  static async getCountries(): Promise<Country[]> {
+  static async getCountries(searchQuery?: string): Promise<Country[]> {
     try {
-      const response = await fetch(`${BASE_URL}/countries`);
+      const url = searchQuery 
+        ? `${BASE_URL}/countries?search=${encodeURIComponent(searchQuery)}`
+        : `${BASE_URL}/countries`;
+      
+      const response = await fetch(url);
       const data = await response.json();
       
       if (!response.ok) {
@@ -178,6 +184,61 @@ export class KYCApi {
       console.error('Error uploading document:', error);
       throw error;
     }
+  }
+
+  // Verify document through Didit API
+  static async verifyDocumentWithDidit(
+    userId: string,
+    documentType: string,
+    file: File,
+    countryCode: string,
+    faceImage?: File
+  ): Promise<any> {
+    try {
+      // Convert file to base64
+      const documentImage = await this.convertFileToBase64(file);
+      const faceImageB64 = faceImage ? await this.convertFileToBase64(faceImage) : undefined;
+
+      const response = await fetch(`${BASE_URL}/verify/didit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          document_image: documentImage,
+          document_type: documentType,
+          country_code: countryCode,
+          user_id: userId,
+          face_image: faceImageB64,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to verify document');
+      }
+      
+      return data.data;
+    } catch (error) {
+      console.error('Error verifying document with Didit:', error);
+      throw error;
+    }
+  }
+
+  // Helper to convert file to base64
+  private static convertFileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        // Remove data URL prefix to get pure base64
+        const base64 = result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
   }
 
   // Validate Aadhaar number format

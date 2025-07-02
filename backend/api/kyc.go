@@ -132,6 +132,8 @@ func KYCHandler(w http.ResponseWriter, r *http.Request) {
 		handleStartKYC(w, r)
 	case r.Method == "POST" && strings.HasPrefix(path, "/verify/"):
 		handleDocumentVerification(w, r, pathParts)
+	case r.Method == "POST" && path == "/verify/didit":
+		handleDiditVerification(w, r)
 	case r.Method == "GET" && strings.HasPrefix(path, "/status/"):
 		handleGetUserKYCStatus(w, r, pathParts)
 	case r.Method == "GET" && path == "/dashboard":
@@ -149,29 +151,187 @@ func KYCHandler(w http.ResponseWriter, r *http.Request) {
 
 // handleGetCountries returns available countries and their KYC requirements
 func handleGetCountries(w http.ResponseWriter, r *http.Request) {
-	countries := []CountryKYCRequirements{
-		{
-			Country:     "IN",
-			Documents:   []string{"aadhaar", "pan"},
-			Description: "India - Aadhaar and PAN verification required",
-		},
-		{
-			Country:     "US",
-			Documents:   []string{"ssn", "drivers_license"},
-			Description: "United States - SSN and Driver's License verification",
-		},
-		{
-			Country:     "UK",
-			Documents:   []string{"passport", "national_insurance"},
-			Description: "United Kingdom - Passport and National Insurance verification",
-		},
+	// Get search query if provided
+	searchQuery := r.URL.Query().Get("search")
+
+	countries := getDiditSupportedCountries()
+
+	// Filter countries based on search query
+	if searchQuery != "" {
+		filteredCountries := []CountryKYCRequirements{}
+		searchLower := strings.ToLower(searchQuery)
+
+		for _, country := range countries {
+			if strings.Contains(strings.ToLower(country.Country), searchLower) ||
+				strings.Contains(strings.ToLower(country.Description), searchLower) {
+				filteredCountries = append(filteredCountries, country)
+			}
+		}
+		countries = filteredCountries
 	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success":   true,
 		"countries": countries,
+		"total":     len(countries),
 	})
+}
+
+// getDiditSupportedCountries returns the comprehensive list of countries supported by Didit
+func getDiditSupportedCountries() []CountryKYCRequirements {
+	return []CountryKYCRequirements{
+		{
+			Country:     "Afghanistan",
+			Documents:   []string{"passport", "idCard", "driverLicense"},
+			Description: "Afghanistan - Passport, National ID, Driver's License",
+		},
+		{
+			Country:     "Albania",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Albania - Full document verification available",
+		},
+		{
+			Country:     "Algeria",
+			Documents:   []string{"passport", "idCard", "driverLicense"},
+			Description: "Algeria - Standard document verification",
+		},
+		{
+			Country:     "Argentina",
+			Documents:   []string{"passport", "idCard", "driverLicense"},
+			Description: "Argentina - Comprehensive ID verification",
+		},
+		{
+			Country:     "Australia",
+			Documents:   []string{"passport", "idCard", "driverLicense"},
+			Description: "Australia - Government-issued documents",
+		},
+		{
+			Country:     "Austria",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Austria - EU standard verification",
+		},
+		{
+			Country:     "Belgium",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Belgium - EU compliant verification",
+		},
+		{
+			Country:     "Brazil",
+			Documents:   []string{"passport", "idCard", "driverLicense"},
+			Description: "Brazil - National identity verification",
+		},
+		{
+			Country:     "Canada",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Canada - Provincial and federal documents",
+		},
+		{
+			Country:     "China",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "China - National ID and travel documents",
+		},
+		{
+			Country:     "France",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "France - Carte Nationale d'Identité and more",
+		},
+		{
+			Country:     "Germany",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Germany - Personalausweis and federal documents",
+		},
+		{
+			Country:     "India",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "India - Aadhaar, Passport, PAN supported",
+		},
+		{
+			Country:     "Italy",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Italy - Carta d'Identità and driving licenses",
+		},
+		{
+			Country:     "Japan",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Japan - My Number Card and official documents",
+		},
+		{
+			Country:     "Mexico",
+			Documents:   []string{"passport", "idCard", "driverLicense"},
+			Description: "Mexico - INE and federal documents",
+		},
+		{
+			Country:     "Netherlands",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Netherlands - Nederlandse identiteitskaart",
+		},
+		{
+			Country:     "Nigeria",
+			Documents:   []string{"passport", "idCard", "driverLicense"},
+			Description: "Nigeria - National Identity Management",
+		},
+		{
+			Country:     "Poland",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Poland - Dowód osobisty and EU documents",
+		},
+		{
+			Country:     "Portugal",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Portugal - Cartão de Cidadão verification",
+		},
+		{
+			Country:     "Russia",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Russia - Federal passport and documents",
+		},
+		{
+			Country:     "South Africa",
+			Documents:   []string{"passport", "idCard", "driverLicense"},
+			Description: "South Africa - Smart ID Card and licenses",
+		},
+		{
+			Country:     "Spain",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Spain - DNI and regional documents",
+		},
+		{
+			Country:     "Sweden",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Sweden - Nationellt identitetskort",
+		},
+		{
+			Country:     "Switzerland",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Switzerland - Federal and cantonal documents",
+		},
+		{
+			Country:     "Turkey",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Turkey - Kimlik and official documents",
+		},
+		{
+			Country:     "Ukraine",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "Ukraine - Passport and ID card verification",
+		},
+		{
+			Country:     "United Arab Emirates",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "UAE - Emirates ID and federal documents",
+		},
+		{
+			Country:     "United Kingdom",
+			Documents:   []string{"passport", "idCard", "driverLicense"},
+			Description: "United Kingdom - UK passport and driving licence",
+		},
+		{
+			Country:     "United States of America",
+			Documents:   []string{"passport", "idCard", "driverLicense", "residencePermit"},
+			Description: "USA - State-issued IDs and federal documents",
+		},
+	}
 }
 
 // handleStartKYC initiates the KYC process for a user
@@ -503,4 +663,61 @@ func calculateProgress(submission *models.KYCSubmission) int {
 	}
 
 	return (verifiedDocs * 100) / totalDocs
+}
+
+// handleDiditVerification handles document verification through Didit API
+func handleDiditVerification(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		DocumentImage string `json:"document_image"`
+		DocumentType  string `json:"document_type"`
+		CountryCode   string `json:"country_code"`
+		UserID        string `json:"user_id"`
+		FaceImage     string `json:"face_image,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields
+	if req.DocumentImage == "" || req.DocumentType == "" || req.CountryCode == "" || req.UserID == "" {
+		http.Error(w, "Missing required fields", http.StatusBadRequest)
+		return
+	}
+
+	// Here you would integrate with the actual Didit API
+	// For now, we'll return a mock successful response
+	response := map[string]interface{}{
+		"success": true,
+		"data": map[string]interface{}{
+			"verification_id": "didit_" + req.UserID + "_" + req.DocumentType,
+			"status":          "verified",
+			"document_verification": map[string]interface{}{
+				"document_type": req.DocumentType,
+				"status":        "verified",
+				"extracted_data": map[string]interface{}{
+					"full_name":       "John Doe",
+					"date_of_birth":   "1990-01-01",
+					"document_number": "123456789",
+					"nationality":     req.CountryCode,
+				},
+				"verification_checks": map[string]interface{}{
+					"document_authenticity": true,
+					"data_consistency":      true,
+					"image_quality":         true,
+					"document_liveness":     true,
+				},
+			},
+			"risk_assessment": map[string]interface{}{
+				"overall_score": 95,
+				"risk_level":    "low",
+				"flags":         []string{},
+			},
+			"processing_time_ms": 1200,
+		},
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }
