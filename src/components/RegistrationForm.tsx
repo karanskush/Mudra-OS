@@ -2,11 +2,14 @@
 
 import React, { useState } from 'react';
 import { X, Eye, EyeOff, User, Mail, Phone, Calendar, Lock } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { useAuth } from '../contexts/AuthContext';
 
 interface RegistrationFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (userData: any) => void;
+  onLoginClick: () => void;
 }
 
 interface FormData {
@@ -19,7 +22,7 @@ interface FormData {
   dateOfBirth: string;
 }
 
-const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, onSuccess }) => {
+const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, onSuccess, onLoginClick }) => {
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -33,6 +36,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, on
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { register } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,15 +46,15 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, on
 
   const validate = () => {
     if (!formData.email || !formData.password || !formData.confirmPassword || !formData.firstName || !formData.lastName) {
-      setError('Please fill in all required fields');
+      toast.error('Please fill in all required fields');
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      toast.error('Passwords do not match');
       return false;
     }
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      toast.error('Password must be at least 8 characters long');
       return false;
     }
     return true;
@@ -61,6 +65,9 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, on
     if (!validate()) return;
     setLoading(true);
     setError(null);
+    
+    const loadingToast = toast.loading('Creating your account...');
+    
     try {
       const response = await fetch('http://localhost:8080/api/v1/auth/register', {
         method: 'POST',
@@ -71,13 +78,49 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, on
         }),
       });
       const data = await response.json();
+      
+      toast.dismiss(loadingToast);
+      
       if (!response.ok) {
         throw new Error(data.message || 'Registration failed');
       }
-      onSuccess(data.data);
-      onClose();
+      
+      // Handle the nested data structure from API
+      const userData = data.data;
+      const token = userData.token;
+      
+      if (token && userData) {
+        // Create user object without token for context
+        const userForContext = {
+          ...userData,
+          firstName: userData.first_name,
+          lastName: userData.last_name
+        };
+        delete userForContext.token; // Remove token from user object
+        
+        register(userForContext, token);
+        toast.success(`Welcome to Fintech OS, ${userData.first_name || 'User'}! 🚀`);
+        onSuccess(userData);
+        onClose();
+        
+        // Reset form
+        setFormData({
+          email: '',
+          password: '',
+          confirmPassword: '',
+          firstName: '',
+          lastName: '',
+          phone: '',
+          dateOfBirth: '',
+        });
+      } else {
+        throw new Error('Invalid response format');
+      }
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      toast.dismiss(loadingToast);
+      const errorMessage = err.message || 'Registration failed. Please try again.';
+      toast.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -315,6 +358,20 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, on
                   <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
                 </svg>
               </button>
+            </div>
+
+            {/* Login Link */}
+            <div className="text-center mt-6">
+              <p className="text-gray-600 text-sm">
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={onLoginClick}
+                  className="text-green-600 hover:text-green-700 font-medium transition-colors"
+                >
+                  Sign in
+                </button>
+              </p>
             </div>
           </form>
         </div>

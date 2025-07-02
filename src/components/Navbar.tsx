@@ -1,36 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Zap, Code, Database, Shield, TrendingUp, Activity, Calculator } from 'lucide-react';
+import { Menu, X, ChevronDown, Zap, Code, Database, Shield, TrendingUp, Activity, Calculator, CreditCard, Users, Building, FileText, Settings, LogOut, Bell, Search } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import ThemeToggle from './ui/theme-toggle';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import LoginForm from './LoginForm';
 import RegistrationForm from './RegistrationForm';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { isDark } = useTheme();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    const handleClickOutside = () => {
+      setActiveDropdown(null);
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.addEventListener('click', handleClickOutside);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('click', handleClickOutside);
+    };
   }, []);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const navItems = [
-    { name: 'Platform', href: '/', icon: Database },
-    { name: 'APIs', href: '/', icon: Code },
-    { name: 'Security', href: '/', icon: Shield },
-    { name: 'Analytics', href: '/', icon: TrendingUp },
+    {
+      name: 'Platform',
+      href: '#',
+      hasDropdown: true,
+      items: [
+        { name: 'Core Ledger', href: '/ledger', icon: Database, description: 'Double-entry accounting system' },
+        { name: 'Payment Rails', href: '/payments', icon: CreditCard, description: 'Smart payment routing' },
+        { name: 'KYC & Compliance', href: '/kyc', icon: Shield, description: 'Identity verification' },
+        { name: 'Analytics', href: '/analytics', icon: TrendingUp, description: 'Real-time insights' },
+      ]
+    },
+    {
+      name: 'Solutions',
+      href: '#',
+      hasDropdown: true,
+      items: [
+        { name: 'For Startups', href: '/solutions/startups', icon: Zap, description: 'Scale your fintech startup' },
+        { name: 'For Enterprises', href: '/solutions/enterprise', icon: Building, description: 'Enterprise-grade solutions' },
+        { name: 'For Developers', href: '/solutions/developers', icon: Code, description: 'APIs and SDKs' },
+      ]
+    },
+    { name: 'Developers', href: '/developers', icon: Code },
     { name: 'Status', href: '/status', icon: Activity },
   ];
 
@@ -41,18 +71,18 @@ const Navbar: React.FC = () => {
     return location.pathname === href;
   };
 
-  const handleLoginSuccess = (userData: any) => {
-    setUser(userData);
+  const handleLoginSuccess = () => {
     setLoginModalOpen(false);
   };
 
-  const handleRegisterSuccess = (userData: any) => {
-    setUser(userData);
+  const handleRegisterSuccess = () => {
     setRegisterModalOpen(false);
   };
 
   const handleLogout = () => {
-    setUser(null);
+    const userName = user?.firstName || user?.first_name || 'User';
+    logout();
+    toast.success(`Goodbye, ${userName}! See you soon! 👋`);
   };
 
   const openLoginModal = () => {
@@ -65,123 +95,305 @@ const Navbar: React.FC = () => {
     setLoginModalOpen(false);
   };
 
+  const handleDropdownClick = (e: React.MouseEvent, dropdownName: string) => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
+  };
+
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
           ? isDark 
-            ? 'bg-slate-900/95 backdrop-blur-md shadow-lg border-b border-slate-700' 
-            : 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200'
+            ? 'bg-slate-900/95 backdrop-blur-xl shadow-2xl border-b border-slate-700/50' 
+            : 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-gray-100'
           : isDark 
-            ? 'bg-slate-900/80' 
-            : 'bg-transparent'
+            ? 'bg-slate-900/90 backdrop-blur-md border-b border-slate-700/30' 
+            : 'bg-white/90 backdrop-blur-md border-b border-gray-200/30'
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <Link
                 to="/"
-                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+                className="flex items-center space-x-3 hover:opacity-80 transition-opacity group"
               >
-                <Zap className={`h-8 w-8 transition-colors duration-300 ${
-                  isScrolled 
-                    ? isDark ? 'text-blue-400' : 'text-blue-600'
-                    : isDark ? 'text-white' : 'text-blue-600'
-                }`} />
-                <span className={`text-xl font-bold transition-colors duration-300 ${
-                  isScrolled 
-                    ? isDark ? 'text-white' : 'text-gray-900'
-                    : isDark ? 'text-white' : 'text-gray-900'
-                }`}>
-                  Fintech OS
-                </span>
-                <span className={`text-xs px-2 py-1 rounded-full font-medium transition-colors duration-300 ${
-                  isScrolled 
-                    ? isDark 
-                      ? 'bg-blue-900/50 text-blue-300 border border-blue-700/50' 
-                      : 'bg-blue-100 text-blue-800'
-                    : isDark ? 'bg-white/20 text-white/90 backdrop-blur-sm' : 'bg-blue-100 text-blue-800'
-                }`}>
-                  Platform
-                </span>
+                <div className="relative">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                    <Zap className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                </div>
+                <div className="flex flex-col">
+                  <span className={`text-xl font-bold leading-none transition-colors duration-300 ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    Fintech OS
+                  </span>
+                  <span className="text-xs text-blue-400 font-medium">
+                    Enterprise Platform
+                  </span>
+                </div>
               </Link>
             </div>
 
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-8">
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-1">
               {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`flex items-center gap-2 text-sm font-medium transition-all duration-300 hover:scale-105 ${
-                    isScrolled 
-                      ? isDark 
-                        ? 'text-gray-300 hover:text-blue-400' 
-                        : 'text-gray-700 hover:text-blue-600'
-                      : isDark ? 'text-white/90 hover:text-white' : 'text-gray-900 hover:text-blue-600'
-                  } ${isActive(item.href) ? 'text-blue-400' : ''}`}
-                >
-                  <item.icon className={`h-4 w-4 ${isScrolled ? (isDark ? 'text-gray-300' : 'text-gray-700') : (isDark ? 'text-white/90' : 'text-gray-900')}`} />
-                  {item.name}
-                </Link>
+                <div key={item.name} className="relative">
+                  {item.hasDropdown ? (
+                    <button
+                      onClick={(e) => handleDropdownClick(e, item.name)}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                        activeDropdown === item.name 
+                          ? isDark 
+                            ? 'bg-slate-800 text-blue-400' 
+                            : 'bg-gray-50 text-blue-600'
+                          : isDark 
+                            ? 'text-gray-300 hover:text-white hover:bg-slate-800/50'
+                            : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
+                    >
+                      {item.name}
+                      <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${
+                        activeDropdown === item.name ? 'rotate-180' : ''
+                      }`} />
+                    </button>
+                  ) : (
+                    <Link
+                      to={item.href}
+                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                        isActive(item.href) 
+                          ? isDark 
+                            ? 'bg-blue-900/30 text-blue-400' 
+                            : 'bg-blue-50 text-blue-600'
+                          : isDark 
+                            ? 'text-gray-300 hover:text-white hover:bg-slate-800/50'
+                            : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
+                    >
+                      {item.icon && <item.icon className="h-4 w-4" />}
+                      {item.name}
+                    </Link>
+                  )}
+
+                  {/* Dropdown Menu */}
+                  {item.hasDropdown && activeDropdown === item.name && (
+                    <div className={`absolute top-full left-0 mt-2 w-80 rounded-2xl shadow-xl border py-4 animate-in fade-in-0 zoom-in-95 duration-200 ${
+                      isDark 
+                        ? 'bg-slate-800 border-slate-700' 
+                        : 'bg-white border-gray-100'
+                    }`}>
+                      <div className={`px-4 pb-3 border-b ${
+                        isDark ? 'border-slate-700' : 'border-gray-100'
+                      }`}>
+                        <h3 className={`text-sm font-semibold ${
+                          isDark ? 'text-white' : 'text-gray-900'
+                        }`}>{item.name}</h3>
+                        <p className={`text-xs mt-1 ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}>Explore our comprehensive suite</p>
+                      </div>
+                      <div className="py-2">
+                        {item.items?.map((subItem) => (
+                          <Link
+                            key={subItem.name}
+                            to={subItem.href}
+                            className={`flex items-start gap-3 px-4 py-3 transition-colors duration-200 ${
+                              isDark 
+                                ? 'hover:bg-slate-700/50' 
+                                : 'hover:bg-gray-50'
+                            }`}
+                            onClick={() => setActiveDropdown(null)}
+                          >
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center mt-0.5 ${
+                              isDark 
+                                ? 'bg-slate-700' 
+                                : 'bg-gradient-to-br from-blue-50 to-purple-50'
+                            }`}>
+                              <subItem.icon className={`h-4 w-4 ${
+                                isDark ? 'text-blue-400' : 'text-blue-600'
+                              }`} />
+                            </div>
+                            <div className="flex-1">
+                              <div className={`text-sm font-medium ${
+                                isDark ? 'text-white' : 'text-gray-900'
+                              }`}>{subItem.name}</div>
+                              <div className={`text-xs mt-0.5 ${
+                                isDark ? 'text-gray-400' : 'text-gray-500'
+                              }`}>{subItem.description}</div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
 
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center space-x-4">
+            {/* Right Side Actions */}
+            <div className="flex items-center space-x-3">
+              {/* Search */}
+              <button className={`hidden md:flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+                isDark 
+                  ? 'text-gray-400 bg-slate-800 hover:bg-slate-700' 
+                  : 'text-gray-500 bg-gray-50 hover:bg-gray-100'
+              }`}>
+                <Search className="h-4 w-4" />
+                <span>Search</span>
+                <kbd className={`hidden sm:inline-flex items-center px-1.5 py-0.5 text-xs font-medium rounded border ${
+                  isDark 
+                    ? 'bg-slate-700 border-slate-600 text-gray-300' 
+                    : 'bg-white border-gray-200 text-gray-600'
+                }`}>⌘K</kbd>
+              </button>
+
+              {/* Theme Toggle */}
               <ThemeToggle />
-              <a
-                href="#docs"
-                className={`text-sm font-medium transition-colors duration-300 ${
-                  isScrolled 
-                    ? isDark 
-                      ? 'text-gray-300 hover:text-blue-400' 
-                      : 'text-gray-700 hover:text-blue-600'
-                    : isDark ? 'text-white/90 hover:text-white' : 'text-gray-900 hover:text-blue-600'
-                }`}
-              >
-                Documentation
-              </a>
+
+              {/* User Section */}
               {user ? (
-                <div className="flex items-center space-x-2">
-                  <span className={`text-sm font-medium ${
-                    isScrolled 
-                      ? isDark ? 'text-gray-300' : 'text-gray-700'
-                      : isDark ? 'text-white/90' : 'text-gray-900'
+                <div className="flex items-center space-x-3">
+                  {/* Notifications */}
+                  <button className={`relative p-2 rounded-lg transition-colors duration-200 ${
+                    isDark 
+                      ? 'text-gray-400 hover:text-gray-300 hover:bg-slate-800' 
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                   }`}>
-                    Welcome, {user.first_name}
-                  </span>
-                  <button
-                    onClick={handleLogout}
-                    className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300"
-                  >
-                    Logout
+                    <Bell className="h-5 w-5" />
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                   </button>
+
+                  {/* User Menu */}
+                  <div className="relative">
+                    <button
+                      onClick={(e) => handleDropdownClick(e, 'user')}
+                      className={`flex items-center space-x-3 p-2 rounded-xl border transition-all duration-200 hover:shadow-md ${
+                        isDark 
+                          ? 'bg-slate-800 border-slate-700 hover:border-slate-600' 
+                          : 'bg-white border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
+                        {(user.firstName?.[0] || user.first_name?.[0] || 'U').toUpperCase()}
+                      </div>
+                      <div className="hidden md:flex flex-col items-start">
+                        <span className={`text-sm font-medium leading-none ${
+                          isDark ? 'text-white' : 'text-gray-900'
+                        }`}>
+                          {user.firstName || user.first_name || 'User'}
+                        </span>
+                        <span className={`text-xs leading-none mt-0.5 ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                          {user.email}
+                        </span>
+                      </div>
+                      <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${
+                        activeDropdown === 'user' ? 'rotate-180' : ''
+                      } ${isDark ? 'text-gray-400' : 'text-gray-400'}`} />
+                    </button>
+
+                    {/* User Dropdown */}
+                    {activeDropdown === 'user' && (
+                      <div className={`absolute top-full right-0 mt-2 w-64 rounded-2xl shadow-xl border py-4 animate-in fade-in-0 zoom-in-95 duration-200 ${
+                        isDark 
+                          ? 'bg-slate-800 border-slate-700' 
+                          : 'bg-white border-gray-100'
+                      }`}>
+                        <div className={`px-4 pb-3 border-b ${
+                          isDark ? 'border-slate-700' : 'border-gray-100'
+                        }`}>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                              {(user.firstName?.[0] || user.first_name?.[0] || 'U').toUpperCase()}
+                            </div>
+                            <div>
+                              <div className={`text-sm font-semibold ${
+                                isDark ? 'text-white' : 'text-gray-900'
+                              }`}>
+                                {user.firstName || user.first_name || 'User'} {user.lastName || user.last_name || ''}
+                              </div>
+                              <div className={`text-xs ${
+                                isDark ? 'text-gray-400' : 'text-gray-500'
+                              }`}>{user.email}</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="py-2">
+                          <Link
+                            to="/profile"
+                            className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200 ${
+                              isDark 
+                                ? 'text-gray-300 hover:bg-slate-700/50' 
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <Users className="h-4 w-4" />
+                            Profile Settings
+                          </Link>
+                          <Link
+                            to="/billing"
+                            className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200 ${
+                              isDark 
+                                ? 'text-gray-300 hover:bg-slate-700/50' 
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <CreditCard className="h-4 w-4" />
+                            Billing & Usage
+                          </Link>
+                          <Link
+                            to="/settings"
+                            className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200 ${
+                              isDark 
+                                ? 'text-gray-300 hover:bg-slate-700/50' 
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <Settings className="h-4 w-4" />
+                            Account Settings
+                          </Link>
+                          <div className={`border-t mt-2 pt-2 ${
+                            isDark ? 'border-slate-700' : 'border-gray-100'
+                          }`}>
+                            <button
+                              onClick={handleLogout}
+                              className={`flex items-center gap-3 px-4 py-2 text-sm transition-colors duration-200 w-full text-left ${
+                                isDark 
+                                  ? 'text-red-400 hover:bg-red-900/20' 
+                                  : 'text-red-600 hover:bg-red-50'
+                              }`}
+                            >
+                              <LogOut className="h-4 w-4" />
+                              Sign Out
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3">
                   <button
                     onClick={openLoginModal}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-medium rounded-lg transition-all duration-200 hover:shadow-lg transform hover:scale-105"
                   >
                     Login
                   </button>
                 </div>
               )}
-            </div>
 
-            {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center space-x-3">
-              <ThemeToggle />
+              {/* Mobile Menu Button */}
               <button
                 onClick={toggleMenu}
-                className={`p-2 rounded-md transition-colors duration-300 ${
-                  isScrolled 
-                    ? isDark 
-                      ? 'text-gray-300 hover:bg-slate-800' 
-                      : 'text-gray-700 hover:bg-gray-100'
-                    : isDark ? 'text-white hover:bg-white/10' : 'text-gray-900 hover:bg-gray-100'
+                className={`lg:hidden p-2 rounded-lg transition-colors duration-200 ${
+                  isDark 
+                    ? 'text-gray-400 hover:text-white hover:bg-slate-800' 
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -191,72 +403,117 @@ const Navbar: React.FC = () => {
 
           {/* Mobile Menu */}
           {isOpen && (
-            <div className={`md:hidden border-t shadow-lg rounded-b-xl ${
+            <div className={`lg:hidden border-t ${
               isDark 
-                ? 'bg-slate-900 border-slate-700' 
-                : 'bg-white border-gray-200'
+                ? 'bg-slate-900/95 backdrop-blur-xl border-slate-700' 
+                : 'bg-white/95 backdrop-blur-xl border-gray-100'
             }`}>
               <div className="px-4 py-6 space-y-4">
                 {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`flex items-center gap-3 text-base font-medium transition-colors duration-300 p-2 rounded-lg w-full text-left ${
-                      isDark 
-                        ? 'text-gray-300 hover:text-blue-400 hover:bg-slate-800' 
-                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-                    } ${isActive(item.href) ? 'text-blue-400 bg-blue-50 dark:bg-blue-900/20' : ''}`}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    {item.name}
-                  </Link>
-                ))}
-                <div className={`pt-4 border-t space-y-4 ${
-                  isDark ? 'border-slate-700' : 'border-gray-200'
-                }`}>
-                  <a
-                    href="#docs"
-                    className={`block text-base font-medium transition-colors duration-300 p-2 ${
-                      isDark 
-                        ? 'text-gray-300 hover:text-blue-400' 
-                        : 'text-gray-700 hover:text-blue-600'
-                    }`}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Documentation
-                  </a>
-                  {user ? (
-                    <div className="space-y-2">
-                      <div className={`text-sm p-2 ${
-                        isDark ? 'text-gray-300' : 'text-gray-700'
-                      }`}>
-                        Welcome, {user.first_name}
+                  <div key={item.name}>
+                    {item.hasDropdown ? (
+                      <div>
+                        <button
+                          onClick={() => setActiveDropdown(activeDropdown === item.name ? null : item.name)}
+                          className={`flex items-center justify-between w-full px-3 py-2 text-base font-medium rounded-lg transition-colors duration-200 ${
+                            isDark 
+                              ? 'text-gray-300 hover:text-white hover:bg-slate-800' 
+                              : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                          }`}
+                        >
+                          {item.name}
+                          <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${
+                            activeDropdown === item.name ? 'rotate-180' : ''
+                          }`} />
+                        </button>
+                        {activeDropdown === item.name && (
+                          <div className="mt-2 ml-4 space-y-2">
+                            {item.items?.map((subItem) => (
+                              <Link
+                                key={subItem.name}
+                                to={subItem.href}
+                                className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+                                  isDark 
+                                    ? 'text-gray-400 hover:text-white hover:bg-slate-800' 
+                                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                }`}
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <subItem.icon className="h-4 w-4" />
+                                {subItem.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <button
-                        onClick={() => {
-                          handleLogout();
-                          setIsOpen(false);
-                        }}
-                        className="w-full bg-gray-200 text-gray-800 px-4 py-3 rounded-lg text-base font-medium hover:bg-gray-300"
+                    ) : (
+                      <Link
+                        to={item.href}
+                        className={`flex items-center gap-3 px-3 py-2 text-base font-medium rounded-lg transition-colors duration-200 ${
+                          isDark 
+                            ? 'text-gray-300 hover:text-white hover:bg-slate-800' 
+                            : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setIsOpen(false)}
                       >
-                        Logout
-                      </button>
+                        {item.icon && <item.icon className="h-5 w-5" />}
+                        {item.name}
+                      </Link>
+                    )}
+                  </div>
+                ))}
+
+                {user ? (
+                  <div className={`pt-4 border-t ${
+                    isDark ? 'border-slate-700' : 'border-gray-200'
+                  }`}>
+                    <div className={`flex items-center space-x-3 px-3 py-2 mb-4 rounded-lg ${
+                      isDark ? 'bg-slate-800' : 'bg-gray-50'
+                    }`}>
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                        {(user.firstName?.[0] || user.first_name?.[0] || 'U').toUpperCase()}
+                      </div>
+                      <div>
+                        <div className={`text-sm font-semibold ${
+                          isDark ? 'text-white' : 'text-gray-900'
+                        }`}>
+                          {user.firstName || user.first_name || 'User'} {user.lastName || user.last_name || ''}
+                        </div>
+                        <div className={`text-xs ${
+                          isDark ? 'text-gray-400' : 'text-gray-500'
+                        }`}>{user.email}</div>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <button
-                        onClick={() => {
-                          openLoginModal();
-                          setIsOpen(false);
-                        }}
-                        className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg text-base font-medium hover:bg-blue-700"
-                      >
-                        Login
-                      </button>
-                    </div>
-                  )}
-                </div>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsOpen(false);
+                      }}
+                      className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors duration-200 ${
+                        isDark 
+                          ? 'text-red-400 hover:bg-red-900/20' 
+                          : 'text-red-600 hover:bg-red-50'
+                      }`}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <div className={`pt-4 border-t space-y-2 ${
+                    isDark ? 'border-slate-700' : 'border-gray-200'
+                  }`}>
+                    <button
+                      onClick={() => {
+                        openLoginModal();
+                        setIsOpen(false);
+                      }}
+                      className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-base font-medium rounded-lg transition-all duration-200 hover:shadow-lg"
+                    >
+                      Login
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -276,6 +533,7 @@ const Navbar: React.FC = () => {
         isOpen={registerModalOpen}
         onClose={() => setRegisterModalOpen(false)}
         onSuccess={handleRegisterSuccess}
+        onLoginClick={openLoginModal}
       />
     </>
   );

@@ -1,8 +1,10 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { HealthProvider } from './contexts/HealthContext';
 import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import { HeroParallax } from './components/ui/hero-parallax';
 import Features from './components/Features';
@@ -128,12 +130,53 @@ function App() {
           <Routes>
             <Route path="/" element={<Layout><HomePage /></Layout>} />
             <Route path="/landing" element={<LandingLayout><LandingPage /></LandingLayout>} />
-            <Route path="/status" element={<Layout><StatusPage /></Layout>} />
-            <Route path="/ledger" element={<Layout><LedgerTest /></Layout>} />
-            <Route path="/kyc" element={<Layout><KYCFlow /></Layout>} />
-            <Route path="/kyc/dashboard" element={<Layout><KYCDashboard /></Layout>} />
+            <Route path="/status" element={<ProtectedRoute><Layout><StatusPage /></Layout></ProtectedRoute>} />
+            <Route path="/ledger" element={<ProtectedRoute><Layout><LedgerTest /></Layout></ProtectedRoute>} />
+            <Route path="/kyc" element={<ProtectedRoute><Layout><KYCFlow /></Layout></ProtectedRoute>} />
+            <Route path="/kyc/dashboard" element={<ProtectedRoute><Layout><KYCDashboard /></Layout></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          
+          {/* Toast Notifications */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                color: '#1f2937',
+                fontSize: '14px',
+                fontWeight: '500',
+                padding: '12px 16px',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#10b981',
+                  secondary: '#ffffff',
+                },
+                style: {
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  border: '1px solid rgba(16, 185, 129, 0.2)',
+                  color: '#065f46',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#ffffff',
+                },
+                style: {
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  color: '#991b1b',
+                },
+              },
+            }}
+          />
         </HealthProvider>
       </AuthProvider>
     </ThemeProvider>

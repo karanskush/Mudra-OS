@@ -1,11 +1,17 @@
 import React from 'react';
 import { ArrowRight, Play, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import BlurText from './ui/blur-text';
 import { FlipWords } from './ui/flip-words';
 
 const Hero: React.FC = () => {
   const flipWords = ["developers", "enterprises", "innovators", "builders"];
+  const navigate = useNavigate();
+
+  const handleStartDemo = () => {
+    navigate('/ledger'); // This will trigger authentication
+  };
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
@@ -190,6 +196,7 @@ const Hero: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.8 }}
           >
             <motion.button 
+              onClick={handleStartDemo}
               className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 flex items-center gap-2 min-w-[200px]"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

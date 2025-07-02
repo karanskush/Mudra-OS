@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 
 interface LoginFormProps {
@@ -29,11 +30,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ isOpen, onClose, onSuccess, onReg
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
+      toast.error('Please fill in all fields');
       return;
     }
     setLoading(true);
     setError(null);
+    
+    const loadingToast = toast.loading('Signing in...');
+    
     try {
       const response = await fetch('http://localhost:8080/api/v1/auth/login', {
         method: 'POST',
@@ -41,16 +45,45 @@ const LoginForm: React.FC<LoginFormProps> = ({ isOpen, onClose, onSuccess, onReg
         body: JSON.stringify({ email: formData.email, password: formData.password }),
       });
       const data = await response.json();
+      
+      toast.dismiss(loadingToast);
+      
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
-      if (data.token && data.user) {
-        login(data.user, data.token);
+      
+      // Handle the nested data structure from API
+      const userData = data.data;
+      const token = userData.token;
+      
+      if (token && userData) {
+        // Create user object without token for context
+        const userForContext = {
+          ...userData,
+          firstName: userData.first_name,
+          lastName: userData.last_name
+        };
+        delete userForContext.token; // Remove token from user object
+        
+        login(userForContext, token);
+        toast.success(`Welcome back, ${userData.first_name || 'User'}! 🎉`);
+        onSuccess(userData);
+        onClose();
+        
+        // Reset form
+        setFormData({
+          email: '',
+          password: '',
+          keepLoggedIn: false,
+        });
+      } else {
+        throw new Error('Invalid response format');
       }
-      onSuccess(data.data || data.user);
-      onClose();
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      toast.dismiss(loadingToast);
+      const errorMessage = err.message || 'Login failed. Please try again.';
+      toast.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
