@@ -1,12 +1,14 @@
 import React from 'react';
-import { Database, Users, Shield, CreditCard, Activity, Code } from 'lucide-react';
+import { Database, Users, Shield, CreditCard, Activity, Code, Zap } from 'lucide-react';
 
 const categories = [
-  { key: 'auth', name: 'Auth', icon: <Users className="w-5 h-5 mr-2" /> },
-  { key: 'users', name: 'Users', icon: <Users className="w-5 h-5 mr-2" /> },
-  { key: 'accounts', name: 'Accounts', icon: <Database className="w-5 h-5 mr-2" /> },
+  { key: 'authentication', name: 'Auth', icon: <Shield className="w-5 h-5 mr-2" /> },
+  { key: 'accounts', name: 'Accounts', icon: <Users className="w-5 h-5 mr-2" /> },
   { key: 'ledger', name: 'Ledger', icon: <Database className="w-5 h-5 mr-2" /> },
+  { key: 'payments', name: 'Payments', icon: <CreditCard className="w-5 h-5 mr-2" /> },
   { key: 'kyc', name: 'KYC', icon: <Shield className="w-5 h-5 mr-2" /> },
+  { key: 'analytics', name: 'Analytics', icon: <Activity className="w-5 h-5 mr-2" /> },
+  { key: 'grpc', name: 'gRPC APIs', icon: <Zap className="w-5 h-5 mr-2" /> },
   { key: 'health', name: 'Health', icon: <Activity className="w-5 h-5 mr-2" /> },
 ];
 

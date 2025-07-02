@@ -1,0 +1,180 @@
+syntax = "proto3";
+
+package fintech.payment.v1;
+
+option go_package = "fintech-backend/proto/payment";
+
+import "google/protobuf/timestamp.proto";
+
+// PaymentService service definition
+service PaymentService {
+  // Kick-off a funds-out flow with KYC checks, reserve booking, and rail selection
+  rpc CreatePayment(CreatePaymentRequest) returns (CreatePaymentResponse);
+  
+  // Poll-style read of payment lifecycle and status
+  rpc GetPayment(GetPaymentRequest) returns (GetPaymentResponse);
+  
+  // Push feed of payment status changes (server streaming)
+  rpc StreamPayments(StreamPaymentsRequest) returns (stream PaymentUpdate);
+  
+  // Bidirectional streaming for real-time transaction monitoring with dynamic filtering
+  rpc TransactionMonitor(stream MonitorCommand) returns (stream TransactionEvent);
+}
+
+// Payment status enum
+enum PaymentStatus {
+  PAYMENT_STATUS_UNSPECIFIED = 0;
+  PAYMENT_STATUS_PENDING = 1;
+  PAYMENT_STATUS_PROCESSING = 2;
+  PAYMENT_STATUS_COMPLETED = 3;
+  PAYMENT_STATUS_FAILED = 4;
+  PAYMENT_STATUS_CANCELLED = 5;
+  PAYMENT_STATUS_REFUNDED = 6;
+}
+
+// Payment rail types
+enum PaymentRail {
+  PAYMENT_RAIL_UNSPECIFIED = 0;
+  PAYMENT_RAIL_UPI = 1;
+  PAYMENT_RAIL_SEPA = 2;
+  PAYMENT_RAIL_CRYPTO = 3;
+  PAYMENT_RAIL_ACH = 4;
+  PAYMENT_RAIL_SWIFT = 5;
+  PAYMENT_RAIL_PIX = 6;
+  PAYMENT_RAIL_FASTER_PAYMENTS = 7;
+}
+
+// Payment message
+message Payment {
+  string payment_id = 1;
+  string user_id = 2;
+  string from_account_id = 3;
+  string to_account_id = 4;
+  double amount = 5;
+  string currency = 6;
+  string description = 7;
+  string reference = 8;
+  PaymentStatus status = 9;
+  PaymentRail chosen_rail = 10;
+  double fee = 11;
+  double fx_rate = 12;
+  string latency = 13;
+  double amount_saved = 14;  // Amount saved by optimizer
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Timestamp updated_at = 16;
+  string failure_reason = 17;  // Only present if status is FAILED
+}
+
+// KYC check result
+message KYCCheck {
+  bool passed = 1;
+  string risk_level = 2;
+  repeated string flags = 3;
+}
+
+// Request/Response messages
+message CreatePaymentRequest {
+  string user_id = 1;
+  string from_account_id = 2;
+  string to_account_id = 3;
+  double amount = 4;
+  string currency = 5;
+  string description = 6;
+  string reference = 7;
+  bool force_rail = 8;  // Optional: force specific rail
+  PaymentRail preferred_rail = 9;  // Optional
+}
+
+message CreatePaymentResponse {
+  Payment payment = 1;
+  KYCCheck kyc_check = 2;
+  string journal_entry_id = 3;  // Reserve journal entry ID
+  string message = 4;
+}
+
+message GetPaymentRequest {
+  string payment_id = 1;
+}
+
+message GetPaymentResponse {
+  Payment payment = 1;
+}
+
+message StreamPaymentsRequest {
+  string user_id = 1;  // Optional: filter by user
+  repeated PaymentStatus status_filter = 2;  // Optional: filter by status
+}
+
+message PaymentUpdate {
+  Payment payment = 1;
+  string update_type = 2;  // "status_change", "rail_selected", "completed", etc.
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+// Bidirectional streaming messages for TransactionMonitor
+message MonitorCommand {
+  oneof command {
+    StartMonitoring start_monitoring = 1;
+    StopMonitoring stop_monitoring = 2;
+    UpdateFilter update_filter = 3;
+    GetStats get_stats = 4;
+  }
+}
+
+message StartMonitoring {
+  string user_id = 1;  // Optional: filter by user
+  repeated PaymentStatus status_filter = 2;  // Optional: filter by status
+  repeated PaymentRail rail_filter = 3;  // Optional: filter by rail
+  double min_amount = 4;  // Optional: minimum amount filter
+  double max_amount = 5;  // Optional: maximum amount filter
+  repeated string currency_filter = 6;  // Optional: currency filter
+}
+
+message StopMonitoring {
+  string reason = 1;  // Optional reason for stopping
+}
+
+message UpdateFilter {
+  StartMonitoring new_filter = 1;  // Reuse StartMonitoring structure
+}
+
+message GetStats {
+  bool include_summary = 1;
+  bool include_rail_breakdown = 2;
+  bool include_currency_breakdown = 3;
+}
+
+message TransactionEvent {
+  oneof event {
+    PaymentUpdate payment_update = 1;
+    MonitoringStats stats = 2;
+    MonitoringAlert alert = 3;
+    MonitoringStatus status = 4;
+  }
+}
+
+message MonitoringStats {
+  int32 total_transactions = 1;
+  double total_volume = 2;
+  map<string, int32> rail_breakdown = 3;  // rail -> count
+  map<string, double> currency_breakdown = 4;  // currency -> volume
+  double avg_transaction_size = 5;
+  double success_rate = 6;
+  google.protobuf.Timestamp generated_at = 7;
+}
+
+message MonitoringAlert {
+  string alert_type = 1;  // "high_volume", "unusual_pattern", "system_issue"
+  string description = 2;
+  Payment transaction = 3;  // Optional: related transaction
+  string severity = 4;  // "low", "medium", "high", "critical"
+  google.protobuf.Timestamp triggered_at = 5;
+}
+
+message MonitoringStatus {
+  bool is_active = 1;
+  int32 connections_count = 2;
+  string current_filter = 3;
+  google.protobuf.Timestamp started_at = 4;
+  string message = 5;
+} 

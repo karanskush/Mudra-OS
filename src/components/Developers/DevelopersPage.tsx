@@ -32,6 +32,8 @@ const floatingCodeSnippets = [
   "const transfer = async () => {",
   "POST /api/v1/auth/login",
   "{ amount: 1000, currency: 'USD' }",
+  "{ amount: 2000, currency: 'USD' }",
+  "{ amount: 5000, currency: 'USD' }",
   "const balance = await getBalance();",
   "if (transaction.status === 'success')",
   "return { success: true, data };",
@@ -498,6 +500,266 @@ const apiCategories = {
         }
       },
     ]
+  },
+  grpc: {
+    name: 'gRPC APIs',
+    icon: BoltIcon,
+    description: '⚡ Real-time streaming APIs with lightning-fast performance',
+    color: 'from-indigo-500 to-purple-600',
+    emoji: '🚀',
+    endpoints: [
+      { 
+        key: 'paymentMonitor', 
+        method: 'STREAM',
+        path: 'fintech.payment.v1.PaymentService/TransactionMonitor',
+        description: '💸 Real-time payment monitoring with dynamic filtering',
+        status: 'stable',
+        requestBody: {
+          command: {
+            start_monitoring: {
+              user_id: "user_123",
+              status_filter: ["PROCESSING", "COMPLETED"],
+              min_amount: 100.0,
+              currency_filter: ["USD", "EUR"],
+              payment_rails: ["stripe", "dwolla"]
+            }
+          }
+        },
+        response: {
+          event: {
+            payment_update: {
+              payment_id: "pay_456",
+              user_id: "user_123",
+              amount: 250.0,
+              currency: "USD",
+              status: "COMPLETED",
+              payment_rail: "stripe",
+              timestamp: "2024-01-20T15:30:00Z"
+            }
+          }
+        }
+      },
+      { 
+        key: 'webhookDebugger', 
+        method: 'STREAM',
+        path: 'fintech.webhook.v1.WebhookService/WebhookDebugger',
+        description: '🐛 Live webhook debugging and testing',
+        status: 'stable',
+        requestBody: {
+          command: {
+            start_debugging: {
+              endpoint_url: "https://api.partner.com/webhooks",
+              event_types: ["payment.completed", "payment.failed"],
+              debug_level: "DETAILED"
+            }
+          }
+        },
+        response: {
+          response: {
+            delivery_attempt: {
+              attempt_id: "att_789",
+              endpoint_url: "https://api.partner.com/webhooks",
+              http_status: 200,
+              response_time_ms: 145,
+              request_headers: {
+                "Content-Type": "application/json",
+                "X-Webhook-Signature": "sha256=..."
+              },
+              response_body: "{\"status\": \"received\"}"
+            }
+          }
+        }
+      },
+      { 
+        key: 'interactiveRecon', 
+        method: 'STREAM',
+        path: 'fintech.reconciliation.v1.ReconciliationService/InteractiveReconciliation',
+        description: '⚖️ Interactive reconciliation workflows',
+        status: 'stable',
+        requestBody: {
+          action: {
+            start_reconciliation: {
+              reconciliation_type: "DAILY_SETTLEMENT",
+              date_range: {
+                start_date: "2024-01-20",
+                end_date: "2024-01-20"
+              },
+              include_pending: true
+            }
+          }
+        },
+        response: {
+          result: {
+            variance_detected: {
+              variance_id: "var_012",
+              amount: 150.0,
+              currency: "USD",
+              variance_type: "MISSING_TRANSACTION",
+              description: "Transaction not found in partner system",
+              requires_approval: true
+            }
+          }
+        }
+      },
+      { 
+        key: 'complianceReports', 
+        method: 'UNARY',
+        path: 'fintech.compliance.v1.ComplianceService/GenerateReport',
+        description: '📋 Generate compliance reports (SAR, GST)',
+        status: 'stable',
+        requestBody: {
+          report_type: "SAR",
+          date_range: {
+            start_date: "2024-01-01",
+            end_date: "2024-01-31"
+          },
+          include_pending: false,
+          format: "PDF"
+        },
+        response: {
+          report_id: "rpt_compliance_456",
+          report_type: "SAR",
+          status: "GENERATING",
+          estimated_completion: "2024-01-20T15:35:00Z",
+          download_url: null,
+          total_records: 125
+        }
+      },
+      { 
+        key: 'kycVerification', 
+        method: 'UNARY',
+        path: 'fintech.kyc.v1.KYCService/VerifyIdentity',
+        description: '🔍 Identity verification via gRPC',
+        status: 'stable',
+        requestBody: {
+          user_id: "user_789",
+          verification_type: "DOCUMENT_VERIFICATION",
+          document_type: "PASSPORT",
+          document_data: "base64_encoded_document",
+          additional_info: {
+            country_code: "US",
+            expected_name: "John Doe"
+          }
+        },
+        response: {
+          verification_id: "ver_kyc_123",
+          user_id: "user_789",
+          status: "VERIFIED",
+          confidence_score: 0.95,
+          extracted_data: {
+            full_name: "John Doe",
+            date_of_birth: "1990-01-15",
+            document_number: "AB123456789",
+            expiry_date: "2030-01-15"
+          },
+          verification_timestamp: "2024-01-20T15:30:00Z"
+        }
+      },
+      { 
+        key: 'ledgerStreaming', 
+        method: 'STREAM',
+        path: 'fintech.ledger.v1.LedgerService/StreamTransactions',
+        description: '📊 Real-time ledger transaction streaming',
+        status: 'stable',
+        requestBody: {
+          filter: {
+            account_ids: ["lg_001", "lg_002"],
+            min_amount: 10.0,
+            transaction_types: ["DEBIT", "CREDIT"],
+            date_range: {
+              start_date: "2024-01-20T00:00:00Z",
+              end_date: "2024-01-20T23:59:59Z"
+            }
+          }
+        },
+        response: {
+          transaction_id: "tx_ledger_789",
+          account_id: "lg_001",
+          amount: 500.0,
+          currency: "USD",
+          transaction_type: "DEBIT",
+          description: "Payment processing fee",
+          balance_after: 24500.0,
+          timestamp: "2024-01-20T15:30:00Z",
+          metadata: {
+            source: "payment_processor",
+            reference_id: "pay_456"
+          }
+        }
+      }
+    ],
+    streamingInfo: {
+      title: 'Bidirectional Streaming APIs',
+      description: 'Our gRPC implementation features cutting-edge bidirectional streaming for real-time, interactive workflows.',
+      features: [
+        {
+          name: 'Real-time Transaction Monitoring',
+          description: 'Monitor payments in real-time with dynamic filtering and alerts',
+          icon: '💸'
+        },
+        {
+          name: 'Live Webhook Debugging',
+          description: 'Debug webhook integrations with real-time request/response logging',
+          icon: '🐛'
+        },
+        {
+          name: 'Interactive Reconciliation',
+          description: 'Resolve discrepancies through interactive workflows',
+          icon: '⚖️'
+        }
+      ],
+      benefits: [
+        'No polling required - instant event delivery',
+        'Interactive control - modify server behavior dynamically',
+        'Stateful sessions - maintain context across interactions',
+        'Enhanced UX - rich, responsive interfaces'
+      ]
+    }
+  },
+  health: {
+    name: 'Health & Status',
+    icon: CheckCircleIcon,
+    description: '🏥 Keep your systems healthy and happy',
+    color: 'from-green-500 to-emerald-600',
+    emoji: '💚',
+    endpoints: [
+      { 
+        key: 'healthCheck', 
+        method: 'GET',
+        path: '/api/health',
+        description: 'Is everything still breathing? 🫁',
+        status: 'stable',
+        requestBody: {},
+        response: {
+          status: 'healthy',
+          timestamp: '2024-01-20T15:30:00Z',
+          uptime: '72h 15m 30s',
+          version: '1.2.3',
+          environment: 'production'
+        }
+      },
+      { 
+        key: 'detailedHealth', 
+        method: 'GET',
+        path: '/api/health/detailed',
+        description: 'Full body checkup for your API 🩺',
+        status: 'stable',
+        requestBody: {},
+        response: {
+          status: 'healthy',
+          services: {
+            database: { status: 'healthy', response_time_ms: 12 },
+            redis: { status: 'healthy', response_time_ms: 3 },
+            external_apis: { status: 'healthy', response_time_ms: 145 }
+          },
+          metrics: {
+            cpu_usage: 45.2,
+            memory_usage: 67.8,
+            disk_usage: 23.1
+          }
+        }
+      }
+    ]
   }
 };
 
@@ -702,6 +964,10 @@ const MethodBadge: React.FC<{ method: string }> = ({ method }) => {
         return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700';
       case 'DELETE':
         return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700';
+      case 'STREAM':
+        return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700';
+      case 'UNARY':
+        return 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-700';
     }
@@ -944,6 +1210,50 @@ const DevelopersPage: React.FC = () => {
                         </p>
                       </div>
                     </div>
+
+                    {/* gRPC Streaming Info - Special Section for gRPC */}
+                    {selectedCategory === 'grpc' && apiCategories.grpc.streamingInfo && (
+                      <div className="mt-8 p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                        <h4 className="text-xl font-bold text-indigo-900 dark:text-indigo-300 mb-4 flex items-center gap-2">
+                          <BoltIcon className="h-6 w-6" />
+                          {apiCategories.grpc.streamingInfo.title}
+                        </h4>
+                        <p className="text-indigo-700 dark:text-indigo-300 mb-6">
+                          {apiCategories.grpc.streamingInfo.description}
+                        </p>
+                        
+                        {/* Features Grid */}
+                        <div className="grid md:grid-cols-3 gap-4 mb-6">
+                          {apiCategories.grpc.streamingInfo.features.map((feature, index) => (
+                            <div key={index} className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg border border-indigo-200/50 dark:border-indigo-700/50">
+                              <div className="text-2xl mb-2">{feature.icon}</div>
+                              <h5 className="font-semibold text-indigo-900 dark:text-indigo-300 mb-1">
+                                {feature.name}
+                              </h5>
+                              <p className="text-sm text-indigo-600 dark:text-indigo-400">
+                                {feature.description}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Benefits List */}
+                        <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg border border-indigo-200/50 dark:border-indigo-700/50">
+                          <h5 className="font-semibold text-indigo-900 dark:text-indigo-300 mb-3 flex items-center gap-2">
+                            <CheckCircleIcon className="h-5 w-5" />
+                            Key Benefits
+                          </h5>
+                          <ul className="grid md:grid-cols-2 gap-2">
+                            {apiCategories.grpc.streamingInfo.benefits.map((benefit, index) => (
+                              <li key={index} className="flex items-center gap-2 text-sm text-indigo-700 dark:text-indigo-300">
+                                <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
+                                {benefit}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Endpoints List */}
                     <div className="space-y-4">

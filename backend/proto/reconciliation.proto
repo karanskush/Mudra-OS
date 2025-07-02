@@ -1,0 +1,214 @@
+syntax = "proto3";
+
+package fintech.reconciliation.v1;
+
+option go_package = "fintech-backend/proto/reconciliation";
+
+import "google/protobuf/timestamp.proto";
+
+// ReconciliationService service definition
+service ReconciliationService {
+  // Generate reconciliation report for a date range
+  rpc GenerateReconciliation(GenerateReconciliationRequest) returns (GenerateReconciliationResponse);
+  
+  // Get reconciliation status
+  rpc GetReconciliationStatus(GetReconciliationStatusRequest) returns (GetReconciliationStatusResponse);
+  
+  // Bidirectional streaming for interactive reconciliation workflow
+  rpc InteractiveReconciliation(stream ReconAction) returns (stream ReconResult);
+}
+
+// Reconciliation status enum
+enum ReconciliationStatus {
+  RECONCILIATION_STATUS_UNSPECIFIED = 0;
+  RECONCILIATION_STATUS_PENDING = 1;
+  RECONCILIATION_STATUS_IN_PROGRESS = 2;
+  RECONCILIATION_STATUS_COMPLETED = 3;
+  RECONCILIATION_STATUS_FAILED = 4;
+  RECONCILIATION_STATUS_REQUIRES_REVIEW = 5;
+}
+
+// Variance type enum
+enum VarianceType {
+  VARIANCE_TYPE_UNSPECIFIED = 0;
+  VARIANCE_TYPE_MISSING_INTERNAL = 1;  // Internal transaction missing
+  VARIANCE_TYPE_MISSING_EXTERNAL = 2;  // External transaction missing
+  VARIANCE_TYPE_AMOUNT_MISMATCH = 3;   // Amount difference
+  VARIANCE_TYPE_DATE_MISMATCH = 4;     // Date difference
+  VARIANCE_TYPE_DUPLICATE = 5;         // Duplicate transaction
+}
+
+// Action type enum
+enum ActionType {
+  ACTION_TYPE_UNSPECIFIED = 0;
+  ACTION_TYPE_ACCEPT = 1;      // Accept variance as valid
+  ACTION_TYPE_REJECT = 2;      // Reject and investigate
+  ACTION_TYPE_ADJUST = 3;      // Make adjustment entry
+  ACTION_TYPE_IGNORE = 4;      // Ignore for this period
+  ACTION_TYPE_ESCALATE = 5;    // Escalate to supervisor
+}
+
+// Reconciliation report
+message ReconciliationReport {
+  string report_id = 1;
+  string date_range_start = 2;  // YYYY-MM-DD
+  string date_range_end = 3;    // YYYY-MM-DD
+  ReconciliationStatus status = 4;
+  int32 total_internal_transactions = 5;
+  int32 total_external_transactions = 6;
+  double total_internal_amount = 7;
+  double total_external_amount = 8;
+  int32 matched_transactions = 9;
+  int32 unmatched_internal = 10;
+  int32 unmatched_external = 11;
+  repeated Variance variances = 12;
+  google.protobuf.Timestamp generated_at = 13;
+  google.protobuf.Timestamp completed_at = 14;
+  string reconciled_by = 15;  // User ID who completed reconciliation
+}
+
+// Individual variance/discrepancy
+message Variance {
+  string variance_id = 1;
+  VarianceType type = 2;
+  string description = 3;
+  string internal_transaction_id = 4;  // Optional
+  string external_transaction_id = 5;  // Optional
+  double internal_amount = 6;
+  double external_amount = 7;
+  double variance_amount = 8;  // Difference
+  string currency = 9;
+  google.protobuf.Timestamp internal_date = 10;
+  google.protobuf.Timestamp external_date = 11;
+  string suggested_action = 12;
+  string notes = 13;
+  bool requires_approval = 14;
+  string assigned_to = 15;  // User ID
+}
+
+// Bidirectional streaming messages for InteractiveReconciliation
+message ReconAction {
+  oneof action {
+    StartReconciliation start_reconciliation = 1;
+    ProcessVariance process_variance = 2;
+    ApprovalRequest approval_request = 3;
+    GetProgress get_progress = 4;
+    CompleteReconciliation complete_reconciliation = 5;
+  }
+}
+
+message StartReconciliation {
+  string date_range_start = 1;
+  string date_range_end = 2;
+  repeated string account_filter = 3;  // Optional: specific accounts
+  bool auto_match_enabled = 4;
+  double tolerance_amount = 5;  // Auto-match tolerance
+}
+
+message ProcessVariance {
+  string variance_id = 1;
+  ActionType action = 2;
+  string notes = 3;
+  double adjustment_amount = 4;  // For ACTION_TYPE_ADJUST
+  string adjustment_reason = 5;
+}
+
+message ApprovalRequest {
+  string variance_id = 1;
+  string approver_id = 2;
+  bool approved = 3;
+  string approval_notes = 4;
+}
+
+message GetProgress {
+  bool include_details = 1;
+}
+
+message CompleteReconciliation {
+  string final_notes = 1;
+  bool force_complete = 2;  // Complete even with unresolved variances
+}
+
+message ReconResult {
+  oneof result {
+    ReconciliationStarted reconciliation_started = 1;
+    VarianceDetected variance_detected = 2;
+    VarianceProcessed variance_processed = 3;
+    ApprovalResponse approval_response = 4;
+    ProgressUpdate progress_update = 5;
+    ReconciliationCompleted reconciliation_completed = 6;
+    ReconError recon_error = 7;
+  }
+}
+
+message ReconciliationStarted {
+  string session_id = 1;
+  ReconciliationReport initial_report = 2;
+  string message = 3;
+}
+
+message VarianceDetected {
+  Variance variance = 1;
+  string severity = 2;  // "low", "medium", "high", "critical"
+  repeated string suggested_actions = 3;
+}
+
+message VarianceProcessed {
+  string variance_id = 1;
+  ActionType action_taken = 2;
+  bool success = 3;
+  string message = 4;
+  bool requires_approval = 5;
+}
+
+message ApprovalResponse {
+  string variance_id = 1;
+  bool approved = 2;
+  string approver_id = 3;
+  string message = 4;
+}
+
+message ProgressUpdate {
+  string session_id = 1;
+  int32 total_variances = 2;
+  int32 processed_variances = 3;
+  int32 pending_approval = 4;
+  int32 unresolved_variances = 5;
+  double completion_percentage = 6;
+  string current_status = 7;
+}
+
+message ReconciliationCompleted {
+  string session_id = 1;
+  ReconciliationReport final_report = 2;
+  string completion_message = 3;
+  google.protobuf.Timestamp completed_at = 4;
+}
+
+message ReconError {
+  string error_code = 1;
+  string error_message = 2;
+  string variance_id = 3;  // Optional: if error relates to specific variance
+}
+
+// Standard request/response messages
+message GenerateReconciliationRequest {
+  string date_range_start = 1;
+  string date_range_end = 2;
+  repeated string account_filter = 3;
+  bool auto_match_enabled = 4;
+  double tolerance_amount = 5;
+}
+
+message GenerateReconciliationResponse {
+  ReconciliationReport report = 1;
+  string message = 2;
+}
+
+message GetReconciliationStatusRequest {
+  string report_id = 1;
+}
+
+message GetReconciliationStatusResponse {
+  ReconciliationReport report = 1;
+} 

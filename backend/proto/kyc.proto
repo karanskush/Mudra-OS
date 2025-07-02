@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package fintech.kyc.v1;
+
+option go_package = "fintech-backend/proto/kyc";
+
+import "google/protobuf/timestamp.proto";
+
+// KYCService service definition
+service KYCService {
+  // Simulate onboarding/refresh with synthetic identity and policy evaluation
+  rpc CreateProfile(CreateProfileRequest) returns (CreateProfileResponse);
+  
+  // Retrieve last-known KYC data and risk flags
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+}
+
+// KYC status enum
+enum KYCStatus {
+  KYC_STATUS_UNSPECIFIED = 0;
+  KYC_STATUS_PENDING = 1;
+  KYC_STATUS_UNDER_REVIEW = 2;
+  KYC_STATUS_VERIFIED = 3;
+  KYC_STATUS_REJECTED = 4;
+  KYC_STATUS_EXPIRED = 5;
+}
+
+// KYC priority enum
+enum KYCPriority {
+  KYC_PRIORITY_UNSPECIFIED = 0;
+  KYC_PRIORITY_LOW = 1;
+  KYC_PRIORITY_MEDIUM = 2;
+  KYC_PRIORITY_HIGH = 3;
+  KYC_PRIORITY_URGENT = 4;
+}
+
+// Document status
+message DocumentStatus {
+  string document_type = 1;
+  string status = 2;  // "pending", "verified", "rejected"
+  google.protobuf.Timestamp verified_at = 3;
+  string error_message = 4;
+}
+
+// KYC Profile message
+message KYCProfile {
+  string profile_id = 1;
+  string user_id = 2;
+  string name = 3;
+  string email = 4;
+  string phone = 5;
+  string country = 6;
+  string location = 7;
+  KYCStatus status = 8;
+  KYCPriority priority = 9;
+  int32 risk_score = 10;
+  int64 amount = 11;  // Transaction amount that triggered KYC
+  repeated DocumentStatus documents = 12;
+  repeated string compliance_flags = 13;
+  string verification_method = 14;
+  string processing_time = 15;
+  string last_activity = 16;
+  string avatar = 17;
+  google.protobuf.Timestamp submitted_at = 18;
+  google.protobuf.Timestamp updated_at = 19;
+}
+
+// Risk assessment result
+message RiskAssessment {
+  int32 overall_score = 1;
+  string risk_level = 2;  // "low", "medium", "high"
+  repeated string flags = 3;
+  map<string, double> factor_scores = 4;  // Individual risk factor scores
+}
+
+// Policy evaluation result (Rego policy)
+message PolicyEvaluation {
+  string verdict = 1;  // "approved", "manual_review", "rejected"
+  string policy_version = 2;
+  repeated string violated_rules = 3;
+  map<string, string> policy_context = 4;
+}
+
+// Request/Response messages
+message CreateProfileRequest {
+  string user_id = 1;
+  string name = 2;
+  string email = 3;
+  string phone = 4;
+  string country = 5;
+  string location = 6;
+  int64 amount = 7;  // Transaction amount triggering KYC
+  map<string, string> documents = 8;  // document_type -> document_data
+  string avatar = 9;
+}
+
+message CreateProfileResponse {
+  KYCProfile profile = 1;
+  RiskAssessment risk_assessment = 2;
+  PolicyEvaluation policy_evaluation = 3;
+  string message = 4;
+}
+
+message GetProfileRequest {
+  string profile_id = 1;
+}
+
+message GetProfileResponse {
+  KYCProfile profile = 1;
+  RiskAssessment risk_assessment = 2;
+} 
