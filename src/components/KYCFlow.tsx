@@ -57,6 +57,7 @@ import { DiditCountry, getAvailableDocuments, formatDocumentName } from '../lib/
 import { diditApi, convertFileToBase64, validateImageFile } from '../lib/diditApi';
 import EnhancedCountrySelector from './EnhancedCountrySelector';
 import { getSessionUserId } from '../lib/utils';
+import { useToast, createToast } from './ui/Toast';
 
 // Enhanced animation variants with advanced fintech effects
 const containerVariants = {
@@ -164,6 +165,7 @@ const pulseVariants = {
 };
 
 const KYCFlow: React.FC = () => {
+  const { showToast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedCountry, setSelectedCountry] = useState<DiditCountry | null>(null);
   const [countries, setCountries] = useState<Country[]>([]);
@@ -247,7 +249,10 @@ const KYCFlow: React.FC = () => {
       setCountries(countriesData);
     } catch (error) {
       console.error('Error fetching countries:', error);
-      setErrors({ general: 'Failed to load countries. Please try again.' });
+      showToast(createToast.error(
+        'Failed to load countries. Please refresh the page and try again.',
+        'Loading Error'
+      ));
     } finally {
       setIsLoading(false);
     }
@@ -268,10 +273,31 @@ const KYCFlow: React.FC = () => {
       setKycStatus(kycData);
       setSelectedCountry(country);
       setCurrentStep(1);
-      setSuccessMessage(`KYC process initiated for ${country.country}`);
+      showToast(createToast.success(
+        `KYC verification process has been successfully initiated for ${country.country}`, 
+        'KYC Started',
+        { duration: 4000 }
+      ));
     } catch (error) {
       console.error('Error starting KYC:', error);
-      setErrors({ general: 'Failed to start KYC process. Please try again.' });
+      const errorMessage = error instanceof Error ? error.message : 'Failed to start KYC process. Please try again.';
+      
+      // Show appropriate toast based on error type
+      if (errorMessage.includes('already has a KYC submission')) {
+        showToast(createToast.warning(
+          'You already have an active KYC submission. Please check your verification status.',
+          'KYC Already Exists',
+          { 
+            duration: 6000
+          }
+        ));
+      } else {
+        showToast(createToast.error(
+          errorMessage,
+          'KYC Start Failed',
+          { duration: 5000 }
+        ));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -311,15 +337,25 @@ const KYCFlow: React.FC = () => {
           updatedStatus.progress += 25;
           setKycStatus(updatedStatus);
         }
-        setSuccessMessage(`${documentType.toUpperCase()} verified successfully!`);
+        showToast(createToast.success(
+          `${documentType.toUpperCase()} verified successfully!`,
+          'Document Verified',
+          { duration: 3000 }
+        ));
         return true;
       } else {
-        setErrors({ [documentType]: 'Document verification failed. Please check your details.' });
+        showToast(createToast.error(
+          'Document verification failed. Please check your details and try again.',
+          'Verification Failed'
+        ));
         return false;
       }
     } catch (error) {
       console.error('Error verifying document:', error);
-      setErrors({ [documentType]: 'Verification failed. Please try again.' });
+      showToast(createToast.error(
+        'Verification failed. Please try again.',
+        'Error'
+      ));
       return false;
     } finally {
       setIsLoading(false);
@@ -342,7 +378,10 @@ const KYCFlow: React.FC = () => {
     // Validate file first
     const validation = validateImageFile(file);
     if (!validation.valid) {
-      setErrors(prev => ({ ...prev, [documentType]: validation.error || 'Invalid file' }));
+      showToast(createToast.warning(
+        validation.error || 'Invalid file format or size',
+        'File Validation Failed'
+      ));
       return;
     }
 
@@ -375,13 +414,23 @@ const KYCFlow: React.FC = () => {
             updatedStatus.progress += Math.floor(100 / getAvailableDocuments(selectedCountry.countryCode).length);
             setKycStatus(updatedStatus);
           }
-          setSuccessMessage(`${formatDocumentName(documentType)} verified successfully!`);
+          showToast(createToast.success(
+            `${formatDocumentName(documentType)} verified successfully!`,
+            'Document Verified',
+            { duration: 3000 }
+          ));
         } else {
-          setErrors(prev => ({ ...prev, [documentType]: 'Document verification failed. Please try again.' }));
+          showToast(createToast.error(
+            'Document verification failed. Please try again.',
+            'Verification Failed'
+          ));
         }
       } catch (error) {
         console.error('Error verifying document:', error);
-        setErrors(prev => ({ ...prev, [documentType]: 'Verification failed. Please try again.' }));
+        showToast(createToast.error(
+          'Verification failed. Please try again.',
+          'Error'
+        ));
       } finally {
         setIsLoading(false);
       }
@@ -439,7 +488,7 @@ const KYCFlow: React.FC = () => {
       <motion.div variants={itemVariants} className="flex items-center justify-center gap-8 pt-8">
         <div className="flex items-center gap-2 text-white/60">
           <ShieldCheck className="h-5 w-5 text-green-400" />
-          <span className="text-sm">Bank-grade Security</span>
+          <span className="text-sm">Enterprise-Grade Security</span>
         </div>
         <div className="flex items-center gap-2 text-white/60">
           <Zap className="h-5 w-5 text-yellow-400" />
@@ -1017,7 +1066,7 @@ const KYCFlow: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/90 to-indigo-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/90 to-indigo-900 relative overflow-visible">
       {/* Enhanced background effects */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-600/20 via-transparent to-purple-600/20" />
@@ -1069,7 +1118,7 @@ const KYCFlow: React.FC = () => {
         />
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 py-12">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 py-12 md:py-24">
         {/* Enhanced header */}
         <motion.div 
           className="text-center mb-16"
@@ -1225,7 +1274,7 @@ const KYCFlow: React.FC = () => {
 
         {/* Main content card */}
         <motion.div 
-          className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/20 relative overflow-hidden"
+          className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/20 relative overflow-visible"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}

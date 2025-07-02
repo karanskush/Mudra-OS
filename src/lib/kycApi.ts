@@ -82,12 +82,27 @@ export class KYCApi {
         body: JSON.stringify(request),
       });
       
-      const data = await response.json();
-      
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to start KYC process');
+        // Read response as text first, then try to parse as JSON
+        let errorMessage = 'Failed to start KYC process';
+        try {
+          const textResponse = await response.text();
+          
+          // Try to parse the text as JSON
+          try {
+            const data = JSON.parse(textResponse);
+            errorMessage = data.error || data.message || errorMessage;
+          } catch (jsonError) {
+            // If it's not JSON, use the text directly
+            errorMessage = textResponse || errorMessage;
+          }
+        } catch (textError) {
+          // Keep default error message if text reading fails
+        }
+        throw new Error(errorMessage);
       }
       
+      const data = await response.json();
       return data.data;
     } catch (error) {
       console.error('Error starting KYC:', error);
@@ -109,12 +124,27 @@ export class KYCApi {
         body: JSON.stringify(request),
       });
       
-      const data = await response.json();
-      
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to verify document');
+        // Read response as text first, then try to parse as JSON
+        let errorMessage = 'Failed to verify document';
+        try {
+          const textResponse = await response.text();
+          
+          // Try to parse the text as JSON
+          try {
+            const data = JSON.parse(textResponse);
+            errorMessage = data.error || data.message || errorMessage;
+          } catch (jsonError) {
+            // If it's not JSON, use the text directly
+            errorMessage = textResponse || errorMessage;
+          }
+        } catch (textError) {
+          // Keep default error message if text reading fails
+        }
+        throw new Error(errorMessage);
       }
       
+      const data = await response.json();
       return data.data;
     } catch (error) {
       console.error('Error verifying document:', error);
@@ -213,12 +243,27 @@ export class KYCApi {
         }),
       });
       
-      const data = await response.json();
-      
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to verify document');
+        // Read response as text first, then try to parse as JSON
+        let errorMessage = 'Failed to verify document';
+        try {
+          const textResponse = await response.text();
+          
+          // Try to parse the text as JSON
+          try {
+            const data = JSON.parse(textResponse);
+            errorMessage = data.error || data.message || errorMessage;
+          } catch (jsonError) {
+            // If it's not JSON, use the text directly
+            errorMessage = textResponse || errorMessage;
+          }
+        } catch (textError) {
+          // Keep default error message if text reading fails
+        }
+        throw new Error(errorMessage);
       }
       
+      const data = await response.json();
       return data.data;
     } catch (error) {
       console.error('Error verifying document with Didit:', error);

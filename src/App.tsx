@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { HealthProvider } from './contexts/HealthContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './components/ui/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import { HeroParallax } from './components/ui/hero-parallax';
@@ -128,16 +129,18 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <HealthProvider>
-          <Routes>
-            <Route path="/" element={<Layout><HomePage /></Layout>} />
-            <Route path="/landing" element={<LandingLayout><LandingPage /></LandingLayout>} />
-            <Route path="/status" element={<ProtectedRoute><Layout><StatusPage /></Layout></ProtectedRoute>} />
-            <Route path="/ledger" element={<ProtectedRoute><Layout><LedgerTest /></Layout></ProtectedRoute>} />
-            <Route path="/kyc" element={<ProtectedRoute><Layout><KYCFlow /></Layout></ProtectedRoute>} />
-            <Route path="/kyc/dashboard" element={<ProtectedRoute><Layout><KYCDashboard /></Layout></ProtectedRoute>} />
-            <Route path="/developers" element={<Layout><Developers /></Layout>} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <ToastProvider>
+            <Routes>
+              <Route path="/" element={<Layout><HomePage /></Layout>} />
+              <Route path="/landing" element={<LandingLayout><LandingPage /></LandingLayout>} />
+              <Route path="/status" element={<ProtectedRoute><Layout><StatusPage /></Layout></ProtectedRoute>} />
+              <Route path="/ledger" element={<ProtectedRoute><Layout><LedgerTest /></Layout></ProtectedRoute>} />
+              <Route path="/kyc" element={<ProtectedRoute><Layout><KYCFlow /></Layout></ProtectedRoute>} />
+              <Route path="/kyc/dashboard" element={<ProtectedRoute><Layout><KYCDashboard /></Layout></ProtectedRoute>} />
+              <Route path="/developers" element={<Layout><Developers /></Layout>} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+          </ToastProvider>
           
           {/* Toast Notifications */}
           <Toaster

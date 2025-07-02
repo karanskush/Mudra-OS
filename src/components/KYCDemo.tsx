@@ -87,7 +87,7 @@ const KYCDemo: React.FC = () => {
             transition={{ delay: 0.4 }}
             className="space-y-6"
           >
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 overflow-visible">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 <Globe className="h-6 w-6 text-blue-400" />
                 Step 1: Select Your Country
