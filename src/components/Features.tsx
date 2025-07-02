@@ -32,6 +32,7 @@ const features = [
     description: 'Automated compliance with synthetic profiles and hot-reload policy rules via JSONLogic.',
     category: 'Compliance',
     color: 'red',
+    action: 'kyc',
   },
   {
     icon: BarChart3,
@@ -113,6 +114,8 @@ const Features: React.FC = () => {
   const handleFeatureClick = (feature: any) => {
     if (feature.action === 'ledger') {
       navigate('/ledger');
+    } else if (feature.action === 'kyc') {
+      navigate('/kyc');
     }
   };
 

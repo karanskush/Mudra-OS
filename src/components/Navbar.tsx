@@ -167,12 +167,6 @@ const Navbar: React.FC = () => {
                   >
                     Login
                   </button>
-                  <button
-                    onClick={openRegisterModal}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700"
-                  >
-                    Register
-                  </button>
                 </div>
               )}
             </div>
@@ -260,15 +254,6 @@ const Navbar: React.FC = () => {
                       >
                         Login
                       </button>
-                      <button
-                        onClick={() => {
-                          openRegisterModal();
-                          setIsOpen(false);
-                        }}
-                        className="w-full bg-green-600 text-white px-4 py-3 rounded-lg text-base font-medium hover:bg-green-700"
-                      >
-                        Register
-                      </button>
                     </div>
                   )}
                 </div>
@@ -283,6 +268,7 @@ const Navbar: React.FC = () => {
         isOpen={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
         onSuccess={handleLoginSuccess}
+        onRegisterClick={openRegisterModal}
       />
 
       {/* Registration Modal */}

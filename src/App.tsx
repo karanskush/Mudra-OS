@@ -12,6 +12,8 @@ import Footer from './components/Footer';
 import StatusPage from './components/StatusPage';
 import LedgerTest from './components/LedgerTest';
 import LandingPage from './components/LandingPage';
+import KYCFlow from './components/KYCFlow';
+import KYCDashboard from './components/KYCDashboard';
 
 // Enhanced fintech-focused products with more relevant imagery
 const fintechProducts = [
@@ -128,6 +130,8 @@ function App() {
             <Route path="/landing" element={<LandingLayout><LandingPage /></LandingLayout>} />
             <Route path="/status" element={<Layout><StatusPage /></Layout>} />
             <Route path="/ledger" element={<Layout><LedgerTest /></Layout>} />
+            <Route path="/kyc" element={<Layout><KYCFlow /></Layout>} />
+            <Route path="/kyc/dashboard" element={<Layout><KYCDashboard /></Layout>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </HealthProvider>

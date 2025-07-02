@@ -62,6 +62,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Routing to LedgerHandler")
 		LedgerHandler(w, r)
 
+	// KYC routes
+	case strings.HasPrefix(path, "api/kyc"):
+		log.Printf("Routing to KYCHandler")
+		KYCHandler(w, r)
+
 	default:
 		log.Printf("No matching route found, returning 404")
 		http.NotFound(w, r)

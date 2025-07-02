@@ -22,6 +22,8 @@ func SetupNeonDatabase() error {
 		&models.User{},
 		&models.Account{},
 		&models.Transaction{},
+		&models.KYCSubmission{},
+		&models.KYCDocument{},
 	); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
