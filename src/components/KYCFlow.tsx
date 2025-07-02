@@ -58,6 +58,7 @@ import { diditApi, convertFileToBase64, validateImageFile } from '../lib/diditAp
 import EnhancedCountrySelector from './EnhancedCountrySelector';
 import { getSessionUserId } from '../lib/utils';
 import { useToast, createToast } from './ui/Toast';
+import { FintechBackground } from './ui/fintech-background';
 
 // Enhanced animation variants with advanced fintech effects
 const containerVariants = {
@@ -463,29 +464,15 @@ const KYCFlow: React.FC = () => {
       animate="visible"
       className="space-y-8"
     >
-      <motion.div variants={itemVariants} className="text-center space-y-4">
-        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6">
-          <Globe className="h-5 w-5 text-blue-400" />
-          <span className="text-white/90 font-medium">Global Verification Network</span>
-        </div>
-        <h3 className="text-3xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
-          Select Your Country
-        </h3>
-        <p className="text-white/70 text-lg max-w-md mx-auto">
-          Choose your country to see verification requirements and start your secure onboarding journey
-        </p>
-      </motion.div>
-      
-      <motion.div variants={itemVariants}>
+      <motion.div variants={itemVariants} className="flex flex-col items-center w-full">
         <EnhancedCountrySelector
           onCountrySelect={startKYC}
           isLoading={isLoading}
           selectedCountry={selectedCountry}
         />
       </motion.div>
-
       {/* Trust indicators */}
-      <motion.div variants={itemVariants} className="flex items-center justify-center gap-8 pt-8">
+      <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center gap-8 pt-8 w-full">
         <div className="flex items-center gap-2 text-white/60">
           <ShieldCheck className="h-5 w-5 text-green-400" />
           <span className="text-sm">Enterprise-Grade Security</span>
@@ -1069,80 +1056,244 @@ const KYCFlow: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/90 to-indigo-900 relative overflow-visible">
       {/* Enhanced background effects */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-600/20 via-transparent to-purple-600/20" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-emerald-600/10 via-transparent to-cyan-600/10" />
-        
-        {/* Animated gradient orbs */}
-        <motion.div 
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.6, 0.3],
-            x: [0, 50, 0],
-            y: [0, -30, 0],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div 
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.6, 0.3, 0.6],
-            x: [0, -30, 0],
-            y: [0, 40, 0],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 4,
-          }}
-        />
-        <motion.div 
-          className="absolute top-3/4 left-1/2 w-64 h-64 bg-gradient-to-r from-emerald-500/15 to-teal-500/15 rounded-full blur-2xl"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.4, 0.7, 0.4],
-            x: [-20, 20, -20],
-          }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2,
-          }}
-        />
+        <FintechBackground />
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 py-12 md:py-24">
-        {/* Enhanced header */}
+        {/* Enhanced header with illustration */}
         <motion.div 
-          className="text-center mb-16"
+          className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <motion.div 
-            className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full px-6 py-3 mb-8 shadow-lg shadow-blue-500/10"
-            whileHover={{ scale: 1.05 }}
-          >
-            <Lock className="h-5 w-5 text-blue-400" />
-            <span className="text-white/90 font-medium">Enterprise-Grade Security</span>
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-          </motion.div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+          <div className="flex-1 text-center md:text-left">
+            <motion.h1 
+              className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
+              style={{
+                textShadow: '0 4px 20px rgba(0, 0, 0, 0.3), 0 0 40px rgba(59, 130, 246, 0.3)',
+                background: 'linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #c7d2fe 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+            >
               Know Your Customer
-            </span>
-          </h1>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
-            Complete your identity verification with our cutting-edge KYC system. 
-            Secure, fast, and compliant with global standards.
-          </p>
+            </motion.h1>
+            <motion.p 
+              className="text-lg md:text-xl text-blue-100/80 mb-8 max-w-2xl leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+            >
+              Secure, compliant identity verification powered by enterprise-grade technology. 
+              Complete your verification in minutes with our streamlined, user-friendly process.
+            </motion.p>
+          </div>
+          
+          {/* KYC Security Illustration */}
+          <motion.div 
+            className="flex-1 flex justify-center md:justify-end"
+            initial={{ opacity: 0, scale: 0.8, x: 50 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            transition={{ delay: 0.6, duration: 1, ease: "easeOut" }}
+          >
+            <div className="relative">
+              {/* Main illustration container */}
+              <motion.div
+                className="relative w-80 h-80 md:w-96 md:h-96"
+                animate={{
+                  scale: [1, 1.02, 1],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                {/* Glowing background effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-500/20 to-purple-600/20 rounded-full blur-3xl animate-pulse" />
+                
+                {/* Security Shield with Neon Effect */}
+                <div className="relative w-full h-full flex items-center justify-center">
+                  {/* Outer shield glow */}
+                  <motion.div
+                    className="absolute inset-0 rounded-3xl"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.3) 0%, rgba(147, 51, 234, 0.3) 100%)',
+                      filter: 'blur(20px)',
+                    }}
+                    animate={{
+                      opacity: [0.5, 0.8, 0.5],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  />
+                  
+                  {/* Main shield SVG */}
+                  <motion.svg
+                    width="300"
+                    height="300"
+                    viewBox="0 0 300 300"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="relative z-10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8, duration: 1 }}
+                  >
+                    <defs>
+                      <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#06b6d4" />
+                        <stop offset="50%" stopColor="#3b82f6" />
+                        <stop offset="100%" stopColor="#9333ea" />
+                      </linearGradient>
+                      <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#0ea5e9" />
+                        <stop offset="100%" stopColor="#8b5cf6" />
+                      </linearGradient>
+                      <filter id="glow">
+                        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                        <feMerge> 
+                          <feMergeNode in="coloredBlur"/>
+                          <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                      </filter>
+                    </defs>
+                    
+                    {/* Shield outline */}
+                    <motion.path
+                      d="M150 20 L250 60 L250 140 Q250 200 150 280 Q50 200 50 140 L50 60 Z"
+                      stroke="url(#shieldGradient)"
+                      strokeWidth="3"
+                      fill="none"
+                      filter="url(#glow)"
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ delay: 1, duration: 2, ease: "easeInOut" }}
+                    />
+                    
+                    {/* ID Card */}
+                    <motion.rect
+                      x="80"
+                      y="100"
+                      width="140"
+                      height="90"
+                      rx="12"
+                      fill="url(#cardGradient)"
+                      fillOpacity="0.8"
+                      stroke="#06b6d4"
+                      strokeWidth="2"
+                      filter="url(#glow)"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 1.5, duration: 0.8, ease: "backOut" }}
+                    />
+                    
+                    {/* User icon */}
+                    <motion.circle
+                      cx="110"
+                      cy="130"
+                      r="12"
+                      fill="#06b6d4"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 2, duration: 0.5 }}
+                    />
+                    <motion.path
+                      d="M95 155 Q110 145 125 155"
+                      stroke="#06b6d4"
+                      strokeWidth="2"
+                      fill="none"
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ delay: 2.2, duration: 0.5 }}
+                    />
+                    
+                    {/* Info lines */}
+                    {[140, 150, 160, 170].map((y, index) => (
+                      <motion.line
+                        key={y}
+                        x1="140"
+                        y1={y}
+                        x2={180 + index * 10}
+                        y2={y}
+                        stroke="#06b6d4"
+                        strokeWidth="2"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ delay: 2.3 + index * 0.1, duration: 0.3 }}
+                      />
+                    ))}
+                    
+                    {/* Fingerprint */}
+                    <motion.g
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 2.8, duration: 1, ease: "backOut" }}
+                    >
+                      {/* Fingerprint arcs */}
+                      {[15, 25, 35, 45].map((radius, index) => (
+                        <motion.circle
+                          key={radius}
+                          cx="180"
+                          cy="135"
+                          r={radius}
+                          fill="none"
+                          stroke="#06b6d4"
+                          strokeWidth="2"
+                          strokeDasharray="4 4"
+                          initial={{ pathLength: 0 }}
+                          animate={{ pathLength: 1 }}
+                          transition={{ delay: 3 + index * 0.2, duration: 0.8 }}
+                        />
+                      ))}
+                    </motion.g>
+                    
+                    {/* Lock icon */}
+                    <motion.g
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 3.5, duration: 0.8, ease: "backOut" }}
+                    >
+                      <rect x="165" y="145" width="30" height="20" rx="4" fill="#06b6d4" />
+                      <path d="M170 145 V140 Q180 130 190 140 V145" stroke="#06b6d4" strokeWidth="3" fill="none" />
+                      <circle cx="180" cy="155" r="3" fill="#1e293b" />
+                    </motion.g>
+                  </motion.svg>
+                </div>
+              </motion.div>
+              
+              {/* Floating particles around illustration */}
+              {[...Array(6)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-2 h-2 bg-cyan-400 rounded-full"
+                  style={{
+                    top: `${20 + i * 15}%`,
+                    left: `${10 + (i % 2) * 80}%`,
+                  }}
+                  animate={{
+                    y: [-10, 10, -10],
+                    opacity: [0.3, 1, 0.3],
+                    scale: [0.8, 1.2, 0.8],
+                  }}
+                  transition={{
+                    duration: 3 + i * 0.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: i * 0.3,
+                  }}
+                />
+              ))}
+            </div>
+          </motion.div>
         </motion.div>
 
         {/* Enhanced progress indicator */}
@@ -1274,13 +1425,13 @@ const KYCFlow: React.FC = () => {
 
         {/* Main content card */}
         <motion.div 
-          className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/20 relative overflow-visible"
+          className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/20 relative overflow-visible max-w-4xl mx-auto mt-12"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           {/* Card background pattern */}
-          <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 opacity-5 rounded-3xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20" />
             <div 
               className="absolute inset-0" 

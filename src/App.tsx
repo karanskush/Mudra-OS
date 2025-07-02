@@ -107,7 +107,7 @@ const HomePage: React.FC = () => (
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
     <Navbar />
-    <main>
+    <main className="pt-20">
       {children}
     </main>
     <Footer />
@@ -118,7 +118,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 const LandingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
     <Navbar />
-    <main>
+    <main className="pt-20">
       {children}
     </main>
   </div>

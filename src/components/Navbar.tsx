@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ChevronDown, Zap, Code, Database, Shield, TrendingUp, Activity, Calculator, CreditCard, Users, Building, FileText, Settings, LogOut, Bell, Search } from 'lucide-react';
+import { Menu, X, ChevronDown, ChevronRight, Zap, Code, Database, Shield, TrendingUp, Activity, CreditCard, Users, Building, Settings, LogOut, Bell, UserCheck, Plus, ArrowRight, Sparkles, BadgeCheck, Clock, LucideIcon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import ThemeToggle from './ui/theme-toggle';
@@ -8,10 +8,62 @@ import { useAuth } from '../contexts/AuthContext';
 import LoginForm from './LoginForm';
 import RegistrationForm from './RegistrationForm';
 
+interface SubSubMenuItem {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  description: string;
+  status?: 'stable' | 'active' | 'beta';
+}
+
+interface BaseSubMenuItem {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  description: string;
+  badge?: string;
+  status?: 'stable' | 'active' | 'beta';
+  category?: string;
+}
+
+interface SubMenuItemWithDropdown extends BaseSubMenuItem {
+  hasSubDropdown: true;
+  subItems: SubSubMenuItem[];
+}
+
+interface SubMenuItemWithoutDropdown extends BaseSubMenuItem {
+  hasSubDropdown?: false;
+  subItems?: never;
+}
+
+type SubMenuItem = SubMenuItemWithDropdown | SubMenuItemWithoutDropdown;
+
+interface BaseMenuItem {
+  name: string;
+  href: string;
+  icon?: LucideIcon;
+  description?: string;
+  badge?: string;
+}
+
+interface MenuItemWithDropdown extends BaseMenuItem {
+  hasDropdown: true;
+  items: SubMenuItem[];
+}
+
+interface MenuItemWithoutDropdown extends BaseMenuItem {
+  hasDropdown?: false;
+  items?: never;
+}
+
+type MenuItem = MenuItemWithDropdown | MenuItemWithoutDropdown;
+
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [activeSubDropdown, setActiveSubDropdown] = useState<string | null>(null);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const { isDark } = useTheme();
   const { user, logout } = useAuth();
   
@@ -59,6 +111,8 @@ const Navbar: React.FC = () => {
 
     const handleClickOutside = () => {
       setActiveDropdown(null);
+      setActiveSubDropdown(null);
+      setHoveredItem(null);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -72,30 +126,103 @@ const Navbar: React.FC = () => {
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
-  const navItems = [
+  const navItems: MenuItem[] = [
     {
       name: 'Platform',
       href: '#',
       hasDropdown: true,
+      badge: 'New',
+      description: 'Complete fintech infrastructure',
       items: [
-        { name: 'Core Ledger', href: '/ledger', icon: Database, description: 'Double-entry accounting system' },
-        { name: 'Payment Rails', href: '/payments', icon: CreditCard, description: 'Smart payment routing' },
-        { name: 'KYC & Compliance', href: '/kyc', icon: Shield, description: 'Identity verification' },
-        { name: 'Analytics', href: '/analytics', icon: TrendingUp, description: 'Real-time insights' },
+        { 
+          name: 'Core Ledger', 
+          href: '/ledger', 
+          icon: Database, 
+          description: 'Double-entry accounting system',
+          badge: 'Core',
+          status: 'stable',
+          category: 'Infrastructure'
+        },
+        { 
+          name: 'Payment Rails', 
+          href: '/payments', 
+          icon: CreditCard, 
+          description: 'Smart payment routing & processing',
+          badge: 'Popular',
+          status: 'stable',
+          category: 'Payments'
+        },
+        { 
+          name: 'KYC & Compliance', 
+          href: '/kyc', 
+          icon: Shield, 
+          description: 'Identity verification & compliance',
+          badge: 'Enhanced',
+          status: 'stable',
+          category: 'Compliance',
+          hasSubDropdown: true,
+          subItems: [
+            { 
+              name: 'KYC Dashboard', 
+              href: '/kyc/dashboard', 
+              icon: UserCheck, 
+              description: 'Manage verification submissions',
+              status: 'active'
+            },
+            { 
+              name: 'New Verification', 
+              href: '/kyc', 
+              icon: Plus, 
+              description: 'Start new identity verification',
+              status: 'active'
+            },
+          ]
+        },
+        { 
+          name: 'Analytics & Insights', 
+          href: '/analytics', 
+          icon: TrendingUp, 
+          description: 'Real-time business intelligence',
+          badge: 'Pro',
+          status: 'stable',
+          category: 'Analytics'
+        },
       ]
     },
     {
       name: 'Solutions',
       href: '#',
       hasDropdown: true,
+      description: 'Tailored solutions for every business',
       items: [
-        { name: 'For Startups', href: '/solutions/startups', icon: Zap, description: 'Scale your fintech startup' },
-        { name: 'For Enterprises', href: '/solutions/enterprise', icon: Building, description: 'Enterprise-grade solutions' },
-        { name: 'For Developers', href: '/solutions/developers', icon: Code, description: 'APIs and SDKs' },
+        { 
+          name: 'For Startups', 
+          href: '/solutions/startups', 
+          icon: Zap, 
+          description: 'Scale your fintech startup rapidly',
+          badge: 'Popular',
+          category: 'Business Type'
+        },
+        { 
+          name: 'For Enterprises', 
+          href: '/solutions/enterprise', 
+          icon: Building, 
+          description: 'Enterprise-grade solutions & support',
+          badge: 'Enterprise',
+          category: 'Business Type'
+        },
+        { 
+          name: 'For Developers', 
+          href: '/solutions/developers', 
+          icon: Code, 
+          description: 'APIs, SDKs & developer tools',
+          badge: 'Dev',
+          category: 'Developer Tools'
+        },
       ]
     },
-    { name: 'Developers', href: '/developers', icon: Code },
-    { name: 'Status', href: '/status', icon: Activity },
+    { name: 'Developers', href: '/developers', icon: Code, description: 'API docs & developer resources' },
+    { name: 'Status', href: '/status', icon: Activity, description: 'System status & uptime' },
   ];
 
   const isActive = (href: string) => {
@@ -132,11 +259,39 @@ const Navbar: React.FC = () => {
   const handleDropdownClick = (e: React.MouseEvent, dropdownName: string) => {
     e.stopPropagation();
     setActiveDropdown(activeDropdown === dropdownName ? null : dropdownName);
+    setActiveSubDropdown(null); // Reset sub-dropdown when main dropdown changes
+  };
+
+  const handleSubDropdownClick = (e: React.MouseEvent, subDropdownName: string) => {
+    e.stopPropagation();
+    setActiveSubDropdown(activeSubDropdown === subDropdownName ? null : subDropdownName);
+  };
+
+  const getBadgeColor = (badge: string) => {
+    switch (badge) {
+      case 'New': return isDark ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-green-50 text-green-700 border-green-200';
+      case 'Popular': return isDark ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'Pro': return isDark ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-purple-50 text-purple-700 border-purple-200';
+      case 'Enterprise': return isDark ? 'bg-orange-500/20 text-orange-300 border-orange-500/30' : 'bg-orange-50 text-orange-700 border-orange-200';
+      case 'Dev': return isDark ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' : 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      case 'Core': return isDark ? 'bg-gray-500/20 text-gray-300 border-gray-500/30' : 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'Enhanced': return isDark ? 'bg-teal-500/20 text-teal-300 border-teal-500/30' : 'bg-teal-50 text-teal-700 border-teal-200';
+      default: return isDark ? 'bg-gray-500/20 text-gray-300 border-gray-500/30' : 'bg-gray-50 text-gray-700 border-gray-200';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'stable': return <BadgeCheck className="h-3 w-3 text-green-500" />;
+      case 'active': return <Clock className="h-3 w-3 text-blue-500" />;
+      case 'beta': return <Sparkles className="h-3 w-3 text-purple-500" />;
+      default: return null;
+    }
   };
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled 
           ? isDark 
             ? 'bg-slate-900/95 backdrop-blur-xl shadow-2xl border-b border-slate-700/50' 
@@ -151,13 +306,13 @@ const Navbar: React.FC = () => {
             <div className="flex items-center space-x-3">
               <Link
                 to="/"
-                className="flex items-center space-x-3 hover:opacity-80 transition-opacity group"
+                className="flex items-center space-x-3 hover:opacity-80 transition-all duration-300 group"
               >
                 <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                     <Zap className="h-6 w-6 text-white" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-sm"></div>
                 </div>
                 <div className="flex flex-col">
                   <span className={`text-xl font-bold leading-none transition-colors duration-300 ${
@@ -179,29 +334,41 @@ const Navbar: React.FC = () => {
                   {item.hasDropdown ? (
                     <button
                       onClick={(e) => handleDropdownClick(e, item.name)}
-                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      onMouseEnter={() => setHoveredItem(item.name)}
+                      onMouseLeave={() => setHoveredItem(null)}
+                      className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative ${
                         activeDropdown === item.name 
                           ? isDark 
-                            ? 'bg-slate-800 text-blue-400' 
-                            : 'bg-gray-50 text-blue-600'
+                            ? 'bg-slate-800 text-blue-400 shadow-lg' 
+                            : 'bg-gray-50 text-blue-600 shadow-sm'
                           : isDark 
                             ? 'text-gray-300 hover:text-white hover:bg-slate-800/50'
                             : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
                       }`}
                     >
                       {item.name}
+                      {item.badge && (
+                        <span className={`px-1.5 py-0.5 text-xs font-medium rounded-full border ${getBadgeColor(item.badge)}`}>
+                          {item.badge}
+                        </span>
+                      )}
                       <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${
                         activeDropdown === item.name ? 'rotate-180' : ''
                       }`} />
+                      {hoveredItem === item.name && (
+                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      )}
                     </button>
                   ) : (
                     <Link
                       to={item.href}
-                      className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                      onMouseEnter={() => setHoveredItem(item.name)}
+                      onMouseLeave={() => setHoveredItem(null)}
+                      className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative ${
                         isActive(item.href) 
                           ? isDark 
-                            ? 'bg-blue-900/30 text-blue-400' 
-                            : 'bg-blue-50 text-blue-600'
+                            ? 'bg-blue-900/30 text-blue-400 shadow-lg' 
+                            : 'bg-blue-50 text-blue-600 shadow-sm'
                           : isDark 
                             ? 'text-gray-300 hover:text-white hover:bg-slate-800/50'
                             : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
@@ -209,57 +376,211 @@ const Navbar: React.FC = () => {
                     >
                       {item.icon && <item.icon className="h-4 w-4" />}
                       {item.name}
+                      {hoveredItem === item.name && (
+                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      )}
                     </Link>
                   )}
 
-                  {/* Dropdown Menu */}
+                  {/* Enhanced Dropdown Menu */}
                   {item.hasDropdown && activeDropdown === item.name && (
-                    <div className={`absolute top-full left-0 mt-2 w-80 rounded-2xl shadow-xl border py-4 animate-in fade-in-0 zoom-in-95 duration-200 ${
+                    <div className={`absolute top-full left-0 mt-3 w-96 rounded-2xl shadow-2xl border backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-300 ${
                       isDark 
-                        ? 'bg-slate-800 border-slate-700' 
-                        : 'bg-white border-gray-100'
+                        ? 'bg-slate-800/95 border-slate-700/50' 
+                        : 'bg-white/95 border-gray-100'
                     }`}>
-                      <div className={`px-4 pb-3 border-b ${
-                        isDark ? 'border-slate-700' : 'border-gray-100'
+                      {/* Header */}
+                      <div className={`px-6 py-4 border-b ${
+                        isDark ? 'border-slate-700/50' : 'border-gray-100'
                       }`}>
-                        <h3 className={`text-sm font-semibold ${
-                          isDark ? 'text-white' : 'text-gray-900'
-                        }`}>{item.name}</h3>
-                        <p className={`text-xs mt-1 ${
-                          isDark ? 'text-gray-400' : 'text-gray-500'
-                        }`}>Explore our comprehensive suite</p>
-                      </div>
-                      <div className="py-2">
-                        {item.items?.map((subItem) => (
-                          <Link
-                            key={subItem.name}
-                            to={subItem.href}
-                            className={`flex items-start gap-3 px-4 py-3 transition-colors duration-200 ${
-                              isDark 
-                                ? 'hover:bg-slate-700/50' 
-                                : 'hover:bg-gray-50'
-                            }`}
-                            onClick={() => setActiveDropdown(null)}
-                          >
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center mt-0.5 ${
-                              isDark 
-                                ? 'bg-slate-700' 
-                                : 'bg-gradient-to-br from-blue-50 to-purple-50'
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className={`text-lg font-semibold flex items-center gap-2 ${
+                              isDark ? 'text-white' : 'text-gray-900'
                             }`}>
-                              <subItem.icon className={`h-4 w-4 ${
-                                isDark ? 'text-blue-400' : 'text-blue-600'
-                              }`} />
+                              {item.name}
+                              {item.badge && (
+                                <span className={`px-2 py-0.5 text-xs font-medium rounded-full border ${getBadgeColor(item.badge)}`}>
+                                  {item.badge}
+                                </span>
+                              )}
+                            </h3>
+                            <p className={`text-sm mt-1 ${
+                              isDark ? 'text-gray-400' : 'text-gray-500'
+                            }`}>{item.description}</p>
+                          </div>
+                          <Sparkles className={`h-5 w-5 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} />
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="p-3">
+                        <div className="grid gap-1">
+                          {item.items?.map((subItem) => (
+                            <div key={subItem.name} className="relative">
+                              {subItem.hasSubDropdown ? (
+                                <>
+                                  <button
+                                    onClick={(e) => handleSubDropdownClick(e, subItem.name)}
+                                    className={`flex items-center justify-between w-full gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+                                      isDark 
+                                        ? 'hover:bg-slate-700/50 hover:shadow-lg' 
+                                        : 'hover:bg-gray-50 hover:shadow-sm'
+                                    }`}
+                                  >
+                                    <div className="flex items-start gap-3">
+                                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mt-0.5 transition-all duration-200 group-hover:scale-105 ${
+                                        isDark 
+                                          ? 'bg-slate-700/50 group-hover:bg-slate-600' 
+                                          : 'bg-gradient-to-br from-blue-50 to-purple-50 group-hover:from-blue-100 group-hover:to-purple-100'
+                                      }`}>
+                                        <subItem.icon className={`h-5 w-5 ${
+                                          isDark ? 'text-blue-400' : 'text-blue-600'
+                                        }`} />
+                                      </div>
+                                      <div className="flex-1 text-left">
+                                        <div className={`text-sm font-semibold flex items-center gap-2 ${
+                                          isDark ? 'text-white' : 'text-gray-900'
+                                        }`}>
+                                          {subItem.name}
+                                          {subItem.badge && (
+                                            <span className={`px-1.5 py-0.5 text-xs font-medium rounded-full border ${getBadgeColor(subItem.badge)}`}>
+                                              {subItem.badge}
+                                            </span>
+                                          )}
+                                          {subItem.status && getStatusIcon(subItem.status)}
+                                        </div>
+                                        <div className={`text-xs mt-0.5 ${
+                                          isDark ? 'text-gray-400' : 'text-gray-500'
+                                        }`}>{subItem.description}</div>
+                                        {subItem.category && (
+                                          <div className={`text-xs mt-1 font-medium ${
+                                            isDark ? 'text-blue-400' : 'text-blue-600'
+                                          }`}>{subItem.category}</div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${
+                                      activeSubDropdown === subItem.name ? 'rotate-90' : ''
+                                    } ${isDark ? 'text-gray-400' : 'text-gray-400'}`} />
+                                  </button>
+                                  
+                                  {/* Enhanced Sub-dropdown Menu */}
+                                  {activeSubDropdown === subItem.name && (
+                                    <div className={`ml-6 mt-2 mb-2 rounded-xl border backdrop-blur-sm animate-in fade-in-0 slide-in-from-left-2 duration-200 ${
+                                      isDark 
+                                        ? 'bg-slate-900/50 border-slate-600/50' 
+                                        : 'bg-gray-50/50 border-gray-200/50'
+                                    }`}>
+                                      <div className="p-2">
+                                        {subItem.subItems?.map((subSubItem) => (
+                                          <Link
+                                            key={subSubItem.name}
+                                            to={subSubItem.href}
+                                            className={`flex items-start gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
+                                              isDark 
+                                                ? 'hover:bg-slate-700/50' 
+                                                : 'hover:bg-white hover:shadow-sm'
+                                            }`}
+                                            onClick={() => {
+                                              setActiveDropdown(null);
+                                              setActiveSubDropdown(null);
+                                            }}
+                                          >
+                                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center mt-0.5 transition-all duration-200 group-hover:scale-105 ${
+                                              isDark 
+                                                ? 'bg-slate-600/50 group-hover:bg-slate-500' 
+                                                : 'bg-white group-hover:bg-blue-50'
+                                            }`}>
+                                              <subSubItem.icon className={`h-3.5 w-3.5 ${
+                                                isDark ? 'text-blue-400' : 'text-blue-600'
+                                              }`} />
+                                            </div>
+                                            <div className="flex-1">
+                                              <div className={`text-sm font-medium flex items-center gap-2 ${
+                                                isDark ? 'text-white' : 'text-gray-900'
+                                              }`}>
+                                                {subSubItem.name}
+                                                {subSubItem.status && getStatusIcon(subSubItem.status)}
+                                              </div>
+                                              <div className={`text-xs mt-0.5 ${
+                                                isDark ? 'text-gray-400' : 'text-gray-500'
+                                              }`}>{subSubItem.description}</div>
+                                            </div>
+                                            <ArrowRight className={`h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                              isDark ? 'text-gray-400' : 'text-gray-400'
+                                            }`} />
+                                          </Link>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <Link
+                                  to={subItem.href}
+                                  className={`flex items-start gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+                                    isDark 
+                                      ? 'hover:bg-slate-700/50 hover:shadow-lg' 
+                                      : 'hover:bg-gray-50 hover:shadow-sm'
+                                  }`}
+                                  onClick={() => setActiveDropdown(null)}
+                                >
+                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mt-0.5 transition-all duration-200 group-hover:scale-105 ${
+                                    isDark 
+                                      ? 'bg-slate-700/50 group-hover:bg-slate-600' 
+                                      : 'bg-gradient-to-br from-blue-50 to-purple-50 group-hover:from-blue-100 group-hover:to-purple-100'
+                                  }`}>
+                                    <subItem.icon className={`h-5 w-5 ${
+                                      isDark ? 'text-blue-400' : 'text-blue-600'
+                                    }`} />
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className={`text-sm font-semibold flex items-center gap-2 ${
+                                      isDark ? 'text-white' : 'text-gray-900'
+                                    }`}>
+                                      {subItem.name}
+                                      {subItem.badge && (
+                                        <span className={`px-1.5 py-0.5 text-xs font-medium rounded-full border ${getBadgeColor(subItem.badge)}`}>
+                                          {subItem.badge}
+                                        </span>
+                                      )}
+                                      {subItem.status && getStatusIcon(subItem.status)}
+                                    </div>
+                                    <div className={`text-xs mt-0.5 ${
+                                      isDark ? 'text-gray-400' : 'text-gray-500'
+                                    }`}>{subItem.description}</div>
+                                    {subItem.category && (
+                                      <div className={`text-xs mt-1 font-medium ${
+                                        isDark ? 'text-blue-400' : 'text-blue-600'
+                                      }`}>{subItem.category}</div>
+                                    )}
+                                  </div>
+                                  <ArrowRight className={`h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    isDark ? 'text-gray-400' : 'text-gray-400'
+                                  }`} />
+                                </Link>
+                              )}
                             </div>
-                            <div className="flex-1">
-                              <div className={`text-sm font-medium ${
-                                isDark ? 'text-white' : 'text-gray-900'
-                              }`}>{subItem.name}</div>
-                              <div className={`text-xs mt-0.5 ${
-                                isDark ? 'text-gray-400' : 'text-gray-500'
-                              }`}>{subItem.description}</div>
-                            </div>
-                          </Link>
-                        ))}
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Footer */}
+                      <div className={`px-6 py-3 border-t ${
+                        isDark ? 'border-slate-700/50 bg-slate-800/50' : 'border-gray-100 bg-gray-50/50'
+                      } rounded-b-2xl`}>
+                        <Link
+                          to="/platform"
+                          className={`flex items-center justify-between w-full text-xs font-medium transition-colors duration-200 ${
+                            isDark 
+                              ? 'text-blue-400 hover:text-blue-300' 
+                              : 'text-blue-600 hover:text-blue-700'
+                          }`}
+                        >
+                          <span>Explore all features</span>
+                          <ArrowRight className="h-3 w-3" />
+                        </Link>
                       </div>
                     </div>
                   )}
@@ -269,21 +590,6 @@ const Navbar: React.FC = () => {
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-3">
-              {/* Search */}
-              <button className={`hidden md:flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
-                isDark 
-                  ? 'text-gray-400 bg-slate-800 hover:bg-slate-700' 
-                  : 'text-gray-500 bg-gray-50 hover:bg-gray-100'
-              }`}>
-                <Search className="h-4 w-4" />
-                <span>Search</span>
-                <kbd className={`hidden sm:inline-flex items-center px-1.5 py-0.5 text-xs font-medium rounded border ${
-                  isDark 
-                    ? 'bg-slate-700 border-slate-600 text-gray-300' 
-                    : 'bg-white border-gray-200 text-gray-600'
-                }`}>⌘K</kbd>
-              </button>
-
               {/* Theme Toggle */}
               <ThemeToggle />
 
@@ -463,19 +769,60 @@ const Navbar: React.FC = () => {
                         {activeDropdown === item.name && (
                           <div className="mt-2 ml-4 space-y-2">
                             {item.items?.map((subItem) => (
-                              <Link
-                                key={subItem.name}
-                                to={subItem.href}
-                                className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
-                                  isDark 
-                                    ? 'text-gray-400 hover:text-white hover:bg-slate-800' 
-                                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                                }`}
-                                onClick={() => setIsOpen(false)}
-                              >
-                                <subItem.icon className="h-4 w-4" />
-                                {subItem.name}
-                              </Link>
+                              <div key={subItem.name}>
+                                {subItem.hasSubDropdown ? (
+                                  <>
+                                    <button
+                                      onClick={() => setActiveSubDropdown(activeSubDropdown === subItem.name ? null : subItem.name)}
+                                      className={`flex items-center justify-between w-full gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+                                        isDark 
+                                          ? 'text-gray-400 hover:text-white hover:bg-slate-800' 
+                                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-3">
+                                        <subItem.icon className="h-4 w-4" />
+                                        {subItem.name}
+                                      </div>
+                                      <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${
+                                        activeSubDropdown === subItem.name ? 'rotate-90' : ''
+                                      }`} />
+                                    </button>
+                                    {activeSubDropdown === subItem.name && (
+                                      <div className="mt-2 ml-6 space-y-1">
+                                        {subItem.subItems?.map((subSubItem) => (
+                                          <Link
+                                            key={subSubItem.name}
+                                            to={subSubItem.href}
+                                            className={`flex items-center gap-3 px-3 py-2 text-xs rounded-md transition-colors duration-200 ${
+                                              isDark 
+                                                ? 'text-gray-500 hover:text-white hover:bg-slate-800' 
+                                                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                                            }`}
+                                            onClick={() => setIsOpen(false)}
+                                          >
+                                            <subSubItem.icon className="h-3 w-3" />
+                                            {subSubItem.name}
+                                          </Link>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </>
+                                ) : (
+                                  <Link
+                                    to={subItem.href}
+                                    className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
+                                      isDark 
+                                        ? 'text-gray-400 hover:text-white hover:bg-slate-800' 
+                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                    }`}
+                                    onClick={() => setIsOpen(false)}
+                                  >
+                                    <subItem.icon className="h-4 w-4" />
+                                    {subItem.name}
+                                  </Link>
+                                )}
+                              </div>
                             ))}
                           </div>
                         )}

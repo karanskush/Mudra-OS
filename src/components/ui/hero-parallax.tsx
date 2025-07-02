@@ -8,7 +8,6 @@ import {
   MotionValue,
 } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useTheme } from "../../contexts/ThemeContext";
 
 export const HeroParallax = ({
   products,
@@ -72,7 +71,7 @@ export const HeroParallax = ({
   return (
     <div
       ref={ref}
-      className="h-[250vh] py-40 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d] bg-gradient-to-b from-slate-900 via-blue-900 to-indigo-900 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950"
+      className="h-[250vh] pt-20 pb-40 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d] bg-gradient-to-b from-slate-900 via-blue-900 to-indigo-900 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950"
     >
       <div className="relative z-50">
         <Header />
@@ -122,7 +121,6 @@ export const HeroParallax = ({
 };
 
 export const Header = () => {
-  const { isDark } = useTheme();
   
   const handleStartBuilding = () => {
     console.log('Start Building button clicked!');
@@ -147,55 +145,90 @@ export const Header = () => {
   };
   
   return (
-    <div className="max-w-7xl relative mx-auto py-20 md:py-40 px-4 w-full left-0 top-0 z-50">
-      <motion.h1 
-        className="text-2xl md:text-7xl font-bold text-white mb-8"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        The Ultimate <br /> 
-        <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-          Fintech Platform
-        </span>
-      </motion.h1>
-      <motion.p 
-        className="max-w-2xl text-base md:text-xl mt-8 text-white/80 leading-relaxed"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-      >
-        Build production-ready fintech applications with enterprise-grade security and compliance.
-        From core ledger systems to payment orchestration—everything you need in one platform.
-      </motion.p>
-      
-      {/* Action Buttons */}
-      <motion.div 
-        className="flex flex-col sm:flex-row gap-4 mt-8 relative z-60"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
-      >
-        <motion.button 
-          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer pointer-events-auto"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleStartBuilding}
-          style={{ position: 'relative', zIndex: 100 }}
-        >
-          Start Building
-        </motion.button>
+    <div className="max-w-screen-2xl relative mx-auto py-20 md:py-32 lg:py-40 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 w-full left-0 top-0 z-50">
+      <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
+        <div className="lg:col-span-8 xl:col-span-7">
+          <motion.h1 
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white mb-6 lg:mb-8 leading-tight"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            The Ultimate <br /> 
+            <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              Fintech Platform
+            </span>
+          </motion.h1>
+          <motion.p 
+            className="max-w-2xl text-lg sm:text-xl lg:text-2xl xl:text-2xl text-white/80 leading-relaxed md:leading-relaxed lg:leading-relaxed mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            Build production-ready fintech applications with enterprise-grade security and compliance.
+            From core ledger systems to payment orchestration—everything you need in one platform.
+          </motion.p>
+          
+          {/* Action Buttons */}
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-4 relative z-60"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <motion.button 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer pointer-events-auto shadow-2xl hover:shadow-blue-500/25"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleStartBuilding}
+              style={{ position: 'relative', zIndex: 100 }}
+            >
+              Start Building
+            </motion.button>
+            
+            <motion.button 
+              className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 border border-white/20 hover:border-white/30 cursor-pointer pointer-events-auto"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleViewDocumentation}
+              style={{ position: 'relative', zIndex: 100 }}
+            >
+              View Documentation
+            </motion.button>
+          </motion.div>
+        </div>
         
-        <motion.button 
-          className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 border border-white/20 hover:border-white/30 cursor-pointer pointer-events-auto"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleViewDocumentation}
-          style={{ position: 'relative', zIndex: 100 }}
-        >
-          View Documentation
-        </motion.button>
-      </motion.div>
+        <div className="lg:col-span-4 xl:col-span-5">
+          {/* Feature highlights for larger screens */}
+          <motion.div 
+            className="hidden lg:block space-y-4"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            {[
+              { title: "Enterprise Security", desc: "SOC2 compliant with bank-grade encryption", icon: "🔐" },
+              { title: "High Performance", desc: "Process 50K+ transactions per second", icon: "⚡" },
+              { title: "Global Ready", desc: "Multi-currency support in 180+ countries", icon: "🌍" },
+              { title: "Developer First", desc: "REST & GraphQL APIs with comprehensive SDKs", icon: "👨‍💻" }
+            ].map((feature, index) => (
+              <motion.div 
+                key={index}
+                className="flex items-start gap-4 p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+              >
+                <span className="text-2xl">{feature.icon}</span>
+                <div>
+                  <h3 className="text-white font-semibold text-lg">{feature.title}</h3>
+                  <p className="text-white/70 text-sm">{feature.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
 
       {/* Feature Highlights */}
       <motion.div 

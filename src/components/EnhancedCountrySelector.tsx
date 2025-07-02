@@ -80,25 +80,27 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-2xl mx-auto" style={{ zIndex: 9999 }}>
+    <div ref={containerRef} className="relative w-full max-w-2xl mx-auto focus-within:ring-4 focus-within:ring-blue-400/40 rounded-2xl" style={{ zIndex: 9999 }} tabIndex={0} aria-label="Country Selector">
       {/* Selected Country Display / Search Trigger */}
       <motion.div
         className={`
-          w-full bg-white/5 backdrop-blur-xl border border-white/20 rounded-2xl p-4 cursor-pointer
-          transition-all duration-300 hover:bg-white/10 hover:border-white/30
-          ${isOpen ? 'border-blue-400/50 bg-white/10' : ''}
+          w-full bg-white/10 backdrop-blur-2xl border border-white/30 rounded-2xl p-6 cursor-pointer
+          transition-all duration-300 hover:bg-white/20 hover:border-blue-400/50 shadow-xl
+          ${isOpen ? 'border-blue-400/80 bg-white/20' : ''}
         `}
         onClick={() => setIsOpen(!isOpen)}
-        whileHover={{ scale: 1.02 }}
+        whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.98 }}
+        tabIndex={0}
+        aria-label={selectedCountry ? `Selected country: ${selectedCountry.country}` : 'Select your country'}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {selectedCountry ? (
               <>
-                <div className="text-2xl">{selectedCountry.flag}</div>
+                <div className="text-2xl animate-bounce-gentle">{selectedCountry.flag}</div>
                 <div>
-                  <h3 className="text-white font-semibold">{selectedCountry.country}</h3>
+                  <h3 className="text-white font-semibold text-lg">{selectedCountry.country}</h3>
                   <p className="text-white/60 text-sm">
                     {getAvailableDocuments(selectedCountry.countryCode).length} document types supported
                   </p>
@@ -106,20 +108,20 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
               </>
             ) : (
               <>
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center animate-bounce-gentle">
                   <Globe className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold">Select Your Country</h3>
+                  <h3 className="text-white font-semibold text-lg">Select Your Country</h3>
                   <p className="text-white/60 text-sm">Choose your region for verification</p>
                 </div>
               </>
             )}
           </div>
-          
           <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.2 }}
+            className="ml-2"
           >
             <ChevronDown className="h-5 w-5 text-white/80" />
           </motion.div>
@@ -134,8 +136,10 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden shadow-2xl"
+            className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-2xl border border-blue-400/40 rounded-2xl overflow-hidden shadow-2xl"
             style={{ zIndex: 10000 }}
+            tabIndex={0}
+            aria-label="Country dropdown list"
           >
             {/* Search Bar */}
             <div className="p-4 border-b border-slate-700/50">
@@ -177,15 +181,17 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
                         onMouseEnter={() => setHoveredCountry(country.countryCode)}
                         onMouseLeave={() => setHoveredCountry(null)}
                         className={`
-                          p-3 rounded-xl text-left transition-all duration-200 border border-transparent
-                          hover:bg-slate-700/50 hover:border-slate-600/50
-                          ${selectedCountry?.countryCode === country.countryCode ? 'bg-blue-500/20 border-blue-400/50' : 'bg-slate-800/30'}
+                          p-4 rounded-xl text-left transition-all duration-200 border border-transparent
+                          hover:bg-blue-500/10 hover:border-blue-400/50 focus:bg-blue-500/20 focus:border-blue-400/80
+                          ${selectedCountry?.countryCode === country.countryCode ? 'bg-blue-500/20 border-blue-400/80' : 'bg-slate-800/30'}
                         `}
-                        whileHover={{ scale: 1.02 }}
+                        whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.98 }}
+                        tabIndex={0}
+                        aria-label={`Select ${country.country}`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-lg">{country.flag}</span>
+                          <span className="text-lg animate-bounce-gentle">{country.flag}</span>
                           <span className="text-white text-sm font-medium truncate">{country.country}</span>
                         </div>
                       </motion.button>
