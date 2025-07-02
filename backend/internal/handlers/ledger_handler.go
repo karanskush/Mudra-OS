@@ -139,8 +139,8 @@ type CreateDepositRequest struct {
 	AccountID   uuid.UUID `json:"account_id" binding:"required"`
 	Amount      float64   `json:"amount" binding:"required,gt=0"`
 	Currency    string    `json:"currency" binding:"required"`
-	Description string    `json:"description"`
-	Reference   string    `json:"reference"`
+	Description string    `json:"description" binding:"required"`
+	Reference   string    `json:"reference" binding:"required"`
 }
 
 // CreateDeposit creates a deposit transaction
@@ -165,6 +165,43 @@ func (h *LedgerHandler) CreateDeposit(c *gin.Context) {
 	}
 
 	transaction, err := h.ledgerService.CreateDeposit(
+		userID,
+		req.AccountID,
+		req.Amount,
+		req.Currency,
+		req.Description,
+		req.Reference,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, transaction)
+}
+
+// CreateTestBalance creates a test balance transaction without validation
+func (h *LedgerHandler) CreateTestBalance(c *gin.Context) {
+	var req CreateDepositRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user ID from context
+	userIDStr := c.GetString("user_id")
+	if userIDStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID"})
+		return
+	}
+
+	transaction, err := h.ledgerService.CreateTestBalance(
 		userID,
 		req.AccountID,
 		req.Amount,

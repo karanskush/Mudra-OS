@@ -14,6 +14,40 @@ const Navbar: React.FC = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { isDark } = useTheme();
   const { user, logout } = useAuth();
+  
+  // Helper function to get user's first name
+  const getUserFirstName = () => {
+    if (!user) return 'User';
+    
+    // Check for actual content (not just empty strings)
+    const firstName = user.firstName?.trim();
+    const first_name = user.first_name?.trim();
+    
+    let name = '';
+    if (firstName) name = firstName;
+    else if (first_name) name = first_name;
+    else return 'User';
+    
+    // Capitalize first character
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  };
+  
+  const getUserFullName = () => {
+    if (!user) return 'User';
+    
+    const firstName = user.firstName?.trim() || user.first_name?.trim();
+    const lastName = user.lastName?.trim() || user.last_name?.trim();
+    
+    if (firstName || lastName) {
+      const capitalizedFirst = firstName ? firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase() : '';
+      const capitalizedLast = lastName ? lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase() : '';
+      return `${capitalizedFirst} ${capitalizedLast}`.trim();
+    }
+    
+    // Fall back to first name logic
+    return getUserFirstName();
+  };
+  
   const location = useLocation();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
@@ -80,7 +114,7 @@ const Navbar: React.FC = () => {
   };
 
   const handleLogout = () => {
-    const userName = user?.firstName || user?.first_name || 'User';
+    const userName = getUserFullName();
     logout();
     toast.success(`Goodbye, ${userName}! See you soon! 👋`);
   };
@@ -277,13 +311,13 @@ const Navbar: React.FC = () => {
                       }`}
                     >
                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-sm font-semibold">
-                        {(user.firstName?.[0] || user.first_name?.[0] || 'U').toUpperCase()}
+                        {(getUserFirstName()[0] || 'U').toUpperCase()}
                       </div>
                       <div className="hidden md:flex flex-col items-start">
                         <span className={`text-sm font-medium leading-none ${
                           isDark ? 'text-white' : 'text-gray-900'
                         }`}>
-                          {user.firstName || user.first_name || 'User'}
+                          {getUserFullName()}
                         </span>
                         <span className={`text-xs leading-none mt-0.5 ${
                           isDark ? 'text-gray-400' : 'text-gray-500'
@@ -308,13 +342,13 @@ const Navbar: React.FC = () => {
                         }`}>
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold">
-                              {(user.firstName?.[0] || user.first_name?.[0] || 'U').toUpperCase()}
+                              {(getUserFirstName()[0] || 'U').toUpperCase()}
                             </div>
                             <div>
                               <div className={`text-sm font-semibold ${
                                 isDark ? 'text-white' : 'text-gray-900'
                               }`}>
-                                {user.firstName || user.first_name || 'User'} {user.lastName || user.last_name || ''}
+                                {getUserFullName()}
                               </div>
                               <div className={`text-xs ${
                                 isDark ? 'text-gray-400' : 'text-gray-500'
@@ -471,13 +505,13 @@ const Navbar: React.FC = () => {
                       isDark ? 'bg-slate-800' : 'bg-gray-50'
                     }`}>
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold">
-                        {(user.firstName?.[0] || user.first_name?.[0] || 'U').toUpperCase()}
+                        {(getUserFirstName()[0] || 'U').toUpperCase()}
                       </div>
                       <div>
                         <div className={`text-sm font-semibold ${
                           isDark ? 'text-white' : 'text-gray-900'
                         }`}>
-                          {user.firstName || user.first_name || 'User'} {user.lastName || user.last_name || ''}
+                          {getUserFullName()}
                         </div>
                         <div className={`text-xs ${
                           isDark ? 'text-gray-400' : 'text-gray-500'

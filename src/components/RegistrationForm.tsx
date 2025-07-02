@@ -73,8 +73,12 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, on
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
-          dateOfBirth: formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString() : null,
+          email: formData.email,
+          password: formData.password,
+          first_name: formData.firstName,  // Map to backend field
+          last_name: formData.lastName,    // Map to backend field
+          phone: formData.phone,
+          date_of_birth: formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString() : null,
         }),
       });
       const data = await response.json();

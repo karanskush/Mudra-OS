@@ -12,6 +12,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['lucide-react'],
+    include: ['@heroicons/react/24/outline', '@heroicons/react/24/solid'],
   },
   server: {
     proxy: {

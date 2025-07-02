@@ -15,6 +15,7 @@ import {
   Eye,
   Globe
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Account {
   id: string;
@@ -492,6 +493,25 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
 };
 
 const LedgerTest: React.FC = () => {
+  const { user } = useAuth();
+  
+  // Helper function to get user's first name
+  const getUserFirstName = () => {
+    if (!user) return 'Friend';
+    
+    // Check for actual content (not just empty strings)
+    const firstName = user.firstName?.trim();
+    const first_name = user.first_name?.trim();
+    
+    let name = '';
+    if (firstName) name = firstName;
+    else if (first_name) name = first_name;
+    else return 'Friend';
+    
+    // Capitalize first character
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  };
+  
   const [loading, setLoading] = useState(false);
   const [availableAccounts, setAvailableAccounts] = useState<Account[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -683,6 +703,37 @@ const LedgerTest: React.FC = () => {
     }
   };
 
+  const handleCreateTestBalance = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setResponse('');
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/transactions/test-balance`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(depositForm)
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setResponse(JSON.stringify(data, null, 2));
+        setTransactions([...transactions, data]);
+        // Refresh available accounts after test balance
+        loadAvailableAccounts();
+      } else {
+        setResponse(`Error: ${data.error || 'Failed to create test balance'}`);
+      }
+    } catch (error) {
+      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGetBalance = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -764,8 +815,8 @@ const LedgerTest: React.FC = () => {
   const totalBalance = availableAccounts.reduce((total, account) => total + (account.balance || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pt-20">
-      {/* Modern Header with Glass Effect */}
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pt-20">
+        {/* Header Section */}
       <div className="relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-700/50">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -776,7 +827,7 @@ const LedgerTest: React.FC = () => {
                   <BookOpen className="h-6 w-6 text-white" />
                 </div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  FinOS Ledger
+                  Hello {getUserFirstName()}, Welcome to the Ledger!
                 </h1>
               </div>
               <p className="text-lg text-gray-600 dark:text-gray-400">
@@ -872,7 +923,7 @@ const LedgerTest: React.FC = () => {
                     </div>
                     <div className="text-left">
                       <h4 className="font-semibold">Make Deposit</h4>
-                      <p className="text-purple-100 text-sm">Add funds to accounts</p>
+                      <p className="text-purple-100 text-sm">Add funds and see balance update</p>
                     </div>
                   </div>
                 </button>
@@ -1003,26 +1054,28 @@ const LedgerTest: React.FC = () => {
                   </div>
                   <div className="space-y-3">
                     {transactions.slice(0, 3).map((transaction) => (
-                      <div key={transaction.id} className="flex items-center gap-3 p-3 bg-white/50 dark:bg-slate-700/50 rounded-xl">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                          transaction.type === 'transfer' ? 'bg-green-500' : 'bg-purple-500'
-                        }`}>
-                          {transaction.type === 'transfer' ? (
-                            <ArrowRight className="h-4 w-4 text-white" />
-                          ) : (
-                            <DollarSign className="h-4 w-4 text-white" />
-                          )}
+                      transaction && typeof transaction.amount === 'number' ? (
+                        <div key={transaction.id} className="flex items-center gap-3 p-3 bg-white/50 dark:bg-slate-700/50 rounded-xl">
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                            transaction.type === 'transfer' ? 'bg-green-500' : 'bg-purple-500'
+                          }`}>
+                            {transaction.type === 'transfer' ? (
+                              <ArrowRight className="h-4 w-4 text-white" />
+                            ) : (
+                              <DollarSign className="h-4 w-4 text-white" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900 dark:text-white capitalize">{transaction.type}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.description}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-gray-900 dark:text-white">
+                              ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900 dark:text-white capitalize">{transaction.type}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.description}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-900 dark:text-white">
-                            ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </p>
-                        </div>
-                      </div>
+                      ) : null
                     ))}
                     {transactions.length === 0 && (
                       <div className="text-center py-6 text-gray-500 dark:text-gray-400">
@@ -1036,17 +1089,19 @@ const LedgerTest: React.FC = () => {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Account Summary</h3>
                   <div className="space-y-4">
                     {availableAccounts.slice(0, 3).map((account) => (
-                      <div key={account.id} className="flex items-center justify-between p-3 bg-white/50 dark:bg-slate-700/50 rounded-xl">
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-white">{account.name}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{account.type}</p>
+                      account && typeof account.balance === 'number' ? (
+                        <div key={account.id} className="flex items-center justify-between p-3 bg-white/50 dark:bg-slate-700/50 rounded-xl">
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-white">{account.name}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{account.type}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-gray-900 dark:text-white">
+                              ${(account.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-900 dark:text-white">
-                            ${(account.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </p>
-                        </div>
-                      </div>
+                      ) : null
                     ))}
                     {availableAccounts.length === 0 && (
                       <div className="text-center py-6 text-gray-500 dark:text-gray-400">
@@ -1160,45 +1215,47 @@ const LedgerTest: React.FC = () => {
                     <div className="w-1/3 border-r border-gray-200/50 dark:border-slate-700/50 overflow-y-auto">
                       <div className="p-4 space-y-2">
                         {availableAccounts.map((account) => (
-                          <button
-                            key={account.id}
-                            onClick={() => setSelectedAccount(account)}
-                            className={`w-full text-left p-4 rounded-xl transition-all duration-200 ${
-                              selectedAccount?.id === account.id
-                                ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border border-blue-300/50 dark:border-blue-600/50'
-                                : 'bg-white/30 dark:bg-slate-700/30 hover:bg-white/50 dark:hover:bg-slate-700/50 border border-transparent'
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          account && typeof account.balance === 'number' ? (
+                            <button
+                              key={account.id}
+                              onClick={() => setSelectedAccount(account)}
+                              className={`w-full text-left p-4 rounded-xl transition-all duration-200 ${
                                 selectedAccount?.id === account.id
-                                  ? 'bg-gradient-to-br from-blue-500 to-purple-600'
-                                  : 'bg-gradient-to-br from-gray-400 to-gray-500'
-                              }`}>
-                                <CreditCard className="h-5 w-5 text-white" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className={`font-semibold truncate ${
+                                  ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border border-blue-300/50 dark:border-blue-600/50'
+                                  : 'bg-white/30 dark:bg-slate-700/30 hover:bg-white/50 dark:hover:bg-slate-700/50 border border-transparent'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                                   selectedAccount?.id === account.id
-                                    ? 'text-blue-900 dark:text-blue-100'
-                                    : 'text-gray-900 dark:text-white'
+                                    ? 'bg-gradient-to-br from-blue-500 to-purple-600'
+                                    : 'bg-gradient-to-br from-gray-400 to-gray-500'
                                 }`}>
-                                  {account.name}
-                                </h4>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                                  #{account.account_number}
-                                </p>
-                                {account.balance !== undefined && (
-                                  <p className="text-sm font-medium text-green-600 dark:text-green-400">
-                                    ${account.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  <CreditCard className="h-5 w-5 text-white" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className={`font-semibold truncate ${
+                                    selectedAccount?.id === account.id
+                                      ? 'text-blue-900 dark:text-blue-100'
+                                      : 'text-gray-900 dark:text-white'
+                                  }`}>
+                                    {account.name}
+                                  </h4>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                                    #{account.account_number}
                                   </p>
-                                )}
+                                  {account.balance !== undefined && typeof account.balance === 'number' && (
+                                    <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                                      ${account.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                              </div>
-                            </div>
-                          </button>
+                            </button>
+                          ) : null
                         ))}
                       </div>
                     </div>
@@ -1241,7 +1298,7 @@ const LedgerTest: React.FC = () => {
                           </div>
 
                           {/* Account Balance */}
-                          {selectedAccount.balance !== undefined && (
+                          {selectedAccount.balance !== undefined && typeof selectedAccount.balance === 'number' && (
                             <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-800 mb-8">
                               <div className="flex items-center justify-between">
                                 <div>
@@ -1477,66 +1534,68 @@ const LedgerTest: React.FC = () => {
                   ) : (
                     <div className="space-y-4">
                       {transactions.map((transaction) => (
-                        <div key={transaction.id} className="group bg-white/50 dark:bg-slate-700/50 backdrop-blur border border-white/20 dark:border-slate-600/50 rounded-2xl p-6 hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all duration-200 hover:shadow-lg">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                                transaction.type === 'transfer' 
-                                  ? 'bg-gradient-to-br from-green-500 to-green-600'
-                                  : 'bg-gradient-to-br from-purple-500 to-purple-600'
-                              }`}>
-                                {transaction.type === 'transfer' ? (
-                                  <ArrowRight className="h-6 w-6 text-white" />
-                                ) : (
-                                  <DollarSign className="h-6 w-6 text-white" />
-                                )}
-                              </div>
-                              <div>
-                                <h3 className="font-bold text-gray-900 dark:text-white text-lg capitalize">{transaction.type}</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.reference}</p>
-                                <p className="text-gray-600 dark:text-gray-300">{transaction.description}</p>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-6">
-                              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
-                                transaction.status === 'posted' 
-                                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
-                                  : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800'
-                              }`}>
-                                {transaction.status === 'posted' ? (
-                                  <>
-                                    <CheckCircle className="h-4 w-4" />
-                                    Posted
-                                  </>
-                                ) : (
-                                  <>
-                                    <Clock className="h-4 w-4" />
-                                    Draft
-                                  </>
-                                )}
-                              </div>
-
-                              <div className="text-right">
-                                <div className="text-xl font-bold text-gray-900 dark:text-white">
-                                  ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        transaction && typeof transaction.amount === 'number' ? (
+                          <div key={transaction.id} className="group bg-white/50 dark:bg-slate-700/50 backdrop-blur border border-white/20 dark:border-slate-600/50 rounded-2xl p-6 hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all duration-200 hover:shadow-lg">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                                  transaction.type === 'transfer' 
+                                    ? 'bg-gradient-to-br from-green-500 to-green-600'
+                                    : 'bg-gradient-to-br from-purple-500 to-purple-600'
+                                }`}>
+                                  {transaction.type === 'transfer' ? (
+                                    <ArrowRight className="h-6 w-6 text-white" />
+                                  ) : (
+                                    <DollarSign className="h-6 w-6 text-white" />
+                                  )}
                                 </div>
-                                <div className="text-sm text-gray-500 dark:text-gray-400">{transaction.currency}</div>
+                                <div>
+                                  <h3 className="font-bold text-gray-900 dark:text-white text-lg capitalize">{transaction.type}</h3>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.reference}</p>
+                                  <p className="text-gray-600 dark:text-gray-300">{transaction.description}</p>
+                                </div>
                               </div>
 
-                              {transaction.status === 'draft' && (
-                                <button
-                                  onClick={() => handlePostTransaction(transaction.id)}
-                                  disabled={loading}
-                                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 transition-all"
-                                >
-                                  <CheckCircle className="h-4 w-4" />
-                                  {loading ? 'Posting...' : 'Post'}
-                                </button>
-                              )}
+                              <div className="flex items-center gap-6">
+                                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
+                                  transaction.status === 'posted' 
+                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
+                                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800'
+                                }`}>
+                                  {transaction.status === 'posted' ? (
+                                    <>
+                                      <CheckCircle className="h-4 w-4" />
+                                      Posted
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Clock className="h-4 w-4" />
+                                      Draft
+                                    </>
+                                  )}
+                                </div>
+
+                                <div className="text-right">
+                                  <div className="text-xl font-bold text-gray-900 dark:text-white">
+                                    ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </div>
+                                  <div className="text-sm text-gray-500 dark:text-gray-400">{transaction.currency}</div>
+                                </div>
+
+                                {transaction.status === 'draft' && (
+                                  <button
+                                    onClick={() => handlePostTransaction(transaction.id)}
+                                    disabled={loading}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 transition-all"
+                                  >
+                                    <CheckCircle className="h-4 w-4" />
+                                    {loading ? 'Posting...' : 'Post'}
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        ) : null
                       ))}
                     </div>
                   )}
@@ -1845,13 +1904,23 @@ const LedgerTest: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                   />
                 </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-purple-600 text-white py-2 px-6 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 transition-colors"
-                >
-                  {loading ? 'Creating...' : 'Create Deposit'}
-                </button>
+                <div className="flex gap-4">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="bg-purple-600 text-white py-2 px-6 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 transition-colors flex-1"
+                  >
+                    {loading ? 'Creating...' : 'Create Deposit'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCreateTestBalance}
+                    disabled={loading}
+                    className="bg-orange-600 text-white py-2 px-6 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 transition-colors flex-1"
+                  >
+                    {loading ? 'Creating...' : 'Get Test Balance'}
+                  </button>
+                </div>
               </form>
             </div>
           )}

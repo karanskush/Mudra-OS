@@ -159,6 +159,12 @@ func handleLedgerTransactionRoutes(w http.ResponseWriter, r *http.Request, pathP
 			} else {
 				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			}
+		case "test-balance":
+			if r.Method == http.MethodPost {
+				createTestBalance(w, r)
+			} else {
+				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			}
 		default:
 			// Handle transaction ID-based routes
 			if len(pathParts) >= 5 && pathParts[4] == "post" {
@@ -306,6 +312,64 @@ func createLedgerDeposit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Automatically post the transaction so the balance is immediately updated
+	if err := service.PostTransaction(transaction.ID); err != nil {
+		http.Error(w, fmt.Sprintf("Transaction created but failed to post: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Mark the transaction as posted in the response
+	transaction.Status = models.LedgerTransactionStatusPosted
+	now := time.Now()
+	transaction.PostedAt = &now
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(transaction)
+}
+
+// createTestBalance creates a test balance transaction without validation
+func createTestBalance(w http.ResponseWriter, r *http.Request) {
+	service := getLedgerService()
+	if service == nil {
+		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
+		return
+	}
+
+	var req handlers.CreateDepositRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// For testing purposes, use a default user ID
+	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
+
+	transaction, err := service.CreateTestBalance(
+		testUserID,
+		req.AccountID,
+		req.Amount,
+		req.Currency,
+		req.Description,
+		req.Reference,
+	)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Automatically post the transaction so the balance is immediately updated
+	if err := service.PostTransaction(transaction.ID); err != nil {
+		http.Error(w, fmt.Sprintf("Transaction created but failed to post: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Mark the transaction as posted in the response
+	transaction.Status = models.LedgerTransactionStatusPosted
+	now := time.Now()
+	transaction.PostedAt = &now
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
