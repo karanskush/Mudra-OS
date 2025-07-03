@@ -18,6 +18,7 @@ import LandingPage from './components/LandingPage';
 import KYCFlow from './components/KYCFlow';
 import KYCDashboard from './components/KYCDashboard';
 import Developers from './components/Developers';
+import APIExplorer from './components/Developers/APIExplorer';
 
 // Enhanced fintech-focused products with more relevant imagery
 const fintechProducts = [
@@ -138,6 +139,7 @@ function App() {
               <Route path="/kyc" element={<ProtectedRoute><Layout><KYCFlow /></Layout></ProtectedRoute>} />
               <Route path="/kyc/dashboard" element={<ProtectedRoute><Layout><KYCDashboard /></Layout></ProtectedRoute>} />
               <Route path="/developers" element={<Layout><Developers /></Layout>} />
+              <Route path="/developers/api-explorer" element={<Layout><APIExplorer /></Layout>} />
               <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
           </ToastProvider>

@@ -5,4 +5,5 @@ export { default as QuickStart } from './QuickStart';
 export { default as Changelog } from './Changelog';
 export { default as Support } from './Support';
 export { default as DevelopersPage } from './DevelopersPage';
-export { default as GRPCGuide } from './GRPCGuide'; 
+export { default as GRPCGuide } from './GRPCGuide';
+export { default as APIExplorer } from './APIExplorer'; 
