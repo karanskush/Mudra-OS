@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"fintech-backend/internal/middleware"
 )
 
 // Handler is the main entry point for Vercel
@@ -32,40 +34,52 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Routing to Health")
 		Health(w, r)
 
-	// Auth routes
+	// Auth routes (no authentication required)
 	case strings.HasPrefix(path, "api/v1/auth"):
 		log.Printf("Routing to handleAuthRoutes")
 		handleAuthRoutes(w, r, pathParts)
 
-	// User routes
+	// User routes (authentication required)
 	case strings.HasPrefix(path, "api/v1/users"):
-		log.Printf("Routing to handleUserRoutes")
-		handleUserRoutes(w, r, pathParts)
+		log.Printf("Routing to handleUserRoutes (authenticated)")
+		middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			handleUserRoutes(w, r, pathParts)
+		})).ServeHTTP(w, r)
 
-	// Account routes
+	// Account routes (authentication required)
 	case strings.HasPrefix(path, "api/v1/accounts"):
-		log.Printf("Routing to handleAccountRoutes")
-		handleAccountRoutes(w, r, pathParts)
+		log.Printf("Routing to handleAccountRoutes (authenticated)")
+		middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			handleAccountRoutes(w, r, pathParts)
+		})).ServeHTTP(w, r)
 
-	// Transaction routes
+	// Transaction routes (authentication required)
 	case strings.HasPrefix(path, "api/v1/transactions"):
-		log.Printf("Routing to handleTransactionRoutes")
-		handleTransactionRoutes(w, r, pathParts)
+		log.Printf("Routing to handleTransactionRoutes (authenticated)")
+		middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			handleTransactionRoutes(w, r, pathParts)
+		})).ServeHTTP(w, r)
 
-	// Payment routes
+	// Payment routes (authentication required)
 	case strings.HasPrefix(path, "api/v1/payments"):
-		log.Printf("Routing to handlePaymentRoutes")
-		handlePaymentRoutes(w, r, pathParts)
+		log.Printf("Routing to handlePaymentRoutes (authenticated)")
+		middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			handlePaymentRoutes(w, r, pathParts)
+		})).ServeHTTP(w, r)
 
-	// Ledger routes
+	// Ledger routes (authentication required)
 	case strings.HasPrefix(path, "api/ledger"):
-		log.Printf("Routing to LedgerHandler")
-		LedgerHandler(w, r)
+		log.Printf("Routing to LedgerHandler (authenticated)")
+		middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			LedgerHandler(w, r)
+		})).ServeHTTP(w, r)
 
-	// KYC routes
+	// KYC routes (authentication required)
 	case strings.HasPrefix(path, "api/kyc"):
-		log.Printf("Routing to KYCHandler")
-		KYCHandler(w, r)
+		log.Printf("Routing to KYCHandler (authenticated)")
+		middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			KYCHandler(w, r)
+		})).ServeHTTP(w, r)
 
 	default:
 		log.Printf("No matching route found, returning 404")

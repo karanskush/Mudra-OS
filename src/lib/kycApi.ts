@@ -1,4 +1,6 @@
 // KYC API client for frontend  
+import { apiClient, ApiResponse } from './api';
+
 export interface Country {
   country: string;
   documents: string[];
@@ -9,7 +11,7 @@ export interface Country {
 
 export interface DocumentStatus {
   status: string;
-  verifiedAt?: string;
+  verified_at?: string;
   error?: string;
 }
 
@@ -25,7 +27,6 @@ export interface KYCStatus {
 
 export interface DocumentVerificationRequest {
   document_number: string;
-  user_id: string;
   country: string;
 }
 
@@ -37,7 +38,6 @@ export interface DocumentVerificationResponse {
 }
 
 export interface KYCStartRequest {
-  user_id: string;
   country: string;
   name: string;
   email: string;
@@ -57,112 +57,70 @@ export class KYCApi {
         ? `${BASE_URL}/countries?search=${encodeURIComponent(searchQuery)}`
         : `${BASE_URL}/countries`;
       
-      const response = await fetch(url);
-      const data = await response.json();
+      const data = await apiClient.authenticatedRequest(url);
       
-      if (!response.ok) {
+      if (!data.success) {
         throw new Error(data.error || 'Failed to fetch countries');
       }
       
-      return data.countries;
+      return data.countries || [];
     } catch (error) {
       console.error('Error fetching countries:', error);
       throw error;
     }
   }
 
-  // Start KYC process for a user
+  // Start KYC process for authenticated user
   static async startKYC(request: KYCStartRequest): Promise<KYCStatus> {
     try {
-      const response = await fetch(`${BASE_URL}/start`, {
+      const response: ApiResponse<KYCStatus> = await apiClient.authenticatedRequest(`${BASE_URL}/start`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(request),
       });
       
-      if (!response.ok) {
-        // Read response as text first, then try to parse as JSON
-        let errorMessage = 'Failed to start KYC process';
-        try {
-          const textResponse = await response.text();
-          
-          // Try to parse the text as JSON
-          try {
-            const data = JSON.parse(textResponse);
-            errorMessage = data.error || data.message || errorMessage;
-          } catch (jsonError) {
-            // If it's not JSON, use the text directly
-            errorMessage = textResponse || errorMessage;
-          }
-        } catch (textError) {
-          // Keep default error message if text reading fails
-        }
-        throw new Error(errorMessage);
+      if (!response.data) {
+        throw new Error('No data received from KYC start request');
       }
       
-      const data = await response.json();
-      return data.data;
+      return response.data;
     } catch (error) {
       console.error('Error starting KYC:', error);
       throw error;
     }
   }
 
-  // Verify a document
+  // Verify a document for authenticated user
   static async verifyDocument(
     documentType: string,
     request: DocumentVerificationRequest
   ): Promise<DocumentVerificationResponse> {
     try {
-      const response = await fetch(`${BASE_URL}/verify/${documentType}`, {
+      const response: ApiResponse<DocumentVerificationResponse> = await apiClient.authenticatedRequest(`${BASE_URL}/verify/${documentType}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(request),
       });
       
-      if (!response.ok) {
-        // Read response as text first, then try to parse as JSON
-        let errorMessage = 'Failed to verify document';
-        try {
-          const textResponse = await response.text();
-          
-          // Try to parse the text as JSON
-          try {
-            const data = JSON.parse(textResponse);
-            errorMessage = data.error || data.message || errorMessage;
-          } catch (jsonError) {
-            // If it's not JSON, use the text directly
-            errorMessage = textResponse || errorMessage;
-          }
-        } catch (textError) {
-          // Keep default error message if text reading fails
-        }
-        throw new Error(errorMessage);
+      if (!response.data) {
+        throw new Error('No data received from document verification request');
       }
       
-      const data = await response.json();
-      return data.data;
+      return response.data;
     } catch (error) {
       console.error('Error verifying document:', error);
       throw error;
     }
   }
 
-  // Get KYC status for a user
-  static async getKYCStatus(userId: string): Promise<KYCStatus> {
+  // Get KYC status for authenticated user
+  static async getKYCStatus(): Promise<KYCStatus> {
     try {
-      const response = await fetch(`${BASE_URL}/status/${userId}`);
-      const data = await response.json();
+      const response: ApiResponse<KYCStatus> = await apiClient.authenticatedRequest(`${BASE_URL}/status`);
       
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch KYC status');
+      if (!response.data) {
+        throw new Error('No data received from KYC status request');
       }
       
-      return data.data;
+      return response.data;
     } catch (error) {
       console.error('Error fetching KYC status:', error);
       throw error;
@@ -172,10 +130,9 @@ export class KYCApi {
   // Check if KYC service is running
   static async healthCheck(): Promise<{ success: boolean; message: string; version: string }> {
     try {
-      const response = await fetch(`${BASE_URL}/`);
-      const data = await response.json();
+      const data = await apiClient.authenticatedRequest(`${BASE_URL}/`);
       
-      if (!response.ok) {
+      if (!data.success) {
         throw new Error(data.error || 'KYC service health check failed');
       }
       
@@ -188,24 +145,20 @@ export class KYCApi {
 
   // Upload document file (for future implementation)
   static async uploadDocument(
-    userId: string,
     documentType: string,
     file: File
   ): Promise<{ success: boolean; fileId: string }> {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('user_id', userId);
       formData.append('document_type', documentType);
 
-      const response = await fetch(`${BASE_URL}/upload`, {
+      const data = await apiClient.authenticatedRequest(`${BASE_URL}/upload`, {
         method: 'POST',
         body: formData,
       });
       
-      const data = await response.json();
-      
-      if (!response.ok) {
+      if (!data.success) {
         throw new Error(data.error || 'Failed to upload document');
       }
       
@@ -216,9 +169,8 @@ export class KYCApi {
     }
   }
 
-  // Verify document through Didit API
+  // Verify document through Didit API for authenticated user
   static async verifyDocumentWithDidit(
-    userId: string,
     documentType: string,
     file: File,
     countryCode: string,
@@ -229,42 +181,17 @@ export class KYCApi {
       const documentImage = await this.convertFileToBase64(file);
       const faceImageB64 = faceImage ? await this.convertFileToBase64(faceImage) : undefined;
 
-      const response = await fetch(`${BASE_URL}/verify/didit`, {
+      const response: ApiResponse = await apiClient.authenticatedRequest(`${BASE_URL}/verify/didit`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           document_image: documentImage,
           document_type: documentType,
           country_code: countryCode,
-          user_id: userId,
           face_image: faceImageB64,
         }),
       });
       
-      if (!response.ok) {
-        // Read response as text first, then try to parse as JSON
-        let errorMessage = 'Failed to verify document';
-        try {
-          const textResponse = await response.text();
-          
-          // Try to parse the text as JSON
-          try {
-            const data = JSON.parse(textResponse);
-            errorMessage = data.error || data.message || errorMessage;
-          } catch (jsonError) {
-            // If it's not JSON, use the text directly
-            errorMessage = textResponse || errorMessage;
-          }
-        } catch (textError) {
-          // Keep default error message if text reading fails
-        }
-        throw new Error(errorMessage);
-      }
-      
-      const data = await response.json();
-      return data.data;
+      return response.data;
     } catch (error) {
       console.error('Error verifying document with Didit:', error);
       throw error;
@@ -286,19 +213,17 @@ export class KYCApi {
     });
   }
 
-  // Validate Aadhaar number format
-  static validateAadhaarNumber(aadhaarNumber: string): boolean {
-    // Remove spaces and check if it's exactly 12 digits
-    const cleaned = aadhaarNumber.replace(/\s/g, '');
+  // Validation helpers (moved to static methods for consistency)
+  static validateAadhaarNumber(number: string): boolean {
+    // Aadhaar number should be 12 digits
     const aadhaarRegex = /^\d{12}$/;
-    return aadhaarRegex.test(cleaned);
+    return aadhaarRegex.test(number.replace(/\s/g, ''));
   }
 
-  // Validate PAN number format
-  static validatePANNumber(panNumber: string): boolean {
+  static validatePANNumber(number: string): boolean {
     // PAN format: 5 letters, 4 digits, 1 letter (e.g., ABCDE1234F)
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    return panRegex.test(panNumber.toUpperCase());
+    return panRegex.test(number.toUpperCase());
   }
 
   // Format Aadhaar number with spaces for display
@@ -348,7 +273,7 @@ export class KYCApi {
       if (filters?.country) queryParams.append('country', filters.country);
       if (filters?.priority) queryParams.append('priority', filters.priority);
 
-      const response = await fetch(`${BASE_URL}/dashboard?${queryParams.toString()}`);
+      const response = await apiClient.authenticatedRequest(`${BASE_URL}/dashboard?${queryParams.toString()}`);
       const data = await response.json();
       
       if (!response.ok) {
@@ -365,7 +290,7 @@ export class KYCApi {
   // Get dashboard statistics
   static async getDashboardStats(): Promise<KYCStats> {
     try {
-      const response = await fetch(`${BASE_URL}/dashboard/stats`);
+      const response = await apiClient.authenticatedRequest(`${BASE_URL}/dashboard/stats`);
       const data = await response.json();
       
       if (!response.ok) {
@@ -386,7 +311,7 @@ export class KYCApi {
     notes?: string
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await fetch(`${BASE_URL}/submissions/${submissionId}`, {
+      const response = await apiClient.authenticatedRequest(`${BASE_URL}/submissions/${submissionId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -413,7 +338,7 @@ export class KYCApi {
     status: string
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await fetch(`${BASE_URL}/submissions/bulk-update`, {
+      const response = await apiClient.authenticatedRequest(`${BASE_URL}/submissions/bulk-update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

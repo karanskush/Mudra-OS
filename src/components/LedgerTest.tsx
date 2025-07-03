@@ -13,9 +13,15 @@ import {
   Clock,
   Shield,
   Eye,
-  Globe
+  Globe,
+  Copy,
+  ArrowRightLeft,
+  Users,
+  Wallet
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { apiClient } from "../lib/api";
+import toast from 'react-hot-toast';
 
 interface Account {
   id: string;
@@ -173,22 +179,15 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
     setLoading(true);
     setError('');
     try {
-      // Simulate API call to create/connect account
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/accounts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(accountDetails),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setStep(5);
-        setTimeout(() => {
-          onAccountConnected();
-        }, 1200);
-      } else {
-        setError(data.error || 'Failed to connect account');
-      }
+      // Create account using the same pattern as handleCreateAccount
+      const response = await apiClient.createLedgerAccount(accountDetails);
+      // The response is the account object directly, not wrapped in a data field
+      setStep(5);
+      setTimeout(() => {
+        onAccountConnected();
+      }, 1200);
     } catch (err) {
+      console.error('Account creation error:', err);
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -493,7 +492,7 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
 };
 
 const LedgerTest: React.FC = () => {
-  const { user } = useAuth();
+  const { user } = useAuth(); // Add user from auth context
   
   // Helper function to get user's first name
   const getUserFirstName = () => {
@@ -559,27 +558,27 @@ const LedgerTest: React.FC = () => {
   const loadAvailableAccounts = async () => {
     setLoading(true);
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const response = await apiClient.getAvailableAccounts();
+      // The response could be a direct array of accounts or an object with accounts property
+      const data = response as any;
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/accounts/available`, {
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      const data = await response.json();
-      
-      if (response.ok && data.accounts) {
+      if (Array.isArray(data)) {
+        // Direct array of accounts
+        setAvailableAccounts(data);
+      } else if (data.accounts && Array.isArray(data.accounts)) {
+        // Wrapped in accounts property
         setAvailableAccounts(data.accounts);
+      } else if (data.data && Array.isArray(data.data)) {
+        // Wrapped in data property
+        setAvailableAccounts(data.data);
       } else {
-        console.error('Failed to load accounts:', data);
+        console.error('Failed to load accounts:', response);
+        setAvailableAccounts([]);
       }
     } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.log('Request was aborted');
-      } else {
-        console.error('Error loading available accounts:', error);
-      }
+      console.error('Error loading available accounts:', error);
+      setAvailableAccounts([]);
+      // If authentication error, the apiClient will handle token cleanup
     } finally {
       setLoading(false);
     }
@@ -608,25 +607,17 @@ const LedgerTest: React.FC = () => {
     setResponse('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/accounts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(accountForm)
-      });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        setResponse(JSON.stringify(data, null, 2));
-        // Refresh available accounts after creating new account
-        loadAvailableAccounts();
-      } else {
-        setResponse(`Error: ${data.error || 'Failed to create account'}`);
-      }
+      const response = await apiClient.createLedgerAccount(accountForm);
+      // The response is the account object directly, not wrapped in a data field
+      setResponse(JSON.stringify(response, null, 2));
+      // Refresh available accounts after creating new account
+      await loadAvailableAccounts();
+      setActiveForm(null); // Close the form on success
+      toast.success('Account created successfully!');
     } catch (error) {
-      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Account creation error:', error);
+      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -640,33 +631,33 @@ const LedgerTest: React.FC = () => {
     setShowTransferSuccess(false);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/transactions/transfer`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(transferForm)
-      });
-
-      const data = await response.json();
+      const response = await apiClient.createTransfer(transferForm);
+      // The response is the transfer object directly, not wrapped in a data field
+      const data = response as any;
+      
       // If the response includes rail info, use it
-      if (response.ok && data.rail) {
+      if (data.rail) {
         setLastTransferRailInfo(data as TransferRailInfo);
         setTransactions([...transactions, data.transaction]);
         setResponse(JSON.stringify(data, null, 2));
         setShowTransferSuccess(true);
-        loadAvailableAccounts();
-      } else if (response.ok && data.id) {
+        await loadAvailableAccounts();
+        toast.success('Transfer created successfully!');
+      } else if (data.id) {
         // fallback for old response
         setTransactions([...transactions, data]);
         setResponse(JSON.stringify(data, null, 2));
         setShowTransferSuccess(true);
-        loadAvailableAccounts();
+        await loadAvailableAccounts();
+        toast.success('Transfer created successfully!');
       } else {
         setResponse(`Error: ${data.error || 'Failed to create transfer'}`);
+        toast.error('Failed to create transfer');
       }
     } catch (error) {
-      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Transfer creation error:', error);
+      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to create transfer');
     } finally {
       setLoading(false);
     }
@@ -678,26 +669,17 @@ const LedgerTest: React.FC = () => {
     setResponse('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/transactions/deposit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(depositForm)
-      });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        setResponse(JSON.stringify(data, null, 2));
-        setTransactions([...transactions, data]);
-        // Refresh available accounts after deposit
-        loadAvailableAccounts();
-      } else {
-        setResponse(`Error: ${data.error || 'Failed to create deposit'}`);
-      }
+      const response = await apiClient.createDeposit(depositForm);
+      // The response is the deposit object directly, not wrapped in a data field
+      setResponse(JSON.stringify(response, null, 2));
+      setTransactions([...transactions, response as any]);
+      // Refresh available accounts after deposit
+      await loadAvailableAccounts();
+      toast.success('Deposit created successfully!');
     } catch (error) {
-      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Deposit creation error:', error);
+      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to create deposit');
     } finally {
       setLoading(false);
     }
@@ -709,26 +691,17 @@ const LedgerTest: React.FC = () => {
     setResponse('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/transactions/test-balance`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(depositForm)
-      });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        setResponse(JSON.stringify(data, null, 2));
-        setTransactions([...transactions, data]);
-        // Refresh available accounts after test balance
-        loadAvailableAccounts();
-      } else {
-        setResponse(`Error: ${data.error || 'Failed to create test balance'}`);
-      }
+      const response = await apiClient.createTestBalance(depositForm);
+      // The response is the test balance object directly, not wrapped in a data field
+      setResponse(JSON.stringify(response, null, 2));
+      setTransactions([...transactions, response as any]);
+      // Refresh available accounts after test balance
+      await loadAvailableAccounts();
+      toast.success('Test balance created successfully!');
     } catch (error) {
-      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Test balance creation error:', error);
+      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to create test balance');
     } finally {
       setLoading(false);
     }
@@ -741,19 +714,17 @@ const LedgerTest: React.FC = () => {
     setAccountBalance(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/accounts/${balanceForm.account_id}/balance`);
-      const data = await response.json();
-      
-      if (response.ok) {
-        setAccountBalance({ balance: data.balance, currency: data.currency });
-        setResponse('');
-      } else {
-        setAccountBalance(null);
-        setResponse(`Error: ${data.error || 'Failed to get balance'}`);
-      }
+      const response = await apiClient.getAccountBalance(balanceForm.account_id);
+      // The response is the balance object directly, not wrapped in a data field
+      const data = response as any;
+      setAccountBalance({ balance: data.balance, currency: data.currency });
+      setResponse('');
+      toast.success('Balance retrieved successfully!');
     } catch (error) {
+      console.error('Balance retrieval error:', error);
       setAccountBalance(null);
-      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to retrieve balance');
     } finally {
       setLoading(false);
     }
@@ -764,17 +735,24 @@ const LedgerTest: React.FC = () => {
     setResponse('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/trial-balance`);
+      const response = await apiClient.authenticatedRequest("/api/ledger/trial-balance", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
       const result = await response.json();
       
       if (response.ok) {
         setTrialBalance(result);
         setResponse(JSON.stringify(result, null, 2));
+        toast.success('Trial balance retrieved successfully!');
       } else {
         setResponse(`Error: ${result.error || 'Failed to get trial balance'}`);
+        toast.error('Failed to get trial balance');
       }
     } catch (error) {
+      console.error('Trial balance retrieval error:', error);
       setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to get trial balance');
     } finally {
       setLoading(false);
     }
@@ -785,7 +763,7 @@ const LedgerTest: React.FC = () => {
     setResponse('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/transactions/${transactionId}/post`, {
+      const response = await apiClient.authenticatedRequest(`/api/ledger/transactions/${transactionId}/post`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -814,6 +792,33 @@ const LedgerTest: React.FC = () => {
   // Calculate total balance
   const totalBalance = availableAccounts.reduce((total, account) => total + (account.balance || 0), 0);
 
+  // Debug helper function
+  const generateAuthenticatedCurl = (endpoint: string, method: string = 'GET', body?: any) => {
+    const token = localStorage.getItem('authToken');
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    
+    let curlCommand = `curl -X ${method} '${baseUrl}${endpoint}' \\\n`;
+    curlCommand += `  -H 'Content-Type: application/json' \\\n`;
+    
+    if (token) {
+      curlCommand += `  -H 'Authorization: Bearer ${token}'`;
+    } else {
+      curlCommand += `  -H 'Authorization: Bearer YOUR_TOKEN_HERE' # ⚠️ Token not found! Please login first.`;
+    }
+    
+    if (body) {
+      curlCommand += ` \\\n  --data-raw '${JSON.stringify(body)}'`;
+    }
+    
+    return curlCommand;
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success('Copied to clipboard!');
+    });
+  };
+
   return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         {/* Header Section */}
@@ -835,6 +840,20 @@ const LedgerTest: React.FC = () => {
               </p>
             </div>
             <div className="hidden lg:flex items-center gap-3">
+              {/* Authentication Status Indicator */}
+              {user ? (
+                <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full">
+                  <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                    Authenticated as {user.firstName}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+                  <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                  <span className="text-sm font-medium text-red-700 dark:text-red-300">Not Authenticated</span>
+                </div>
+              )}
               <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full">
                 <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
                 <span className="text-sm font-medium text-green-700 dark:text-green-300">System Online</span>
@@ -1931,6 +1950,84 @@ const LedgerTest: React.FC = () => {
               <pre className="text-sm whitespace-pre-wrap">{response}</pre>
             </div>
           )}
+
+          {/* Debug Panel for API Testing */}
+          <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl mt-6 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-gradient-to-r from-gray-500 to-gray-600 rounded-lg">
+                <Copy className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                🐛 API Debug Helper
+              </h3>
+            </div>
+            
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Copy these authenticated curl commands for testing the API directly:
+              </p>
+              
+              <div className="grid gap-3">
+                {/* List Accounts */}
+                <div className="bg-gray-50/80 dark:bg-slate-700/50 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">List Accounts</span>
+                    <button
+                      onClick={() => copyToClipboard(generateAuthenticatedCurl('/api/ledger/accounts'))}
+                      className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                  <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-x-auto">
+                    {generateAuthenticatedCurl('/api/ledger/accounts')}
+                  </pre>
+                </div>
+
+                {/* Create Account */}
+                <div className="bg-gray-50/80 dark:bg-slate-700/50 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Account</span>
+                    <button
+                      onClick={() => copyToClipboard(generateAuthenticatedCurl('/api/ledger/accounts', 'POST', {
+                        "account_number": "123456789",
+                        "name": "Test Account",
+                        "description": "API Test Account",
+                        "currency": "USD",
+                        "type": "bank"
+                      }))}
+                      className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                  <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-x-auto">
+                    {generateAuthenticatedCurl('/api/ledger/accounts', 'POST', {
+                      "account_number": "123456789",
+                      "name": "Test Account",
+                      "description": "API Test Account",
+                      "currency": "USD",
+                      "type": "bank"
+                    })}
+                  </pre>
+                </div>
+              </div>
+
+              {!user && (
+                <div className="bg-yellow-50/80 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                    <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                      Authentication Required
+                    </span>
+                  </div>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                    Please login first to get properly authenticated curl commands.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
     </div>
   );

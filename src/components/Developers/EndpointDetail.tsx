@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiClient } from '../../lib/api';
 
 export type EndpointDetailProps = {
   endpoint: {
@@ -62,7 +63,7 @@ const EndpointDetail: React.FC<EndpointDetailProps> = ({ endpoint }) => {
         });
         body = Object.keys(bodyObj).length > 0 ? JSON.stringify(bodyObj) : undefined;
       }
-      const res = await fetch(url, {
+      const res = await apiClient.authenticatedRequest(url, {
         method: endpoint.method,
         headers,
         ...(body ? { body } : {}),

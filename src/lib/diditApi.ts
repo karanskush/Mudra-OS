@@ -87,16 +87,17 @@ class DiditApiClient {
   private async makeRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
     const url = `${this.baseUrl}/${this.version}${endpoint}`;
     
-    const defaultHeaders = {
-      'Authorization': `Bearer ${this.apiKey}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
+    const userToken = localStorage.getItem('authToken');
+    if (userToken) {
+      options.headers = {
+        ...(options.headers || {}),
+        'Authorization': `Bearer ${userToken}`,
+      };
+    }
 
     const response = await fetch(url, {
       ...options,
       headers: {
-        ...defaultHeaders,
         ...options.headers,
       },
     });

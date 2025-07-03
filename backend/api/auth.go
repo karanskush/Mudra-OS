@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"fintech-backend/internal/database"
+	"fintech-backend/internal/middleware"
 	"fintech-backend/internal/models"
 	"fintech-backend/pkg/response"
 
@@ -90,18 +91,27 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return success response (without password)
-	userResponse := map[string]interface{}{
-		"id":          user.ID.String(),
-		"email":       user.Email,
-		"first_name":  user.FirstName,
-		"last_name":   user.LastName,
-		"role":        user.Role,
-		"is_active":   user.IsActive,
-		"is_verified": user.IsVerified,
+	// Generate JWT token
+	token, expiresAt, err := middleware.GenerateToken(&user)
+	if err != nil {
+		response.InternalServerError(w, r, "Failed to generate token")
+		return
 	}
 
-	response.Created(w, r, userResponse, "Registration successful")
+	// Return success response with token
+	authResponse := AuthResponse{
+		Token:     token,
+		ExpiresAt: expiresAt,
+		User: UserData{
+			ID:        user.ID.String(),
+			Email:     user.Email,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Role:      user.Role,
+		},
+	}
+
+	response.Created(w, r, authResponse, "Registration successful")
 }
 
 // Login handles user login
@@ -136,20 +146,27 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate JWT token (for now, return a mock token)
-	// TODO: Implement proper JWT token generation
-	token := "mock-jwt-token-" + user.ID.String()
-
-	userResponse := map[string]interface{}{
-		"id":         user.ID.String(),
-		"email":      user.Email,
-		"first_name": user.FirstName,
-		"last_name":  user.LastName,
-		"role":       user.Role,
-		"token":      token,
+	// Generate JWT token
+	token, expiresAt, err := middleware.GenerateToken(&user)
+	if err != nil {
+		response.InternalServerError(w, r, "Failed to generate token")
+		return
 	}
 
-	response.Success(w, r, userResponse, "Login successful")
+	// Return success response with token
+	authResponse := AuthResponse{
+		Token:     token,
+		ExpiresAt: expiresAt,
+		User: UserData{
+			ID:        user.ID.String(),
+			Email:     user.Email,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Role:      user.Role,
+		},
+	}
+
+	response.Success(w, r, authResponse, "Login successful")
 }
 
 // Logout handles user logout
@@ -159,7 +176,8 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Implement actual logout logic (invalidate token)
+	// TODO: Implement token blacklisting for enhanced security
+	// For now, just return success as the frontend will remove the token
 	response.Success(w, r, map[string]interface{}{
 		"message": "Logged out successfully",
 	}, "Logout successful")

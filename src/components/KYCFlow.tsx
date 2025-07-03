@@ -263,9 +263,7 @@ const KYCFlow: React.FC = () => {
     setIsLoading(true);
     setErrors({});
     try {
-      const userId = getSessionUserId();
       const kycData = await KYCApi.startKYC({
-        user_id: userId,
         country: country.countryCode,
         name: userInfo.name,
         email: userInfo.email,
@@ -321,10 +319,8 @@ const KYCFlow: React.FC = () => {
     }
 
     try {
-      const userId = getSessionUserId();
       const verificationResult = await KYCApi.verifyDocument(documentType, {
         document_number: documentNumber,
-        user_id: userId,
         country: selectedCountry?.country || 'IN',
       });
 
@@ -333,7 +329,7 @@ const KYCFlow: React.FC = () => {
           const updatedStatus = { ...kycStatus };
           updatedStatus.documents[documentType] = {
             status: 'verified',
-            verifiedAt: new Date().toISOString(),
+            verified_at: new Date().toISOString(),
           };
           updatedStatus.progress += 25;
           setKycStatus(updatedStatus);
@@ -397,9 +393,7 @@ const KYCFlow: React.FC = () => {
       setErrors(prev => ({ ...prev, [documentType]: '' }));
       
       try {
-        const userId = getSessionUserId();
         const verificationResult = await KYCApi.verifyDocumentWithDidit(
-          userId,
           documentType,
           file,
           selectedCountry.countryCode
@@ -410,7 +404,7 @@ const KYCFlow: React.FC = () => {
             const updatedStatus = { ...kycStatus };
             updatedStatus.documents[documentType] = {
               status: 'verified',
-              verifiedAt: new Date().toISOString(),
+              verified_at: new Date().toISOString(),
             };
             updatedStatus.progress += Math.floor(100 / getAvailableDocuments(selectedCountry.countryCode).length);
             setKycStatus(updatedStatus);

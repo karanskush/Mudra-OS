@@ -53,8 +53,8 @@ const (
 // LedgerAccount represents an account in the double-entry ledger system
 type LedgerAccount struct {
 	ID            uuid.UUID           `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	UserID        uuid.UUID           `json:"user_id" gorm:"type:uuid;not null"`
-	AccountNumber string              `json:"account_number" gorm:"uniqueIndex;not null"`
+	UserID        uuid.UUID           `json:"user_id" gorm:"type:uuid;not null;uniqueIndex:idx_user_account_number"`
+	AccountNumber string              `json:"account_number" gorm:"not null;uniqueIndex:idx_user_account_number"`
 	Type          LedgerAccountType   `json:"type" gorm:"not null"`
 	Status        LedgerAccountStatus `json:"status" gorm:"default:'active'"`
 	Currency      string              `json:"currency" gorm:"not null;default:'USD'"`

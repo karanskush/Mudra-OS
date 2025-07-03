@@ -12,6 +12,7 @@ import (
 
 	"fintech-backend/internal/database"
 	"fintech-backend/internal/handlers"
+	"fintech-backend/internal/middleware"
 	"fintech-backend/internal/models"
 	"fintech-backend/internal/services"
 
@@ -184,6 +185,13 @@ func handleLedgerTransactionRoutes(w http.ResponseWriter, r *http.Request, pathP
 
 // createLedgerAccount creates a new ledger account
 func createLedgerAccount(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
@@ -196,15 +204,11 @@ func createLedgerAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For testing purposes, use a default user ID
-	// In production, you'd get this from authentication middleware
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
 	// Generate account number automatically using the existing function
 	accountNumber := generateAccountNumber()
 
 	account, err := service.CreateAccount(
-		testUserID,
+		user.UserID,   // Use authenticated user's ID
 		accountNumber, // Use generated account number
 		req.Name,
 		req.Description,
@@ -225,16 +229,20 @@ func createLedgerAccount(w http.ResponseWriter, r *http.Request) {
 
 // listLedgerAccounts lists all ledger accounts
 func listLedgerAccounts(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
 		return
 	}
 
-	// For testing purposes, use a default user ID
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
-	accounts, err := service.GetAccounts(testUserID)
+	accounts, err := service.GetAccounts(user.UserID) // Use authenticated user's ID
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -247,6 +255,13 @@ func listLedgerAccounts(w http.ResponseWriter, r *http.Request) {
 
 // createLedgerTransfer creates a transfer transaction
 func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
@@ -259,11 +274,8 @@ func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For testing purposes, use a default user ID
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
 	transaction, err := service.CreateTransfer(
-		testUserID,
+		user.UserID, // Use authenticated user's ID
 		req.FromAccountID,
 		req.ToAccountID,
 		req.Amount,
@@ -284,6 +296,13 @@ func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
 
 // createLedgerDeposit creates a deposit transaction
 func createLedgerDeposit(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
@@ -296,11 +315,8 @@ func createLedgerDeposit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For testing purposes, use a default user ID
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
 	transaction, err := service.CreateDeposit(
-		testUserID,
+		user.UserID, // Use authenticated user's ID
 		req.AccountID,
 		req.Amount,
 		req.Currency,
@@ -331,6 +347,13 @@ func createLedgerDeposit(w http.ResponseWriter, r *http.Request) {
 
 // createTestBalance creates a test balance transaction without validation
 func createTestBalance(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
@@ -343,11 +366,8 @@ func createTestBalance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For testing purposes, use a default user ID
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
 	transaction, err := service.CreateTestBalance(
-		testUserID,
+		user.UserID, // Use authenticated user's ID
 		req.AccountID,
 		req.Amount,
 		req.Currency,
@@ -493,16 +513,20 @@ func handleTrialBalance(w http.ResponseWriter, r *http.Request) {
 func getAvailableAccounts(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
 		return
 	}
 
-	// For testing purposes, use a default user ID
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
-	accounts, err := service.GetAccounts(testUserID)
+	accounts, err := service.GetAccounts(user.UserID) // Use authenticated user's ID
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -524,7 +548,7 @@ func getAvailableAccounts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Build response
-	var responseAccounts []map[string]interface{}
+	responseAccounts := make([]map[string]interface{}, 0)
 	for _, account := range activeAccounts {
 		balance := balances[account.ID]
 		responseAccounts = append(responseAccounts, map[string]interface{}{

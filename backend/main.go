@@ -37,10 +37,10 @@ func main() {
 		log.Fatalf("Failed to migrate database: %v", err)
 	}
 
-	// // Run ledger migrations
-	// if err := database.MigrateLedgerTables(database.GetDB()); err != nil {
-	// 	log.Fatalf("Failed to migrate ledger tables: %v", err)
-	// }
+	// Run ledger migrations
+	if err := database.MigrateLedgerTables(database.GetDB()); err != nil {
+		log.Fatalf("Failed to migrate ledger tables: %v", err)
+	}
 
 	// Log connection info
 	connInfo := database.GetNeonConnectionInfo()

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"fintech-backend/internal/database"
+	"fintech-backend/internal/middleware"
 	"fintech-backend/internal/models"
 	"fintech-backend/internal/repository"
 	"fintech-backend/internal/services"
@@ -37,7 +38,6 @@ func InitializeKYCService() {
 
 // KYC data structures for API compatibility
 type KYCRequest struct {
-	UserID    string            `json:"user_id"`
 	Country   string            `json:"country"`
 	Documents map[string]string `json:"documents"`
 	Step      string            `json:"step"`
@@ -52,7 +52,6 @@ type KYCRequest struct {
 type DocumentVerificationRequest struct {
 	DocumentType   string `json:"document_type"`
 	DocumentNumber string `json:"document_number"`
-	UserID         string `json:"user_id"`
 	Country        string `json:"country"`
 }
 
@@ -134,7 +133,7 @@ func KYCHandler(w http.ResponseWriter, r *http.Request) {
 		handleDocumentVerification(w, r, pathParts)
 	case r.Method == "POST" && path == "/verify/didit":
 		handleDiditVerification(w, r)
-	case r.Method == "GET" && strings.HasPrefix(path, "/status/"):
+	case r.Method == "GET" && path == "/status":
 		handleGetUserKYCStatus(w, r, pathParts)
 	case r.Method == "GET" && path == "/dashboard":
 		handleGetDashboard(w, r)
@@ -336,6 +335,13 @@ func getDiditSupportedCountries() []CountryKYCRequirements {
 
 // handleStartKYC initiates the KYC process for a user
 func handleStartKYC(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	var req KYCRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -343,21 +349,14 @@ func handleStartKYC(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate required fields
-	if req.UserID == "" || req.Country == "" || req.Name == "" || req.Email == "" {
-		http.Error(w, "user_id, country, name, and email are required", http.StatusBadRequest)
-		return
-	}
-
-	// Parse user ID
-	userID, err := uuid.Parse(req.UserID)
-	if err != nil {
-		http.Error(w, "Invalid user_id format", http.StatusBadRequest)
+	if req.Country == "" || req.Name == "" || req.Email == "" {
+		http.Error(w, "country, name, and email are required", http.StatusBadRequest)
 		return
 	}
 
 	// Create service request
 	serviceReq := services.CreateKYCRequest{
-		UserID:   userID,
+		UserID:   user.UserID,
 		Name:     req.Name,
 		Country:  req.Country,
 		Email:    req.Email,
@@ -406,6 +405,13 @@ func handleStartKYC(w http.ResponseWriter, r *http.Request) {
 
 // handleDocumentVerification handles document verification requests
 func handleDocumentVerification(w http.ResponseWriter, r *http.Request, pathParts []string) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	if len(pathParts) < 2 {
 		http.Error(w, "Document type required", http.StatusBadRequest)
 		return
@@ -421,18 +427,11 @@ func handleDocumentVerification(w http.ResponseWriter, r *http.Request, pathPart
 
 	req.DocumentType = documentType
 
-	// Parse user ID
-	userID, err := uuid.Parse(req.UserID)
-	if err != nil {
-		http.Error(w, "Invalid user_id format", http.StatusBadRequest)
-		return
-	}
-
 	// Create service request
 	serviceReq := services.DocumentVerificationRequest{
 		DocumentType:   req.DocumentType,
 		DocumentNumber: req.DocumentNumber,
-		UserID:         userID,
+		UserID:         user.UserID,
 		Country:        req.Country,
 	}
 
@@ -578,20 +577,16 @@ func handleGetKYCStatus(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// handleGetUserKYCStatus returns specific user's KYC status
+// handleGetUserKYCStatus returns authenticated user's KYC status
 func handleGetUserKYCStatus(w http.ResponseWriter, r *http.Request, pathParts []string) {
-	if len(pathParts) < 2 {
-		http.Error(w, "User ID required", http.StatusBadRequest)
-		return
-	}
-
-	userID, err := uuid.Parse(pathParts[1])
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
 	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return
 	}
 
-	submission, err := kycService.GetKYCSubmissionByID(userID)
+	submission, err := kycService.GetKYCSubmissionByID(user.UserID)
 	if err != nil {
 		http.Error(w, "KYC submission not found", http.StatusNotFound)
 		return
@@ -667,11 +662,17 @@ func calculateProgress(submission *models.KYCSubmission) int {
 
 // handleDiditVerification handles document verification through Didit API
 func handleDiditVerification(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	var req struct {
 		DocumentImage string `json:"document_image"`
 		DocumentType  string `json:"document_type"`
 		CountryCode   string `json:"country_code"`
-		UserID        string `json:"user_id"`
 		FaceImage     string `json:"face_image,omitempty"`
 	}
 
@@ -681,7 +682,7 @@ func handleDiditVerification(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate required fields
-	if req.DocumentImage == "" || req.DocumentType == "" || req.CountryCode == "" || req.UserID == "" {
+	if req.DocumentImage == "" || req.DocumentType == "" || req.CountryCode == "" {
 		http.Error(w, "Missing required fields", http.StatusBadRequest)
 		return
 	}
@@ -691,7 +692,7 @@ func handleDiditVerification(w http.ResponseWriter, r *http.Request) {
 	response := map[string]interface{}{
 		"success": true,
 		"data": map[string]interface{}{
-			"verification_id": "didit_" + req.UserID + "_" + req.DocumentType,
+			"verification_id": "didit_" + user.UserID.String() + "_" + req.DocumentType,
 			"status":          "verified",
 			"document_verification": map[string]interface{}{
 				"document_type": req.DocumentType,
