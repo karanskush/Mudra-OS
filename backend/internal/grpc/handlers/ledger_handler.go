@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"fintech-backend/internal/services"
-	ledgerpb "fintech-backend/proto/gen/proto"
+	ledgerpb "fintech-backend/proto/gen/ledger"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"

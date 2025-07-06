@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package fintech.webhook.v1;
 
-option go_package = "fintech-backend/proto/webhook";
+option go_package = "fintech-backend/proto/gen/webhook";
 
 import "google/protobuf/timestamp.proto";
 

@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 
-	"fintech-backend/proto/gen/proto"
+	compliance "fintech-backend/proto/gen/compliance"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -12,7 +12,7 @@ import (
 
 // ComplianceHandler implements the ComplianceServiceServer
 type ComplianceHandler struct {
-	proto.UnimplementedComplianceServiceServer
+	compliance.UnimplementedComplianceServiceServer
 	db *gorm.DB
 }
 
@@ -24,11 +24,11 @@ func NewComplianceHandler(db *gorm.DB) *ComplianceHandler {
 }
 
 // GenerateSAR generates Suspicious Activity Reports
-func (h *ComplianceHandler) GenerateSAR(ctx context.Context, req *proto.GenerateSARRequest) (*proto.GenerateSARResponse, error) {
+func (h *ComplianceHandler) GenerateSAR(ctx context.Context, req *compliance.GenerateSARRequest) (*compliance.GenerateSARResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "GenerateSAR not yet implemented")
 }
 
 // GenerateGST generates GST reports for FX transactions
-func (h *ComplianceHandler) GenerateGST(ctx context.Context, req *proto.GenerateGSTRequest) (*proto.GenerateGSTResponse, error) {
+func (h *ComplianceHandler) GenerateGST(ctx context.Context, req *compliance.GenerateGSTRequest) (*compliance.GenerateGSTResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "GenerateGST not yet implemented")
 }

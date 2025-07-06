@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package fintech.kyc.v1;
 
-option go_package = "fintech-backend/proto/kyc";
+option go_package = "fintech-backend/proto/gen/kyc";
 
 import "google/protobuf/timestamp.proto";
 

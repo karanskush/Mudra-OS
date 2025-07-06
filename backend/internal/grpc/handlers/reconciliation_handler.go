@@ -7,16 +7,18 @@ import (
 	"sync"
 	"time"
 
-	"fintech-backend/proto/gen/proto"
+	reconciliation "fintech-backend/proto/gen/reconciliation"
 
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 )
 
 // ReconciliationHandler implements the ReconciliationServiceServer
 type ReconciliationHandler struct {
-	proto.UnimplementedReconciliationServiceServer
+	reconciliation.UnimplementedReconciliationServiceServer
 	db *gorm.DB
 	// Reconciliation session management
 	reconSessions sync.Map // sessionID -> *ReconciliationSession
@@ -27,7 +29,7 @@ type ReconciliationSession struct {
 	ID           string
 	ReportID     string
 	UserID       string
-	EventChannel chan interface{} // Will be *reconciliation.ReconResult when imports are fixed
+	EventChannel chan *reconciliation.ReconResult
 	StopChannel  chan bool
 	IsActive     bool
 	StartedAt    time.Time
@@ -52,36 +54,31 @@ func NewReconciliationHandler(db *gorm.DB) *ReconciliationHandler {
 }
 
 // GetStatus returns reconciliation status for dashboard
-func (h *ReconciliationHandler) GetStatus(ctx context.Context, req *proto.GetStatusRequest) (*proto.GetStatusResponse, error) {
+func (h *ReconciliationHandler) GetStatus(ctx context.Context, req *reconciliation.GetReconciliationStatusRequest) (*reconciliation.GetReconciliationStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "GetStatus not yet implemented")
 }
 
 // RunNow triggers manual reconciliation run
-func (h *ReconciliationHandler) RunNow(ctx context.Context, req *proto.RunNowRequest) (*proto.RunNowResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "RunNow not yet implemented")
-}
+// (No RunNow method in proto, so this can be removed or commented out)
 
 // GenerateReconciliation generates a reconciliation report
-func (h *ReconciliationHandler) GenerateReconciliation(ctx context.Context, req interface{}) (interface{}, error) {
-	// Implementation would use proper types: *reconciliation.GenerateReconciliationRequest -> *reconciliation.GenerateReconciliationResponse
+func (h *ReconciliationHandler) GenerateReconciliation(ctx context.Context, req *reconciliation.GenerateReconciliationRequest) (*reconciliation.GenerateReconciliationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "GenerateReconciliation not yet implemented")
 }
 
 // GetReconciliationStatus gets reconciliation status
-func (h *ReconciliationHandler) GetReconciliationStatus(ctx context.Context, req interface{}) (interface{}, error) {
-	// Implementation would use proper types: *reconciliation.GetReconciliationStatusRequest -> *reconciliation.GetReconciliationStatusResponse
+func (h *ReconciliationHandler) GetReconciliationStatus(ctx context.Context, req *reconciliation.GetReconciliationStatusRequest) (*reconciliation.GetReconciliationStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "GetReconciliationStatus not yet implemented")
 }
 
 // InteractiveReconciliation handles bidirectional streaming for interactive reconciliation
-func (h *ReconciliationHandler) InteractiveReconciliation(stream interface{}) error {
-	// Note: This would use grpc.BidiStreamingServer[reconciliation.ReconAction, reconciliation.ReconResult] when imports are fixed
+func (h *ReconciliationHandler) InteractiveReconciliation(stream grpc.BidiStreamingServer[reconciliation.ReconAction, reconciliation.ReconResult]) error {
 	log.Printf("New InteractiveReconciliation session established")
 
 	sessionID := fmt.Sprintf("recon-session-%d", time.Now().UnixNano())
 	session := &ReconciliationSession{
 		ID:           sessionID,
-		EventChannel: make(chan interface{}, 100),
+		EventChannel: make(chan *reconciliation.ReconResult, 100),
 		StopChannel:  make(chan bool, 1),
 		IsActive:     false,
 		StartedAt:    time.Now(),
@@ -133,12 +130,13 @@ func (h *ReconciliationHandler) simulateReconciliationWorkflow(session *Reconcil
 	session.mu.Unlock()
 
 	// Simulate reconciliation started event
-	startedEvent := map[string]interface{}{
-		"type":      "reconciliation_started",
-		"sessionId": session.ID,
-		"reportId":  session.ReportID,
-		"message":   "Reconciliation process initiated",
-		"timestamp": time.Now(),
+	startedEvent := &reconciliation.ReconResult{
+		Result: &reconciliation.ReconResult_ReconciliationStarted{
+			ReconciliationStarted: &reconciliation.ReconciliationStarted{
+				SessionId: session.ID,
+				Message:   "Reconciliation process initiated",
+			},
+		},
 	}
 	session.EventChannel <- startedEvent
 
@@ -185,11 +183,39 @@ func (h *ReconciliationHandler) simulateReconciliationWorkflow(session *Reconcil
 	session.mu.Unlock()
 
 	for i, variance := range variances {
-		varianceEvent := map[string]interface{}{
-			"type":     "variance_detected",
-			"variance": variance,
-			"suggestedActions": []string{
-				"ACCEPT", "ADJUST", "INVESTIGATE",
+		// Convert map to proper Variance type
+		varianceProto := &reconciliation.Variance{
+			VarianceId:  variance["varianceId"].(string),
+			Type:        reconciliation.VarianceType(reconciliation.VarianceType_value[variance["type"].(string)]),
+			Description: variance["description"].(string),
+			Currency:    variance["currency"].(string),
+		}
+
+		if internalTxId, ok := variance["internalTxId"].(string); ok {
+			varianceProto.InternalTransactionId = internalTxId
+		}
+		if externalTxId, ok := variance["externalTxId"].(string); ok {
+			varianceProto.ExternalTransactionId = externalTxId
+		}
+		if internalAmount, ok := variance["internalAmount"].(float64); ok {
+			varianceProto.InternalAmount = internalAmount
+		}
+		if externalAmount, ok := variance["externalAmount"].(float64); ok {
+			varianceProto.ExternalAmount = externalAmount
+		}
+		if varianceAmount, ok := variance["varianceAmount"].(float64); ok {
+			varianceProto.VarianceAmount = varianceAmount
+		}
+
+		varianceEvent := &reconciliation.ReconResult{
+			Result: &reconciliation.ReconResult_VarianceDetected{
+				VarianceDetected: &reconciliation.VarianceDetected{
+					Variance: varianceProto,
+					Severity: variance["severity"].(string),
+					SuggestedActions: []string{
+						"ACCEPT", "ADJUST", "INVESTIGATE",
+					},
+				},
 			},
 		}
 		session.EventChannel <- varianceEvent
@@ -199,10 +225,18 @@ func (h *ReconciliationHandler) simulateReconciliationWorkflow(session *Reconcil
 		session.Progress.CompletionPercentage = float64(i+1) / float64(len(variances)) * 30.0 // 30% for detection phase
 		session.mu.Unlock()
 
-		progressEvent := map[string]interface{}{
-			"type":      "progress_update",
-			"sessionId": session.ID,
-			"progress":  session.Progress,
+		progressEvent := &reconciliation.ReconResult{
+			Result: &reconciliation.ReconResult_ProgressUpdate{
+				ProgressUpdate: &reconciliation.ProgressUpdate{
+					SessionId:            session.ID,
+					TotalVariances:       session.Progress.TotalVariances,
+					ProcessedVariances:   session.Progress.ProcessedVariances,
+					PendingApproval:      session.Progress.PendingApproval,
+					UnresolvedVariances:  session.Progress.UnresolvedVariances,
+					CompletionPercentage: session.Progress.CompletionPercentage,
+					CurrentStatus:        "Detecting variances",
+				},
+			},
 		}
 		session.EventChannel <- progressEvent
 
@@ -233,13 +267,33 @@ func (h *ReconciliationHandler) simulateReconciliationWorkflow(session *Reconcil
 			message = "Date mismatch resolved with adjustment entry"
 		}
 
-		processedEvent := map[string]interface{}{
-			"type":             "variance_processed",
-			"varianceId":       variance["varianceId"],
-			"actionTaken":      action,
-			"success":          success,
-			"message":          message,
-			"requiresApproval": action == "ESCALATE",
+		// Convert action string to ActionType enum
+		var actionType reconciliation.ActionType
+		switch action {
+		case "ACCEPT":
+			actionType = reconciliation.ActionType_ACTION_TYPE_ACCEPT
+		case "REJECT":
+			actionType = reconciliation.ActionType_ACTION_TYPE_REJECT
+		case "ADJUST":
+			actionType = reconciliation.ActionType_ACTION_TYPE_ADJUST
+		case "IGNORE":
+			actionType = reconciliation.ActionType_ACTION_TYPE_IGNORE
+		case "ESCALATE":
+			actionType = reconciliation.ActionType_ACTION_TYPE_ESCALATE
+		default:
+			actionType = reconciliation.ActionType_ACTION_TYPE_UNSPECIFIED
+		}
+
+		processedEvent := &reconciliation.ReconResult{
+			Result: &reconciliation.ReconResult_VarianceProcessed{
+				VarianceProcessed: &reconciliation.VarianceProcessed{
+					VarianceId:       variance["varianceId"].(string),
+					ActionTaken:      actionType,
+					Success:          success,
+					Message:          message,
+					RequiresApproval: action == "ESCALATE",
+				},
+			},
 		}
 		session.EventChannel <- processedEvent
 
@@ -252,10 +306,18 @@ func (h *ReconciliationHandler) simulateReconciliationWorkflow(session *Reconcil
 		session.Progress.CompletionPercentage = 30.0 + (float64(i+1)/float64(len(variances)))*50.0 // 50% for processing
 		session.mu.Unlock()
 
-		progressEvent := map[string]interface{}{
-			"type":      "progress_update",
-			"sessionId": session.ID,
-			"progress":  session.Progress,
+		progressEvent := &reconciliation.ReconResult{
+			Result: &reconciliation.ReconResult_ProgressUpdate{
+				ProgressUpdate: &reconciliation.ProgressUpdate{
+					SessionId:            session.ID,
+					TotalVariances:       session.Progress.TotalVariances,
+					ProcessedVariances:   session.Progress.ProcessedVariances,
+					PendingApproval:      session.Progress.PendingApproval,
+					UnresolvedVariances:  session.Progress.UnresolvedVariances,
+					CompletionPercentage: session.Progress.CompletionPercentage,
+					CurrentStatus:        "Processing variances",
+				},
+			},
 		}
 		session.EventChannel <- progressEvent
 
@@ -265,12 +327,15 @@ func (h *ReconciliationHandler) simulateReconciliationWorkflow(session *Reconcil
 	// Step 4: Simulate approval process
 	time.Sleep(3 * time.Second)
 
-	approvalEvent := map[string]interface{}{
-		"type":       "approval_response",
-		"varianceId": "var_001",
-		"approved":   true,
-		"approverId": "supervisor_001",
-		"message":    "Escalated variance approved by supervisor",
+	approvalEvent := &reconciliation.ReconResult{
+		Result: &reconciliation.ReconResult_ApprovalResponse{
+			ApprovalResponse: &reconciliation.ApprovalResponse{
+				VarianceId: "var_001",
+				Approved:   true,
+				ApproverId: "supervisor_001",
+				Message:    "Escalated variance approved by supervisor",
+			},
+		},
 	}
 	session.EventChannel <- approvalEvent
 
@@ -288,18 +353,13 @@ func (h *ReconciliationHandler) simulateReconciliationWorkflow(session *Reconcil
 	session.IsActive = false
 	session.mu.Unlock()
 
-	completedEvent := map[string]interface{}{
-		"type":              "reconciliation_completed",
-		"sessionId":         session.ID,
-		"reportId":          session.ReportID,
-		"completionMessage": "Reconciliation completed successfully",
-		"finalReport": map[string]interface{}{
-			"reportId":            session.ReportID,
-			"status":              "COMPLETED",
-			"totalVariances":      session.Progress.TotalVariances,
-			"processedVariances":  session.Progress.ProcessedVariances,
-			"unresolvedVariances": session.Progress.UnresolvedVariances,
-			"completedAt":         time.Now(),
+	completedEvent := &reconciliation.ReconResult{
+		Result: &reconciliation.ReconResult_ReconciliationCompleted{
+			ReconciliationCompleted: &reconciliation.ReconciliationCompleted{
+				SessionId:         session.ID,
+				CompletionMessage: "Reconciliation completed successfully",
+				CompletedAt:       timestamppb.Now(),
+			},
 		},
 	}
 	session.EventChannel <- completedEvent

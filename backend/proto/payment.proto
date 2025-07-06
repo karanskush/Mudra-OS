@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package fintech.payment.v1;
 
-option go_package = "fintech-backend/proto/payment";
+option go_package = "fintech-backend/proto/gen/payment";
 
 import "google/protobuf/timestamp.proto";
 

@@ -2,9 +2,10 @@ syntax = "proto3";
 
 package fintech.ledger.v1;
 
-option go_package = "fintech-backend/proto/ledger";
+option go_package = "fintech-backend/proto/gen/ledger";
 
 import "google/protobuf/timestamp.proto";
+import "common.proto";
 
 // LedgerService service definition
 service LedgerService {
@@ -18,37 +19,6 @@ service LedgerService {
   rpc Balance(BalanceRequest) returns (BalanceResponse);
 }
 
-// Account types matching your existing LedgerAccountType
-enum AccountType {
-  ACCOUNT_TYPE_UNSPECIFIED = 0;
-  ACCOUNT_TYPE_ASSET = 1;
-  ACCOUNT_TYPE_CASH = 2;
-  ACCOUNT_TYPE_BANK = 3;
-  ACCOUNT_TYPE_RECEIVABLE = 4;
-  ACCOUNT_TYPE_INVESTMENT = 5;
-  ACCOUNT_TYPE_LIABILITY = 6;
-  ACCOUNT_TYPE_PAYABLE = 7;
-  ACCOUNT_TYPE_LOAN = 8;
-  ACCOUNT_TYPE_CREDIT = 9;
-  ACCOUNT_TYPE_EQUITY = 10;
-  ACCOUNT_TYPE_CAPITAL = 11;
-  ACCOUNT_TYPE_RETAINED = 12;
-  ACCOUNT_TYPE_REVENUE = 13;
-  ACCOUNT_TYPE_INCOME = 14;
-  ACCOUNT_TYPE_GAIN = 15;
-  ACCOUNT_TYPE_EXPENSE = 16;
-  ACCOUNT_TYPE_LOSS = 17;
-  ACCOUNT_TYPE_FEE = 18;
-}
-
-enum AccountStatus {
-  ACCOUNT_STATUS_UNSPECIFIED = 0;
-  ACCOUNT_STATUS_ACTIVE = 1;
-  ACCOUNT_STATUS_INACTIVE = 2;
-  ACCOUNT_STATUS_SUSPENDED = 3;
-  ACCOUNT_STATUS_CLOSED = 4;
-}
-
 // Account message
 message Account {
   string account_id = 1;
@@ -57,8 +27,8 @@ message Account {
   string name = 4;
   string description = 5;
   string currency = 6;
-  AccountType type = 7;
-  AccountStatus status = 8;
+  fintech.common.v1.AccountType type = 7;
+  fintech.common.v1.AccountStatus status = 8;
   string parent_id = 9;  // Optional parent account ID
   bool is_system = 10;
   google.protobuf.Timestamp created_at = 11;
@@ -80,7 +50,7 @@ message CreateAccountRequest {
   string name = 3;
   string description = 4;
   string currency = 5;
-  AccountType type = 6;
+  fintech.common.v1.AccountType type = 6;
   string parent_id = 7;  // Optional
 }
 

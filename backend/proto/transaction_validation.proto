@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package fintech.transaction_validation.v1;
+
+option go_package = "fintech-backend/proto/gen/transaction_validation";
+
+import "google/protobuf/timestamp.proto";
+
+// TransactionValidationService - Validate transactions before processing
+service TransactionValidationService {
+  // Validate a single transaction
+  rpc ValidateTransaction(ValidateTransactionRequest) returns (ValidateTransactionResponse);
+  
+  // Batch validate multiple transactions
+  rpc BatchValidateTransactions(BatchValidateRequest) returns (BatchValidateResponse);
+}
+
+// Validation result enum
+enum ValidationResult {
+  VALIDATION_RESULT_UNSPECIFIED = 0;
+  VALIDATION_RESULT_VALID = 1;
+  VALIDATION_RESULT_INVALID = 2;
+  VALIDATION_RESULT_REQUIRES_APPROVAL = 3;
+}
+
+// Validation error severity
+enum ValidationSeverity {
+  VALIDATION_SEVERITY_UNSPECIFIED = 0;
+  VALIDATION_SEVERITY_INFO = 1;
+  VALIDATION_SEVERITY_WARNING = 2;
+  VALIDATION_SEVERITY_ERROR = 3;
+  VALIDATION_SEVERITY_CRITICAL = 4;
+}
+
+// Account type enum
+enum AccountType {
+  ACCOUNT_TYPE_UNSPECIFIED = 0;
+  ACCOUNT_TYPE_BANK = 1;
+  ACCOUNT_TYPE_CASH = 2;
+  ACCOUNT_TYPE_INVESTMENT = 3;
+  ACCOUNT_TYPE_CREDIT = 4;
+  ACCOUNT_TYPE_SAVINGS = 5;
+}
+
+// Transaction validation request
+message ValidateTransactionRequest {
+  string user_id = 1;
+  string from_account_id = 2;
+  string to_account_id = 3;
+  double amount = 4;
+  string currency = 5;
+  string description = 6;
+  string reference = 7;
+  string transaction_type = 8;  // "transfer", "payment", "deposit", "withdrawal"
+  map<string, string> metadata = 9;
+}
+
+// Transaction validation response
+message ValidateTransactionResponse {
+  ValidationResult result = 1;
+  repeated ValidationError validation_errors = 2;
+  double available_balance = 3;
+  TransactionFees estimated_fees = 4;
+  double estimated_total = 5;
+  repeated string warnings = 6;
+  ComplianceCheck compliance_check = 7;
+  bool requires_2fa = 8;
+  google.protobuf.Timestamp validated_at = 9;
+  string validation_id = 10;
+}
+
+// Batch validation request
+message BatchValidateRequest {
+  string user_id = 1;
+  repeated ValidateTransactionRequest transactions = 2;
+  bool stop_on_first_error = 3;
+}
+
+// Batch validation response
+message BatchValidateResponse {
+  repeated ValidationResult results = 1;
+  int32 valid_count = 2;
+  int32 invalid_count = 3;
+  int32 warning_count = 4;
+  double total_amount = 5;
+  double total_fees = 6;
+  repeated string batch_warnings = 7;
+  google.protobuf.Timestamp batch_validated_at = 8;
+}
+
+// Validation error details
+message ValidationError {
+  string field = 1;
+  string error_code = 2;
+  string error_message = 3;
+  ValidationSeverity severity = 4;
+  string suggestion = 5;
+}
+
+// Transaction fees breakdown
+message TransactionFees {
+  double base_fee = 1;
+  double processing_fee = 2;
+  double fx_fee = 3;
+  double compliance_fee = 4;
+  double total_fee = 5;
+  string currency = 6;
+  repeated FeeComponent fee_components = 7;
+}
+
+// Fee component details
+message FeeComponent {
+  string name = 1;
+  double amount = 2;
+  string description = 3;
+  string type = 4;  // "fixed", "percentage", "variable"
+}
+
+// Compliance check result
+message ComplianceCheck {
+  bool passed = 1;
+  string compliance_level = 2;  // "low", "medium", "high"
+  repeated string flags = 3;
+  int32 risk_score = 4;
+  bool requires_kyc = 5;
+  repeated string required_documents = 6;
+} 

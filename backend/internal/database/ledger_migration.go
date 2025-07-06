@@ -10,6 +10,12 @@ import (
 
 // MigrateLedgerTables creates the ledger tables with proper indexes and constraints
 func MigrateLedgerTables(db *gorm.DB) error {
+	// Check if ledger tables are already set up
+	if isLedgerAlreadySetup(db) {
+		fmt.Println("Ledger tables already set up, skipping migration")
+		return nil
+	}
+
 	// Fix the account number constraint first (for existing installations)
 	if err := FixAccountNumberConstraint(db); err != nil {
 		// Log but don't fail if this doesn't work (might be a fresh install)
@@ -44,8 +50,33 @@ func MigrateLedgerTables(db *gorm.DB) error {
 	return nil
 }
 
+// isLedgerAlreadySetup checks if ledger tables and indexes are already configured
+func isLedgerAlreadySetup(db *gorm.DB) bool {
+	// Check if all ledger tables exist
+	if !db.Migrator().HasTable(&models.LedgerAccount{}) ||
+		!db.Migrator().HasTable(&models.LedgerTransaction{}) ||
+		!db.Migrator().HasTable(&models.LedgerEntry{}) {
+		return false
+	}
+
+	// Check if key indexes exist
+	var count int64
+	db.Raw(`
+		SELECT COUNT(*) FROM pg_indexes 
+		WHERE indexname IN ('idx_ledger_account_user_id', 'idx_ledger_transaction_user_id', 'idx_ledger_entry_transaction_id')
+	`).Scan(&count)
+
+	return count >= 3
+}
+
 // CreateLedgerIndexes creates additional indexes for better performance
 func CreateLedgerIndexes(db *gorm.DB) error {
+	// Check if indexes already exist to avoid redundant creation
+	if indexesExist(db) {
+		fmt.Println("Ledger indexes already exist, skipping creation")
+		return nil
+	}
+
 	// Account indexes
 	if err := db.Exec(`
 		CREATE INDEX IF NOT EXISTS idx_ledger_account_user_id ON ledger_account(user_id);
@@ -81,6 +112,21 @@ func CreateLedgerIndexes(db *gorm.DB) error {
 	}
 
 	return nil
+}
+
+// indexesExist checks if the main indexes are already created
+func indexesExist(db *gorm.DB) bool {
+	var count int64
+	db.Raw(`
+		SELECT COUNT(*) FROM pg_indexes 
+		WHERE indexname IN (
+			'idx_ledger_account_user_id',
+			'idx_ledger_transaction_user_id',
+			'idx_ledger_entry_transaction_id'
+		)
+	`).Scan(&count)
+
+	return count >= 3
 }
 
 // CreateLedgerConstraints creates foreign key constraints safely

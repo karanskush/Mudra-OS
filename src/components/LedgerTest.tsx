@@ -835,6 +835,8 @@ const LedgerTest: React.FC = () => {
                   Hello {getUserFirstName()}, Welcome to the Ledger!
                 </h1>
               </div>
+
+
               <p className="text-lg text-gray-600 dark:text-gray-400">
                 Enterprise-grade accounting system with real-time operations
               </p>
@@ -1951,83 +1953,7 @@ const LedgerTest: React.FC = () => {
             </div>
           )}
 
-          {/* Debug Panel for API Testing */}
-          <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl mt-6 p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-gradient-to-r from-gray-500 to-gray-600 rounded-lg">
-                <Copy className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                🐛 API Debug Helper
-              </h3>
-            </div>
-            
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Copy these authenticated curl commands for testing the API directly:
-              </p>
-              
-              <div className="grid gap-3">
-                {/* List Accounts */}
-                <div className="bg-gray-50/80 dark:bg-slate-700/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">List Accounts</span>
-                    <button
-                      onClick={() => copyToClipboard(generateAuthenticatedCurl('/api/ledger/accounts'))}
-                      className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                  <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-x-auto">
-                    {generateAuthenticatedCurl('/api/ledger/accounts')}
-                  </pre>
-                </div>
 
-                {/* Create Account */}
-                <div className="bg-gray-50/80 dark:bg-slate-700/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Create Account</span>
-                    <button
-                      onClick={() => copyToClipboard(generateAuthenticatedCurl('/api/ledger/accounts', 'POST', {
-                        "account_number": "123456789",
-                        "name": "Test Account",
-                        "description": "API Test Account",
-                        "currency": "USD",
-                        "type": "bank"
-                      }))}
-                      className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                  <pre className="text-xs text-gray-600 dark:text-gray-400 overflow-x-auto">
-                    {generateAuthenticatedCurl('/api/ledger/accounts', 'POST', {
-                      "account_number": "123456789",
-                      "name": "Test Account",
-                      "description": "API Test Account",
-                      "currency": "USD",
-                      "type": "bank"
-                    })}
-                  </pre>
-                </div>
-              </div>
-
-              {!user && (
-                <div className="bg-yellow-50/80 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                    <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                      Authentication Required
-                    </span>
-                  </div>
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                    Please login first to get properly authenticated curl commands.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
     </div>
   );

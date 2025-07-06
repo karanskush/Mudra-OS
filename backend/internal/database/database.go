@@ -49,12 +49,13 @@ func Connect(cfg *config.Config) error {
 		return fmt.Errorf("failed to get underlying SQL database: %w", err)
 	}
 
-	// Configure connection pool
-	sqlDB.SetMaxIdleConns(5)
-	sqlDB.SetMaxOpenConns(25)
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	// Configure connection pool for better performance
+	sqlDB.SetMaxIdleConns(10)                  // Increased from 5
+	sqlDB.SetMaxOpenConns(50)                  // Increased from 25
+	sqlDB.SetConnMaxLifetime(30 * time.Minute) // Reduced from 1 hour for faster rotation
+	sqlDB.SetConnMaxIdleTime(5 * time.Minute)  // Added idle timeout
 
-	// Test the connection
+	// Test the connection with timeout
 	if err := sqlDB.Ping(); err != nil {
 		return fmt.Errorf("failed to ping database: %w", err)
 	}

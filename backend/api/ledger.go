@@ -242,7 +242,7 @@ func listLedgerAccounts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accounts, err := service.GetAccounts(user.UserID) // Use authenticated user's ID
+	accounts, err := service.GetUserAccounts(user.UserID) // Use GetUserAccounts to exclude system accounts
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -486,27 +486,37 @@ func getLedgerAccountTransactions(w http.ResponseWriter, r *http.Request, accoun
 	json.NewEncoder(w).Encode(transactions)
 }
 
-// handleTrialBalance returns a trial balance for all accounts
+// handleTrialBalance returns a trial balance for all user accounts (excluding system accounts)
 func handleTrialBalance(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
 		return
 	}
 
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	// Get user accounts (excluding system accounts)
+	accounts, err := service.GetUserAccounts(user.UserID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	trialBalance, err := service.GetTrialBalance()
+	// Get balances for user accounts only
+	balances, err := service.GetAccountBalancesBatch(accounts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(trialBalance)
+	json.NewEncoder(w).Encode(balances)
 }
 
 // getAvailableAccounts returns available accounts for transfers
@@ -526,7 +536,7 @@ func getAvailableAccounts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accounts, err := service.GetAccounts(user.UserID) // Use authenticated user's ID
+	accounts, err := service.GetUserAccounts(user.UserID) // Use GetUserAccounts to exclude system accounts
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

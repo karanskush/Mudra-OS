@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"fintech-backend/internal/services"
-	payment "fintech-backend/proto/gen/proto"
+	payment "fintech-backend/proto/gen/payment"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -110,7 +110,6 @@ func (h *PaymentHandler) TransactionMonitor(stream grpc.BidiStreamingServer[paym
 					Event: &payment.TransactionEvent_Status{
 						Status: &payment.MonitoringStatus{
 							IsActive:  false,
-							WebhookId: sessionID,
 							StartedAt: timestamppb.New(session.StartedAt),
 							Message:   fmt.Sprintf("Error: %v", err),
 						},
@@ -183,7 +182,6 @@ func (h *PaymentHandler) handleStartMonitoring(session *MonitoringSession, req *
 		Event: &payment.TransactionEvent_Status{
 			Status: &payment.MonitoringStatus{
 				IsActive:         true,
-				WebhookId:        session.ID,
 				ConnectionsCount: 1,
 				StartedAt:        timestamppb.New(session.StartedAt),
 				Message:          "Monitoring started successfully",
@@ -212,9 +210,8 @@ func (h *PaymentHandler) handleStopMonitoring(session *MonitoringSession, req *p
 	statusEvent := &payment.TransactionEvent{
 		Event: &payment.TransactionEvent_Status{
 			Status: &payment.MonitoringStatus{
-				IsActive:  false,
-				WebhookId: session.ID,
-				Message:   fmt.Sprintf("Monitoring stopped: %s", req.Reason),
+				IsActive: false,
+				Message:  fmt.Sprintf("Monitoring stopped: %s", req.Reason),
 			},
 		},
 	}
@@ -237,7 +234,6 @@ func (h *PaymentHandler) handleUpdateFilter(session *MonitoringSession, req *pay
 		Event: &payment.TransactionEvent_Status{
 			Status: &payment.MonitoringStatus{
 				IsActive:      session.IsActive,
-				WebhookId:     session.ID,
 				Message:       "Filter updated successfully",
 				CurrentFilter: fmt.Sprintf("Updated: %+v", req.NewFilter),
 			},

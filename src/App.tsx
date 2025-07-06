@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { HealthProvider } from './contexts/HealthContext';
@@ -19,6 +19,9 @@ import KYCFlow from './components/KYCFlow';
 import KYCDashboard from './components/KYCDashboard';
 import Developers from './components/Developers';
 import APIExplorer from './components/Developers/APIExplorer';
+import GRPCDemo from './components/GRPCDemo';
+import GRPCTest from './components/GRPCTest';
+import RouterTest from './components/RouterTest';
 
 // Enhanced fintech-focused products with more relevant imagery
 const fintechProducts = [
@@ -126,6 +129,12 @@ const LandingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 );
 
 function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log('Route changed to:', location.pathname);
+  }, [location.pathname]);
+
   return (
     <ThemeProvider>
       <AuthProvider>
@@ -140,8 +149,11 @@ function App() {
               <Route path="/kyc/dashboard" element={<ProtectedRoute><Layout><KYCDashboard /></Layout></ProtectedRoute>} />
               <Route path="/developers" element={<Layout><Developers /></Layout>} />
               <Route path="/developers/api-explorer" element={<Layout><APIExplorer /></Layout>} />
+              <Route path="/grpc-demo" element={<Layout><GRPCDemo /></Layout>} />
+              <Route path="/grpc-test" element={<Layout><GRPCTest /></Layout>} />
+              <Route path="/router-test" element={<Layout><RouterTest /></Layout>} />
               <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+            </Routes>
           </ToastProvider>
           
           {/* Toast Notifications */}

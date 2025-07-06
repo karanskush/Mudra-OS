@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"fintech-backend/proto/gen/proto/webhook"
+	webhook "fintech-backend/proto/gen/webhook"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

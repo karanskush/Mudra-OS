@@ -57,16 +57,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ isOpen, onClose, onSuccess, onReg
       const token = userData.token;
       
       if (token && userData) {
-        // Create user object without token for context
+        // Extract the actual user object from the response
+        const actualUser = userData.user || userData;
+        
+        // Create user object with proper field mapping
         const userForContext = {
-          ...userData,
-          firstName: userData.first_name,
-          lastName: userData.last_name
+          id: actualUser.id,
+          email: actualUser.email,
+          firstName: actualUser.first_name,
+          lastName: actualUser.last_name,
+          role: actualUser.role
         };
-        delete userForContext.token; // Remove token from user object
         
         login(userForContext, token);
-        toast.success(`Welcome back, ${userData.first_name || 'User'}! 🎉`);
+        toast.success(`Welcome back, ${userForContext.firstName || 'User'}! 🎉`);
         onSuccess(userData);
         onClose();
         

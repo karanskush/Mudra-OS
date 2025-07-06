@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package fintech.compliance.v1;
 
-option go_package = "fintech-backend/proto/compliance";
+option go_package = "fintech-backend/proto/gen/compliance";
 
 import "google/protobuf/timestamp.proto";
 

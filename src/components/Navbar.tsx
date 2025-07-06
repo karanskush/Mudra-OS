@@ -187,6 +187,15 @@ const Navbar: React.FC = () => {
           status: 'stable',
           category: 'Analytics'
         },
+        { 
+          name: 'gRPC Streaming Demo', 
+          href: '/grpc-demo', 
+          icon: Zap, 
+          description: 'Real-time bidirectional streaming APIs',
+          badge: 'New',
+          status: 'beta',
+          category: 'Infrastructure'
+        },
       ]
     },
     {
@@ -222,6 +231,7 @@ const Navbar: React.FC = () => {
       ]
     },
     { name: 'Developers', href: '/developers', icon: Code, description: 'API docs & developer resources' },
+    { name: 'gRPC Demo', href: '/grpc-demo', icon: Zap, description: 'Real-time streaming APIs', badge: 'New' },
     { name: 'Status', href: '/status', icon: Activity, description: 'System status & uptime' },
   ];
 
@@ -291,7 +301,7 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      <nav className={`fixed top-0 left-0 right-0 z-[999] transition-all duration-500 ${
         isScrolled 
           ? isDark 
             ? 'bg-slate-900/95 backdrop-blur-xl shadow-2xl border-b border-slate-700/50' 
@@ -384,7 +394,7 @@ const Navbar: React.FC = () => {
 
                   {/* Enhanced Dropdown Menu */}
                   {item.hasDropdown && activeDropdown === item.name && (
-                    <div className={`absolute top-full left-0 mt-3 w-96 rounded-2xl shadow-2xl border backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-300 ${
+                    <div className={`z-[999] absolute top-full left-0 mt-3 w-96 rounded-2xl shadow-2xl border backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-300 ${
                       isDark 
                         ? 'bg-slate-800/95 border-slate-700/50' 
                         : 'bg-white/95 border-gray-100'

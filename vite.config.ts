@@ -22,5 +22,21 @@ export default defineConfig({
         secure: false,
       },
     },
+    // Add proper handling for SPA routing
+    port: 3000,
+    host: true,
   },
+  // Ensure proper handling of client-side routes in production build
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+        },
+      },
+    },
+  },
+  // Add base URL configuration
+  base: '/',
 });

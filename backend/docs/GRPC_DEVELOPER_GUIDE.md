@@ -18,16 +18,16 @@
 
 ## Overview
 
-This fintech platform implements a comprehensive gRPC API providing real-time capabilities for payment processing, compliance monitoring, webhook management, KYC verification, and ledger operations.
+This fintech platform implements **6 practical gRPC APIs** that leverage gRPC's core strengths for real fintech operations with measurable business value.
 
 ### Key Features
 
-- **Payment Processing**: Real-time transaction monitoring with dynamic filtering
-- **Webhook Debugging**: Live debugging and testing of webhook deliveries
-- **Interactive Reconciliation**: Real-time reconciliation workflows
-- **Compliance Monitoring**: SAR and GST report generation
-- **KYC Management**: Identity verification workflows
-- **Ledger Operations**: Double-entry bookkeeping system
+- **Payment Processing**: Real-time payment processing with dynamic status updates
+- **Risk Monitoring**: Real-time transaction risk assessment with dynamic rule updates  
+- **Account Synchronization**: Real-time balance sync across multiple clients/services
+- **Transaction Validation**: Ultra-fast pre-transaction validation and compliance checking
+- **Payment Rail Selection**: Optimal payment rail selection with cost and speed optimization
+- **Account Operations**: Efficient account queries with transaction history streaming
 
 ---
 
@@ -296,71 +296,84 @@ processCmd := &reconciliation.ReconAction{
 
 ## Service Definitions
 
-### PaymentService
+### 🔄 Bidirectional Streaming Services
 
+#### PaymentProcessingService
 ```protobuf
-service PaymentService {
-  // Unary RPCs
-  rpc CreatePayment(CreatePaymentRequest) returns (CreatePaymentResponse);
-  rpc GetPayment(GetPaymentRequest) returns (GetPaymentResponse);
-  
-  // Server Streaming
-  rpc StreamPayments(StreamPaymentsRequest) returns (stream PaymentUpdate);
-  
-  // Bidirectional Streaming
-  rpc TransactionMonitor(stream MonitorCommand) returns (stream TransactionEvent);
+service PaymentProcessingService {
+  // Real-time payment processing with status updates
+  rpc ProcessPayments(stream PaymentRequest) returns (stream PaymentResponse);
 }
 ```
 
-### WebhookService
-
+#### RiskMonitoringService
 ```protobuf
-service WebhookService {
-  // Unary RPCs
-  rpc Register(RegisterWebhookRequest) returns (RegisterWebhookResponse);
-  rpc Delete(DeleteWebhookRequest) returns (DeleteWebhookResponse);
-  rpc List(ListWebhooksRequest) returns (ListWebhooksResponse);
-  rpc Test(TestWebhookRequest) returns (TestWebhookResponse);
+service RiskMonitoringService {
+  // Real-time risk assessment with dynamic rule updates
+  rpc MonitorRisk(stream RiskCommand) returns (stream RiskEvent);
+}
+```
+
+#### AccountSyncService
+```protobuf
+service AccountSyncService {
+  // Real-time account balance synchronization
+  rpc SyncAccountBalances(stream BalanceCommand) returns (stream BalanceUpdate);
+}
+```
+
+### ⚡ High-Performance Simple Services
+
+#### TransactionValidationService
+```protobuf
+service TransactionValidationService {
+  // Validate a single transaction
+  rpc ValidateTransaction(ValidateTransactionRequest) returns (ValidateTransactionResponse);
   
-  // Bidirectional Streaming
-  rpc WebhookDebugger(stream WebhookDebugCommand) returns (stream WebhookDebugResponse);
+  // Batch validate multiple transactions
+  rpc BatchValidateTransactions(BatchValidateRequest) returns (BatchValidateResponse);
 }
 ```
 
-### ReconciliationService
-
+#### PaymentRailService
 ```protobuf
-service ReconciliationService {
-  // Unary RPCs
-  rpc GenerateReconciliation(GenerateReconciliationRequest) returns (GenerateReconciliationResponse);
-  rpc GetReconciliationStatus(GetReconciliationStatusRequest) returns (GetReconciliationStatusResponse);
+service PaymentRailService {
+  // Select optimal payment rail for a transaction
+  rpc SelectPaymentRail(SelectRailRequest) returns (SelectRailResponse);
   
-  // Bidirectional Streaming
-  rpc InteractiveReconciliation(stream ReconAction) returns (stream ReconResult);
+  // Get available rails for a route
+  rpc GetAvailableRails(GetRailsRequest) returns (GetRailsResponse);
+  
+  // Get rail performance metrics
+  rpc GetRailMetrics(GetRailMetricsRequest) returns (GetRailMetricsResponse);
 }
 ```
 
-### ComplianceService
-
+#### AccountInfoService
 ```protobuf
-service ComplianceService {
-  rpc GenerateSAR(GenerateSARRequest) returns (GenerateSARResponse);
-  rpc GenerateGST(GenerateGSTRequest) returns (GenerateGSTResponse);
+service AccountInfoService {
+  // Get account details
+  rpc GetAccountInfo(GetAccountInfoRequest) returns (GetAccountInfoResponse);
+  
+  // Get account summary with balances
+  rpc GetAccountSummary(GetAccountSummaryRequest) returns (GetAccountSummaryResponse);
+  
+  // Stream account transaction history (server streaming)
+  rpc StreamTransactionHistory(TransactionHistoryRequest) returns (stream TransactionHistoryResponse);
 }
 ```
 
-### KYCService
+### 🏛️ Legacy Services (for backward compatibility)
 
+#### KYCService
 ```protobuf
 service KYCService {
-  rpc SubmitKYC(SubmitKYCRequest) returns (SubmitKYCResponse);
-  rpc GetKYCStatus(GetKYCStatusRequest) returns (GetKYCStatusResponse);
-  rpc UpdateKYC(UpdateKYCRequest) returns (UpdateKYCResponse);
+  rpc CreateProfile(CreateProfileRequest) returns (CreateProfileResponse);
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
 }
 ```
 
-### LedgerService
-
+#### LedgerService
 ```protobuf
 service LedgerService {
   rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse);
@@ -617,6 +630,22 @@ if __name__ == '__main__':
 
 ## Testing
 
+### Comprehensive Test Client
+
+We've created a complete test client for all bidirectional streaming APIs:
+
+```bash
+# Run the interactive test client
+cd backend
+go run cmd/test-bidirectional-streaming/main.go
+```
+
+The test client provides:
+- **Interactive Menu**: Choose which API to test
+- **Real-time Monitoring**: Watch events as they happen
+- **Command Sequencing**: Automated command sending with delays
+- **Error Handling**: Graceful error recovery and reporting
+
 ### Unit Testing
 
 ```go
@@ -673,6 +702,9 @@ grpcurl -plaintext -d '{"payment_id": "pay_123"}' \
 # Test server streaming
 grpcurl -plaintext -d '{"user_id": "user_123"}' \
     localhost:50051 fintech.payment.v1.PaymentService/StreamPayments
+
+# Note: Bidirectional streaming requires a proper client implementation
+# Use our test client: go run cmd/test-bidirectional-streaming/main.go
 ```
 
 ### Load Testing
@@ -968,7 +1000,21 @@ netstat -tulpn | grep :50051
 grpcurl -plaintext localhost:50051 list
 ```
 
-2. **Proto Generation Issues**
+2. **Bidirectional Streaming Issues**
+```bash
+# Test with our comprehensive client
+go run cmd/test-bidirectional-streaming/main.go
+
+# Check server logs for session management
+tail -f logs/grpc-server.log
+```
+
+3. **Session Management Problems**
+- Ensure proper cleanup in handlers
+- Check for goroutine leaks
+- Verify context cancellation handling
+
+4. **Proto Generation Issues**
 ```bash
 # Install dependencies
 make proto-deps
@@ -978,7 +1024,7 @@ make clean
 make proto-gen
 ```
 
-3. **Import Path Issues**
+5. **Import Path Issues**
 ```bash
 # Check go.mod
 go mod tidy

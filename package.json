@@ -10,10 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.13.4",
+    "@grpc/proto-loader": "^0.7.15",
     "@heroicons/react": "^2.2.0",
-    "@types/react-router-dom": "^5.3.3",
     "clsx": "^2.1.0",
     "framer-motion": "^11.0.0",
+    "google-protobuf": "^3.21.4",
+    "grpc-web": "^1.5.0",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

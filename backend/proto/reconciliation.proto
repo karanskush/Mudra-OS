@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package fintech.reconciliation.v1;
 
-option go_package = "fintech-backend/proto/reconciliation";
+option go_package = "fintech-backend/proto/gen/reconciliation";
 
 import "google/protobuf/timestamp.proto";
 

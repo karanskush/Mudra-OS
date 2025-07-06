@@ -15,6 +15,9 @@ help:
 	@echo "  neon-setup  - Setup Neon database (extensions and migrations)"
 	@echo "  proto-gen   - Generate Go code from proto files"
 	@echo "  grpc-server - Run the gRPC server"
+	@echo "  test-grpc   - Test gRPC APIs"
+	@echo "  test-grpc-health - Health check gRPC server"
+	@echo "  test-grpc-implemented - Test only implemented methods"
 	@echo "  run-all     - Run both REST and gRPC servers"
 
 # Build the application
@@ -97,8 +100,9 @@ setup: deps install-tools
 proto-gen:
 	@echo "Generating Go code from proto files..."
 	@mkdir -p proto/gen
-	protoc --go_out=proto/gen --go_opt=paths=source_relative \
-		--go-grpc_out=proto/gen --go-grpc_opt=paths=source_relative \
+	protoc --go_out=proto/gen --go_opt=module=fintech-backend/proto/gen \
+		--go-grpc_out=proto/gen --go-grpc_opt=module=fintech-backend/proto/gen \
+		--proto_path=proto \
 		proto/*.proto
 	@echo "Proto files generated successfully"
 
@@ -110,6 +114,24 @@ proto-deps:
 # Run the gRPC server
 grpc-server:
 	go run cmd/grpc-server/main.go
+
+# Test gRPC APIs
+test-grpc:
+	@echo "Testing gRPC APIs..."
+	go run cmd/test-grpc/main.go
+
+# Test only implemented gRPC methods
+test-grpc-implemented:
+	@echo "Testing implemented gRPC methods..."
+	@echo "🔧 Testing Actually Implemented Methods..."
+	@echo "=========================================="
+	go run cmd/test-grpc/main.go 2>&1 | grep -A 50 "Testing Actually Implemented Methods" | head -n 50
+
+# Health check gRPC server
+test-grpc-health:
+	@echo "🏥 gRPC Server Health Check"
+	@echo "==========================="
+	go run cmd/test-grpc/main.go 2>&1 | grep -A 30 "gRPC Server Health Check" | head -n 30
 
 # Run both REST and gRPC servers
 run-all:
