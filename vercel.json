@@ -7,5 +7,18 @@
   ],
   "env": {
     "ENVIRONMENT": "production"
-  }
+  },
+  "ignore": [
+    "api/internal/grpc/handlers/**",
+    "api/internal/handlers/**",
+    "api/internal/services/**",
+    "api/internal/models/**",
+    "api/internal/repository/**",
+    "api/internal/database/**",
+    "api/internal/middleware/**",
+    "api/internal/utils/**",
+    "api/internal/validation/**",
+    "api/cmd/**",
+    "api/main.go"
+  ]
 }
