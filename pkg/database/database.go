@@ -1,8 +1,8 @@
 package database
 
 import (
-	"api/pkg/config"
 	"log"
+	"project2/pkg/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

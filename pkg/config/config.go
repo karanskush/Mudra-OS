@@ -37,6 +37,24 @@ type DatabaseConfig struct {
 	URL      string // Neon connection URL
 }
 
+// GetDSN returns the database connection string
+func (c *DatabaseConfig) GetDSN() string {
+	// If DATABASE_URL is available, use it directly (preferred for Neon)
+	if c.URL != "" {
+		return c.URL
+	}
+
+	// Fallback to building DSN from components
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		c.Host,
+		c.Port,
+		c.User,
+		c.Password,
+		c.Name,
+		c.SSLMode,
+	)
+}
+
 // JWTConfig holds JWT configuration
 type JWTConfig struct {
 	Secret     string
@@ -143,24 +161,6 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
-}
-
-// GetDSN returns the database connection string
-func (c *Config) GetDSN() string {
-	// If DATABASE_URL is available, use it directly (preferred for Neon)
-	if c.Database.URL != "" {
-		return c.Database.URL
-	}
-
-	// Fallback to building DSN from components
-	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		c.Database.Host,
-		c.Database.Port,
-		c.Database.User,
-		c.Database.Password,
-		c.Database.Name,
-		c.Database.SSLMode,
-	)
 }
 
 // IsDevelopment returns true if the environment is development
