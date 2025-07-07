@@ -57,7 +57,7 @@ func Connect(cfg *config.Config) error {
 	sqlDB.SetConnMaxIdleTime(1 * time.Minute) // Reduced idle timeout
 
 	// Test the connection with timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 	defer cancel()
 
 	if err := sqlDB.PingContext(ctx); err != nil {

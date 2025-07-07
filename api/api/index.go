@@ -54,6 +54,7 @@ func initApp() error {
 
 // Handler is the main entry point for Vercel
 func Handler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Handler invoked for path: %s", r.URL.Path)
 	// Initialize app if needed (for serverless cold starts)
 	if !initialized {
 		if err := initApp(); err != nil {
