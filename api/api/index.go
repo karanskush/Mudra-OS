@@ -25,28 +25,41 @@ func initApp() error {
 	var err error
 
 	// Load configuration
+	log.Println("Initializing application...")
 	cfg, err = config.Load()
 	if err != nil {
+		log.Printf("Failed to load configuration: %v", err)
 		return err
 	}
+	log.Println("Configuration loaded.")
 
 	// Initialize logger
 	logger.Init(cfg.Logging.Level, cfg.Logging.Format)
+	log.Println("Logger initialized.")
 
 	// Connect to database
+	log.Println("Connecting to database...")
 	if err := database.Connect(cfg); err != nil {
+		log.Printf("Failed to connect to database: %v", err)
 		return err
 	}
+	log.Println("Database connection successful.")
 
 	// Setup database if needed
+	log.Println("Setting up Neon database...")
 	if err := database.SetupNeonDatabase(); err != nil {
+		log.Printf("Failed to set up Neon database: %v", err)
 		return err
 	}
+	log.Println("Neon database setup successful.")
 
 	// Run ledger migrations
+	log.Println("Running ledger migrations...")
 	if err := database.MigrateLedgerTables(database.GetDB()); err != nil {
+		log.Printf("Failed to run ledger migrations: %v", err)
 		return err
 	}
+	log.Println("Ledger migrations successful.")
 
 	initialized = true
 	log.Printf("Application initialized successfully")

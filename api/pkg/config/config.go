@@ -175,12 +175,8 @@ func getEnv(key, defaultValue string) string {
 
 // GetDSN returns the database connection string
 func (c *Config) GetDSN() string {
-	// If we have a Neon DATABASE_URL, use it directly
-	if c.Database.URL != "" {
-		return c.Database.URL
-	}
-
-	// Fallback to constructed DSN for legacy configuration
+	// Always build DSN from components for consistency.
+	// The components are populated either from DATABASE_URL or individual DB_* env vars.
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		c.Database.Host,
 		c.Database.Port,
