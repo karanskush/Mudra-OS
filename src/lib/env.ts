@@ -43,7 +43,20 @@ export const getDiditConfig = (): {
  * Get API base URL from environment
  */
 export const getApiUrl = (): string => {
-  return getEnvVar('VITE_API_URL') || getEnvVar('REACT_APP_API_URL') || 'http://localhost:8080';
+  const envUrl = getEnvVar('VITE_API_URL') || getEnvVar('REACT_APP_API_URL');
+  
+  // If environment variable is set, use it
+  if (envUrl) {
+    return envUrl;
+  }
+  
+  // In production (Vercel), use relative paths since backend is on same domain
+  if (isProduction()) {
+    return '';
+  }
+  
+  // In development, use localhost
+  return 'http://localhost:8080';
 };
 
 /**

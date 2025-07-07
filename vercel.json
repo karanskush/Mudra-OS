@@ -1,5 +1,18 @@
 {
-  "rewrites": [
+  "functions": {
+    "backend/api/**/*.go": {
+      "runtime": "vercel-go@1.0.0"
+    }
+  },
+  "routes": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/backend/api/$1"
+    },
+    {
+      "source": "/health",
+      "destination": "/backend/api/health"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
@@ -15,5 +28,8 @@
         }
       ]
     }
-  ]
+  ],
+  "env": {
+    "ENVIRONMENT": "production"
+  }
 } 
