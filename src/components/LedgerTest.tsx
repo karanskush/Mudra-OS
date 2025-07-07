@@ -24,6 +24,7 @@ import { apiClient } from "../lib/api";
 import toast from 'react-hot-toast';
 import { grpcLedgerService, type LedgerStreamResponse } from '../lib/grpcLedgerService';
 import { getSessionUserId } from '../lib/utils';
+import { getApiUrl } from '../lib/env';
 
 interface Account {
   id: string;
@@ -957,23 +958,20 @@ const LedgerTest: React.FC = () => {
 
   // Debug helper function
   const generateAuthenticatedCurl = (endpoint: string, method: string = 'GET', body?: any) => {
-    const token = localStorage.getItem('authToken');
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-    
-    let curlCommand = `curl -X ${method} '${baseUrl}${endpoint}' \\\n`;
-    curlCommand += `  -H 'Content-Type: application/json' \\\n`;
-    
+    const token = localStorage.getItem('token');
+    const baseUrl = getApiUrl();
+    let curl = `curl '${baseUrl}${endpoint}' \\\n`;
     if (token) {
-      curlCommand += `  -H 'Authorization: Bearer ${token}'`;
+      curl += `  -H 'Authorization: Bearer ${token}' \\\n`;
     } else {
-      curlCommand += `  -H 'Authorization: Bearer YOUR_TOKEN_HERE' # ⚠️ Token not found! Please login first.`;
+      curl += `  -H 'Authorization: Bearer YOUR_TOKEN_HERE' # ⚠️ Token not found! Please login first.`;
     }
     
     if (body) {
-      curlCommand += ` \\\n  --data-raw '${JSON.stringify(body)}'`;
+      curl += ` \\\n  --data-raw '${JSON.stringify(body)}'`;
     }
     
-    return curlCommand;
+    return curl;
   };
 
   const copyToClipboard = (text: string) => {

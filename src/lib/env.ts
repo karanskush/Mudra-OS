@@ -40,23 +40,13 @@ export const getDiditConfig = (): {
 };
 
 /**
- * Get API base URL from environment
+ * Get API base URL for our backend
+ * In development, this will be proxied by Vite.
+ * In production, this will be on the same domain.
  */
 export const getApiUrl = (): string => {
-  const envUrl = getEnvVar('VITE_API_URL') || getEnvVar('REACT_APP_API_URL');
-  
-  // If environment variable is set, use it
-  if (envUrl) {
-    return envUrl;
-  }
-  
-  // In production (Vercel), use relative paths since backend is on same domain
-  if (isProduction()) {
-    return '';
-  }
-  
-  // In development, use localhost
-  return 'http://localhost:8080';
+  // We can use a relative path because of the proxy in vite.config.ts
+  return import.meta.env.VITE_API_URL || '';
 };
 
 /**
@@ -71,6 +61,5 @@ export const isDevelopment = (): boolean => {
  * Check if we're in production mode
  */
 export const isProduction = (): boolean => {
-  const mode = getEnvVar('VITE_MODE') || getEnvVar('NODE_ENV') || 'development';
-  return mode === 'production';
+  return import.meta.env.PROD;
 }; 
