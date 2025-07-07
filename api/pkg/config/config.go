@@ -14,7 +14,6 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	JWT      JWTConfig
-	Redis    RedisConfig
 	Security SecurityConfig
 	Logging  LoggingConfig
 	Payment  PaymentConfig
@@ -42,14 +41,6 @@ type DatabaseConfig struct {
 type JWTConfig struct {
 	Secret     string
 	ExpiryTime time.Duration
-}
-
-// RedisConfig holds Redis configuration
-type RedisConfig struct {
-	Host     string
-	Port     string
-	Password string
-	DB       int
 }
 
 // SecurityConfig holds security configuration
@@ -115,15 +106,6 @@ func Load() (*Config, error) {
 		ExpiryTime: time.Duration(jwtExpiryHours) * time.Hour,
 	}
 
-	// Redis configuration
-	redisDB, _ := strconv.Atoi(getEnv("REDIS_DB", "0"))
-	config.Redis = RedisConfig{
-		Host:     getEnv("REDIS_HOST", "localhost"),
-		Port:     getEnv("REDIS_PORT", "6379"),
-		Password: getEnv("REDIS_PASSWORD", ""),
-		DB:       redisDB,
-	}
-
 	// Security configuration
 	bcryptCost, _ := strconv.Atoi(getEnv("BCRYPT_COST", "12"))
 	rateLimitRequests, _ := strconv.Atoi(getEnv("RATE_LIMIT_REQUESTS", "100"))
@@ -176,11 +158,6 @@ func (c *Config) GetDSN() string {
 		c.Database.Name,
 		c.Database.SSLMode,
 	)
-}
-
-// GetRedisAddr returns the Redis connection address
-func (c *Config) GetRedisAddr() string {
-	return fmt.Sprintf("%s:%s", c.Redis.Host, c.Redis.Port)
 }
 
 // IsDevelopment returns true if the environment is development
