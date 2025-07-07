@@ -1,24 +1,14 @@
 {
-  "builds": [
-    {
-      "src": "backend/api/index.go",
-      "use": "@vercel/go"
+  "functions": {
+    "backend/api/index.go": {
+      "runtime": "vercel-go@1.0.0",
+      "includeFiles": "backend/**"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/backend/api/index.go"
-    },
-    {
-      "src": "/static/(.*)",
-      "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/api/(.*)",
+      "destination": "/backend/api/index.go"
     }
   ],
   "env": {
