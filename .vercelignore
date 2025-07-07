@@ -4,6 +4,7 @@ api/main.go
 
 # Proto files and generated gRPC code (moved to proto_files/)
 api/proto_files/
+api/internal/grpc/
 
 # Backend configuration and deployment files
 api/configs/
