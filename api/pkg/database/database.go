@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -49,14 +50,17 @@ func Connect(cfg *config.Config) error {
 		return fmt.Errorf("failed to get underlying SQL database: %w", err)
 	}
 
-	// Configure connection pool for better performance
-	sqlDB.SetMaxIdleConns(10)                  // Increased from 5
-	sqlDB.SetMaxOpenConns(50)                  // Increased from 25
-	sqlDB.SetConnMaxLifetime(30 * time.Minute) // Reduced from 1 hour for faster rotation
-	sqlDB.SetConnMaxIdleTime(5 * time.Minute)  // Added idle timeout
+	// Configure connection pool for serverless environments
+	sqlDB.SetMaxIdleConns(2)                  // Reduced for serverless
+	sqlDB.SetMaxOpenConns(5)                  // Reduced for serverless
+	sqlDB.SetConnMaxLifetime(5 * time.Minute) // Reduced for faster rotation
+	sqlDB.SetConnMaxIdleTime(1 * time.Minute) // Reduced idle timeout
 
 	// Test the connection with timeout
-	if err := sqlDB.Ping(); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := sqlDB.PingContext(ctx); err != nil {
 		return fmt.Errorf("failed to ping database: %w", err)
 	}
 

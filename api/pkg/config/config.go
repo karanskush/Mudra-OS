@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"net/url"
 	"os"
 	"strconv"
 	"time"
@@ -93,21 +92,9 @@ func Load() (*Config, error) {
 	// Database configuration - prioritize Neon DATABASE_URL
 	databaseURL := getEnv("DATABASE_URL", "")
 	if databaseURL != "" {
-		// Parse Neon connection URL
-		parsedURL, err := url.Parse(databaseURL)
-		if err != nil {
-			return nil, fmt.Errorf("invalid DATABASE_URL: %w", err)
-		}
-
-		password, _ := parsedURL.User.Password()
+		// Use DATABASE_URL directly for Neon
 		config.Database = DatabaseConfig{
-			Host:     parsedURL.Hostname(),
-			Port:     parsedURL.Port(),
-			User:     parsedURL.User.Username(),
-			Password: password,
-			Name:     parsedURL.Path[1:], // Remove leading slash
-			SSLMode:  "require",          // Neon requires SSL
-			URL:      databaseURL,
+			URL: databaseURL,
 		}
 	} else {
 		// Fallback to legacy configuration
@@ -175,8 +162,12 @@ func getEnv(key, defaultValue string) string {
 
 // GetDSN returns the database connection string
 func (c *Config) GetDSN() string {
-	// Always build DSN from components for consistency.
-	// The components are populated either from DATABASE_URL or individual DB_* env vars.
+	// If DATABASE_URL is available, use it directly (preferred for Neon)
+	if c.Database.URL != "" {
+		return c.Database.URL
+	}
+
+	// Fallback to building DSN from components
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		c.Database.Host,
 		c.Database.Port,
