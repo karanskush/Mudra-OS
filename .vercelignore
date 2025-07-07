@@ -6,6 +6,18 @@ api/main.go
 api/proto_files/
 api/internal/grpc/
 
+# All gRPC related files and directories
+api/proto/
+api/grpc_bridge.go
+api/pkg/grpc/
+api/GRPC_*.md
+api/GRPC_IMPLEMENTATION_SUMMARY.md
+api/BIDIRECTIONAL_STREAMING_SUMMARY.md
+api/GRPC_DEVELOPER_GUIDE.md
+api/GRPC_DEMO_GUIDE.md
+api/GRPC_DEMO_README.md
+grpc-streaming-server/
+
 # Backend configuration and deployment files
 api/configs/
 api/deployments/
@@ -18,11 +30,9 @@ api/*_test.go
 
 # Other backend artifacts
 api/Makefile
-api/GRPC_*.md
 api/LEDGER_*.md
 api/KYC_*.md
 api/NEON_*.md
-api/BIDIRECTIONAL_*.md
 api/QUICK_TEST.md
 api/STARTUP_*.md
 api/COMBINED_*.md
