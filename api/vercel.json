@@ -1,0 +1,16 @@
+{
+  "functions": {
+    "api/index.go": {
+      "runtime": "go1.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.go"
+    }
+  ],
+  "env": {
+    "ENVIRONMENT": "production"
+  }
+} 

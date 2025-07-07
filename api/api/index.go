@@ -5,11 +5,65 @@ import (
 	"net/http"
 	"strings"
 
+	"fintech-api/internal/config"
+	"fintech-api/internal/database"
 	"fintech-api/internal/middleware"
+	"fintech-api/pkg/logger"
 )
+
+var (
+	initialized bool
+	cfg         *config.Config
+)
+
+// initApp initializes the application if not already done
+func initApp() error {
+	if initialized {
+		return nil
+	}
+
+	var err error
+
+	// Load configuration
+	cfg, err = config.Load()
+	if err != nil {
+		return err
+	}
+
+	// Initialize logger
+	logger.Init(cfg.Logging.Level, cfg.Logging.Format)
+
+	// Connect to database
+	if err := database.Connect(cfg); err != nil {
+		return err
+	}
+
+	// Setup database if needed
+	if err := database.SetupNeonDatabase(); err != nil {
+		return err
+	}
+
+	// Run ledger migrations
+	if err := database.MigrateLedgerTables(database.GetDB()); err != nil {
+		return err
+	}
+
+	initialized = true
+	log.Printf("Application initialized successfully")
+	return nil
+}
 
 // Handler is the main entry point for Vercel
 func Handler(w http.ResponseWriter, r *http.Request) {
+	// Initialize app if needed (for serverless cold starts)
+	if !initialized {
+		if err := initApp(); err != nil {
+			log.Printf("Failed to initialize app: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
+
 	// Parse the path
 	path := strings.TrimPrefix(r.URL.Path, "/")
 	pathParts := strings.Split(path, "/")
