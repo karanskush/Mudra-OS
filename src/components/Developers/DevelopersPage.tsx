@@ -11,7 +11,7 @@ import {
 
 const DevelopersPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Fixed spacing from navbar */}
       <div className="pt-16 sm:pt-20">
         {/* Hero Section */}
@@ -62,7 +62,7 @@ const DevelopersPage: React.FC = () => {
                 Developer Resources
               </h2>
               <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                Everything you need to integrate our fintech platform into your applications
+                Everything you need to integrate our MudraCore platform into your applications
               </p>
             </motion.div>
 

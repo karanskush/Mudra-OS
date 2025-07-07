@@ -74,7 +74,7 @@ export const HeroParallax = ({
   return (
     <div
       ref={ref}
-      className="min-h-screen max-h-[200vh] pt-8 pb-16 sm:pt-12 sm:pb-20 lg:pt-16 lg:pb-24 overflow-hidden antialiased relative flex flex-col justify-between bg-gradient-to-b from-slate-900 via-blue-900 to-indigo-900 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950"
+      className="min-h-screen max-h-[200vh] pt-8 pb-16 sm:pt-12 sm:pb-20 lg:pt-16 lg:pb-24 overflow-hidden antialiased relative flex flex-col justify-between dark:bg-[#000008]"
     >
       <div className="relative z-50 flex-shrink-0">
         <Header />
@@ -138,7 +138,7 @@ export const HeroParallax = ({
       {/* Scroll indicator */}
       <div className="relative z-50 flex justify-center pb-8">
         <motion.div 
-          className="w-1 h-8 bg-gradient-to-b from-white/50 to-transparent rounded-full"
+          className="w-1 h-8 bg-gradient-to-b from-slate-600 to-transparent dark:from-white/50 rounded-full"
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
@@ -176,24 +176,26 @@ export const Header = () => {
       <div className="grid lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 xl:gap-16 items-center">
         <div className="lg:col-span-8 xl:col-span-7">
           <motion.h1 
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-white mb-3 sm:mb-4 lg:mb-6 leading-tight"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4 lg:mb-6 leading-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
             The Ultimate <br /> 
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              Fintech Platform
+            <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-purple-600 dark:from-blue-400 dark:via-cyan-400 dark:to-purple-400 bg-clip-text text-transparent">
+            Fintech Platform
             </span>
           </motion.h1>
           <motion.p 
-            className="max-w-2xl text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white/80 leading-relaxed mb-4 sm:mb-6"
+            className="max-w-2xl text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-slate-700 dark:text-white/80 leading-relaxed mb-4 sm:mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             Build production-ready fintech applications with enterprise-grade security and compliance.
-            From core ledger systems to payment orchestration—everything you need in one platform.
+            From core ledger systems to payment orchestration.
+            <br />
+            Everything you need in one platform.
           </motion.p>
           
           {/* Action Buttons */}
@@ -214,7 +216,7 @@ export const Header = () => {
             </motion.button>
             
             <motion.button 
-              className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 border border-white/20 hover:border-white/30 cursor-pointer pointer-events-auto"
+              className="bg-slate-100/80 dark:bg-white/10 backdrop-blur-md hover:bg-slate-200/80 dark:hover:bg-white/20 text-slate-900 dark:text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 border border-slate-200/50 dark:border-white/20 hover:border-slate-300/50 dark:hover:border-white/30 cursor-pointer pointer-events-auto"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleViewDocumentation}
@@ -226,33 +228,22 @@ export const Header = () => {
         </div>
         
         <div className="lg:col-span-4 xl:col-span-5">
-          {/* Feature highlights for larger screens */}
+          {/* Animated hero image for larger screens */}
           <motion.div 
-            className="hidden lg:block space-y-2 xl:space-y-3"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            className="hidden lg:flex items-center justify-center w-full h-full"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: [30, 0, 10, 0] }}
+            transition={{ duration: 1.2, delay: 0.3, repeat: Infinity, repeatType: 'reverse', repeatDelay: 2 }}
+            style={{ minHeight: '320px' }}
           >
-            {[
-              { title: "Enterprise Security", desc: "SOC2 compliant with bank-grade encryption", icon: "🔐" },
-              { title: "High Performance", desc: "Process 50K+ transactions per second", icon: "⚡" },
-              { title: "Global Ready", desc: "Multi-currency support in 180+ countries", icon: "🌍" },
-              { title: "Developer First", desc: "REST & GraphQL APIs with comprehensive SDKs", icon: "👨‍💻" }
-            ].map((feature, index) => (
-              <motion.div 
-                key={index}
-                className="flex items-start gap-2 xl:gap-3 p-2.5 xl:p-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-              >
-                <span className="text-lg xl:text-xl">{feature.icon}</span>
-                <div>
-                  <h3 className="text-white font-semibold text-xs lg:text-sm xl:text-base">{feature.title}</h3>
-                  <p className="text-white/70 text-xs lg:text-sm">{feature.desc}</p>
-                </div>
-              </motion.div>
-            ))}
+            <motion.img
+              src="/images/hero-images/hero back.png"
+              alt="MudraCore OS Hero Background"
+              className="w-[130%] h-auto max-w-none rounded-2xl shadow-xl lg:w-[130%] lg:h-auto lg:max-w-none border-r-4 border-blue-500"
+              initial={{ scale: 0.98, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1.2, delay: 0.5 }}
+            />
           </motion.div>
         </div>
       </div>
@@ -264,18 +255,6 @@ export const Header = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.6 }}
       >
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-2.5 sm:p-3 text-left">
-          <div className="text-blue-400 font-semibold text-xs sm:text-sm mb-1">14 Core Domains</div>
-          <div className="text-white/80 text-xs sm:text-sm">Complete fintech infrastructure</div>
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-2.5 sm:p-3 text-left">
-          <div className="text-purple-400 font-semibold text-xs sm:text-sm mb-1">99.99% Uptime</div>
-          <div className="text-white/80 text-xs sm:text-sm">Enterprise-grade reliability</div>
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-2.5 sm:p-3 text-left">
-          <div className="text-cyan-400 font-semibold text-xs sm:text-sm mb-1">1-Command Setup</div>
-          <div className="text-white/80 text-xs sm:text-sm">Get started in seconds</div>
-        </div>
       </motion.div>
     </div>
   );
@@ -315,7 +294,7 @@ export const ProductCard = ({
             src={product.thumbnail}
             height="600"
             width="600"
-            className="object-cover object-center absolute h-full w-full inset-0 rounded-lg sm:rounded-xl border border-white/10"
+            className="object-cover object-center absolute h-full w-full inset-0 rounded-lg sm:rounded-xl border border-slate-200/50 dark:border-white/10"
             alt={product.title}
           />
         </Link>
@@ -325,13 +304,13 @@ export const ProductCard = ({
             src={product.thumbnail}
             height="600"
             width="600"
-            className="object-cover object-center absolute h-full w-full inset-0 rounded-lg sm:rounded-xl border border-white/10"
+            className="object-cover object-center absolute h-full w-full inset-0 rounded-lg sm:rounded-xl border border-slate-200/50 dark:border-white/10"
             alt={product.title}
           />
         </div>
       )}
       {/* Enhanced background overlay for text readability */}
-      <div className="absolute inset-0 h-full w-full bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none rounded-lg sm:rounded-xl"></div>
+      <div className="absolute inset-0 h-full w-full bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent dark:from-black/80 dark:via-black/30 pointer-events-none rounded-lg sm:rounded-xl"></div>
       {/* Permanently visible title with better positioning */}
       <h2 className="absolute bottom-1 left-1 sm:bottom-2 sm:left-2 lg:bottom-3 lg:left-3 text-white font-semibold text-[10px] sm:text-xs lg:text-sm xl:text-base drop-shadow-lg leading-tight">
         {product.title}

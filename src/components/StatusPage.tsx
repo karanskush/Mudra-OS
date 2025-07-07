@@ -307,7 +307,7 @@ const StatusPage: React.FC = () => {
             System Status
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Real-time monitoring of our fintech platform infrastructure
+            Real-time monitoring of our MudraCore platform infrastructure
           </p>
           {lastUpdated && (
             <p className="text-sm text-gray-500 mt-2">

@@ -2,7 +2,7 @@
 
 ## 🚀 Overview
 
-The gRPC Demo page showcases the power of **bidirectional streaming APIs** in our fintech platform. This interactive demonstration highlights the real-time capabilities, ultra-low latency, and business value of our gRPC implementation.
+The gRPC Demo page showcases the power of **bidirectional streaming APIs** in our MudraCore platform. This interactive demonstration highlights the real-time capabilities, ultra-low latency, and business value of our gRPC implementation.
 
 ## ✨ Features
 

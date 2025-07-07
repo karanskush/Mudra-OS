@@ -18,7 +18,7 @@
 
 ## Overview
 
-This fintech platform implements **6 practical gRPC APIs** that leverage gRPC's core strengths for real fintech operations with measurable business value.
+This MudraCore platform implements **6 practical gRPC APIs** that leverage gRPC's core strengths for real fintech operations with measurable business value.
 
 ### Key Features
 

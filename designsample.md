@@ -6,7 +6,7 @@ Based on the successful redesign I just completed, here's the prompt template yo
 ## 📝 **Reusable Prompt Template**
 
 ```
-Search internet for modern fintech design patterns and redesign @[COMPONENT_NAME] with a professional, graphic-rich interface suitable for a fintech OS website. 
+Search internet for modern fintech design patterns and redesign @[COMPONENT_NAME] with a professional, graphic-rich interface suitable for a MudraCore OS website. 
 
 Apply these design improvements:
 

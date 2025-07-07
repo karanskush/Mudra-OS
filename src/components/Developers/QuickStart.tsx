@@ -19,7 +19,7 @@ const QuickStart: React.FC = () => (
       <a href="/api-docs/postman_collection.json" download className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow transition-all">
         <Download className="w-4 h-4" /> Download Postman
       </a>
-      <a href="https://github.com/your-org/fintechos" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold shadow transition-all">
+      <a href="https://github.com/your-org/mudracoreos" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold shadow transition-all">
         <Github className="w-4 h-4" /> GitHub SDKs & Code
       </a>
       <a href="https://community.yourdomain.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold shadow transition-all">

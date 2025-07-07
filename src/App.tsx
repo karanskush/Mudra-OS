@@ -8,6 +8,7 @@ import { ToastProvider } from './components/ui/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import { HeroParallax } from './components/ui/hero-parallax';
+import { ConsistentBackground } from './components/ui/ConsistentBackground';
 import Features from './components/Features';
 import Gallery from './components/Gallery';
 import Analytics from './components/Analytics';
@@ -22,78 +23,79 @@ import APIExplorer from './components/Developers/APIExplorer';
 import GRPCDemo from './components/GRPCDemo';
 import GRPCTest from './components/GRPCTest';
 import RouterTest from './components/RouterTest';
+import RealTimePayments from './components/RealTimePayments';
 
 // Enhanced fintech-focused products with more relevant imagery
 const fintechProducts = [
   {
     title: "Core Ledger",
     link: "/ledger",
-    thumbnail: "https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Core Ledger.png",
   },
   {
     title: "Payment Orchestration",
     link: "/payments",
-    thumbnail: "https://images.pexels.com/photos/4386321/pexels-photo-4386321.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Payment Orchestration.png",
   },
   {
     title: "Smart Routing Optimiser",
     link: "/routing",
-    thumbnail: "https://images.pexels.com/photos/8728380/pexels-photo-8728380.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Smart Routing Optimiser.png",
   },
   {
     title: "KYC & Risk Stub",
     link: "/kyc",
-    thumbnail: "https://images.pexels.com/photos/5668473/pexels-photo-5668473.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/KYC & Risk Stub.png",
   },
   {
     title: "Automated Reconciliation Engine",
     link: "/reconciliation",
-    thumbnail: "https://images.pexels.com/photos/6802042/pexels-photo-6802042.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Automated Reconciliation Engine.png",
   },
   {
     title: "Compliance Report Generator",
     link: "/compliance",
-    thumbnail: "https://images.pexels.com/photos/6801874/pexels-photo-6801874.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Compliance Report Generator.png",
   },
   {
     title: "Treasury / FX Mock",
     link: "/treasury",
-    thumbnail: "https://images.pexels.com/photos/7567443/pexels-photo-7567443.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Treasury : FX Mock.png",
   },
   {
     title: "Self-Serve Webhooks & SDKs",
     link: "/webhooks",
-    thumbnail: "https://images.pexels.com/photos/4164418/pexels-photo-4164418.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Self-Serve Webhooks & SDKs.png",
   },
   {
     title: "Dual API Surface",
     link: "/api",
-    thumbnail: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Dual API Surface.png",
   },
   {
     title: "Ops Console (HTMX + Tailwind)",
     link: "/ops",
-    thumbnail: "https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Ops Console.png",
   },
   {
     title: "Observability",
     link: "/monitoring",
-    thumbnail: "https://images.pexels.com/photos/6802049/pexels-photo-6802049.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Observability.png",
   },
   {
     title: "Security Basics",
     link: "/security",
-    thumbnail: "https://images.pexels.com/photos/60504/security-protection-anti-virus-software-60504.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Security Basics.png",
   },
   {
     title: "One-Command Experience",
     link: "/dev-tools",
-    thumbnail: "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/One-Command Experience.png",
   },
   {
     title: "Clean Code & Docs",
     link: "/analytics",
-    thumbnail: "https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg?auto=compress&cs=tinysrgb&w=800",
+    thumbnail: "/images/hero-images/Clean Code & Docs.png",
   },
 ];
 
@@ -109,23 +111,23 @@ const HomePage: React.FC = () => (
 
 // Layout component that includes Navbar and Footer
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
+  <ConsistentBackground>
     <Navbar />
     <main className="pt-20">
       {children}
     </main>
     <Footer />
-  </div>
+  </ConsistentBackground>
 );
 
 // Layout without Footer for Landing Page
 const LandingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
+  <ConsistentBackground>
     <Navbar />
     <main className="pt-20">
       {children}
     </main>
-  </div>
+  </ConsistentBackground>
 );
 
 function App() {
@@ -152,6 +154,7 @@ function App() {
               <Route path="/grpc-demo" element={<Layout><GRPCDemo /></Layout>} />
               <Route path="/grpc-test" element={<Layout><GRPCTest /></Layout>} />
               <Route path="/router-test" element={<Layout><RouterTest /></Layout>} />
+              <Route path="/payments" element={<ProtectedRoute><RealTimePayments /></ProtectedRoute>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </ToastProvider>

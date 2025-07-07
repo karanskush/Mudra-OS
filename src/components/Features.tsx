@@ -138,7 +138,7 @@ const Features: React.FC = () => {
           <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 ${
             isDark ? 'text-white' : 'text-gray-900'
           }`}>
-            Ultra-Lean Fintech OS
+            Ultra-Lean MudraCore OS
             <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Production-Ready Components
             </span>
@@ -146,7 +146,7 @@ const Features: React.FC = () => {
           <p className={`text-lg max-w-3xl mx-auto ${
             isDark ? 'text-gray-300' : 'text-gray-600'
           }`}>
-            A comprehensive fintech platform demonstrating enterprise-grade capabilities. 
+            A comprehensive MudraCore platform demonstrating enterprise-grade capabilities. 
             From core ledger systems to compliance automation—everything you need to build modern financial applications.
           </p>
         </div>

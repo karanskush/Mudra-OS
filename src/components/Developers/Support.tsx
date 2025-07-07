@@ -25,10 +25,11 @@ const Support: React.FC = () => (
       </ul>
     </div>
     <div className="flex gap-6 mt-4">
-      <a href="mailto:support@fintechos.com" className="flex items-center gap-2 text-blue-700 dark:text-blue-300 hover:underline">
-        <Mail className="w-4 h-4" /> Email Support
+      <a href="mailto:support@mudracoreos.com" className="flex items-center gap-2 text-blue-700 dark:text-blue-300 hover:underline">
+        <Mail className="w-4 h-4" />
+        support@mudracoreos.com
       </a>
-      <a href="https://github.com/your-org/fintechos" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-700 dark:text-blue-300 hover:underline">
+      <a href="https://github.com/your-org/mudracoreos" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-700 dark:text-blue-300 hover:underline">
         <Users className="w-4 h-4" /> Developer Community
       </a>
     </div>

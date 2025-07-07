@@ -22,6 +22,8 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from "../lib/api";
 import toast from 'react-hot-toast';
+import { grpcLedgerService, type LedgerStreamResponse } from '../lib/grpcLedgerService';
+import { getSessionUserId } from '../lib/utils';
 
 interface Account {
   id: string;
@@ -554,6 +556,145 @@ const LedgerTest: React.FC = () => {
   const [lastTransferRailInfo, setLastTransferRailInfo] = useState<TransferRailInfo | null>(null);
   const [showTransferSuccess, setShowTransferSuccess] = useState(false);
 
+  // gRPC streaming state
+  const [isGrpcConnected, setIsGrpcConnected] = useState(false);
+  const [streamingEvents, setStreamingEvents] = useState<LedgerStreamResponse[]>([]);
+  const [realTimeBalances, setRealTimeBalances] = useState<Record<string, number>>({});
+
+  // Initialize gRPC connection
+  useEffect(() => {
+    const initializeGrpc = async () => {
+      try {
+        const connected = await grpcLedgerService.connect();
+        setIsGrpcConnected(connected);
+        
+        if (connected) {
+          // Start streaming ledger events
+          const userId = getSessionUserId();
+          await grpcLedgerService.startLedgerStream(userId, handleLedgerStreamEvent);
+          
+          // Subscribe to all user transactions
+          await grpcLedgerService.subscribeToUserTransactions(userId);
+          
+          console.log('gRPC Ledger streaming started');
+        }
+      } catch (error) {
+        console.error('Failed to initialize gRPC Ledger service:', error);
+        setIsGrpcConnected(false);
+      }
+    };
+
+    initializeGrpc();
+
+    return () => {
+      grpcLedgerService.disconnect();
+    };
+  }, []);
+
+  // Handle gRPC stream events
+  const handleLedgerStreamEvent = (event: LedgerStreamResponse) => {
+    setStreamingEvents(prev => [...prev, event]);
+    
+    // Handle different event types
+    if (event.event.balanceUpdate) {
+      const { accountId, balance, changeAmount, changeType } = event.event.balanceUpdate;
+      
+      // Update real-time balances
+      setRealTimeBalances(prev => ({
+        ...prev,
+        [accountId]: balance
+      }));
+      
+      // Update available accounts with new balance
+      setAvailableAccounts(prev => 
+        prev.map(account => 
+          account.id === accountId 
+            ? { ...account, balance }
+            : account
+        )
+      );
+      
+      // Show balance update notification
+      toast.success(
+        `Balance ${changeType.toLowerCase()}: ${changeType === 'CREDIT' ? '+' : '-'}$${changeAmount.toFixed(2)}`,
+        { duration: 3000 }
+      );
+    }
+    
+    if (event.event.transactionCreated) {
+      const { transactionId, amount, status, fromAccountId, toAccountId } = event.event.transactionCreated;
+      
+      // Add to transactions list
+      const newTransaction: Transaction = {
+        id: transactionId,
+        type: 'transfer',
+        status: status.toLowerCase(),
+        amount,
+        currency: event.event.transactionCreated.currency,
+        description: event.event.transactionCreated.description,
+        reference: event.event.transactionCreated.reference,
+        entries: []
+      };
+      
+      setTransactions(prev => [newTransaction, ...prev]);
+      
+      toast(`Transaction created: ${transactionId}`, {
+        duration: 3000,
+        icon: 'ℹ️'
+      });
+    }
+    
+    if (event.event.transactionStatusUpdate) {
+      const { transactionId, status, message } = event.event.transactionStatusUpdate;
+      
+      // Update transaction status
+      setTransactions(prev => 
+        prev.map(tx => 
+          tx.id === transactionId 
+            ? { ...tx, status: status.toLowerCase() }
+            : tx
+        )
+      );
+      
+      if (status === 'COMPLETED') {
+        toast.success(`Transaction completed: ${transactionId}`);
+      } else if (status === 'FAILED') {
+        toast.error(`Transaction failed: ${message}`);
+      }
+    }
+    
+    if (event.event.reconciliationResult) {
+      const { accountId, reconciled, variance } = event.event.reconciliationResult;
+      
+      if (!reconciled && variance !== 0) {
+        toast(`Account reconciliation issue: Variance of $${variance.toFixed(2)}`, {
+          duration: 5000,
+          icon: '⚠️'
+        });
+      } else {
+        toast.success('Account reconciliation completed successfully');
+      }
+    }
+    
+    if (event.event.lowBalanceAlert) {
+      const { accountId, currentBalance, threshold } = event.event.lowBalanceAlert;
+      
+      toast.error(
+        `Low balance alert: Account ${accountId} has $${currentBalance.toFixed(2)} (below $${threshold.toFixed(2)})`,
+        { duration: 10000 }
+      );
+    }
+    
+    if (event.event.accountLocked) {
+      const { accountId, reason } = event.event.accountLocked;
+      
+      toast.error(
+        `Account locked: ${accountId} - ${reason}`,
+        { duration: 10000 }
+      );
+    }
+  };
+
   // Load available accounts
   const loadAvailableAccounts = async () => {
     setLoading(true);
@@ -631,28 +772,50 @@ const LedgerTest: React.FC = () => {
     setShowTransferSuccess(false);
 
     try {
-      const response = await apiClient.createTransfer(transferForm);
-      // The response is the transfer object directly, not wrapped in a data field
-      const data = response as any;
-      
-      // If the response includes rail info, use it
-      if (data.rail) {
-        setLastTransferRailInfo(data as TransferRailInfo);
-        setTransactions([...transactions, data.transaction]);
-        setResponse(JSON.stringify(data, null, 2));
+      if (isGrpcConnected && grpcLedgerService) {
+        // Use gRPC streaming service
+        const transactionId = await grpcLedgerService.createTransaction({
+          fromAccountId: transferForm.from_account_id,
+          toAccountId: transferForm.to_account_id,
+          amount: transferForm.amount,
+          currency: transferForm.currency,
+          description: transferForm.description,
+          reference: transferForm.reference
+        });
+        
+        // Real-time updates will be handled by the stream event handler
+        toast(`Transfer initiated: ${transactionId}`, {
+          duration: 3000,
+          icon: '💸'
+        });
+        
+        setResponse(`Transaction ID: ${transactionId}`);
         setShowTransferSuccess(true);
-        await loadAvailableAccounts();
-        toast.success('Transfer created successfully!');
-      } else if (data.id) {
-        // fallback for old response
-        setTransactions([...transactions, data]);
-        setResponse(JSON.stringify(data, null, 2));
-        setShowTransferSuccess(true);
-        await loadAvailableAccounts();
-        toast.success('Transfer created successfully!');
       } else {
-        setResponse(`Error: ${data.error || 'Failed to create transfer'}`);
-        toast.error('Failed to create transfer');
+        // Fallback to REST API
+        const response = await apiClient.createTransfer(transferForm);
+        // The response is the transfer object directly, not wrapped in a data field
+        const data = response as any;
+        
+        // If the response includes rail info, use it
+        if (data.rail) {
+          setLastTransferRailInfo(data as TransferRailInfo);
+          setTransactions([...transactions, data.transaction]);
+          setResponse(JSON.stringify(data, null, 2));
+          setShowTransferSuccess(true);
+          await loadAvailableAccounts();
+          toast.success('Transfer created successfully!');
+        } else if (data.id) {
+          // fallback for old response
+          setTransactions([...transactions, data]);
+          setResponse(JSON.stringify(data, null, 2));
+          setShowTransferSuccess(true);
+          await loadAvailableAccounts();
+          toast.success('Transfer created successfully!');
+        } else {
+          setResponse(`Error: ${data.error || 'Failed to create transfer'}`);
+          toast.error('Failed to create transfer');
+        }
       }
     } catch (error) {
       console.error('Transfer creation error:', error);
@@ -820,7 +983,7 @@ const LedgerTest: React.FC = () => {
   };
 
   return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="min-h-screen">
         {/* Header Section */}
       <div className="relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-700/50">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>

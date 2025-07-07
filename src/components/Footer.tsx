@@ -60,12 +60,11 @@ const Footer: React.FC = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-2 mb-6">
               <Zap className="h-8 w-8 text-blue-500" />
-              <span className="text-2xl font-bold">Fintech OS</span>
+              <span className="text-2xl font-bold">MudraCore OS</span>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
+                Ultra-lean MudraCore OS for modern financial applications.
+              </p>
             </div>
-            <p className="text-gray-400 mb-6 max-w-sm">
-              Ultra-lean fintech OS for modern financial applications. 
-              Build production-ready platforms with enterprise-grade security and compliance.
-            </p>
             
             {/* Certifications */}
             <div className="mb-6">
@@ -162,8 +161,8 @@ const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 text-sm">
-              © 2025 Fintech OS. All rights reserved. Built for enterprise fintech.
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
+              © 2025 MudraCore OS. All rights reserved. Built for enterprise fintech.
             </p>
             <div className="flex flex-wrap gap-6">
               <a href="#privacy" className="text-gray-400 hover:text-white text-sm transition-colors duration-300">

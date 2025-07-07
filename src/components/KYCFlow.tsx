@@ -59,6 +59,7 @@ import EnhancedCountrySelector from './EnhancedCountrySelector';
 import { getSessionUserId } from '../lib/utils';
 import { useToast, createToast } from './ui/Toast';
 import { FintechBackground } from './ui/fintech-background';
+import { grpcKYCService, type KYCStreamResponse } from '../lib/grpcKYCService';
 
 // Enhanced animation variants with advanced fintech effects
 const containerVariants = {
@@ -184,6 +185,11 @@ const KYCFlow: React.FC = () => {
     email: 'john.doe@example.com',
     phone: '+1234567890'
   });
+  
+  // gRPC streaming state
+  const [isGrpcConnected, setIsGrpcConnected] = useState(false);
+  const [streamingEvents, setStreamingEvents] = useState<KYCStreamResponse[]>([]);
+  const [verificationId, setVerificationId] = useState<string | null>(null);
 
   const steps = [
     { 
@@ -238,6 +244,113 @@ const KYCFlow: React.FC = () => {
     }
   ];
 
+  // Initialize gRPC connection
+  useEffect(() => {
+    const initializeGrpc = async () => {
+      try {
+        const connected = await grpcKYCService.connect();
+        setIsGrpcConnected(connected);
+        
+        if (connected) {
+          // Start streaming KYC events
+          const userId = getSessionUserId();
+          await grpcKYCService.startKYCStream(userId, handleKYCStreamEvent);
+          console.log('gRPC KYC streaming started');
+        }
+      } catch (error) {
+        console.error('Failed to initialize gRPC KYC service:', error);
+        setIsGrpcConnected(false);
+      }
+    };
+
+    initializeGrpc();
+
+    return () => {
+      grpcKYCService.disconnect();
+    };
+  }, []);
+
+  // Handle gRPC stream events
+  const handleKYCStreamEvent = (event: KYCStreamResponse) => {
+    setStreamingEvents(prev => [...prev, event]);
+    
+    // Handle different event types
+    if (event.event.verificationStarted) {
+      setVerificationId(event.event.verificationStarted.verificationId);
+      showToast(createToast.success(
+        `Verification started for ${event.event.verificationStarted.country}`,
+        'KYC Started'
+      ));
+    }
+    
+    if (event.event.documentUploaded) {
+      showToast(createToast.info(
+        `Document ${event.event.documentUploaded.documentType} uploaded successfully`,
+        'Document Uploaded'
+      ));
+    }
+    
+    if (event.event.documentVerified) {
+      const { documentType, status, confidence } = event.event.documentVerified;
+      if (status === 'VERIFIED') {
+        showToast(createToast.success(
+          `${documentType} verified with ${Math.round(confidence * 100)}% confidence`,
+          'Document Verified'
+        ));
+        
+        // Update KYC status
+        if (kycStatus) {
+          const updatedStatus = { ...kycStatus };
+          updatedStatus.documents[documentType] = {
+            status: 'verified',
+            verified_at: new Date().toISOString(),
+          };
+          updatedStatus.progress += 25;
+          setKycStatus(updatedStatus);
+        }
+      } else {
+        showToast(createToast.error(
+          `${documentType} verification failed`,
+          'Verification Failed'
+        ));
+      }
+    }
+    
+    if (event.event.riskAssessmentUpdate) {
+      const { riskScore, riskLevel, flags } = event.event.riskAssessmentUpdate;
+      if (flags.length > 0) {
+        showToast(createToast.warning(
+          `Risk assessment updated: ${riskLevel} (${riskScore})`,
+          'Risk Update'
+        ));
+      }
+    }
+    
+    if (event.event.verificationCompleted) {
+      const { status, finalRiskScore } = event.event.verificationCompleted;
+      if (status === 'VERIFIED') {
+        showToast(createToast.success(
+          `KYC verification completed successfully! Risk score: ${finalRiskScore}`,
+          'Verification Complete'
+        ));
+        setCurrentStep(steps.length - 1);
+      } else if (status === 'REQUIRES_REVIEW') {
+        showToast(createToast.warning(
+          'KYC verification requires manual review',
+          'Manual Review Required'
+        ));
+      }
+    }
+    
+    if (event.event.complianceAlert) {
+      const { alertType, severity, message } = event.event.complianceAlert;
+      showToast(createToast.error(
+        `${alertType}: ${message}`,
+        `Compliance Alert (${severity})`
+      ));
+    }
+  };
+
   // Fetch available countries
   useEffect(() => {
     fetchCountries();
@@ -263,20 +376,53 @@ const KYCFlow: React.FC = () => {
     setIsLoading(true);
     setErrors({});
     try {
-      const kycData = await KYCApi.startKYC({
-        country: country.countryCode,
-        name: userInfo.name,
-        email: userInfo.email,
-        phone: userInfo.phone,
-      });
-      setKycStatus(kycData);
-      setSelectedCountry(country);
-      setCurrentStep(1);
-      showToast(createToast.success(
-        `KYC verification process has been successfully initiated for ${country.country}`, 
-        'KYC Started',
-        { duration: 4000 }
-      ));
+      if (isGrpcConnected) {
+        // Use gRPC streaming service
+        const userId = getSessionUserId();
+        const verificationId = await grpcKYCService.startVerification({
+          userId,
+          country: country.countryCode,
+          name: userInfo.name,
+          email: userInfo.email,
+          phone: userInfo.phone,
+          amount: 50000 // Default amount for demo
+        });
+        
+        // Subscribe to verification updates
+        await grpcKYCService.subscribeToVerification(userId, true);
+        
+        setVerificationId(verificationId);
+        setSelectedCountry(country);
+        setCurrentStep(1);
+        
+        // Create initial KYC status for UI
+        setKycStatus({
+          user_id: userId,
+          country: country.countryCode,
+          status: 'pending',
+          progress: 10,
+          documents: {},
+          next_steps: ['Upload documents', 'Complete verification'],
+          updated_at: new Date().toISOString()
+        });
+        
+      } else {
+        // Fallback to REST API
+        const kycData = await KYCApi.startKYC({
+          country: country.countryCode,
+          name: userInfo.name,
+          email: userInfo.email,
+          phone: userInfo.phone,
+        });
+        setKycStatus(kycData);
+        setSelectedCountry(country);
+        setCurrentStep(1);
+        showToast(createToast.success(
+          `KYC verification process has been successfully initiated for ${country.country}`, 
+          'KYC Started',
+          { duration: 4000 }
+        ));
+      }
     } catch (error) {
       console.error('Error starting KYC:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to start KYC process. Please try again.';
@@ -319,33 +465,51 @@ const KYCFlow: React.FC = () => {
     }
 
     try {
-      const verificationResult = await KYCApi.verifyDocument(documentType, {
-        document_number: documentNumber,
-        country: selectedCountry?.country || 'IN',
-      });
-
-      if (verificationResult.valid) {
-        if (kycStatus) {
-          const updatedStatus = { ...kycStatus };
-          updatedStatus.documents[documentType] = {
-            status: 'verified',
-            verified_at: new Date().toISOString(),
-          };
-          updatedStatus.progress += 25;
-          setKycStatus(updatedStatus);
-        }
-        showToast(createToast.success(
-          `${documentType.toUpperCase()} verified successfully!`,
-          'Document Verified',
-          { duration: 3000 }
+      if (isGrpcConnected && grpcKYCService) {
+        // Use gRPC streaming service
+        const userId = getSessionUserId();
+        await grpcKYCService.verifyDocument({
+          userId,
+          documentType,
+          documentNumber
+        });
+        
+        // Real-time updates will be handled by the stream event handler
+        showToast(createToast.info(
+          `Verifying ${documentType.toUpperCase()}...`,
+          'Processing Verification'
         ));
         return true;
       } else {
-        showToast(createToast.error(
-          'Document verification failed. Please check your details and try again.',
-          'Verification Failed'
-        ));
-        return false;
+        // Fallback to REST API
+        const verificationResult = await KYCApi.verifyDocument(documentType, {
+          document_number: documentNumber,
+          country: selectedCountry?.country || 'IN',
+        });
+
+        if (verificationResult.valid) {
+          if (kycStatus) {
+            const updatedStatus = { ...kycStatus };
+            updatedStatus.documents[documentType] = {
+              status: 'verified',
+              verified_at: new Date().toISOString(),
+            };
+            updatedStatus.progress += 25;
+            setKycStatus(updatedStatus);
+          }
+          showToast(createToast.success(
+            `${documentType.toUpperCase()} verified successfully!`,
+            'Document Verified',
+            { duration: 3000 }
+          ));
+          return true;
+        } else {
+          showToast(createToast.error(
+            'Document verification failed. Please check your details and try again.',
+            'Verification Failed'
+          ));
+          return false;
+        }
       }
     } catch (error) {
       console.error('Error verifying document:', error);
@@ -387,38 +551,65 @@ const KYCFlow: React.FC = () => {
       [documentType]: file
     }));
 
-    // Auto-verify with Didit if country is selected
+    // Auto-verify with gRPC or fallback to REST API
     if (selectedCountry) {
       setIsLoading(true);
       setErrors(prev => ({ ...prev, [documentType]: '' }));
       
       try {
-        const verificationResult = await KYCApi.verifyDocumentWithDidit(
-          documentType,
-          file,
-          selectedCountry.countryCode
-        );
-
-        if (verificationResult.status === 'verified') {
-          if (kycStatus) {
-            const updatedStatus = { ...kycStatus };
-            updatedStatus.documents[documentType] = {
-              status: 'verified',
-              verified_at: new Date().toISOString(),
-            };
-            updatedStatus.progress += Math.floor(100 / getAvailableDocuments(selectedCountry.countryCode).length);
-            setKycStatus(updatedStatus);
-          }
-          showToast(createToast.success(
-            `${formatDocumentName(documentType)} verified successfully!`,
-            'Document Verified',
-            { duration: 3000 }
+        if (isGrpcConnected && grpcKYCService) {
+          // Use gRPC streaming service
+          const userId = getSessionUserId();
+          const documentData = await grpcKYCService.fileToBase64(file);
+          
+          // Upload document via gRPC
+          await grpcKYCService.uploadDocument({
+            userId,
+            documentType,
+            documentData,
+            fileName: file.name
+          });
+          
+          // Verify document via gRPC
+          await grpcKYCService.verifyDocument({
+            userId,
+            documentType
+          });
+          
+          // Real-time updates will be handled by the stream event handler
+          showToast(createToast.info(
+            `${formatDocumentName(documentType)} uploaded and being verified...`,
+            'Processing Document'
           ));
         } else {
-          showToast(createToast.error(
-            'Document verification failed. Please try again.',
-            'Verification Failed'
-          ));
+          // Fallback to REST API
+          const verificationResult = await KYCApi.verifyDocumentWithDidit(
+            documentType,
+            file,
+            selectedCountry.countryCode
+          );
+
+          if (verificationResult.status === 'verified') {
+            if (kycStatus) {
+              const updatedStatus = { ...kycStatus };
+              updatedStatus.documents[documentType] = {
+                status: 'verified',
+                verified_at: new Date().toISOString(),
+              };
+              updatedStatus.progress += Math.floor(100 / getAvailableDocuments(selectedCountry.countryCode).length);
+              setKycStatus(updatedStatus);
+            }
+            showToast(createToast.success(
+              `${formatDocumentName(documentType)} verified successfully!`,
+              'Document Verified',
+              { duration: 3000 }
+            ));
+          } else {
+            showToast(createToast.error(
+              'Document verification failed. Please try again.',
+              'Verification Failed'
+            ));
+          }
         }
       } catch (error) {
         console.error('Error verifying document:', error);
@@ -1047,11 +1238,7 @@ const KYCFlow: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/90 to-indigo-900 relative overflow-visible">
-      {/* Enhanced background effects */}
-      <div className="absolute inset-0">
-        <FintechBackground />
-      </div>
+    <div className="min-h-screen relative overflow-visible">
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 py-12 md:py-24">
         {/* Enhanced header with illustration */}

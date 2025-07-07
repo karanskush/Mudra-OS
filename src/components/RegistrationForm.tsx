@@ -107,7 +107,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, on
         };
         
         register(userForContext, token);
-        toast.success(`Welcome to Fintech OS, ${userForContext.firstName || 'User'}! 🚀`);
+        toast.success(`Welcome to MudraCore OS, ${userForContext.firstName || 'User'}! 🚀`);
         onSuccess(userData);
         onClose();
         

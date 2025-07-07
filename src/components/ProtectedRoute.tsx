@@ -54,7 +54,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center">
       {/* Background content to show user they need to authenticate */}
       <div className="absolute inset-0 flex items-center justify-center opacity-10">
         <div className="text-center text-white">

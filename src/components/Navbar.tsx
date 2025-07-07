@@ -199,39 +199,59 @@ const Navbar: React.FC = () => {
       ]
     },
     {
-      name: 'Solutions',
+      name: 'Developers',
       href: '#',
       hasDropdown: true,
-      description: 'Tailored solutions for every business',
+      icon: Code,
+      description: 'API docs & developer resources',
       items: [
-        { 
-          name: 'For Startups', 
-          href: '/solutions/startups', 
-          icon: Zap, 
-          description: 'Scale your fintech startup rapidly',
-          badge: 'Popular',
-          category: 'Business Type'
+        {
+          name: 'Explore API',
+          href: '/developers/api-explorer',
+          icon: Code,
+          description: 'Interactive API testing & exploration',
+          badge: 'Interactive',
+          status: 'active',
+          category: 'Development'
         },
-        { 
-          name: 'For Enterprises', 
-          href: '/solutions/enterprise', 
-          icon: Building, 
-          description: 'Enterprise-grade solutions & support',
-          badge: 'Enterprise',
-          category: 'Business Type'
+        {
+          name: 'View Documentation',
+          href: '/developers/docs',
+          icon: Database,
+          description: 'Comprehensive API documentation',
+          badge: 'Complete',
+          status: 'stable',
+          category: 'Development'
         },
-        { 
-          name: 'For Developers', 
-          href: '/solutions/developers', 
-          icon: Code, 
-          description: 'APIs, SDKs & developer tools',
-          badge: 'Dev',
-          category: 'Developer Tools'
+        {
+          name: 'gRPC Demo',
+          href: '/grpc-demo',
+          icon: Zap,
+          description: 'Real-time bidirectional streaming APIs',
+          badge: 'New',
+          status: 'beta',
+          category: 'Infrastructure'
         },
+        {
+          name: 'Quick Start',
+          href: '/developers/quickstart',
+          icon: Sparkles,
+          description: 'Get started in minutes',
+          badge: 'Guide',
+          status: 'stable',
+          category: 'Getting Started'
+        },
+        {
+          name: 'SDKs & Libraries',
+          href: '/developers/sdks',
+          icon: Building,
+          description: 'Client libraries & SDKs',
+          badge: 'Multi-Lang',
+          status: 'stable',
+          category: 'Development'
+        }
       ]
     },
-    { name: 'Developers', href: '/developers', icon: Code, description: 'API docs & developer resources' },
-    { name: 'gRPC Demo', href: '/grpc-demo', icon: Zap, description: 'Real-time streaming APIs', badge: 'New' },
     { name: 'Status', href: '/status', icon: Activity, description: 'System status & uptime' },
   ];
 
@@ -328,7 +348,7 @@ const Navbar: React.FC = () => {
                   <span className={`text-xl font-bold leading-none transition-colors duration-300 ${
                     isDark ? 'text-white' : 'text-gray-900'
                   }`}>
-                    Fintech OS
+                    MudraCore OS
                   </span>
                   <span className="text-xs text-blue-400 font-medium">
                     Enterprise Platform
