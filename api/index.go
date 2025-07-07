@@ -1,15 +1,14 @@
 package handler
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"fintech-api/pkg/config"
 	"fintech-api/pkg/database"
 	"fintech-api/pkg/logger"
-	"fintech-api/pkg/middleware"
 )
 
 var (
@@ -60,96 +59,30 @@ func initApp() error {
 
 // Handler is the main entry point for Vercel
 func Handler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Handler invoked for path: %s", r.URL.Path)
-	// Initialize app if needed (for serverless cold starts)
-	if !initialized {
-		if err := initApp(); err != nil {
-			log.Printf("Failed to initialize app: %v", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		http.Error(w, "Failed to load configuration", http.StatusInternalServerError)
+		return
 	}
 
-	// Parse the path
-	path := strings.TrimPrefix(r.URL.Path, "/")
-	pathParts := strings.Split(path, "/")
+	// Set response headers
+	w.Header().Set("Content-Type", "application/json")
 
-	// Debug logging
-	log.Printf("Request: %s %s", r.Method, r.URL.Path)
+	// Create response data
+	response := map[string]interface{}{
+		"status": "ok",
+		"env":    cfg.Server.Env,
+		"server": map[string]string{
+			"host": cfg.Server.Host,
+			"port": cfg.Server.Port,
+		},
+	}
 
-	// Route based on path
-	switch {
-	case path == "health" || path == "api/health":
-		log.Println("Routing to Health")
-		middleware.CORSMiddleware(Health)(w, r)
-
-	// Auth routes (no authentication required)
-	case strings.HasPrefix(path, "api/v1/auth"):
-		log.Println("Routing to Auth")
-		middleware.CORSMiddleware(func(w http.ResponseWriter, r *http.Request) {
-			handleAuthRoutes(w, r, pathParts)
-		})(w, r)
-
-	// User routes (authentication required)
-	case strings.HasPrefix(path, "api/v1/users"):
-		log.Println("Routing to Users")
-		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
-			handleUserRoutes(w, r, pathParts)
-		})(w, r)
-
-	// Account routes (authentication required)
-	case strings.HasPrefix(path, "api/v1/accounts"):
-		log.Println("Routing to Accounts")
-		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
-			handleAccountRoutes(w, r, pathParts)
-		})(w, r)
-
-	// Transaction routes (authentication required)
-	case strings.HasPrefix(path, "api/v1/transactions"):
-		log.Println("Routing to Transactions")
-		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
-			handleTransactionRoutes(w, r, pathParts)
-		})(w, r)
-
-	// Payment routes (authentication required)
-	case strings.HasPrefix(path, "api/v1/payments"):
-		log.Println("Routing to Payments")
-		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
-			handlePaymentRoutes(w, r, pathParts)
-		})(w, r)
-
-	// Ledger routes (authentication required)
-	case strings.HasPrefix(path, "api/ledger"):
-		log.Println("Routing to Ledger")
-		middleware.CORSMiddlewareWithAuth(LedgerHandler)(w, r)
-
-	// KYC routes (authentication required)
-	case strings.HasPrefix(path, "api/kyc"):
-		log.Println("Routing to KYC")
-		middleware.CORSMiddlewareWithAuth(KYCHandler)(w, r)
-
-	// gRPC bridge routes (authentication required)
-	case strings.HasPrefix(path, "v1/kyc"):
-		log.Println("Routing to gRPC KYC")
-		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
-			handleGRPCKYCRoutes(w, r, pathParts)
-		})(w, r)
-
-	case strings.HasPrefix(path, "v1/payments"):
-		log.Println("Routing to gRPC Payments")
-		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
-			handleGRPCPaymentRoutes(w, r, pathParts)
-		})(w, r)
-
-	case path == "health" || path == "v1/health" || strings.HasPrefix(path, "v1/health"):
-		log.Println("Routing to Health")
-		middleware.CORSMiddleware(Health)(w, r)
-
-	default:
-		log.Printf("404 Not Found: %s", r.URL.Path)
-		middleware.CORSMiddleware(func(w http.ResponseWriter, r *http.Request) {
-			http.NotFound(w, r)
-		})(w, r)
+	// Write response
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
 	}
 }
 
