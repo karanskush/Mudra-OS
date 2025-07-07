@@ -2,14 +2,30 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/pkg/handlers/handlers.go",
+      "src": "api/**/*.go",
       "use": "@vercel/go"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/pkg/handlers/handlers.go"
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/*.go": {
+      "runtime": "@vercel/go"
+    }
+  }
 } 
