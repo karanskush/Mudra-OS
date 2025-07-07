@@ -33,7 +33,7 @@ func init() {
 	}
 
 	// Load configuration
-	cfg, err = config.Load()
+	cfg, err = config.Init()
 	if err != nil {
 		logger.Fatal("Failed to load configuration: %v", err)
 	}

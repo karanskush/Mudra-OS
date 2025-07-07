@@ -64,6 +64,11 @@ type PaymentConfig struct {
 	APISecret string
 }
 
+// Init initializes and returns the configuration
+func Init() (*Config, error) {
+	return Load()
+}
+
 // Load loads configuration from environment variables
 func Load() (*Config, error) {
 	// Load .env file if it exists
