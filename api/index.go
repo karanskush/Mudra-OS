@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"encoding/json"
@@ -34,11 +34,13 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+/*
 // main function for local development
 func main() {
 	http.HandleFunc("/", Handler)
 	http.ListenAndServe(":8080", nil)
 }
+*/
 
 func handleHealth(w http.ResponseWriter, r *http.Request) {
 	response := map[string]interface{}{
