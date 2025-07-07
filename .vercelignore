@@ -1,0 +1,44 @@
+# Backend Go code - deploy on EC2 instead
+api/internal/grpc/handlers/
+api/internal/handlers/
+api/internal/services/
+api/internal/models/
+api/internal/repository/
+api/internal/database/
+api/internal/middleware/
+api/internal/utils/
+api/internal/validation/
+api/cmd/
+api/main.go
+
+# Proto files and generated gRPC code
+api/*.pb.go
+api/*_grpc.pb.go
+api/proto/
+api/proto/gen/
+
+# Go module files (not needed for frontend deployment)
+api/go.mod
+api/go.sum
+
+# Backend configuration and deployment files
+api/configs/
+api/deployments/
+api/scripts/
+api/docs/
+
+# Test files
+api/test_*.go
+api/*_test.go
+
+# Other backend artifacts
+api/Makefile
+api/GRPC_*.md
+api/LEDGER_*.md
+api/KYC_*.md
+api/NEON_*.md
+api/BIDIRECTIONAL_*.md
+api/QUICK_TEST.md
+api/STARTUP_*.md
+api/COMBINED_*.md
+api/Implementing*.pdf 
