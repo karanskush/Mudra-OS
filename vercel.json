@@ -2,29 +2,13 @@
   "builds": [
     {
       "src": "api/api/index.go",
-      "use": "@vercel/go",
-      "config": { "maxLambdaSize": "15mb" }
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+      "use": "@vercel/go"
     }
   ],
   "rewrites": [
     {
       "source": "/api/(.*)",
       "destination": "/api/api/index.go"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
     }
-  ],
-  "env": {
-    "LOG_LEVEL": "info",
-    "LOG_FORMAT": "json"
-  }
+  ]
 }
