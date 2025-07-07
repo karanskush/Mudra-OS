@@ -34,17 +34,25 @@ func Init(level, format string) {
 	// Set log format
 	switch format {
 	case "json":
-		Logger.SetFormatter(&logrus.JSONFormatter{})
+		Logger.SetFormatter(&logrus.JSONFormatter{
+			TimestampFormat: "2006-01-02T15:04:05.000Z",
+		})
 	case "text":
 		Logger.SetFormatter(&logrus.TextFormatter{
-			FullTimestamp: true,
+			FullTimestamp:   true,
+			TimestampFormat: "2006-01-02T15:04:05.000Z",
 		})
 	default:
-		Logger.SetFormatter(&logrus.JSONFormatter{})
+		Logger.SetFormatter(&logrus.JSONFormatter{
+			TimestampFormat: "2006-01-02T15:04:05.000Z",
+		})
 	}
 
-	// Set output to stdout
+	// Explicitly set output to stdout for Vercel
 	Logger.SetOutput(os.Stdout)
+
+	// Add a startup log to verify logging is working
+	Logger.Info("Logger initialized successfully")
 }
 
 // Debug logs a debug message
@@ -120,4 +128,4 @@ func WithFields(fields logrus.Fields) *logrus.Entry {
 // WithError adds an error to the logger
 func WithError(err error) *logrus.Entry {
 	return Logger.WithError(err)
-} 
+}
