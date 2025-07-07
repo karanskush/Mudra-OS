@@ -1,15 +1,8 @@
-# Backend Go code - deploy on EC2 instead
-api/internal/grpc/handlers/
-api/internal/handlers/
-api/internal/services/
-api/internal/models/
-api/internal/repository/
-api/internal/database/
-api/internal/middleware/
-api/internal/utils/
-api/internal/validation/
+# Exclude all backend Go code except the Vercel-compatible API files
+api/internal/
 api/cmd/
 api/main.go
+api/pkg/
 
 # Proto files and generated gRPC code
 api/*.pb.go
@@ -41,4 +34,15 @@ api/BIDIRECTIONAL_*.md
 api/QUICK_TEST.md
 api/STARTUP_*.md
 api/COMBINED_*.md
-api/Implementing*.pdf 
+api/Implementing*.pdf
+
+# Exclude specific API files that have dependencies on internal packages
+api/api/health.go
+api/api/kyc.go
+api/api/ledger.go
+api/api/auth.go
+api/api/grpc_bridge.go
+api/api/accounts.go
+api/api/users.go
+api/api/swagger/
+api/api/v1/ 
