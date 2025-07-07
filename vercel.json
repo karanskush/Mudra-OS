@@ -1,7 +1,12 @@
 {
   "functions": {
     "api/index.go": {
-      "runtime": "@vercel/go@3.0.0"
+      "runtime": "@vercel/go"
+    }
+  },
+  "build": {
+    "env": {
+      "GO_VERSION": "1.21"
     }
   },
   "rewrites": [
