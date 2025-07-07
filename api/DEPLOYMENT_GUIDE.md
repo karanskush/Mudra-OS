@@ -11,6 +11,7 @@ This was caused by:
 1. Package conflicts between protobuf files and main application files
 2. Incorrect file structure for Vercel's Go runtime
 3. Missing proper entry point for serverless functions
+4. **.vercelignore file excluding necessary packages** (this was the main issue!)
 
 ## Fixed Structure
 
@@ -41,6 +42,7 @@ api/
 2. **Moved protobuf files**: All `.pb.go` files moved to `proto_files/` directory
 3. **Updated API handler**: Added proper initialization for serverless cold starts
 4. **Added Vercel config**: `vercel.json` with proper function configuration
+5. **Fixed .vercelignore**: Removed exclusions for `api/internal/`, `api/pkg/`, and API files
 
 ## Deployment Steps
 

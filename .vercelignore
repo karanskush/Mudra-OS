@@ -1,18 +1,9 @@
-# Exclude all backend Go code except the Vercel-compatible API files
-api/internal/
+# Exclude backend Go code that's not needed for Vercel deployment
 api/cmd/
 api/main.go
-api/pkg/
 
-# Proto files and generated gRPC code
-api/*.pb.go
-api/*_grpc.pb.go
-api/proto/
-api/proto/gen/
-
-# Go module files (not needed for frontend deployment)
-api/go.mod
-api/go.sum
+# Proto files and generated gRPC code (moved to proto_files/)
+api/proto_files/
 
 # Backend configuration and deployment files
 api/configs/
@@ -36,13 +27,6 @@ api/STARTUP_*.md
 api/COMBINED_*.md
 api/Implementing*.pdf
 
-# Exclude specific API files that have dependencies on internal packages
-api/api/health.go
-api/api/kyc.go
-api/api/ledger.go
-api/api/auth.go
-api/api/grpc_bridge.go
-api/api/accounts.go
-api/api/users.go
+# Exclude swagger and v1 directories
 api/api/swagger/
 api/api/v1/ 
