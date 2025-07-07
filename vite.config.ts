@@ -28,11 +28,14 @@ export default defineConfig({
   },
   // Ensure proper handling of client-side routes in production build
   build: {
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
+          ui: ['lucide-react', '@heroicons/react'],
+          utils: ['clsx', 'tailwind-merge'],
         },
       },
     },
