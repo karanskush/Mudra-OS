@@ -1,11 +1,14 @@
 {
-  "builds": [
-    {
-      "src": "api/index.go",
-      "use": "@vercel/go"
+  "functions": {
+    "api/functions/main.go": {
+      "runtime": "@vercel/go"
     }
-  ],
+  },
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/functions/main.go"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
