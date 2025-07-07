@@ -1,13 +1,14 @@
 {
-  "functions": {
-    "backend/api/**/*.go": {
-      "runtime": "vercel-go@1.0.0"
+  "builds": [
+    {
+      "src": "backend/api/index.go",
+      "use": "@vercel/go"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/backend/api/$1"
+      "dest": "/backend/api/index.go"
     },
     {
       "src": "/static/(.*)",
