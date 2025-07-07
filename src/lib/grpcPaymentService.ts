@@ -1,6 +1,8 @@
 // gRPC Payment Service for Real-time Payment Processing
 // Handles payment initiation, status updates, and rail selection
 
+import { getApiUrl } from './env';
+
 export interface PaymentStreamRequest {
   command: {
     initiatePayment?: {
@@ -80,8 +82,8 @@ class GrpcPaymentService {
   private eventListeners: Array<(event: PaymentStreamResponse) => void> = [];
   private activeStreams: Map<string, EventSource> = new Map();
 
-  constructor(baseUrl: string = 'http://localhost:8080') {
-    this.baseUrl = baseUrl;
+  constructor() {
+    this.baseUrl = getApiUrl();
   }
 
   async connect(): Promise<boolean> {

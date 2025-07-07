@@ -1,6 +1,8 @@
 // gRPC KYC Service for Real-time Document Verification and Compliance
 // Handles document upload, verification status, and risk assessment updates
 
+import { getApiUrl } from './env';
+
 export interface KYCStreamRequest {
   command: {
     startVerification?: {
@@ -93,8 +95,8 @@ class GrpcKYCService {
   private eventListeners: Array<(event: KYCStreamResponse) => void> = [];
   private activeStreams: Map<string, EventSource> = new Map();
 
-  constructor(baseUrl: string = 'http://localhost:8080') {
-    this.baseUrl = baseUrl;
+  constructor() {
+    this.baseUrl = getApiUrl();
   }
 
   async connect(): Promise<boolean> {

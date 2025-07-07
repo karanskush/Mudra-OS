@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
+import { getApiUrl } from '../lib/env';
 
 interface LoginFormProps {
   isOpen: boolean;
@@ -39,7 +40,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ isOpen, onClose, onSuccess, onReg
     const loadingToast = toast.loading('Signing in...');
     
     try {
-      const response = await fetch('http://localhost:8080/api/v1/auth/login', {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/v1/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formData.email, password: formData.password }),

@@ -1,6 +1,8 @@
 // gRPC Ledger Service for Real-time Balance Updates and Transaction Streaming
 // Handles account balance streaming, transaction monitoring, and reconciliation
 
+import { getApiUrl } from './env';
+
 export interface LedgerStreamRequest {
   command: {
     subscribeToAccount?: {
@@ -101,8 +103,8 @@ class GrpcLedgerService {
   private eventListeners: Array<(event: LedgerStreamResponse) => void> = [];
   private activeStreams: Map<string, EventSource> = new Map();
 
-  constructor(baseUrl: string = 'http://localhost:8080') {
-    this.baseUrl = baseUrl;
+  constructor() {
+    this.baseUrl = getApiUrl();
   }
 
   async connect(): Promise<boolean> {

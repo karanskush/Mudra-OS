@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { X, Eye, EyeOff, User, Mail, Phone, Calendar, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
+import { getApiUrl } from '../lib/env';
 
 interface RegistrationFormProps {
   isOpen: boolean;
@@ -69,7 +70,8 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, on
     const loadingToast = toast.loading('Creating your account...');
     
     try {
-      const response = await fetch('http://localhost:8080/api/v1/auth/register', {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/v1/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

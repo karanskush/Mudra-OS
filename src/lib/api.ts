@@ -1,5 +1,7 @@
 // API client for backend communication
 
+import { getApiUrl } from './env';
+
 export interface HealthResponse {
   status: 'ok' | 'degraded' | 'error';
   message: string;
@@ -35,15 +37,7 @@ class ApiClient {
   private baseUrl: string;
 
   constructor() {
-    // Use the centralized environment configuration
-    this.baseUrl = import.meta.env.VITE_API_URL || '';
-    
-    // If no environment variable is set, use relative paths in production
-    if (!this.baseUrl && import.meta.env.PROD) {
-      this.baseUrl = '';
-    } else if (!this.baseUrl) {
-      this.baseUrl = 'http://localhost:8080';
-    }
+    this.baseUrl = getApiUrl();
   }
 
   // Get authentication token from localStorage

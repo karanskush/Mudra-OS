@@ -1,6 +1,8 @@
 // gRPC-Web Client for connecting to the backend services
 // This client uses HTTP/1.1 with JSON transcoding to communicate with gRPC services
 
+import { getApiUrl } from './env';
+
 export interface KYCProfile {
   profileId: string;
   userId: string;
@@ -112,8 +114,8 @@ class GrpcWebClient {
   private baseUrl: string;
   private headers: Record<string, string>;
 
-  constructor(baseUrl: string = 'http://localhost:8080') {
-    this.baseUrl = baseUrl;
+  constructor() {
+    this.baseUrl = getApiUrl();
     this.headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
