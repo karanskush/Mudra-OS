@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package fintech.account_sync.v1;
+
+option go_package = "fintech-api/proto/gen/account_sync";
+
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+
+// AccountSyncService - Real-time account balance synchronization
+service AccountSyncService {
+  // Bidirectional streaming for real-time account balance sync
+  rpc SyncAccountBalances(stream BalanceCommand) returns (stream BalanceUpdate);
+}
+
+// Balance command message
+message BalanceCommand {
+  oneof command {
+    SubscribeToAccount subscribe = 1;
+    UnsubscribeFromAccount unsubscribe = 2;
+    RefreshBalance refresh = 3;
+    UpdateBalance update = 4;
+  }
+}
+
+// Balance update message
+message BalanceUpdate {
+  oneof update {
+    CurrentBalance current_balance = 1;
+    BalanceChange balance_change = 2;
+    BalanceError balance_error = 3;
+    SyncStatus sync_status = 4;
+  }
+}
+
+// Subscribe to account request
+message SubscribeToAccount {
+  string user_id = 1;
+  repeated string account_ids = 2;
+  bool include_pending = 3;
+  bool real_time_updates = 4;
+  double threshold_amount = 5;  // Only notify for changes above this amount
+}
+
+// Unsubscribe from account request
+message UnsubscribeFromAccount {
+  string user_id = 1;
+  repeated string account_ids = 2;
+}
+
+// Refresh balance request
+message RefreshBalance {
+  string account_id = 1;
+  bool force_refresh = 2;
+}
+
+// Update balance request
+message UpdateBalance {
+  string account_id = 1;
+  double amount = 2;
+  string transaction_id = 3;
+  string description = 4;
+}
+
+// Current balance response
+message CurrentBalance {
+  string account_id = 1;
+  string user_id = 2;
+  double available_balance = 3;
+  double pending_balance = 4;
+  double total_balance = 5;
+  string currency = 6;
+  fintech.common.v1.AccountType account_type = 7;
+  google.protobuf.Timestamp last_updated = 8;
+  string account_name = 9;
+}
+
+// Balance change response
+message BalanceChange {
+  string account_id = 1;
+  double previous_balance = 2;
+  double new_balance = 3;
+  double change_amount = 4;
+  string transaction_id = 5;
+  string change_type = 6;  // "debit", "credit", "transfer"
+  string description = 7;
+  google.protobuf.Timestamp changed_at = 8;
+}
+
+// Balance error response
+message BalanceError {
+  string account_id = 1;
+  string error_code = 2;
+  string error_message = 3;
+  bool is_retryable = 4;
+  google.protobuf.Timestamp error_at = 5;
+}
+
+// Sync status response
+message SyncStatus {
+  bool is_syncing = 1;
+  string session_id = 2;
+  int32 subscribed_accounts = 3;
+  int32 active_connections = 4;
+  google.protobuf.Timestamp started_at = 5;
+  map<string, string> account_statuses = 6;
+  string message = 7;
+} 

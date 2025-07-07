@@ -1,0 +1,230 @@
+syntax = "proto3";
+
+package fintech.webhook.v1;
+
+option go_package = "fintech-api/proto/gen/webhook";
+
+import "google/protobuf/timestamp.proto";
+
+// Webhook service definition
+service WebhookService {
+  // Register a new webhook subscription
+  rpc Register(RegisterWebhookRequest) returns (RegisterWebhookResponse);
+  
+  // Delete/unsubscribe a webhook
+  rpc Delete(DeleteWebhookRequest) returns (DeleteWebhookResponse);
+  
+  // List all webhooks for a user (optional method)
+  rpc List(ListWebhooksRequest) returns (ListWebhooksResponse);
+  
+  // Test webhook endpoint (optional method)
+  rpc Test(TestWebhookRequest) returns (TestWebhookResponse);
+  
+  // Bidirectional streaming for live webhook debugging and testing
+  rpc WebhookDebugger(stream WebhookDebugCommand) returns (stream WebhookDebugResponse);
+}
+
+// Webhook event types
+enum WebhookEventType {
+  WEBHOOK_EVENT_TYPE_UNSPECIFIED = 0;
+  WEBHOOK_EVENT_TYPE_PAYMENT_CREATED = 1;
+  WEBHOOK_EVENT_TYPE_PAYMENT_UPDATED = 2;
+  WEBHOOK_EVENT_TYPE_PAYMENT_COMPLETED = 3;
+  WEBHOOK_EVENT_TYPE_PAYMENT_FAILED = 4;
+  WEBHOOK_EVENT_TYPE_ACCOUNT_CREATED = 5;
+  WEBHOOK_EVENT_TYPE_ACCOUNT_UPDATED = 6;
+  WEBHOOK_EVENT_TYPE_KYC_VERIFIED = 7;
+  WEBHOOK_EVENT_TYPE_KYC_REJECTED = 8;
+  WEBHOOK_EVENT_TYPE_RECON_FAILED = 9;
+  WEBHOOK_EVENT_TYPE_RECON_COMPLETED = 10;
+  WEBHOOK_EVENT_TYPE_COMPLIANCE_ALERT = 11;
+}
+
+// Webhook status
+enum WebhookStatus {
+  WEBHOOK_STATUS_UNSPECIFIED = 0;
+  WEBHOOK_STATUS_ACTIVE = 1;
+  WEBHOOK_STATUS_INACTIVE = 2;
+  WEBHOOK_STATUS_FAILED = 3;
+  WEBHOOK_STATUS_SUSPENDED = 4;
+}
+
+// Webhook configuration
+message Webhook {
+  string webhook_id = 1;
+  string user_id = 2;
+  string url = 3;
+  repeated WebhookEventType events = 4;
+  WebhookStatus status = 5;
+  string shared_secret = 6;  // For signature verification
+  map<string, string> headers = 7;  // Custom headers
+  int32 timeout_seconds = 8;
+  int32 retry_count = 9;
+  bool verify_ssl = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+  google.protobuf.Timestamp last_triggered = 13;
+  int32 total_deliveries = 14;
+  int32 successful_deliveries = 15;
+  int32 failed_deliveries = 16;
+}
+
+// Webhook delivery log
+message WebhookDelivery {
+  string delivery_id = 1;
+  string webhook_id = 2;
+  WebhookEventType event_type = 3;
+  string payload = 4;  // JSON payload sent
+  int32 response_status = 5;
+  string response_body = 6;
+  double response_time_ms = 7;
+  bool successful = 8;
+  string error_message = 9;
+  int32 attempt_number = 10;
+  google.protobuf.Timestamp attempted_at = 11;
+}
+
+// Request/Response messages
+message RegisterWebhookRequest {
+  string user_id = 1;
+  string url = 2;
+  repeated WebhookEventType events = 3;
+  map<string, string> headers = 4;  // Optional custom headers
+  int32 timeout_seconds = 5;  // Optional, defaults to 30
+  bool verify_ssl = 6;  // Optional, defaults to true
+}
+
+message RegisterWebhookResponse {
+  Webhook webhook = 1;
+  string shared_secret = 2;  // Secret for signature verification
+  string message = 3;
+}
+
+message DeleteWebhookRequest {
+  string webhook_id = 1;
+  string user_id = 2;  // For authorization
+}
+
+message DeleteWebhookResponse {
+  string message = 1;
+  bool success = 2;
+}
+
+message ListWebhooksRequest {
+  string user_id = 1;
+  WebhookStatus status_filter = 2;  // Optional filter
+}
+
+message ListWebhooksResponse {
+  repeated Webhook webhooks = 1;
+  int32 total_count = 2;
+}
+
+message TestWebhookRequest {
+  string webhook_id = 1;
+  WebhookEventType event_type = 2;  // Event type to simulate
+  string test_payload = 3;  // Optional custom payload
+}
+
+message TestWebhookResponse {
+  WebhookDelivery delivery = 1;
+  string message = 2;
+  bool success = 3;
+}
+
+// Bidirectional streaming messages for WebhookDebugger
+message WebhookDebugCommand {
+  oneof command {
+    StartDebugging start_debugging = 1;
+    StopDebugging stop_debugging = 2;
+    TestEndpoint test_endpoint = 3;
+    UpdateConfig update_config = 4;
+    RetryDelivery retry_delivery = 5;
+  }
+}
+
+message StartDebugging {
+  string webhook_id = 1;
+  bool capture_requests = 2;
+  bool capture_responses = 3;
+  bool enable_verbose_logging = 4;
+}
+
+message StopDebugging {
+  string reason = 1;
+}
+
+message TestEndpoint {
+  string url = 2;
+  WebhookEventType event_type = 3;
+  string custom_payload = 4;
+  map<string, string> custom_headers = 5;
+  int32 timeout_seconds = 6;
+}
+
+message UpdateConfig {
+  string webhook_id = 1;
+  string new_url = 2;
+  map<string, string> new_headers = 3;
+  int32 new_timeout = 4;
+}
+
+message RetryDelivery {
+  string delivery_id = 1;
+  bool force_retry = 2;
+}
+
+message WebhookDebugResponse {
+  oneof response {
+    DeliveryAttempt delivery_attempt = 1;
+    DebugStats debug_stats = 2;
+    DebugLog debug_log = 3;
+    DebugStatus debug_status = 4;
+  }
+}
+
+message DeliveryAttempt {
+  string delivery_id = 1;
+  string webhook_id = 2;
+  string url = 3;
+  string method = 4;
+  map<string, string> request_headers = 5;
+  string request_body = 6;
+  int32 response_status = 7;
+  map<string, string> response_headers = 8;
+  string response_body = 9;
+  double response_time_ms = 10;
+  bool successful = 11;
+  string error_message = 12;
+  google.protobuf.Timestamp attempted_at = 13;
+}
+
+message DebugStats {
+  string webhook_id = 1;
+  int32 total_attempts = 2;
+  int32 successful_attempts = 3;
+  int32 failed_attempts = 4;
+  double avg_response_time_ms = 5;
+  double success_rate = 6;
+  map<string, int32> status_code_breakdown = 7;  // status_code -> count
+  google.protobuf.Timestamp period_start = 8;
+  google.protobuf.Timestamp period_end = 9;
+}
+
+message DebugLog {
+  string level = 1;  // "info", "warn", "error", "debug"
+  string message = 2;
+  string webhook_id = 3;
+  string delivery_id = 4;
+  map<string, string> metadata = 5;
+  google.protobuf.Timestamp timestamp = 6;
+}
+
+message DebugStatus {
+  bool is_debugging = 1;
+  string webhook_id = 2;
+  int32 active_connections = 3;
+  google.protobuf.Timestamp started_at = 4;
+  string configuration = 5;
+  string message = 6;
+} 
