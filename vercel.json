@@ -1,8 +1,22 @@
 {
+  "builds": [
+    {
+      "src": "api/api/*.go",
+      "use": "@vercel/go",
+      "config": { "maxLambdaSize": "15mb" }
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.go"
+      "destination": "/api/api"
     },
     {
       "source": "/(.*)",
