@@ -7,12 +7,11 @@ import (
 	"net/http"
 	"time"
 
-	"fintech-api/pkg/database"
-	"fintech-api/pkg/middleware"
-	"fintech-api/pkg/models"
-	"fintech-api/pkg/response"
+	"api/pkg/database"
+	"api/pkg/middleware"
+	"api/pkg/models"
+	"api/pkg/response"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
@@ -50,25 +49,25 @@ func getDB() *gorm.DB {
 	return database.GetDB()
 }
 
-// ListAccounts handles listing user accounts
-func ListAccounts(c *gin.Context) {
+// ListAccountsHTTP handles listing user accounts
+func ListAccountsHTTP(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(c)
+	user, err := middleware.GetUserFromContext(r)
 	if err != nil {
-		response.Unauthorized(c, "Authentication required")
+		response.Error(w, http.StatusUnauthorized, "Authentication required")
 		return
 	}
 
 	service := getLedgerService()
 	if service == nil {
-		response.InternalServerError(c, "Database not initialized")
+		response.InternalError(w, "Database not initialized")
 		return
 	}
 
 	// Get accounts from ledger system for the authenticated user
 	ledgerAccounts, err := service.GetAccounts(user.UserID)
 	if err != nil {
-		response.InternalServerError(c, fmt.Sprintf("Failed to get accounts: %v", err))
+		response.InternalError(w, fmt.Sprintf("Failed to get accounts: %v", err))
 		return
 	}
 
@@ -93,34 +92,34 @@ func ListAccounts(c *gin.Context) {
 		}
 	}
 
-	response.Success(c, accounts, "Accounts retrieved successfully")
+	response.Success(w, "Accounts retrieved successfully", accounts)
 }
 
-// CreateAccount handles creating a new account
-func CreateAccount(c *gin.Context) {
+// CreateAccountHTTP handles creating a new account
+func CreateAccountHTTP(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(c)
+	user, err := middleware.GetUserFromContext(r)
 	if err != nil {
-		response.Unauthorized(c, "Authentication required")
+		response.Error(w, http.StatusUnauthorized, "Authentication required")
 		return
 	}
 
 	var req CreateAccountRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "Invalid request body: "+err.Error())
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		response.ValidationError(w, "Invalid request body: "+err.Error())
 		return
 	}
 
 	service := getLedgerService()
 	if service == nil {
-		response.InternalServerError(c, "Database not initialized")
+		response.InternalError(w, "Database not initialized")
 		return
 	}
 
 	// Validate the request
 	validate := validator.New()
 	if err := validate.Struct(req); err != nil {
-		response.BadRequest(c, fmt.Sprintf("Validation failed: %v", err))
+		response.ValidationError(w, fmt.Sprintf("Validation failed: %v", err))
 		return
 	}
 
@@ -147,7 +146,7 @@ func CreateAccount(c *gin.Context) {
 		nil, // No parent account for now
 	)
 	if err != nil {
-		response.InternalServerError(c, fmt.Sprintf("Failed to create account: %v", err))
+		response.InternalError(w, fmt.Sprintf("Failed to create account: %v", err))
 		return
 	}
 
@@ -180,7 +179,64 @@ func CreateAccount(c *gin.Context) {
 		CreatedAt:     ledgerAccount.CreatedAt,
 	}
 
-	response.Created(c, newAccount, "Account created successfully")
+	response.Success(w, "Account created successfully", newAccount)
+}
+
+// GetAccountHTTP handles retrieving a specific account
+func GetAccountHTTP(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		response.Error(w, http.StatusUnauthorized, "Authentication required")
+		return
+	}
+
+	// Get account ID from path
+	accountID := r.URL.Path[len("/api/v1/accounts/"):]
+	if accountID == "" {
+		response.ValidationError(w, "Account ID is required")
+		return
+	}
+
+	service := getLedgerService()
+	if service == nil {
+		response.InternalError(w, "Database not initialized")
+		return
+	}
+
+	// Get account from ledger system
+	ledgerAccount, err := service.GetAccount(accountID)
+	if err != nil {
+		response.NotFound(w, "Account not found")
+		return
+	}
+
+	// Check if the account belongs to the authenticated user
+	if ledgerAccount.UserID != user.UserID {
+		response.Error(w, http.StatusForbidden, "Access denied")
+		return
+	}
+
+	// Get account balance
+	balance, err := service.GetAccountBalance(ledgerAccount.ID)
+	if err != nil {
+		balance = 0 // Default to 0 if balance calculation fails
+	}
+
+	// Convert to AccountData format
+	account := AccountData{
+		ID:            ledgerAccount.ID.String(),
+		AccountNumber: ledgerAccount.AccountNumber,
+		Type:          string(ledgerAccount.Type),
+		Status:        string(ledgerAccount.Status),
+		Balance:       balance,
+		Currency:      ledgerAccount.Currency,
+		Name:          ledgerAccount.Name,
+		Description:   ledgerAccount.Description,
+		CreatedAt:     ledgerAccount.CreatedAt,
+	}
+
+	response.Success(w, "Account retrieved successfully", account)
 }
 
 // generateAccountNumber generates a random 10-digit account number
@@ -200,285 +256,8 @@ func convertToLedgerAccountType(accountType string) models.LedgerAccountType {
 	case "investment":
 		return models.LedgerAccountTypeInvestment
 	case "credit":
-		return models.LedgerAccountTypeLiability
+		return models.LedgerAccountTypeCredit
 	default:
 		return models.LedgerAccountTypeBank
 	}
-}
-
-// GetAccount handles getting a specific account
-func GetAccount(c *gin.Context) {
-	// Get authenticated user
-	user, err := middleware.GetUserFromContext(c)
-	if err != nil {
-		response.Unauthorized(c, "Authentication required")
-		return
-	}
-
-	service := getLedgerService()
-	if service == nil {
-		response.InternalServerError(c, "Database not initialized")
-		return
-	}
-
-	// Get accounts from ledger system for the authenticated user
-	ledgerAccounts, err := service.GetAccounts(user.UserID)
-	if err != nil {
-		response.InternalServerError(c, fmt.Sprintf("Failed to get accounts: %v", err))
-		return
-	}
-
-	if len(ledgerAccounts) == 0 {
-		response.NotFound(c, "No accounts found")
-		return
-	}
-
-	// Use the first account as an example
-	// In a real application, you would use c.Param("id") to get the specific account
-	ledgerAccount := ledgerAccounts[0]
-	balance, err := service.GetAccountBalance(ledgerAccount.ID)
-	if err != nil {
-		balance = 0
-	}
-
-	account := AccountData{
-		ID:            ledgerAccount.ID.String(),
-		AccountNumber: ledgerAccount.AccountNumber,
-		Type:          string(ledgerAccount.Type),
-		Status:        string(ledgerAccount.Status),
-		Balance:       balance,
-		Currency:      ledgerAccount.Currency,
-		Name:          ledgerAccount.Name,
-		Description:   ledgerAccount.Description,
-		CreatedAt:     ledgerAccount.CreatedAt,
-	}
-
-	response.Success(c, account, "Account retrieved successfully")
-}
-
-// SetupAccountRoutes sets up the routes for the accounts API
-func SetupAccountRoutes(router *gin.RouterGroup) {
-	// Add routes for accounts API
-	router.GET("/accounts", ListAccounts)
-	router.POST("/accounts", CreateAccount)
-	router.GET("/accounts/:id", GetAccount)
-}
-
-// HTTP wrapper functions for Vercel deployment
-
-// ListAccountsHTTP is the HTTP wrapper for ListAccounts
-func ListAccountsHTTP(w http.ResponseWriter, r *http.Request) {
-	// Get authenticated user from request context
-	user, err := middleware.GetUserFromHTTPRequest(r)
-	if err != nil {
-		response.WriteJSON(w, http.StatusUnauthorized, map[string]interface{}{
-			"error": "Authentication required",
-		})
-		return
-	}
-
-	service := getLedgerService()
-	if service == nil {
-		response.WriteJSON(w, http.StatusInternalServerError, map[string]interface{}{
-			"error": "Database not initialized",
-		})
-		return
-	}
-
-	// Get accounts from ledger system for the authenticated user
-	ledgerAccounts, err := service.GetAccounts(user.UserID)
-	if err != nil {
-		response.WriteJSON(w, http.StatusInternalServerError, map[string]interface{}{
-			"error": fmt.Sprintf("Failed to get accounts: %v", err),
-		})
-		return
-	}
-
-	// Convert ledger accounts to AccountData format
-	accounts := make([]AccountData, len(ledgerAccounts))
-	for i, ledgerAccount := range ledgerAccounts {
-		balance, err := service.GetAccountBalance(ledgerAccount.ID)
-		if err != nil {
-			balance = 0 // Default to 0 if balance calculation fails
-		}
-
-		accounts[i] = AccountData{
-			ID:            ledgerAccount.ID.String(),
-			AccountNumber: ledgerAccount.AccountNumber,
-			Type:          string(ledgerAccount.Type),
-			Status:        string(ledgerAccount.Status),
-			Balance:       balance,
-			Currency:      ledgerAccount.Currency,
-			Name:          ledgerAccount.Name,
-			Description:   ledgerAccount.Description,
-			CreatedAt:     ledgerAccount.CreatedAt,
-		}
-	}
-
-	response.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"data":    accounts,
-		"message": "Accounts retrieved successfully",
-	})
-}
-
-// CreateAccountHTTP is the HTTP wrapper for CreateAccount
-func CreateAccountHTTP(w http.ResponseWriter, r *http.Request) {
-	// Get authenticated user from request context
-	user, err := middleware.GetUserFromHTTPRequest(r)
-	if err != nil {
-		response.WriteJSON(w, http.StatusUnauthorized, map[string]interface{}{
-			"error": "Authentication required",
-		})
-		return
-	}
-
-	// Parse request body
-	var req CreateAccountRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.WriteJSON(w, http.StatusBadRequest, map[string]interface{}{
-			"error": "Invalid request body: " + err.Error(),
-		})
-		return
-	}
-
-	service := getLedgerService()
-	if service == nil {
-		response.WriteJSON(w, http.StatusInternalServerError, map[string]interface{}{
-			"error": "Database not initialized",
-		})
-		return
-	}
-
-	// Validate the request
-	validate := validator.New()
-	if err := validate.Struct(req); err != nil {
-		response.WriteJSON(w, http.StatusBadRequest, map[string]interface{}{
-			"error": fmt.Sprintf("Validation failed: %v", err),
-		})
-		return
-	}
-
-	// Set default currency if not provided
-	currency := req.Currency
-	if currency == "" {
-		currency = "USD"
-	}
-
-	// Generate unique account number
-	accountNumber := generateAccountNumber()
-
-	// Convert account type to ledger account type
-	ledgerAccountType := convertToLedgerAccountType(req.Type)
-
-	// Create account for the authenticated user
-	ledgerAccount, err := service.CreateAccount(
-		user.UserID, // Use authenticated user's ID
-		accountNumber,
-		req.Name,
-		req.Description,
-		currency,
-		ledgerAccountType,
-		nil, // No parent account for now
-	)
-	if err != nil {
-		response.WriteJSON(w, http.StatusInternalServerError, map[string]interface{}{
-			"error": fmt.Sprintf("Failed to create account: %v", err),
-		})
-		return
-	}
-
-	// If initial balance is provided, create a deposit transaction
-	if req.InitialBalance > 0 {
-		_, err := service.CreateDeposit(
-			user.UserID,
-			ledgerAccount.ID,
-			req.InitialBalance,
-			currency,
-			"Initial deposit",
-			"INIT-"+accountNumber,
-		)
-		if err != nil {
-			// Log the error but don't fail the account creation
-			fmt.Printf("Warning: Failed to create initial deposit: %v\n", err)
-		}
-	}
-
-	// Convert to AccountData format
-	newAccount := AccountData{
-		ID:            ledgerAccount.ID.String(),
-		AccountNumber: ledgerAccount.AccountNumber,
-		Type:          string(ledgerAccount.Type),
-		Status:        string(ledgerAccount.Status),
-		Balance:       req.InitialBalance,
-		Currency:      ledgerAccount.Currency,
-		Name:          ledgerAccount.Name,
-		Description:   ledgerAccount.Description,
-		CreatedAt:     ledgerAccount.CreatedAt,
-	}
-
-	response.WriteJSON(w, http.StatusCreated, map[string]interface{}{
-		"data":    newAccount,
-		"message": "Account created successfully",
-	})
-}
-
-// GetAccountHTTP is the HTTP wrapper for GetAccount
-func GetAccountHTTP(w http.ResponseWriter, r *http.Request) {
-	// Get authenticated user from request context
-	user, err := middleware.GetUserFromHTTPRequest(r)
-	if err != nil {
-		response.WriteJSON(w, http.StatusUnauthorized, map[string]interface{}{
-			"error": "Authentication required",
-		})
-		return
-	}
-
-	service := getLedgerService()
-	if service == nil {
-		response.WriteJSON(w, http.StatusInternalServerError, map[string]interface{}{
-			"error": "Database not initialized",
-		})
-		return
-	}
-
-	// Get accounts from ledger system for the authenticated user
-	ledgerAccounts, err := service.GetAccounts(user.UserID)
-	if err != nil {
-		response.WriteJSON(w, http.StatusInternalServerError, map[string]interface{}{
-			"error": fmt.Sprintf("Failed to get accounts: %v", err),
-		})
-		return
-	}
-
-	if len(ledgerAccounts) == 0 {
-		response.WriteJSON(w, http.StatusNotFound, map[string]interface{}{
-			"error": "No accounts found",
-		})
-		return
-	}
-
-	// Use the first account as an example
-	// In a real application, you would use path parameters to get the specific account
-	ledgerAccount := ledgerAccounts[0]
-	balance, err := service.GetAccountBalance(ledgerAccount.ID)
-	if err != nil {
-		balance = 0
-	}
-
-	account := AccountData{
-		ID:            ledgerAccount.ID.String(),
-		AccountNumber: ledgerAccount.AccountNumber,
-		Type:          string(ledgerAccount.Type),
-		Status:        string(ledgerAccount.Status),
-		Balance:       balance,
-		Currency:      ledgerAccount.Currency,
-		Name:          ledgerAccount.Name,
-		Description:   ledgerAccount.Description,
-		CreatedAt:     ledgerAccount.CreatedAt,
-	}
-
-	response.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"data":    account,
-		"message": "Account retrieved successfully",
-	})
 }
