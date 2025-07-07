@@ -336,7 +336,7 @@ func getDiditSupportedCountries() []CountryKYCRequirements {
 // handleStartKYC initiates the KYC process for a user
 func handleStartKYC(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
 		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return
@@ -406,7 +406,7 @@ func handleStartKYC(w http.ResponseWriter, r *http.Request) {
 // handleDocumentVerification handles document verification requests
 func handleDocumentVerification(w http.ResponseWriter, r *http.Request, pathParts []string) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
 		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return
@@ -580,7 +580,7 @@ func handleGetKYCStatus(w http.ResponseWriter, r *http.Request) {
 // handleGetUserKYCStatus returns authenticated user's KYC status
 func handleGetUserKYCStatus(w http.ResponseWriter, r *http.Request, pathParts []string) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
 		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return
@@ -663,7 +663,7 @@ func calculateProgress(submission *models.KYCSubmission) int {
 // handleDiditVerification handles document verification through Didit API
 func handleDiditVerification(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
 		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return

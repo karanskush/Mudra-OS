@@ -197,15 +197,15 @@ func handleAccountRoutes(w http.ResponseWriter, r *http.Request, pathParts []str
 	switch {
 	case len(pathParts) == 4 && pathParts[3] == "":
 		if r.Method == http.MethodGet {
-			ListAccounts(w, r)
+			ListAccountsHTTP(w, r)
 		} else if r.Method == http.MethodPost {
-			CreateAccount(w, r)
+			CreateAccountHTTP(w, r)
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	case len(pathParts) == 5 && pathParts[3] != "":
 		if r.Method == http.MethodGet {
-			GetAccount(w, r)
+			GetAccountHTTP(w, r)
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}

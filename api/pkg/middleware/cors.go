@@ -30,5 +30,5 @@ func CORSMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 // CORSMiddlewareWithAuth combines CORS and Auth middleware
 func CORSMiddlewareWithAuth(next http.HandlerFunc) http.HandlerFunc {
-	return CORSMiddleware(AuthMiddleware(next))
+	return CORSMiddleware(AuthMiddlewareHTTP(next))
 }

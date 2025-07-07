@@ -20,21 +20,21 @@ type UpdateProfileRequest struct {
 // GetProfile handles getting user profile
 func GetProfile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		response.MethodNotAllowed(w, r)
+		response.HTTPMethodNotAllowed(w)
 		return
 	}
 
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
-		response.Unauthorized(w, r, "Authentication required")
+		response.HTTPUnauthorized(w, "Authentication required")
 		return
 	}
 
 	// Fetch full user data from database
 	var userData models.User
 	if err := database.GetDB().Where("id = ?", user.UserID).First(&userData).Error; err != nil {
-		response.InternalServerError(w, r, "Failed to fetch user profile")
+		response.HTTPInternalServerError(w, "Failed to fetch user profile")
 		return
 	}
 
@@ -51,26 +51,26 @@ func GetProfile(w http.ResponseWriter, r *http.Request) {
 		"updated_at":  userData.UpdatedAt,
 	}
 
-	response.Success(w, r, profile, "Profile retrieved successfully")
+	response.HTTPSuccess(w, profile, "Profile retrieved successfully")
 }
 
 // UpdateProfile handles updating user profile
 func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
-		response.MethodNotAllowed(w, r)
+		response.HTTPMethodNotAllowed(w)
 		return
 	}
 
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
-		response.Unauthorized(w, r, "Authentication required")
+		response.HTTPUnauthorized(w, "Authentication required")
 		return
 	}
 
 	var req UpdateProfileRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.BadRequest(w, r, "Invalid request body")
+		response.HTTPBadRequest(w, "Invalid request body")
 		return
 	}
 
@@ -87,19 +87,19 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(updates) == 0 {
-		response.BadRequest(w, r, "No updates provided")
+		response.HTTPBadRequest(w, "No updates provided")
 		return
 	}
 
 	var userData models.User
 	if err := database.GetDB().Model(&userData).Where("id = ?", user.UserID).Updates(updates).Error; err != nil {
-		response.InternalServerError(w, r, "Failed to update profile")
+		response.HTTPInternalServerError(w, "Failed to update profile")
 		return
 	}
 
 	// Fetch updated user data
 	if err := database.GetDB().Where("id = ?", user.UserID).First(&userData).Error; err != nil {
-		response.InternalServerError(w, r, "Failed to fetch updated profile")
+		response.HTTPInternalServerError(w, "Failed to fetch updated profile")
 		return
 	}
 
@@ -115,5 +115,5 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		"updated_at":  userData.UpdatedAt,
 	}
 
-	response.Success(w, r, updatedProfile, "Profile updated successfully")
+	response.HTTPSuccess(w, updatedProfile, "Profile updated successfully")
 }

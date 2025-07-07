@@ -1,6 +1,7 @@
 package response
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -116,4 +117,19 @@ func Paginated(c *gin.Context, data interface{}, page, limit, total int) {
 // NoContent sends a no content response
 func NoContent(c *gin.Context) {
 	c.Status(http.StatusNoContent)
+}
+
+// WriteJSON writes a JSON response to http.ResponseWriter
+func WriteJSON(w http.ResponseWriter, statusCode int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	// Import encoding/json for JSON marshaling
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(jsonData)
 }

@@ -48,27 +48,27 @@ type UserData struct {
 // Register handles user registration
 func Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		response.MethodNotAllowed(w, r)
+		response.HTTPMethodNotAllowed(w)
 		return
 	}
 
 	var req RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.BadRequest(w, r, "Invalid request body")
+		response.HTTPBadRequest(w, "Invalid request body")
 		return
 	}
 
 	// Check if user already exists
 	var existingUser models.User
 	if err := database.GetDB().Where("email = ?", req.Email).First(&existingUser).Error; err == nil {
-		response.BadRequest(w, r, "User with this email already exists")
+		response.HTTPBadRequest(w, "User with this email already exists")
 		return
 	}
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		response.InternalServerError(w, r, "Failed to hash password")
+		response.HTTPInternalServerError(w, "Failed to hash password")
 		return
 	}
 
@@ -87,14 +87,14 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	// Save to database
 	if err := database.GetDB().Create(&user).Error; err != nil {
-		response.InternalServerError(w, r, "Failed to create user")
+		response.HTTPInternalServerError(w, "Failed to create user")
 		return
 	}
 
 	// Generate JWT token
 	token, expiresAt, err := middleware.GenerateToken(&user)
 	if err != nil {
-		response.InternalServerError(w, r, "Failed to generate token")
+		response.HTTPInternalServerError(w, "Failed to generate token")
 		return
 	}
 
@@ -111,45 +111,45 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	response.Created(w, r, authResponse, "Registration successful")
+	response.HTTPCreated(w, authResponse, "Registration successful")
 }
 
 // Login handles user login
 func Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		response.MethodNotAllowed(w, r)
+		response.HTTPMethodNotAllowed(w)
 		return
 	}
 
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.BadRequest(w, r, "Invalid request body")
+		response.HTTPBadRequest(w, "Invalid request body")
 		return
 	}
 
 	// Find user by email
 	var user models.User
 	if err := database.GetDB().Where("email = ?", req.Email).First(&user).Error; err != nil {
-		response.BadRequest(w, r, "Invalid email or password")
+		response.HTTPBadRequest(w, "Invalid email or password")
 		return
 	}
 
 	// Check password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		response.BadRequest(w, r, "Invalid email or password")
+		response.HTTPBadRequest(w, "Invalid email or password")
 		return
 	}
 
 	// Check if user is active
 	if !user.IsActive {
-		response.BadRequest(w, r, "Account is deactivated")
+		response.HTTPBadRequest(w, "Account is deactivated")
 		return
 	}
 
 	// Generate JWT token
 	token, expiresAt, err := middleware.GenerateToken(&user)
 	if err != nil {
-		response.InternalServerError(w, r, "Failed to generate token")
+		response.HTTPInternalServerError(w, "Failed to generate token")
 		return
 	}
 
@@ -166,19 +166,19 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	response.Success(w, r, authResponse, "Login successful")
+	response.HTTPSuccess(w, authResponse, "Login successful")
 }
 
 // Logout handles user logout
 func Logout(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		response.MethodNotAllowed(w, r)
+		response.HTTPMethodNotAllowed(w)
 		return
 	}
 
 	// TODO: Implement token blacklisting for enhanced security
 	// For now, just return success as the frontend will remove the token
-	response.Success(w, r, map[string]interface{}{
+	response.HTTPSuccess(w, map[string]interface{}{
 		"message": "Logged out successfully",
 	}, "Logout successful")
 }

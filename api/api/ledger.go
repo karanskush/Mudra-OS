@@ -186,7 +186,7 @@ func handleLedgerTransactionRoutes(w http.ResponseWriter, r *http.Request, pathP
 // createLedgerAccount creates a new ledger account
 func createLedgerAccount(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
 		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return
@@ -230,7 +230,7 @@ func createLedgerAccount(w http.ResponseWriter, r *http.Request) {
 // listLedgerAccounts lists all ledger accounts
 func listLedgerAccounts(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
 		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return
@@ -256,7 +256,7 @@ func listLedgerAccounts(w http.ResponseWriter, r *http.Request) {
 // createLedgerTransfer creates a transfer transaction
 func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
 		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return
@@ -297,7 +297,7 @@ func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
 // createLedgerDeposit creates a deposit transaction
 func createLedgerDeposit(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
 		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return
@@ -348,7 +348,7 @@ func createLedgerDeposit(w http.ResponseWriter, r *http.Request) {
 // createTestBalance creates a test balance transaction without validation
 func createTestBalance(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
 		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return
@@ -489,7 +489,7 @@ func getLedgerAccountTransactions(w http.ResponseWriter, r *http.Request, accoun
 // handleTrialBalance returns a trial balance for all user accounts (excluding system accounts)
 func handleTrialBalance(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
 		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return
@@ -524,7 +524,7 @@ func getAvailableAccounts(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 
 	// Get authenticated user
-	user, err := middleware.GetUserFromContext(r)
+	user, err := middleware.GetUserFromHTTPRequest(r)
 	if err != nil {
 		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return

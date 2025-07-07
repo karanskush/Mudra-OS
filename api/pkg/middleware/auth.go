@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -156,6 +158,117 @@ func GetUserFromContext(c *gin.Context) (*UserContext, error) {
 	if !ok {
 		return nil, fmt.Errorf("user context has unexpected type")
 	}
+	return userCtx, nil
+}
+
+// AuthMiddlewareHTTP validates JWT tokens and adds user context to HTTP requests
+func AuthMiddlewareHTTP(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Get token from Authorization header
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			http.Error(w, "Authorization header required", http.StatusUnauthorized)
+			return
+		}
+
+		// Extract token from "Bearer <token>" format
+		tokenParts := strings.Split(authHeader, " ")
+		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+			http.Error(w, "Invalid authorization header format", http.StatusUnauthorized)
+			return
+		}
+
+		tokenString := tokenParts[1]
+
+		// Validate token
+		claims, err := ValidateToken(tokenString)
+		if err != nil {
+			http.Error(w, "Invalid token: "+err.Error(), http.StatusUnauthorized)
+			return
+		}
+
+		// Parse user ID
+		userID, err := uuid.Parse(claims.UserID)
+		if err != nil {
+			http.Error(w, "Invalid user ID in token", http.StatusUnauthorized)
+			return
+		}
+
+		// Verify user still exists and is active
+		var user models.User
+		if err := database.GetDB().Where("id = ? AND is_active = ?", userID, true).First(&user).Error; err != nil {
+			http.Error(w, "User not found or inactive", http.StatusUnauthorized)
+			return
+		}
+
+		// Create user context
+		userCtx := &UserContext{
+			UserID:    userID,
+			Email:     claims.Email,
+			FirstName: claims.FirstName,
+			LastName:  claims.LastName,
+			Role:      claims.Role,
+		}
+
+		// Add user context to request context
+		ctx := context.WithValue(r.Context(), "user", userCtx)
+		r = r.WithContext(ctx)
+
+		// Call next handler
+		next.ServeHTTP(w, r)
+	})
+}
+
+// GetUserFromHTTPRequest extracts user context from HTTP request
+func GetUserFromHTTPRequest(r *http.Request) (*UserContext, error) {
+	// Try to get user from request context first (set by AuthMiddlewareHTTP)
+	if user := r.Context().Value("user"); user != nil {
+		if userCtx, ok := user.(*UserContext); ok {
+			return userCtx, nil
+		}
+	}
+
+	// Fallback: validate token manually if not in context
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return nil, fmt.Errorf("authorization header required")
+	}
+
+	// Extract token from "Bearer <token>" format
+	tokenParts := strings.Split(authHeader, " ")
+	if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+		return nil, fmt.Errorf("invalid authorization header format")
+	}
+
+	tokenString := tokenParts[1]
+
+	// Validate token
+	claims, err := ValidateToken(tokenString)
+	if err != nil {
+		return nil, fmt.Errorf("invalid token: %v", err)
+	}
+
+	// Parse user ID
+	userID, err := uuid.Parse(claims.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID in token")
+	}
+
+	// Verify user still exists and is active
+	var user models.User
+	if err := database.GetDB().Where("id = ? AND is_active = ?", userID, true).First(&user).Error; err != nil {
+		return nil, fmt.Errorf("user not found or inactive")
+	}
+
+	// Create user context
+	userCtx := &UserContext{
+		UserID:    userID,
+		Email:     claims.Email,
+		FirstName: claims.FirstName,
+		LastName:  claims.LastName,
+		Role:      claims.Role,
+	}
+
 	return userCtx, nil
 }
 
