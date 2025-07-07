@@ -8,6 +8,7 @@ import (
 
 	"fintech-api/pkg/config"
 	"fintech-api/pkg/database"
+	"fintech-api/pkg/logger"
 	"fintech-api/pkg/middleware"
 )
 
@@ -29,6 +30,11 @@ func initApp() error {
 	}
 
 	var err error
+
+	// Initialize logger first
+	log.Println("Initializing logger...")
+	logger.Init("info", "json")
+	log.Println("Logger initialized.")
 
 	// Load configuration
 	log.Println("Initializing application...")

@@ -1,87 +1,117 @@
 #!/bin/bash
 
-# Test script for Vercel deployment
-# Run this after deployment to verify everything works
+# Test deployment script for Vercel
+echo "🚀 Testing Vercel deployment..."
 
-set -e
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-echo -e "${YELLOW}Testing Vercel deployment...${NC}"
-
-# Get the deployment URL from environment or use default
-DEPLOYMENT_URL=${VERCEL_URL:-"http://localhost:8080"}
-
-echo -e "${YELLOW}Testing against: $DEPLOYMENT_URL${NC}"
-
-# Test 1: Health check
-echo -e "\n${YELLOW}Test 1: Health Check${NC}"
-HEALTH_RESPONSE=$(curl -s -w "%{http_code}" "$DEPLOYMENT_URL/api/health" -o /tmp/health_response)
-if [ "$HEALTH_RESPONSE" = "200" ]; then
-    echo -e "${GREEN}✓ Health check passed${NC}"
-    cat /tmp/health_response | jq . 2>/dev/null || cat /tmp/health_response
-else
-    echo -e "${RED}✗ Health check failed with status: $HEALTH_RESPONSE${NC}"
-    cat /tmp/health_response
+# Check if we're in the right directory
+if [ ! -f "go.mod" ]; then
+    echo "❌ Error: go.mod not found. Please run this script from the api directory."
+    exit 1
 fi
 
-# Test 2: CORS headers
-echo -e "\n${YELLOW}Test 2: CORS Headers${NC}"
-CORS_RESPONSE=$(curl -s -I -X OPTIONS "$DEPLOYMENT_URL/api/health" | grep -i "access-control-allow-origin" || echo "No CORS headers found")
-if [[ "$CORS_RESPONSE" == *"access-control-allow-origin"* ]]; then
-    echo -e "${GREEN}✓ CORS headers present${NC}"
-    echo "$CORS_RESPONSE"
-else
-    echo -e "${RED}✗ CORS headers missing${NC}"
+# Check if required environment variables are set
+echo "📋 Checking environment variables..."
+
+# Required environment variables for deployment
+REQUIRED_VARS=(
+    "DATABASE_URL"
+    "JWT_SECRET"
+)
+
+MISSING_VARS=()
+
+for var in "${REQUIRED_VARS[@]}"; do
+    if [ -z "${!var}" ]; then
+        MISSING_VARS+=("$var")
+    else
+        echo "✅ $var is set"
+    fi
+done
+
+if [ ${#MISSING_VARS[@]} -ne 0 ]; then
+    echo "❌ Missing required environment variables:"
+    for var in "${MISSING_VARS[@]}"; do
+        echo "   - $var"
+    done
+    echo ""
+    echo "Please set these environment variables in your Vercel project settings."
+    exit 1
 fi
 
-# Test 3: Registration endpoint (should return 400 for missing data)
-echo -e "\n${YELLOW}Test 3: Registration Endpoint${NC}"
-REG_RESPONSE=$(curl -s -w "%{http_code}" -X POST "$DEPLOYMENT_URL/api/v1/auth/register" \
-    -H "Content-Type: application/json" \
-    -d '{}' -o /tmp/reg_response)
-if [ "$REG_RESPONSE" = "400" ]; then
-    echo -e "${GREEN}✓ Registration endpoint responds correctly to invalid data${NC}"
-    cat /tmp/reg_response | jq . 2>/dev/null || cat /tmp/reg_response
+# Test Go build
+echo "🔨 Testing Go build..."
+if go build -o test-build .; then
+    echo "✅ Go build successful"
+    rm -f test-build
 else
-    echo -e "${RED}✗ Registration endpoint unexpected response: $REG_RESPONSE${NC}"
-    cat /tmp/reg_response
+    echo "❌ Go build failed"
+    exit 1
 fi
 
-# Test 4: 404 for non-existent endpoint
-echo -e "\n${YELLOW}Test 4: 404 Handling${NC}"
-NOTFOUND_RESPONSE=$(curl -s -w "%{http_code}" "$DEPLOYMENT_URL/api/nonexistent" -o /tmp/notfound_response)
-if [ "$NOTFOUND_RESPONSE" = "404" ]; then
-    echo -e "${GREEN}✓ 404 handling works correctly${NC}"
+# Test Go modules
+echo "📦 Testing Go modules..."
+if go mod tidy; then
+    echo "✅ Go modules are clean"
 else
-    echo -e "${RED}✗ 404 handling failed: $NOTFOUND_RESPONSE${NC}"
-    cat /tmp/notfound_response
+    echo "❌ Go modules have issues"
+    exit 1
 fi
 
-# Test 5: API structure
-echo -e "\n${YELLOW}Test 5: API Structure${NC}"
-echo "Available endpoints:"
-echo "  - GET  /api/health"
-echo "  - POST /api/v1/auth/register"
-echo "  - POST /api/v1/auth/login"
-echo "  - POST /api/v1/auth/logout"
-echo "  - GET  /api/v1/users/profile"
-echo "  - PUT  /api/v1/users/profile"
-echo "  - GET  /api/v1/accounts"
-echo "  - POST /api/v1/accounts"
-echo "  - GET  /api/v1/accounts/:id"
-echo "  - GET  /api/ledger/accounts"
-echo "  - POST /api/ledger/accounts"
-echo "  - POST /api/ledger/transfers"
-echo "  - GET  /api/kyc/dashboard"
-echo "  - POST /api/kyc/start"
-echo "  - GET  /api/kyc/status/:id"
+# Test configuration loading
+echo "⚙️  Testing configuration loading..."
+if go run -c "package main; import 'fintech-api/pkg/config'; func main() { cfg, err := config.Load(); if err != nil { panic(err) }; println('Config loaded successfully') }" .; then
+    echo "✅ Configuration loading successful"
+else
+    echo "❌ Configuration loading failed"
+    exit 1
+fi
 
-echo -e "\n${GREEN}Deployment test completed!${NC}"
+# Test database connection (if DATABASE_URL is available)
+if [ -n "$DATABASE_URL" ]; then
+    echo "🗄️  Testing database connection..."
+    if go run -c "package main; import ('fintech-api/pkg/config'; 'fintech-api/pkg/database'; 'fintech-api/pkg/logger'); func main() { logger.Init('info', 'json'); cfg, _ := config.Load(); if err := database.Connect(cfg); err != nil { panic(err) }; println('Database connection successful') }" .; then
+        echo "✅ Database connection successful"
+    else
+        echo "❌ Database connection failed"
+        exit 1
+    fi
+else
+    echo "⚠️  Skipping database connection test (DATABASE_URL not set)"
+fi
 
-# Cleanup
-rm -f /tmp/health_response /tmp/reg_response /tmp/notfound_response 
+# Test Vercel function export
+echo "🔍 Testing Vercel function export..."
+if grep -q "func Handler" index.go; then
+    echo "✅ Handler function found in index.go"
+else
+    echo "❌ Handler function not found in index.go"
+    exit 1
+fi
+
+# Check vercel.json configuration
+echo "📄 Checking vercel.json configuration..."
+if [ -f "../vercel.json" ]; then
+    echo "✅ vercel.json found"
+    if grep -q "api/index.go" ../vercel.json; then
+        echo "✅ vercel.json points to correct entry point"
+    else
+        echo "❌ vercel.json does not point to api/index.go"
+        exit 1
+    fi
+else
+    echo "❌ vercel.json not found in parent directory"
+    exit 1
+fi
+
+echo ""
+echo "🎉 All deployment tests passed!"
+echo ""
+echo "Next steps:"
+echo "1. Commit your changes"
+echo "2. Push to your repository"
+echo "3. Deploy to Vercel"
+echo ""
+echo "Make sure these environment variables are set in Vercel:"
+for var in "${REQUIRED_VARS[@]}"; do
+    echo "   - $var"
+done 

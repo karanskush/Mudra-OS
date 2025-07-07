@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -16,8 +17,14 @@ import (
 	"github.com/google/uuid"
 )
 
-// JWT Secret - In production, this should be an environment variable
-var jwtSecret = []byte("your-secret-key-change-this-in-production")
+// JWT Secret - Get from environment variable
+func getJWTSecret() []byte {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		secret = "your-secret-key-change-this-in-production"
+	}
+	return []byte(secret)
+}
 
 // UserContext represents the authenticated user context
 type UserContext struct {
@@ -56,7 +63,7 @@ func GenerateToken(user *models.User) (string, time.Time, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtSecret)
+	tokenString, err := token.SignedString(getJWTSecret())
 	if err != nil {
 		return "", time.Time{}, err
 	}
@@ -71,7 +78,7 @@ func ValidateToken(tokenString string) (*Claims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return jwtSecret, nil
+		return getJWTSecret(), nil
 	})
 
 	if err != nil {

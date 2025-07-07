@@ -1,141 +1,253 @@
 # Vercel Deployment Guide
 
-## Issue Resolution
+This guide covers deploying the Go API to Vercel and troubleshooting common deployment issues.
 
-The original error was:
-```
-Command failed: go build -ldflags -s -w -o /tmp/46075057/bootstrap /vercel/path0/api/api/main__vc__go__.go
-```
+## Prerequisites
 
-This was caused by:
-1. Package conflicts between protobuf files and main application files
-2. Incorrect file structure for Vercel's Go runtime
-3. Missing proper entry point for serverless functions
-4. **.vercelignore file excluding necessary packages** (this was the main issue!)
+- Go 1.23+ installed
+- Vercel CLI installed (`npm i -g vercel`)
+- A Vercel account
+- A Neon database (or any PostgreSQL database)
 
-## Fixed Structure
+## Environment Variables
 
-### File Organization
-```
-api/
-├── index.go              # Vercel serverless function entry point
-├── main.go               # Local development server
-├── api/                  # API handlers
-│   ├── index.go         # Main API router
-│   ├── auth.go          # Authentication handlers
-│   ├── users.go         # User management
-│   ├── accounts.go      # Account management
-│   ├── ledger.go        # Ledger operations
-│   ├── kyc.go           # KYC operations
-│   ├── health.go        # Health check
-│   └── grpc_bridge.go   # gRPC bridge handlers
-├── proto_files/         # Protobuf generated files (moved from root)
-├── internal/            # Internal packages
-├── pkg/                 # Shared packages
-├── vercel.json          # Vercel configuration
-└── go.mod               # Go dependencies
+Set these environment variables in your Vercel project settings:
+
+### Required Variables
+
+```bash
+# Database Configuration (Neon recommended)
+DATABASE_URL=postgresql://username:password@host:port/database?sslmode=require
+
+# JWT Configuration
+JWT_SECRET=your-super-secure-jwt-secret-key-here
+
+# Server Configuration
+SERVER_PORT=8080
+ENVIRONMENT=production
 ```
 
-### Key Changes Made
+### Optional Variables
 
-1. **Created clean entry point**: `api/index.go` with only the `Handler` function
-2. **Moved protobuf files**: All `.pb.go` files moved to `proto_files/` directory
-3. **Updated API handler**: Added proper initialization for serverless cold starts
-4. **Added Vercel config**: `vercel.json` with proper function configuration
-5. **Fixed .vercelignore**: Removed exclusions for `api/internal/`, `api/pkg/`, and API files
+```bash
+# Logging Configuration
+LOG_LEVEL=info
+LOG_FORMAT=json
+ENABLE_GORM_LOGGING=false
+
+# Security Configuration
+BCRYPT_COST=12
+RATE_LIMIT_REQUESTS=100
+RATE_LIMIT_WINDOW=1m
+CORS_ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+
+# Payment Configuration (if using payment gateways)
+PAYMENT_GATEWAY_API_KEY=your-payment-api-key
+PAYMENT_GATEWAY_SECRET=your-payment-secret
+```
 
 ## Deployment Steps
 
-### 1. Environment Variables
-
-Set these in your Vercel project settings:
+### 1. Prepare Your Code
 
 ```bash
-# Database (required)
-DATABASE_URL=your_neon_database_connection_string
+# Navigate to the api directory
+cd api
 
-# JWT (required)
-JWT_SECRET=your-super-secret-jwt-key-here
-JWT_EXPIRY_HOURS=24
-
-# Optional - with defaults
-LOG_LEVEL=info
-LOG_FORMAT=json
-ENVIRONMENT=production
-CORS_ALLOWED_ORIGINS=https://your-frontend-domain.com
+# Test the deployment locally
+chmod +x test-deployment.sh
+./test-deployment.sh
 ```
 
 ### 2. Deploy to Vercel
 
 ```bash
-# From the api directory
+# From the project root (not the api directory)
+vercel
+
+# Or deploy to production
 vercel --prod
 ```
 
-### 3. Test Deployment
+### 3. Set Environment Variables
 
-```bash
-# Health check
-curl https://your-vercel-domain.vercel.app/api/health
+After deployment, set the environment variables in the Vercel dashboard:
 
-# Test authentication
-curl -X POST https://your-vercel-domain.vercel.app/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password123"}'
-```
+1. Go to your project in the Vercel dashboard
+2. Navigate to Settings → Environment Variables
+3. Add each required variable
 
-## Local Development
+## Common Deployment Issues & Solutions
 
-```bash
-# Run locally
-go run .
+### Issue 1: "Could not find an exported function"
 
-# Or with specific port
-PORT=3000 go run .
-```
+**Error**: `Error: Could not find an exported function in "api/pkg/config/config.go"`
 
-## Troubleshooting
+**Solution**: 
+- Ensure `vercel.json` points to the correct entry point (`api/index.go`)
+- Verify the `Handler` function is exported (capitalized)
+- Check that all files in the `api` directory use the same package name (`handler`)
 
-### Build Errors
-- Ensure all protobuf files are in `proto_files/` directory
-- Check that `go.mod` has all required dependencies
-- Run `go mod tidy` before deployment
+### Issue 2: Database Connection Failures
 
-### Runtime Errors
-- Check environment variables are set correctly
-- Verify database connection string is valid
-- Check Vercel function logs for detailed error messages
+**Error**: `failed to connect to database` or `connection refused`
 
-### Cold Start Issues
-- The application initializes on first request
-- Database connections are established per request
+**Solutions**:
+- Verify `DATABASE_URL` is correctly set in Vercel environment variables
+- Ensure your database allows connections from Vercel's IP ranges
+- For Neon: Use the connection string from your dashboard
+- Test database connectivity locally first
+
+### Issue 3: JWT Secret Issues
+
+**Error**: `invalid token` or authentication failures
+
+**Solutions**:
+- Set `JWT_SECRET` environment variable in Vercel
+- Use a strong, unique secret (32+ characters)
+- Ensure the same secret is used across all environments
+
+### Issue 4: Logger Initialization Errors
+
+**Error**: `panic: runtime error: invalid memory address or nil pointer dereference`
+
+**Solution**: 
+- The logger is now automatically initialized in `initApp()`
+- Ensure `logger.Init()` is called before any logging operations
+
+### Issue 5: CORS Issues
+
+**Error**: CORS errors in browser console
+
+**Solutions**:
+- CORS headers are automatically added by middleware
+- Set `CORS_ALLOWED_ORIGINS` environment variable for production
+- Ensure your frontend domain is included in allowed origins
+
+### Issue 6: Cold Start Performance
+
+**Issue**: Slow response times on first request
+
+**Solutions**:
+- Database connection pool is optimized for serverless
+- Connection timeouts are set to 4 seconds
 - Consider using connection pooling services for production
 
-## API Endpoints
+## Testing Your Deployment
 
-### Health Check
-- `GET /api/health` - Service health status
+### 1. Health Check
 
-### Authentication
-- `POST /api/v1/auth/register` - User registration
-- `POST /api/v1/auth/login` - User login
-- `POST /api/v1/auth/logout` - User logout
+```bash
+curl https://your-vercel-app.vercel.app/api/health
+```
 
-### Users
-- `GET /api/v1/users/profile` - Get user profile
-- `PUT /api/v1/users/profile` - Update user profile
+Expected response:
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-01T00:00:00Z",
+  "version": "1.0.0"
+}
+```
 
-### Accounts
-- `GET /api/v1/accounts` - List user accounts
-- `POST /api/v1/accounts` - Create new account
-- `GET /api/v1/accounts/:id` - Get specific account
+### 2. CORS Test
 
-### Ledger
-- `GET /api/ledger/accounts` - List ledger accounts
-- `POST /api/ledger/accounts` - Create ledger account
-- `POST /api/ledger/transfers` - Create ledger transfer
+```bash
+curl -X OPTIONS https://your-vercel-app.vercel.app/api/health \
+  -H "Origin: https://yourdomain.com" \
+  -H "Access-Control-Request-Method: GET" \
+  -H "Access-Control-Request-Headers: Content-Type" \
+  -v
+```
 
-### KYC
-- `GET /api/kyc/dashboard` - KYC dashboard
-- `POST /api/kyc/start` - Start KYC process
-- `GET /api/kyc/status/:id` - Get KYC status 
+### 3. Registration Test
+
+```bash
+curl -X POST https://your-vercel-app.vercel.app/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123",
+    "first_name": "Test",
+    "last_name": "User"
+  }'
+```
+
+## Performance Optimization
+
+### 1. Database Optimization
+
+- Use connection pooling (already configured)
+- Enable query caching where appropriate
+- Use indexes on frequently queried columns
+
+### 2. Cold Start Optimization
+
+- Keep dependencies minimal
+- Use lazy loading for non-critical components
+- Consider using Vercel's Edge Functions for simple operations
+
+### 3. Memory Optimization
+
+- Database connection pool is limited to 5 connections
+- Idle connections timeout after 1 minute
+- GORM logging can be disabled in production
+
+## Monitoring & Debugging
+
+### 1. Vercel Logs
+
+View deployment logs in the Vercel dashboard:
+1. Go to your project
+2. Click on the latest deployment
+3. View Function Logs
+
+### 2. Application Logs
+
+Logs are automatically sent to stdout for Vercel:
+- Info level logs for normal operations
+- Error level logs for debugging issues
+- Structured JSON format for easy parsing
+
+### 3. Health Monitoring
+
+Use the health endpoint for monitoring:
+```bash
+# Check application health
+curl https://your-app.vercel.app/api/health
+
+# Check database connectivity
+curl https://your-app.vercel.app/api/health/db
+```
+
+## Troubleshooting Checklist
+
+- [ ] All required environment variables are set in Vercel
+- [ ] `vercel.json` points to `api/index.go`
+- [ ] Database is accessible from Vercel's servers
+- [ ] JWT secret is properly configured
+- [ ] CORS origins are correctly set
+- [ ] All Go dependencies are properly specified in `go.mod`
+- [ ] The `Handler` function is exported and accessible
+- [ ] Logger is properly initialized
+- [ ] Database connection pool is configured for serverless
+
+## Support
+
+If you encounter issues not covered in this guide:
+
+1. Check the Vercel deployment logs
+2. Test locally using the test script
+3. Verify all environment variables are set
+4. Check the application logs for specific error messages
+5. Ensure your database is accessible from external connections
+
+## Security Best Practices
+
+1. **Environment Variables**: Never commit secrets to version control
+2. **JWT Secrets**: Use strong, unique secrets for each environment
+3. **Database Security**: Use SSL connections and restrict access
+4. **CORS**: Only allow necessary origins in production
+5. **Rate Limiting**: Configure appropriate rate limits for your use case
+6. **Input Validation**: Always validate and sanitize user input
+7. **Error Handling**: Don't expose sensitive information in error messages 
