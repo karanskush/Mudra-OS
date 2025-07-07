@@ -4,7 +4,7 @@
   "outputDirectory": "dist",
   "functions": {
     "api/**/*.go": {
-      "runtime": "vercel-go@1.0.0"
+      "runtime": "go@1.0.0"
     }
   },
   "routes": [
