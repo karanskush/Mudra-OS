@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"fintech-api/api"
 	"fintech-api/pkg/config"
 	"fintech-api/pkg/database"
 	"fintech-api/pkg/logger"
@@ -44,8 +43,8 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	// Route all API requests to the api.Handler
-	mux.HandleFunc("/", api.Handler)
+	// Route all API requests to the Handler
+	mux.HandleFunc("/", Handler)
 
 	addr := ":" + cfg.Server.Port
 	log.Printf("Server running at http://localhost%s\n", addr)
