@@ -1,14 +1,13 @@
 {
   "functions": {
-    "backend/api/index.go": {
-      "runtime": "vercel-go@1.0.0",
-      "includeFiles": "backend/**"
+    "api/index.go": {
+      "runtime": "vercel-go@1.0.0"
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/backend/api/index.go"
+      "destination": "/api/index.go"
     }
   ],
   "env": {
