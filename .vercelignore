@@ -18,6 +18,10 @@ api/GRPC_DEMO_GUIDE.md
 api/GRPC_DEMO_README.md
 grpc-streaming-server/
 
+# Exclude specific service files that cause issues
+api/pkg/services/paymentrails/
+api/pkg/services/ledger_service_test.go
+
 # Backend configuration and deployment files
 api/configs/
 api/deployments/
