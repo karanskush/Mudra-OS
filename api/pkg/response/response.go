@@ -1,8 +1,9 @@
 package response
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Response represents a standard API response
@@ -22,88 +23,81 @@ type Meta struct {
 	TotalPages int `json:"total_pages"`
 }
 
-// writeJSON writes a JSON response
-func writeJSON(w http.ResponseWriter, statusCode int, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(data)
-}
-
 // Success sends a success response
-func Success(w http.ResponseWriter, r *http.Request, data interface{}, message string) {
+func Success(c *gin.Context, data interface{}, message string) {
 	response := Response{
 		Success: true,
 		Message: message,
 		Data:    data,
 	}
-	writeJSON(w, http.StatusOK, response)
+	c.JSON(http.StatusOK, response)
 }
 
 // Created sends a created response
-func Created(w http.ResponseWriter, r *http.Request, data interface{}, message string) {
+func Created(c *gin.Context, data interface{}, message string) {
 	response := Response{
 		Success: true,
 		Message: message,
 		Data:    data,
 	}
-	writeJSON(w, http.StatusCreated, response)
+	c.JSON(http.StatusCreated, response)
 }
 
 // Error sends an error response
-func Error(w http.ResponseWriter, r *http.Request, statusCode int, message string, err string) {
+func Error(c *gin.Context, statusCode int, message string, err string) {
 	response := Response{
 		Success: false,
 		Message: message,
 		Error:   err,
 	}
-	writeJSON(w, statusCode, response)
+	c.JSON(statusCode, response)
 }
 
 // BadRequest sends a bad request response
-func BadRequest(w http.ResponseWriter, r *http.Request, message string) {
-	Error(w, r, http.StatusBadRequest, message, "bad_request")
+func BadRequest(c *gin.Context, message string) {
+	Error(c, http.StatusBadRequest, message, "bad_request")
 }
 
 // Unauthorized sends an unauthorized response
-func Unauthorized(w http.ResponseWriter, r *http.Request, message string) {
-	Error(w, r, http.StatusUnauthorized, message, "unauthorized")
+func Unauthorized(c *gin.Context, message string) {
+	Error(c, http.StatusUnauthorized, message, "unauthorized")
 }
 
 // Forbidden sends a forbidden response
-func Forbidden(w http.ResponseWriter, r *http.Request, message string) {
-	Error(w, r, http.StatusForbidden, message, "forbidden")
+func Forbidden(c *gin.Context, message string) {
+	Error(c, http.StatusForbidden, message, "forbidden")
 }
 
 // NotFound sends a not found response
-func NotFound(w http.ResponseWriter, r *http.Request, message string) {
-	Error(w, r, http.StatusNotFound, message, "not_found")
+func NotFound(c *gin.Context, message string) {
+	Error(c, http.StatusNotFound, message, "not_found")
 }
 
 // InternalServerError sends an internal server error response
-func InternalServerError(w http.ResponseWriter, r *http.Request, message string) {
-	Error(w, r, http.StatusInternalServerError, message, "internal_server_error")
+func InternalServerError(c *gin.Context, message string) {
+	Error(c, http.StatusInternalServerError, message, "internal_server_error")
 }
 
 // MethodNotAllowed sends a method not allowed response
-func MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
-	Error(w, r, http.StatusMethodNotAllowed, "Method not allowed", "method_not_allowed")
+func MethodNotAllowed(c *gin.Context) {
+	Error(c, http.StatusMethodNotAllowed, "Method not allowed", "method_not_allowed")
 }
 
 // ValidationError sends a validation error response
-func ValidationError(w http.ResponseWriter, r *http.Request, message string, errors interface{}) {
+func ValidationError(c *gin.Context, message string, errors interface{}) {
 	response := Response{
 		Success: false,
 		Message: message,
 		Error:   "validation_error",
 		Data:    errors,
 	}
-	writeJSON(w, http.StatusUnprocessableEntity, response)
+	c.JSON(http.StatusUnprocessableEntity, response)
 }
 
 // Paginated sends a paginated response
-func Paginated(w http.ResponseWriter, r *http.Request, data interface{}, page, limit, total int) {
+func Paginated(c *gin.Context, data interface{}, page, limit, total int) {
 	totalPages := (total + limit - 1) / limit // Ceiling division
-	
+
 	meta := &Meta{
 		Page:       page,
 		Limit:      limit,
@@ -116,10 +110,10 @@ func Paginated(w http.ResponseWriter, r *http.Request, data interface{}, page, l
 		Data:    data,
 		Meta:    meta,
 	}
-	writeJSON(w, http.StatusOK, response)
+	c.JSON(http.StatusOK, response)
 }
 
 // NoContent sends a no content response
-func NoContent(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNoContent)
-} 
+func NoContent(c *gin.Context) {
+	c.Status(http.StatusNoContent)
+}

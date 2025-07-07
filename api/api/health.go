@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"fintech-api/internal/database"
+	"fintech-api/pkg/database"
 )
 
 // HealthResponse represents the health check response

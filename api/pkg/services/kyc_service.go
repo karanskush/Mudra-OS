@@ -6,8 +6,8 @@ import (
 	"math/rand"
 	"time"
 
-	"fintech-api/internal/models"
-	"fintech-api/internal/repository"
+	"fintech-api/pkg/models"
+	"fintech-api/pkg/repository"
 
 	"github.com/google/uuid"
 )

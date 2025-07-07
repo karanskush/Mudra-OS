@@ -3,7 +3,7 @@ package services
 import (
 	"testing"
 
-	"fintech-api/internal/models"
+	"fintech-api/pkg/models"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"

@@ -1,8 +1,8 @@
 package database
 
 import (
-	"fintech-api/internal/models"
 	"fintech-api/pkg/logger"
+	"fintech-api/pkg/models"
 	"fmt"
 )
 

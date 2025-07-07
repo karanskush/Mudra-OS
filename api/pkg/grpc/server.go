@@ -1,10 +1,10 @@
 package grpc
 
 import (
-	"fintech-api/internal/database"
-	"fintech-api/internal/grpc/handlers"
-	"fintech-api/internal/repository"
-	"fintech-api/internal/services"
+	"fintech-api/pkg/database"
+	"fintech-api/pkg/grpc/handlers"
+	"fintech-api/pkg/repository"
+	"fintech-api/pkg/services"
 	compliancepb "fintech-api/proto/gen/compliance"
 	kycpb "fintech-api/proto/gen/kyc"
 	ledgerpb "fintech-api/proto/gen/ledger"

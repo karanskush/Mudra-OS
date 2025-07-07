@@ -1,16 +1,15 @@
 package middleware
 
 import (
-	"context"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
-	"fintech-api/internal/database"
-	"fintech-api/internal/models"
+	"fintech-api/pkg/database"
+	"fintech-api/pkg/models"
 	"fintech-api/pkg/response"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
@@ -85,19 +84,21 @@ func ValidateToken(tokenString string) (*Claims, error) {
 }
 
 // AuthMiddleware validates JWT tokens and adds user context to requests
-func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		// Get token from Authorization header
-		authHeader := r.Header.Get("Authorization")
+		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			response.Unauthorized(w, r, "Authorization header required")
+			response.Unauthorized(c, "Authorization header required")
+			c.Abort()
 			return
 		}
 
 		// Extract token from "Bearer <token>" format
 		tokenParts := strings.Split(authHeader, " ")
 		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
-			response.Unauthorized(w, r, "Invalid authorization header format")
+			response.Unauthorized(c, "Invalid authorization header format")
+			c.Abort()
 			return
 		}
 
@@ -106,21 +107,24 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Validate token
 		claims, err := ValidateToken(tokenString)
 		if err != nil {
-			response.Unauthorized(w, r, "Invalid token: "+err.Error())
+			response.Unauthorized(c, "Invalid token: "+err.Error())
+			c.Abort()
 			return
 		}
 
 		// Parse user ID
 		userID, err := uuid.Parse(claims.UserID)
 		if err != nil {
-			response.Unauthorized(w, r, "Invalid user ID in token")
+			response.Unauthorized(c, "Invalid user ID in token")
+			c.Abort()
 			return
 		}
 
 		// Verify user still exists and is active
 		var user models.User
 		if err := database.GetDB().Where("id = ? AND is_active = ?", userID, true).First(&user).Error; err != nil {
-			response.Unauthorized(w, r, "User not found or inactive")
+			response.Unauthorized(c, "User not found or inactive")
+			c.Abort()
 			return
 		}
 
@@ -134,27 +138,31 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// Add user context to request context
-		ctx := context.WithValue(r.Context(), "user", userCtx)
-		r = r.WithContext(ctx)
+		c.Set("user", userCtx)
 
 		// Call next handler
-		next.ServeHTTP(w, r)
-	})
+		c.Next()
+	}
 }
 
 // GetUserFromContext extracts user context from request
-func GetUserFromContext(r *http.Request) (*UserContext, error) {
-	user, ok := r.Context().Value("user").(*UserContext)
-	if !ok {
+func GetUserFromContext(c *gin.Context) (*UserContext, error) {
+	user, exists := c.Get("user")
+	if !exists {
 		return nil, fmt.Errorf("user not found in context")
 	}
-	return user, nil
+
+	userCtx, ok := user.(*UserContext)
+	if !ok {
+		return nil, fmt.Errorf("user context has unexpected type")
+	}
+	return userCtx, nil
 }
 
 // OptionalAuthMiddleware validates JWT tokens but doesn't require them
-func OptionalAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
+func OptionalAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authHeader := c.GetHeader("Authorization")
 		if authHeader != "" {
 			tokenParts := strings.Split(authHeader, " ")
 			if len(tokenParts) == 2 && tokenParts[0] == "Bearer" {
@@ -170,13 +178,12 @@ func OptionalAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 								LastName:  claims.LastName,
 								Role:      claims.Role,
 							}
-							ctx := context.WithValue(r.Context(), "user", userCtx)
-							r = r.WithContext(ctx)
+							c.Set("user", userCtx)
 						}
 					}
 				}
 			}
 		}
-		next.ServeHTTP(w, r)
-	})
+		c.Next()
+	}
 }

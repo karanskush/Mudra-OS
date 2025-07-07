@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"fintech-api/internal/database"
-	"fintech-api/internal/middleware"
-	"fintech-api/internal/models"
-	"fintech-api/internal/repository"
-	"fintech-api/internal/services"
+	"fintech-api/pkg/database"
 	"fintech-api/pkg/logger"
+	"fintech-api/pkg/middleware"
+	"fintech-api/pkg/models"
+	"fintech-api/pkg/repository"
+	"fintech-api/pkg/services"
 
 	"github.com/google/uuid"
 )

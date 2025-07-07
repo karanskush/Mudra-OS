@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"fintech-api/internal/models"
+	"fintech-api/pkg/models"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

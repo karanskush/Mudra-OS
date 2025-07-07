@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"fintech-api/api"
-	"fintech-api/internal/config"
-	"fintech-api/internal/database"
+	"fintech-api/pkg/config"
+	"fintech-api/pkg/database"
 	"fintech-api/pkg/logger"
 
 	"github.com/gin-gonic/gin"

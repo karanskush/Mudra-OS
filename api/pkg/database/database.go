@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"fintech-api/internal/config"
+	"fintech-api/pkg/config"
 	"fintech-api/pkg/logger"
 
 	"gorm.io/driver/postgres"

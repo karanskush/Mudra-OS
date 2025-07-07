@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	"fintech-api/internal/config"
-	"fintech-api/internal/database"
-	grpcserver "fintech-api/internal/grpc"
+	"fintech-api/pkg/config"
+	"fintech-api/pkg/database"
+	grpcserver "fintech-api/pkg/grpc"
 	"fintech-api/pkg/logger"
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"

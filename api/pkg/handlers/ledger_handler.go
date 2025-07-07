@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"fintech-api/internal/models"
-	"fintech-api/internal/services"
+	"fintech-api/pkg/models"
+	"fintech-api/pkg/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

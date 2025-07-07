@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
-	"fintech-api/internal/database"
-	"fintech-api/internal/models"
-	"fintech-api/internal/services"
-	paymentprocessing "fintech-api/proto/gen/payment_processing"
+	"fintech-api/pkg/database"
+	"fintech-api/pkg/models"
+	"fintech-api/pkg/services"
+	pb "fintech-api/proto/gen/payment_processing"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
@@ -19,7 +19,7 @@ import (
 
 // PaymentProcessingHandler implements the PaymentProcessingServiceServer
 type PaymentProcessingHandler struct {
-	paymentprocessing.UnimplementedPaymentProcessingServiceServer
+	pb.UnimplementedPaymentProcessingServiceServer
 	ledgerService *services.LedgerService
 	// Active streaming sessions
 	sessions sync.Map // sessionID -> *StreamingSession
@@ -29,7 +29,7 @@ type PaymentProcessingHandler struct {
 type StreamingSession struct {
 	ID           string
 	UserID       string
-	EventChannel chan *paymentprocessing.PaymentResponse
+	EventChannel chan *pb.PaymentResponse
 	StopChannel  chan bool
 	IsActive     bool
 	StartedAt    time.Time
@@ -49,11 +49,11 @@ func NewPaymentProcessingHandler(ledgerService *services.LedgerService) *Payment
 }
 
 // ProcessPayments implements bidirectional streaming for payment processing
-func (h *PaymentProcessingHandler) ProcessPayments(stream grpc.BidiStreamingServer[paymentprocessing.PaymentRequest, paymentprocessing.PaymentResponse]) error {
+func (h *PaymentProcessingHandler) ProcessPayments(stream grpc.BidiStreamingServer[pb.PaymentRequest, pb.PaymentResponse]) error {
 	sessionID := uuid.New().String()
 	session := &StreamingSession{
 		ID:           sessionID,
-		EventChannel: make(chan *paymentprocessing.PaymentResponse, 100),
+		EventChannel: make(chan *pb.PaymentResponse, 100),
 		StopChannel:  make(chan bool, 1),
 		IsActive:     true,
 		StartedAt:    time.Now(),
@@ -73,11 +73,11 @@ func (h *PaymentProcessingHandler) ProcessPayments(stream grpc.BidiStreamingServ
 	log.Printf("Payment processing stream started: %s", sessionID)
 
 	// Send initial connection confirmation
-	initResponse := &paymentprocessing.PaymentResponse{
-		Response: &paymentprocessing.PaymentResponse_StatusUpdate{
-			StatusUpdate: &paymentprocessing.PaymentStatusUpdate{
+	initResponse := &pb.PaymentResponse{
+		Response: &pb.PaymentResponse_StatusUpdate{
+			StatusUpdate: &pb.PaymentStatusUpdate{
 				PaymentId: "system",
-				Status:    paymentprocessing.PaymentStatus_PAYMENT_STATUS_PROCESSING,
+				Status:    pb.PaymentStatus_PAYMENT_STATUS_PROCESSING,
 				Message:   "Payment processing stream connected",
 				UpdatedAt: timestamppb.Now(),
 			},
@@ -110,9 +110,9 @@ func (h *PaymentProcessingHandler) ProcessPayments(stream grpc.BidiStreamingServ
 			if err := h.processPaymentRequest(req, session); err != nil {
 				log.Printf("Error processing payment request: %v", err)
 				// Send error response
-				errorResponse := &paymentprocessing.PaymentResponse{
-					Response: &paymentprocessing.PaymentResponse_PaymentError{
-						PaymentError: &paymentprocessing.PaymentError{
+				errorResponse := &pb.PaymentResponse{
+					Response: &pb.PaymentResponse_PaymentError{
+						PaymentError: &pb.PaymentError{
 							PaymentId:    "unknown",
 							ErrorCode:    "PROCESSING_ERROR",
 							ErrorMessage: err.Error(),
@@ -152,15 +152,15 @@ func (h *PaymentProcessingHandler) ProcessPayments(stream grpc.BidiStreamingServ
 }
 
 // processPaymentRequest handles incoming payment requests
-func (h *PaymentProcessingHandler) processPaymentRequest(req *paymentprocessing.PaymentRequest, session *StreamingSession) error {
+func (h *PaymentProcessingHandler) processPaymentRequest(req *pb.PaymentRequest, session *StreamingSession) error {
 	switch request := req.Request.(type) {
-	case *paymentprocessing.PaymentRequest_InitiatePayment:
+	case *pb.PaymentRequest_InitiatePayment:
 		return h.handleInitiatePayment(request.InitiatePayment, session)
-	case *paymentprocessing.PaymentRequest_UpdatePayment:
+	case *pb.PaymentRequest_UpdatePayment:
 		return h.handleUpdatePayment(request.UpdatePayment, session)
-	case *paymentprocessing.PaymentRequest_CancelPayment:
+	case *pb.PaymentRequest_CancelPayment:
 		return h.handleCancelPayment(request.CancelPayment, session)
-	case *paymentprocessing.PaymentRequest_GetStatus:
+	case *pb.PaymentRequest_GetStatus:
 		return h.handleGetStatus(request.GetStatus, session)
 	default:
 		return fmt.Errorf("unknown request type")
@@ -168,13 +168,13 @@ func (h *PaymentProcessingHandler) processPaymentRequest(req *paymentprocessing.
 }
 
 // handleInitiatePayment processes payment initiation
-func (h *PaymentProcessingHandler) handleInitiatePayment(req *paymentprocessing.InitiatePayment, session *StreamingSession) error {
+func (h *PaymentProcessingHandler) handleInitiatePayment(req *pb.InitiatePayment, session *StreamingSession) error {
 	paymentID := uuid.New().String()
 
 	// Send payment initiated response
-	initiatedResponse := &paymentprocessing.PaymentResponse{
-		Response: &paymentprocessing.PaymentResponse_PaymentInitiated{
-			PaymentInitiated: &paymentprocessing.PaymentInitiated{
+	initiatedResponse := &pb.PaymentResponse{
+		Response: &pb.PaymentResponse_PaymentInitiated{
+			PaymentInitiated: &pb.PaymentInitiated{
 				PaymentId:     paymentID,
 				SessionId:     session.ID,
 				SelectedRail:  req.PreferredRail,
@@ -201,11 +201,11 @@ func (h *PaymentProcessingHandler) handleInitiatePayment(req *paymentprocessing.
 }
 
 // handleUpdatePayment processes payment updates
-func (h *PaymentProcessingHandler) handleUpdatePayment(req *paymentprocessing.UpdatePayment, session *StreamingSession) error {
+func (h *PaymentProcessingHandler) handleUpdatePayment(req *pb.UpdatePayment, session *StreamingSession) error {
 	// Send status update
-	statusResponse := &paymentprocessing.PaymentResponse{
-		Response: &paymentprocessing.PaymentResponse_StatusUpdate{
-			StatusUpdate: &paymentprocessing.PaymentStatusUpdate{
+	statusResponse := &pb.PaymentResponse{
+		Response: &pb.PaymentResponse_StatusUpdate{
+			StatusUpdate: &pb.PaymentStatusUpdate{
 				PaymentId: req.PaymentId,
 				Status:    req.NewStatus,
 				Message:   req.Reason,
@@ -225,13 +225,13 @@ func (h *PaymentProcessingHandler) handleUpdatePayment(req *paymentprocessing.Up
 }
 
 // handleCancelPayment processes payment cancellation
-func (h *PaymentProcessingHandler) handleCancelPayment(req *paymentprocessing.CancelPayment, session *StreamingSession) error {
+func (h *PaymentProcessingHandler) handleCancelPayment(req *pb.CancelPayment, session *StreamingSession) error {
 	// Send cancellation confirmation
-	cancelResponse := &paymentprocessing.PaymentResponse{
-		Response: &paymentprocessing.PaymentResponse_StatusUpdate{
-			StatusUpdate: &paymentprocessing.PaymentStatusUpdate{
+	cancelResponse := &pb.PaymentResponse{
+		Response: &pb.PaymentResponse_StatusUpdate{
+			StatusUpdate: &pb.PaymentStatusUpdate{
 				PaymentId: req.PaymentId,
-				Status:    paymentprocessing.PaymentStatus_PAYMENT_STATUS_CANCELLED,
+				Status:    pb.PaymentStatus_PAYMENT_STATUS_CANCELLED,
 				Message:   fmt.Sprintf("Payment cancelled: %s", req.Reason),
 				UpdatedAt: timestamppb.Now(),
 			},
@@ -248,13 +248,13 @@ func (h *PaymentProcessingHandler) handleCancelPayment(req *paymentprocessing.Ca
 }
 
 // handleGetStatus processes status inquiries
-func (h *PaymentProcessingHandler) handleGetStatus(req *paymentprocessing.GetPaymentStatus, session *StreamingSession) error {
+func (h *PaymentProcessingHandler) handleGetStatus(req *pb.GetPaymentStatus, session *StreamingSession) error {
 	// Send status response
-	statusResponse := &paymentprocessing.PaymentResponse{
-		Response: &paymentprocessing.PaymentResponse_StatusUpdate{
-			StatusUpdate: &paymentprocessing.PaymentStatusUpdate{
+	statusResponse := &pb.PaymentResponse{
+		Response: &pb.PaymentResponse_StatusUpdate{
+			StatusUpdate: &pb.PaymentStatusUpdate{
 				PaymentId: req.PaymentId,
-				Status:    paymentprocessing.PaymentStatus_PAYMENT_STATUS_PROCESSING,
+				Status:    pb.PaymentStatus_PAYMENT_STATUS_PROCESSING,
 				Message:   "Payment status inquiry",
 				UpdatedAt: timestamppb.Now(),
 			},
@@ -271,25 +271,25 @@ func (h *PaymentProcessingHandler) handleGetStatus(req *paymentprocessing.GetPay
 }
 
 // simulatePaymentProcessing simulates the payment processing workflow
-func (h *PaymentProcessingHandler) simulatePaymentProcessing(paymentID string, req *paymentprocessing.InitiatePayment, session *StreamingSession) {
+func (h *PaymentProcessingHandler) simulatePaymentProcessing(paymentID string, req *pb.InitiatePayment, session *StreamingSession) {
 	// Simulate processing steps
 	steps := []struct {
-		status  paymentprocessing.PaymentStatus
+		status  pb.PaymentStatus
 		message string
 		delay   time.Duration
 	}{
-		{paymentprocessing.PaymentStatus_PAYMENT_STATUS_PROCESSING, "Payment validated", 1 * time.Second},
-		{paymentprocessing.PaymentStatus_PAYMENT_STATUS_PROCESSING, "Funds reserved", 2 * time.Second},
-		{paymentprocessing.PaymentStatus_PAYMENT_STATUS_PROCESSING, "Rail processing", 3 * time.Second},
-		{paymentprocessing.PaymentStatus_PAYMENT_STATUS_COMPLETED, "Payment completed", 1 * time.Second},
+		{pb.PaymentStatus_PAYMENT_STATUS_PROCESSING, "Payment validated", 1 * time.Second},
+		{pb.PaymentStatus_PAYMENT_STATUS_PROCESSING, "Funds reserved", 2 * time.Second},
+		{pb.PaymentStatus_PAYMENT_STATUS_PROCESSING, "Rail processing", 3 * time.Second},
+		{pb.PaymentStatus_PAYMENT_STATUS_COMPLETED, "Payment completed", 1 * time.Second},
 	}
 
 	for _, step := range steps {
 		time.Sleep(step.delay)
 
-		statusResponse := &paymentprocessing.PaymentResponse{
-			Response: &paymentprocessing.PaymentResponse_StatusUpdate{
-				StatusUpdate: &paymentprocessing.PaymentStatusUpdate{
+		statusResponse := &pb.PaymentResponse{
+			Response: &pb.PaymentResponse_StatusUpdate{
+				StatusUpdate: &pb.PaymentStatusUpdate{
 					PaymentId: paymentID,
 					Status:    step.status,
 					Message:   step.message,
@@ -306,9 +306,9 @@ func (h *PaymentProcessingHandler) simulatePaymentProcessing(paymentID string, r
 	}
 
 	// Send completion response
-	completionResponse := &paymentprocessing.PaymentResponse{
-		Response: &paymentprocessing.PaymentResponse_PaymentCompleted{
-			PaymentCompleted: &paymentprocessing.PaymentCompleted{
+	completionResponse := &pb.PaymentResponse{
+		Response: &pb.PaymentResponse_PaymentCompleted{
+			PaymentCompleted: &pb.PaymentCompleted{
 				PaymentId:          paymentID,
 				FinalAmount:        req.Amount,
 				FinalFee:           2.50,
@@ -364,9 +364,9 @@ func (h *PaymentProcessingHandler) monitorTransactions() {
 // broadcastTransaction sends a transaction to all active streaming sessions
 func (h *PaymentProcessingHandler) broadcastTransaction(transaction models.LedgerTransaction) {
 	// Convert transaction to payment response
-	paymentResponse := &paymentprocessing.PaymentResponse{
-		Response: &paymentprocessing.PaymentResponse_StatusUpdate{
-			StatusUpdate: &paymentprocessing.PaymentStatusUpdate{
+	paymentResponse := &pb.PaymentResponse{
+		Response: &pb.PaymentResponse_StatusUpdate{
+			StatusUpdate: &pb.PaymentStatusUpdate{
 				PaymentId: transaction.ID.String(),
 				Status:    h.convertTransactionStatus(transaction.Status),
 				Message:   fmt.Sprintf("Real transaction: %s - %s", transaction.Type, transaction.Description),
@@ -401,17 +401,17 @@ func (h *PaymentProcessingHandler) broadcastTransaction(transaction models.Ledge
 }
 
 // convertTransactionStatus converts ledger transaction status to payment status
-func (h *PaymentProcessingHandler) convertTransactionStatus(status models.LedgerTransactionStatus) paymentprocessing.PaymentStatus {
+func (h *PaymentProcessingHandler) convertTransactionStatus(status models.LedgerTransactionStatus) pb.PaymentStatus {
 	switch status {
 	case models.LedgerTransactionStatusPending:
-		return paymentprocessing.PaymentStatus_PAYMENT_STATUS_PROCESSING
+		return pb.PaymentStatus_PAYMENT_STATUS_PROCESSING
 	case models.LedgerTransactionStatusPosted:
-		return paymentprocessing.PaymentStatus_PAYMENT_STATUS_COMPLETED
+		return pb.PaymentStatus_PAYMENT_STATUS_COMPLETED
 	case models.LedgerTransactionStatusCancelled:
-		return paymentprocessing.PaymentStatus_PAYMENT_STATUS_CANCELLED
+		return pb.PaymentStatus_PAYMENT_STATUS_CANCELLED
 	case models.LedgerTransactionStatusReversed:
-		return paymentprocessing.PaymentStatus_PAYMENT_STATUS_FAILED
+		return pb.PaymentStatus_PAYMENT_STATUS_FAILED
 	default:
-		return paymentprocessing.PaymentStatus_PAYMENT_STATUS_UNSPECIFIED
+		return pb.PaymentStatus_PAYMENT_STATUS_UNSPECIFIED
 	}
 }

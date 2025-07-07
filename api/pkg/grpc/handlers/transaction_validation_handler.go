@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"fintech-api/internal/services"
-	transactionvalidation "fintech-api/proto/gen/transaction_validation"
+	"fintech-api/pkg/services"
+	pb "fintech-api/proto/gen/transaction_validation"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -16,7 +16,7 @@ import (
 
 // TransactionValidationHandler implements the TransactionValidationService
 type TransactionValidationHandler struct {
-	transactionvalidation.UnimplementedTransactionValidationServiceServer
+	pb.UnimplementedTransactionValidationServiceServer
 	db            *gorm.DB
 	ledgerService *services.LedgerService
 }
@@ -30,18 +30,18 @@ func NewTransactionValidationHandler(db *gorm.DB) *TransactionValidationHandler 
 }
 
 // ValidateTransaction validates a single transaction
-func (h *TransactionValidationHandler) ValidateTransaction(ctx context.Context, req *transactionvalidation.ValidateTransactionRequest) (*transactionvalidation.ValidateTransactionResponse, error) {
-	var validationErrors []*transactionvalidation.ValidationError
+func (h *TransactionValidationHandler) ValidateTransaction(ctx context.Context, req *pb.ValidateTransactionRequest) (*pb.ValidateTransactionResponse, error) {
+	var validationErrors []*pb.ValidationError
 	var warnings []string
 
 	// Validate user ID
 	userUUID, err := uuid.Parse(req.UserId)
 	if err != nil {
-		validationErrors = append(validationErrors, &transactionvalidation.ValidationError{
+		validationErrors = append(validationErrors, &pb.ValidationError{
 			Field:        "user_id",
 			ErrorCode:    "INVALID_UUID",
 			ErrorMessage: "Invalid user ID format",
-			Severity:     transactionvalidation.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
+			Severity:     pb.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
 			Suggestion:   "Provide a valid UUID for user ID",
 		})
 	}
@@ -49,62 +49,62 @@ func (h *TransactionValidationHandler) ValidateTransaction(ctx context.Context, 
 	// Validate account IDs
 	fromAccountUUID, err := uuid.Parse(req.FromAccountId)
 	if err != nil {
-		validationErrors = append(validationErrors, &transactionvalidation.ValidationError{
+		validationErrors = append(validationErrors, &pb.ValidationError{
 			Field:        "from_account_id",
 			ErrorCode:    "INVALID_UUID",
 			ErrorMessage: "Invalid from account ID format",
-			Severity:     transactionvalidation.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
+			Severity:     pb.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
 			Suggestion:   "Provide a valid UUID for from account ID",
 		})
 	}
 
 	_, err = uuid.Parse(req.ToAccountId)
 	if err != nil {
-		validationErrors = append(validationErrors, &transactionvalidation.ValidationError{
+		validationErrors = append(validationErrors, &pb.ValidationError{
 			Field:        "to_account_id",
 			ErrorCode:    "INVALID_UUID",
 			ErrorMessage: "Invalid to account ID format",
-			Severity:     transactionvalidation.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
+			Severity:     pb.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
 			Suggestion:   "Provide a valid UUID for to account ID",
 		})
 	}
 
 	// Validate amount
 	if req.Amount <= 0 {
-		validationErrors = append(validationErrors, &transactionvalidation.ValidationError{
+		validationErrors = append(validationErrors, &pb.ValidationError{
 			Field:        "amount",
 			ErrorCode:    "INVALID_AMOUNT",
 			ErrorMessage: "Amount must be greater than zero",
-			Severity:     transactionvalidation.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
+			Severity:     pb.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
 			Suggestion:   "Provide a positive amount",
 		})
 	}
 
 	// Validate currency
 	if req.Currency == "" {
-		validationErrors = append(validationErrors, &transactionvalidation.ValidationError{
+		validationErrors = append(validationErrors, &pb.ValidationError{
 			Field:        "currency",
 			ErrorCode:    "MISSING_CURRENCY",
 			ErrorMessage: "Currency is required",
-			Severity:     transactionvalidation.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
+			Severity:     pb.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
 			Suggestion:   "Provide a valid currency code (e.g., USD, EUR)",
 		})
 	}
 
 	var availableBalance float64
-	var estimatedFees *transactionvalidation.TransactionFees
-	var complianceCheck *transactionvalidation.ComplianceCheck
+	var estimatedFees *pb.TransactionFees
+	var complianceCheck *pb.ComplianceCheck
 
 	// If basic validation passes, check account balance and other details
 	if len(validationErrors) == 0 {
 		// Check account balance
 		balance, err := h.ledgerService.GetAccountBalance(fromAccountUUID)
 		if err != nil {
-			validationErrors = append(validationErrors, &transactionvalidation.ValidationError{
+			validationErrors = append(validationErrors, &pb.ValidationError{
 				Field:        "from_account_id",
 				ErrorCode:    "ACCOUNT_NOT_FOUND",
 				ErrorMessage: "Unable to retrieve account balance",
-				Severity:     transactionvalidation.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
+				Severity:     pb.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
 				Suggestion:   "Verify the account exists and is accessible",
 			})
 		} else {
@@ -112,11 +112,11 @@ func (h *TransactionValidationHandler) ValidateTransaction(ctx context.Context, 
 
 			// Check sufficient balance
 			if balance < req.Amount {
-				validationErrors = append(validationErrors, &transactionvalidation.ValidationError{
+				validationErrors = append(validationErrors, &pb.ValidationError{
 					Field:        "amount",
 					ErrorCode:    "INSUFFICIENT_BALANCE",
 					ErrorMessage: fmt.Sprintf("Insufficient balance: %.2f < %.2f", balance, req.Amount),
-					Severity:     transactionvalidation.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
+					Severity:     pb.ValidationSeverity_VALIDATION_SEVERITY_ERROR,
 					Suggestion:   "Reduce the amount or add funds to the account",
 				})
 			}
@@ -139,14 +139,14 @@ func (h *TransactionValidationHandler) ValidateTransaction(ctx context.Context, 
 	}
 
 	// Determine validation result
-	result := transactionvalidation.ValidationResult_VALIDATION_RESULT_VALID
+	result := pb.ValidationResult_VALIDATION_RESULT_VALID
 	if len(validationErrors) > 0 {
-		result = transactionvalidation.ValidationResult_VALIDATION_RESULT_INVALID
+		result = pb.ValidationResult_VALIDATION_RESULT_INVALID
 	} else if complianceCheck != nil && complianceCheck.RequiresKyc {
-		result = transactionvalidation.ValidationResult_VALIDATION_RESULT_REQUIRES_APPROVAL
+		result = pb.ValidationResult_VALIDATION_RESULT_REQUIRES_APPROVAL
 	}
 
-	return &transactionvalidation.ValidateTransactionResponse{
+	return &pb.ValidateTransactionResponse{
 		Result:           result,
 		ValidationErrors: validationErrors,
 		AvailableBalance: availableBalance,
@@ -160,8 +160,8 @@ func (h *TransactionValidationHandler) ValidateTransaction(ctx context.Context, 
 }
 
 // BatchValidateTransactions validates multiple transactions
-func (h *TransactionValidationHandler) BatchValidateTransactions(ctx context.Context, req *transactionvalidation.BatchValidateRequest) (*transactionvalidation.BatchValidateResponse, error) {
-	var results []transactionvalidation.ValidationResult
+func (h *TransactionValidationHandler) BatchValidateTransactions(ctx context.Context, req *pb.BatchValidateRequest) (*pb.BatchValidateResponse, error) {
+	var results []pb.ValidationResult
 	var validCount, invalidCount, warningCount int32
 	var totalAmount, totalFees float64
 	var batchWarnings []string
@@ -172,7 +172,7 @@ func (h *TransactionValidationHandler) BatchValidateTransactions(ctx context.Con
 			if req.StopOnFirstError {
 				return nil, status.Errorf(codes.Internal, "validation failed: %v", err)
 			}
-			results = append(results, transactionvalidation.ValidationResult_VALIDATION_RESULT_INVALID)
+			results = append(results, pb.ValidationResult_VALIDATION_RESULT_INVALID)
 			invalidCount++
 			continue
 		}
@@ -182,11 +182,11 @@ func (h *TransactionValidationHandler) BatchValidateTransactions(ctx context.Con
 		totalFees += resp.EstimatedFees.GetTotalFee()
 
 		switch resp.Result {
-		case transactionvalidation.ValidationResult_VALIDATION_RESULT_VALID:
+		case pb.ValidationResult_VALIDATION_RESULT_VALID:
 			validCount++
-		case transactionvalidation.ValidationResult_VALIDATION_RESULT_INVALID:
+		case pb.ValidationResult_VALIDATION_RESULT_INVALID:
 			invalidCount++
-		case transactionvalidation.ValidationResult_VALIDATION_RESULT_REQUIRES_APPROVAL:
+		case pb.ValidationResult_VALIDATION_RESULT_REQUIRES_APPROVAL:
 			warningCount++
 		}
 	}
@@ -200,7 +200,7 @@ func (h *TransactionValidationHandler) BatchValidateTransactions(ctx context.Con
 		batchWarnings = append(batchWarnings, "Large batch size - consider splitting for better performance")
 	}
 
-	return &transactionvalidation.BatchValidateResponse{
+	return &pb.BatchValidateResponse{
 		Results:          results,
 		ValidCount:       validCount,
 		InvalidCount:     invalidCount,
@@ -213,7 +213,7 @@ func (h *TransactionValidationHandler) BatchValidateTransactions(ctx context.Con
 }
 
 // calculateTransactionFees calculates estimated fees for a transaction
-func calculateTransactionFees(amount float64, currency string, transactionType string) *transactionvalidation.TransactionFees {
+func calculateTransactionFees(amount float64, currency string, transactionType string) *pb.TransactionFees {
 	var baseFee, processingFee, fxFee, complianceFee float64
 
 	// Mock fee calculation
@@ -244,14 +244,14 @@ func calculateTransactionFees(amount float64, currency string, transactionType s
 
 	totalFee := baseFee + processingFee + fxFee + complianceFee
 
-	return &transactionvalidation.TransactionFees{
+	return &pb.TransactionFees{
 		BaseFee:       baseFee,
 		ProcessingFee: processingFee,
 		FxFee:         fxFee,
 		ComplianceFee: complianceFee,
 		TotalFee:      totalFee,
 		Currency:      currency,
-		FeeComponents: []*transactionvalidation.FeeComponent{
+		FeeComponents: []*pb.FeeComponent{
 			{Name: "Base Fee", Amount: baseFee, Description: "Fixed base transaction fee", Type: "fixed"},
 			{Name: "Processing Fee", Amount: processingFee, Description: "Variable processing fee", Type: "percentage"},
 			{Name: "FX Fee", Amount: fxFee, Description: "Foreign exchange fee", Type: "percentage"},
@@ -261,7 +261,7 @@ func calculateTransactionFees(amount float64, currency string, transactionType s
 }
 
 // performComplianceCheck performs a compliance check on the transaction
-func performComplianceCheck(amount float64, currency string, userID uuid.UUID) *transactionvalidation.ComplianceCheck {
+func performComplianceCheck(amount float64, currency string, userID uuid.UUID) *pb.ComplianceCheck {
 	var flags []string
 	riskScore := int32(10) // Base risk score
 
@@ -295,7 +295,7 @@ func performComplianceCheck(amount float64, currency string, userID uuid.UUID) *
 		requiredDocuments = append(requiredDocuments, "identity_verification", "source_of_funds")
 	}
 
-	return &transactionvalidation.ComplianceCheck{
+	return &pb.ComplianceCheck{
 		Passed:            riskScore < 80,
 		ComplianceLevel:   complianceLevel,
 		Flags:             flags,

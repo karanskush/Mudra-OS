@@ -10,11 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"fintech-api/internal/database"
-	"fintech-api/internal/handlers"
-	"fintech-api/internal/middleware"
-	"fintech-api/internal/models"
-	"fintech-api/internal/services"
+	"fintech-api/pkg/database"
+	"fintech-api/pkg/handlers"
+	"fintech-api/pkg/middleware"
+	"fintech-api/pkg/models"
+	"fintech-api/pkg/services"
 
 	"github.com/google/uuid"
 )

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"fintech-api/internal/database"
-	"fintech-api/internal/middleware"
-	"fintech-api/internal/models"
+	"fintech-api/pkg/database"
+	"fintech-api/pkg/middleware"
+	"fintech-api/pkg/models"
 	"fintech-api/pkg/response"
 
 	"golang.org/x/crypto/bcrypt"

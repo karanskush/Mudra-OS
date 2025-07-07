@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"fintech-api/internal/models"
-	"fintech-api/internal/services/paymentrails"
+	"fintech-api/pkg/models"
+	"fintech-api/pkg/services/paymentrails"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

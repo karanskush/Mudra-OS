@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"fintech-api/internal/services"
-	payment "fintech-api/proto/gen/payment"
+	"fintech-api/pkg/services"
+	pb "fintech-api/proto/gen/payment"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -19,7 +19,7 @@ import (
 
 // PaymentHandler implements the PaymentServiceServer
 type PaymentHandler struct {
-	payment.UnimplementedPaymentServiceServer
+	pb.UnimplementedPaymentServiceServer
 	ledgerService *services.LedgerService
 	// Monitoring session management
 	monitoringSessions sync.Map // sessionID -> *MonitoringSession
@@ -29,8 +29,8 @@ type PaymentHandler struct {
 type MonitoringSession struct {
 	ID              string
 	UserID          string
-	Filter          *payment.StartMonitoring
-	EventChannel    chan *payment.TransactionEvent
+	Filter          *pb.StartMonitoring
+	EventChannel    chan *pb.TransactionEvent
 	StopChannel     chan bool
 	IsActive        bool
 	StartedAt       time.Time
@@ -46,28 +46,28 @@ func NewPaymentHandler(ledgerService *services.LedgerService) *PaymentHandler {
 }
 
 // CreatePayment kicks off a funds-out flow
-func (h *PaymentHandler) CreatePayment(ctx context.Context, req *payment.CreatePaymentRequest) (*payment.CreatePaymentResponse, error) {
+func (h *PaymentHandler) CreatePayment(ctx context.Context, req *pb.CreatePaymentRequest) (*pb.CreatePaymentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "CreatePayment not yet implemented")
 }
 
 // GetPayment retrieves payment status
-func (h *PaymentHandler) GetPayment(ctx context.Context, req *payment.GetPaymentRequest) (*payment.GetPaymentResponse, error) {
+func (h *PaymentHandler) GetPayment(ctx context.Context, req *pb.GetPaymentRequest) (*pb.GetPaymentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "GetPayment not yet implemented")
 }
 
 // StreamPayments provides real-time payment updates
-func (h *PaymentHandler) StreamPayments(req *payment.StreamPaymentsRequest, stream grpc.ServerStreamingServer[payment.PaymentUpdate]) error {
+func (h *PaymentHandler) StreamPayments(req *pb.StreamPaymentsRequest, stream grpc.ServerStreamingServer[pb.PaymentUpdate]) error {
 	return status.Errorf(codes.Unimplemented, "StreamPayments not yet implemented")
 }
 
 // TransactionMonitor handles bidirectional streaming for real-time transaction monitoring
-func (h *PaymentHandler) TransactionMonitor(stream grpc.BidiStreamingServer[payment.MonitorCommand, payment.TransactionEvent]) error {
+func (h *PaymentHandler) TransactionMonitor(stream grpc.BidiStreamingServer[pb.MonitorCommand, pb.TransactionEvent]) error {
 	log.Printf("New TransactionMonitor connection established")
 
 	sessionID := fmt.Sprintf("session-%d", time.Now().UnixNano())
 	session := &MonitoringSession{
 		ID:           sessionID,
-		EventChannel: make(chan *payment.TransactionEvent, 100),
+		EventChannel: make(chan *pb.TransactionEvent, 100),
 		StopChannel:  make(chan bool, 1),
 		IsActive:     false,
 		StartedAt:    time.Now(),
@@ -106,9 +106,9 @@ func (h *PaymentHandler) TransactionMonitor(stream grpc.BidiStreamingServer[paym
 			if err := h.handleMonitorCommand(session, req); err != nil {
 				log.Printf("Error handling command for session %s: %v", sessionID, err)
 				// Send error response
-				errorResponse := &payment.TransactionEvent{
-					Event: &payment.TransactionEvent_Status{
-						Status: &payment.MonitoringStatus{
+				errorResponse := &pb.TransactionEvent{
+					Event: &pb.TransactionEvent_Status{
+						Status: &pb.MonitoringStatus{
 							IsActive:  false,
 							StartedAt: timestamppb.New(session.StartedAt),
 							Message:   fmt.Sprintf("Error: %v", err),
@@ -151,15 +151,15 @@ func (h *PaymentHandler) TransactionMonitor(stream grpc.BidiStreamingServer[paym
 }
 
 // handleMonitorCommand processes incoming client commands
-func (h *PaymentHandler) handleMonitorCommand(session *MonitoringSession, cmd *payment.MonitorCommand) error {
+func (h *PaymentHandler) handleMonitorCommand(session *MonitoringSession, cmd *pb.MonitorCommand) error {
 	switch command := cmd.Command.(type) {
-	case *payment.MonitorCommand_StartMonitoring:
+	case *pb.MonitorCommand_StartMonitoring:
 		return h.handleStartMonitoring(session, command.StartMonitoring)
-	case *payment.MonitorCommand_StopMonitoring:
+	case *pb.MonitorCommand_StopMonitoring:
 		return h.handleStopMonitoring(session, command.StopMonitoring)
-	case *payment.MonitorCommand_UpdateFilter:
+	case *pb.MonitorCommand_UpdateFilter:
 		return h.handleUpdateFilter(session, command.UpdateFilter)
-	case *payment.MonitorCommand_GetStats:
+	case *pb.MonitorCommand_GetStats:
 		return h.handleGetStats(session, command.GetStats)
 	default:
 		return fmt.Errorf("unknown command type")
@@ -167,7 +167,7 @@ func (h *PaymentHandler) handleMonitorCommand(session *MonitoringSession, cmd *p
 }
 
 // handleStartMonitoring starts monitoring with given filters
-func (h *PaymentHandler) handleStartMonitoring(session *MonitoringSession, req *payment.StartMonitoring) error {
+func (h *PaymentHandler) handleStartMonitoring(session *MonitoringSession, req *pb.StartMonitoring) error {
 	session.mu.Lock()
 	defer session.mu.Unlock()
 
@@ -178,9 +178,9 @@ func (h *PaymentHandler) handleStartMonitoring(session *MonitoringSession, req *
 	log.Printf("Started monitoring for session %s with user_id: %s", session.ID, req.UserId)
 
 	// Send confirmation
-	statusEvent := &payment.TransactionEvent{
-		Event: &payment.TransactionEvent_Status{
-			Status: &payment.MonitoringStatus{
+	statusEvent := &pb.TransactionEvent{
+		Event: &pb.TransactionEvent_Status{
+			Status: &pb.MonitoringStatus{
 				IsActive:         true,
 				ConnectionsCount: 1,
 				StartedAt:        timestamppb.New(session.StartedAt),
@@ -198,7 +198,7 @@ func (h *PaymentHandler) handleStartMonitoring(session *MonitoringSession, req *
 }
 
 // handleStopMonitoring stops monitoring
-func (h *PaymentHandler) handleStopMonitoring(session *MonitoringSession, req *payment.StopMonitoring) error {
+func (h *PaymentHandler) handleStopMonitoring(session *MonitoringSession, req *pb.StopMonitoring) error {
 	session.mu.Lock()
 	defer session.mu.Unlock()
 
@@ -207,9 +207,9 @@ func (h *PaymentHandler) handleStopMonitoring(session *MonitoringSession, req *p
 	log.Printf("Stopped monitoring for session %s, reason: %s", session.ID, req.Reason)
 
 	// Send confirmation
-	statusEvent := &payment.TransactionEvent{
-		Event: &payment.TransactionEvent_Status{
-			Status: &payment.MonitoringStatus{
+	statusEvent := &pb.TransactionEvent{
+		Event: &pb.TransactionEvent_Status{
+			Status: &pb.MonitoringStatus{
 				IsActive: false,
 				Message:  fmt.Sprintf("Monitoring stopped: %s", req.Reason),
 			},
@@ -221,7 +221,7 @@ func (h *PaymentHandler) handleStopMonitoring(session *MonitoringSession, req *p
 }
 
 // handleUpdateFilter updates monitoring filters
-func (h *PaymentHandler) handleUpdateFilter(session *MonitoringSession, req *payment.UpdateFilter) error {
+func (h *PaymentHandler) handleUpdateFilter(session *MonitoringSession, req *pb.UpdateFilter) error {
 	session.mu.Lock()
 	defer session.mu.Unlock()
 
@@ -230,9 +230,9 @@ func (h *PaymentHandler) handleUpdateFilter(session *MonitoringSession, req *pay
 	log.Printf("Updated filter for session %s", session.ID)
 
 	// Send confirmation
-	statusEvent := &payment.TransactionEvent{
-		Event: &payment.TransactionEvent_Status{
-			Status: &payment.MonitoringStatus{
+	statusEvent := &pb.TransactionEvent{
+		Event: &pb.TransactionEvent_Status{
+			Status: &pb.MonitoringStatus{
 				IsActive:      session.IsActive,
 				Message:       "Filter updated successfully",
 				CurrentFilter: fmt.Sprintf("Updated: %+v", req.NewFilter),
@@ -245,20 +245,20 @@ func (h *PaymentHandler) handleUpdateFilter(session *MonitoringSession, req *pay
 }
 
 // handleGetStats returns current monitoring statistics
-func (h *PaymentHandler) handleGetStats(session *MonitoringSession, req *payment.GetStats) error {
+func (h *PaymentHandler) handleGetStats(session *MonitoringSession, req *pb.GetStats) error {
 	statsEvent := h.generateStatsEvent(session)
 	session.EventChannel <- statsEvent
 	return nil
 }
 
 // generateStatsEvent creates a statistics event
-func (h *PaymentHandler) generateStatsEvent(session *MonitoringSession) *payment.TransactionEvent {
+func (h *PaymentHandler) generateStatsEvent(session *MonitoringSession) *pb.TransactionEvent {
 	session.mu.RLock()
 	defer session.mu.RUnlock()
 
-	return &payment.TransactionEvent{
-		Event: &payment.TransactionEvent_Stats{
-			Stats: &payment.MonitoringStats{
+	return &pb.TransactionEvent{
+		Event: &pb.TransactionEvent_Stats{
+			Stats: &pb.MonitoringStats{
 				TotalTransactions: 42, // Mock data
 				TotalVolume:       125000.50,
 				RailBreakdown: map[string]int32{
@@ -300,7 +300,7 @@ func (h *PaymentHandler) simulatePaymentEvents(session *MonitoringSession) {
 			}
 
 			// Generate mock payment event
-			mockPayment := &payment.Payment{
+			mockPayment := &pb.Payment{
 				PaymentId:     fmt.Sprintf("pay_%s_%d", session.ID[:8], paymentCounter),
 				UserId:        session.UserID,
 				FromAccountId: "acc_sender_123",
@@ -308,15 +308,15 @@ func (h *PaymentHandler) simulatePaymentEvents(session *MonitoringSession) {
 				Amount:        float64(100 + (paymentCounter % 1000)),
 				Currency:      "USD",
 				Description:   fmt.Sprintf("Mock payment #%d", paymentCounter),
-				Status:        payment.PaymentStatus_PAYMENT_STATUS_PROCESSING,
-				ChosenRail:    payment.PaymentRail_PAYMENT_RAIL_ACH,
+				Status:        pb.PaymentStatus_PAYMENT_STATUS_PROCESSING,
+				ChosenRail:    pb.PaymentRail_PAYMENT_RAIL_ACH,
 				CreatedAt:     timestamppb.Now(),
 				UpdatedAt:     timestamppb.Now(),
 			}
 
-			paymentEvent := &payment.TransactionEvent{
-				Event: &payment.TransactionEvent_PaymentUpdate{
-					PaymentUpdate: &payment.PaymentUpdate{
+			paymentEvent := &pb.TransactionEvent{
+				Event: &pb.TransactionEvent_PaymentUpdate{
+					PaymentUpdate: &pb.PaymentUpdate{
 						Payment:    mockPayment,
 						UpdateType: "status_change",
 						Timestamp:  timestamppb.Now(),
@@ -326,9 +326,9 @@ func (h *PaymentHandler) simulatePaymentEvents(session *MonitoringSession) {
 
 			// Send alert for high-value transactions
 			if mockPayment.Amount > 500 {
-				alertEvent := &payment.TransactionEvent{
-					Event: &payment.TransactionEvent_Alert{
-						Alert: &payment.MonitoringAlert{
+				alertEvent := &pb.TransactionEvent{
+					Event: &pb.TransactionEvent_Alert{
+						Alert: &pb.MonitoringAlert{
 							AlertType:   "high_volume",
 							Description: fmt.Sprintf("High-value transaction detected: $%.2f", mockPayment.Amount),
 							Transaction: mockPayment,

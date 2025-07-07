@@ -3,8 +3,8 @@ package handlers
 import (
 	"context"
 
-	"fintech-api/internal/services"
-	ledgerpb "fintech-api/proto/gen/ledger"
+	"fintech-api/pkg/services"
+	pb "fintech-api/proto/gen/ledger"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -14,7 +14,7 @@ import (
 
 // LedgerHandler implements the LedgerServiceServer
 type LedgerHandler struct {
-	ledgerpb.UnimplementedLedgerServiceServer
+	pb.UnimplementedLedgerServiceServer
 	ledgerService *services.LedgerService
 }
 
@@ -26,19 +26,19 @@ func NewLedgerHandler(ledgerService *services.LedgerService) *LedgerHandler {
 }
 
 // CreateAccount creates a new GL account
-func (h *LedgerHandler) CreateAccount(ctx context.Context, req *ledgerpb.CreateAccountRequest) (*ledgerpb.CreateAccountResponse, error) {
+func (h *LedgerHandler) CreateAccount(ctx context.Context, req *pb.CreateAccountRequest) (*pb.CreateAccountResponse, error) {
 	// For now, return an error indicating this needs implementation
 	return nil, status.Errorf(codes.Unimplemented, "CreateAccount not yet implemented")
 }
 
 // GetAccount retrieves account metadata
-func (h *LedgerHandler) GetAccount(ctx context.Context, req *ledgerpb.GetAccountRequest) (*ledgerpb.GetAccountResponse, error) {
+func (h *LedgerHandler) GetAccount(ctx context.Context, req *pb.GetAccountRequest) (*pb.GetAccountResponse, error) {
 	// For now, return an error indicating this needs implementation
 	return nil, status.Errorf(codes.Unimplemented, "GetAccount not yet implemented")
 }
 
 // Balance retrieves point-in-time balance
-func (h *LedgerHandler) Balance(ctx context.Context, req *ledgerpb.BalanceRequest) (*ledgerpb.BalanceResponse, error) {
+func (h *LedgerHandler) Balance(ctx context.Context, req *pb.BalanceRequest) (*pb.BalanceResponse, error) {
 	// Parse account ID
 	accountID, err := uuid.Parse(req.AccountId)
 	if err != nil {
@@ -52,14 +52,14 @@ func (h *LedgerHandler) Balance(ctx context.Context, req *ledgerpb.BalanceReques
 	}
 
 	// Return current balance
-	balanceResponse := &ledgerpb.Balance{
+	balanceResponse := &pb.Balance{
 		AccountId: req.AccountId,
 		Balance:   balance,
 		Currency:  "USD", // TODO: Get from account
 		AsOf:      timestamppb.Now(),
 	}
 
-	return &ledgerpb.BalanceResponse{
+	return &pb.BalanceResponse{
 		Balance: balanceResponse,
 	}, nil
 }

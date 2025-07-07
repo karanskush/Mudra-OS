@@ -1,7 +1,7 @@
 package database
 
 import (
-	"fintech-api/internal/models"
+	"fintech-api/pkg/models"
 	"fmt"
 
 	"github.com/google/uuid"
