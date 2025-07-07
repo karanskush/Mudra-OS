@@ -1,9 +1,13 @@
 package handlers
 
 import (
+	"api/pkg/config"
+	"api/pkg/database"
+	"api/pkg/repository"
 	"api/pkg/response"
 	"api/pkg/services"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 )
@@ -11,6 +15,59 @@ import (
 // Handler provides HTTP request handlers
 type Handler struct {
 	service *services.Service
+}
+
+// Handle is the main entry point for Vercel serverless functions
+func Handle(w http.ResponseWriter, r *http.Request) {
+	// Initialize database connection
+	cfg := config.New()
+	if err := database.Connect(cfg); err != nil {
+		log.Printf("Failed to connect to database: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Initialize repository and service
+	db := database.GetDB()
+	repo := repository.NewRepository(db)
+	service := services.NewService(repo)
+	h := NewHandler(service)
+
+	// Route based on path and method
+	switch r.URL.Path {
+	case "/api/register":
+		if r.Method == http.MethodPost {
+			h.Register(w, r)
+			return
+		}
+	case "/api/login":
+		if r.Method == http.MethodPost {
+			h.Login(w, r)
+			return
+		}
+	case "/api/accounts":
+		switch r.Method {
+		case http.MethodPost:
+			h.CreateAccount(w, r)
+			return
+		case http.MethodGet:
+			h.GetAccounts(w, r)
+			return
+		}
+	case "/api/transactions":
+		if r.Method == http.MethodPost {
+			h.CreateTransaction(w, r)
+			return
+		}
+	case "/api/kyc":
+		if r.Method == http.MethodPost {
+			h.CreateKYC(w, r)
+			return
+		}
+	}
+
+	// If no route matches
+	http.Error(w, "Not found", http.StatusNotFound)
 }
 
 // NewHandler creates a new handler instance
