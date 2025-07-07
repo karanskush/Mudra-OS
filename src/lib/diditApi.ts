@@ -71,33 +71,37 @@ export interface DiditStandaloneResponse {
   processing_time_ms: number;
 }
 
+import { getDiditConfig } from './env';
+
 class DiditApiClient {
   private apiKey: string;
   private baseUrl: string;
   private version: string;
 
-  constructor(apiKey: string, environment: 'sandbox' | 'production' = 'sandbox') {
-    this.apiKey = apiKey;
+  constructor() {
+    const config = getDiditConfig();
+    this.apiKey = config.apiKey;
+    this.baseUrl = config.baseUrl;
     this.version = 'v2.0';
-    this.baseUrl = environment === 'production' 
-      ? 'https://api.didit.me' 
-      : 'https://api-sandbox.didit.me';
   }
 
   private async makeRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
     const url = `${this.baseUrl}/${this.version}${endpoint}`;
     
     const userToken = localStorage.getItem('authToken');
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      'X-API-Key': this.apiKey,
+    };
+
     if (userToken) {
-      options.headers = {
-        ...(options.headers || {}),
-        'Authorization': `Bearer ${userToken}`,
-      };
+      headers['Authorization'] = `Bearer ${userToken}`;
     }
 
     const response = await fetch(url, {
       ...options,
       headers: {
+        ...headers,
         ...options.headers,
       },
     });
@@ -258,13 +262,7 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
   return { valid: true };
 };
 
-import { getDiditConfig } from './env';
-
-// Create singleton instance with safe environment variable access
-const diditConfig = getDiditConfig();
-export const diditApi = new DiditApiClient(
-  diditConfig.apiKey,
-  diditConfig.environment
-);
+// Create a single, shared instance of the client
+export const diditApiClient = new DiditApiClient();
 
 export default DiditApiClient; 
