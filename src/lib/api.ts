@@ -35,8 +35,31 @@ class ApiClient {
   private baseUrl: string;
 
   constructor() {
-    // Use environment variable or default to localhost
-    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    // Enhanced environment variable detection
+    const envApiUrl = import.meta.env.VITE_API_URL;
+    const fallbackUrl = 'http://localhost:8080';
+    
+    // Debug logging
+    console.log('🔧 API Client Initialization:');
+    console.log('VITE_API_URL from env:', envApiUrl);
+    console.log('import.meta.env:', import.meta.env);
+    console.log('NODE_ENV:', import.meta.env.NODE_ENV);
+    console.log('MODE:', import.meta.env.MODE);
+    
+    // Determine the base URL
+    if (envApiUrl) {
+      this.baseUrl = envApiUrl;
+      console.log('✅ Using VITE_API_URL:', this.baseUrl);
+    } else if (import.meta.env.NODE_ENV === 'production') {
+      // In production, default to the Railway backend URL
+      this.baseUrl = 'https://backend-api-production-2efe.up.railway.app';
+      console.log('✅ Using production default URL:', this.baseUrl);
+    } else {
+      this.baseUrl = fallbackUrl;
+      console.log('✅ Using fallback URL:', this.baseUrl);
+    }
+    
+    console.log('🎯 Final baseUrl:', this.baseUrl);
   }
 
   // Get authentication token from localStorage

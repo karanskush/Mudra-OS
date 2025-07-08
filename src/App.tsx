@@ -24,6 +24,7 @@ import GRPCDemo from './components/GRPCDemo';
 import GRPCTest from './components/GRPCTest';
 import RouterTest from './components/RouterTest';
 import RealTimePayments from './components/RealTimePayments';
+import { getApiUrl } from './lib/env';
 
 // Enhanced fintech-focused products with more relevant imagery
 const fintechProducts = [
@@ -135,6 +136,12 @@ function App() {
 
   useEffect(() => {
     console.log('Route changed to:', location.pathname);
+    // Debug: Log the API URL being used
+    console.log('🔧 Environment Debug:');
+    console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
+    console.log('getApiUrl():', getApiUrl());
+    console.log('NODE_ENV:', import.meta.env.NODE_ENV);
+    console.log('MODE:', import.meta.env.MODE);
   }, [location.pathname]);
 
   return (

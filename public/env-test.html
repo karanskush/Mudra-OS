@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment Variables Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .env-var { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Environment Variables Test</h1>
+    <div id="env-vars"></div>
+
+    <script type="module">
+        const envDiv = document.getElementById('env-vars');
+        
+        // Test environment variables
+        const envVars = {
+            'VITE_API_URL': import.meta.env.VITE_API_URL,
+            'VITE_GRPC_URL': import.meta.env.VITE_GRPC_URL,
+            'NODE_ENV': import.meta.env.NODE_ENV,
+            'MODE': import.meta.env.MODE,
+            'DEV': import.meta.env.DEV,
+            'PROD': import.meta.env.PROD
+        };
+
+        Object.entries(envVars).forEach(([key, value]) => {
+            const div = document.createElement('div');
+            div.className = `env-var ${value ? 'success' : 'error'}`;
+            div.innerHTML = `
+                <strong>${key}:</strong> 
+                <span>${value || 'NOT SET'}</span>
+            `;
+            envDiv.appendChild(div);
+        });
+
+        // Test API call
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+        console.log('Testing API call to:', apiUrl);
+        
+        fetch(`${apiUrl}/health`)
+            .then(response => response.json())
+            .then(data => {
+                const div = document.createElement('div');
+                div.className = 'env-var success';
+                div.innerHTML = `
+                    <strong>API Health Check:</strong> 
+                    <span>✅ Success - ${data.status}</span>
+                `;
+                envDiv.appendChild(div);
+            })
+            .catch(error => {
+                const div = document.createElement('div');
+                div.className = 'env-var error';
+                div.innerHTML = `
+                    <strong>API Health Check:</strong> 
+                    <span>❌ Failed - ${error.message}</span>
+                `;
+                envDiv.appendChild(div);
+            });
+    </script>
+</body>
+</html> 
