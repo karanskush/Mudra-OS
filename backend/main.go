@@ -7,6 +7,7 @@ import (
 	"fintech-backend/api"
 	"fintech-backend/internal/config"
 	"fintech-backend/internal/database"
+	"fintech-backend/internal/middleware"
 	"fintech-backend/pkg/logger"
 )
 
@@ -31,8 +32,6 @@ func main() {
 		log.Fatalf("Failed to setup Neon database: %v", err)
 	}
 
-	// User model is already migrated in SetupNeonDatabase() - removing redundant migration
-
 	// Run ledger migrations
 	if err := database.MigrateLedgerTables(database.GetDB()); err != nil {
 		log.Fatalf("Failed to migrate ledger tables: %v", err)
@@ -44,12 +43,53 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	// Route all API requests to the api.Handler
-	mux.HandleFunc("/", api.Handler)
+	// Health check
+	mux.Handle("/health", http.HandlerFunc(api.Health))
+	mux.Handle("/api/health", http.HandlerFunc(api.Health))
+
+	// Auth routes
+	mux.Handle("/api/v1/auth/register", http.HandlerFunc(api.Register))
+	mux.Handle("/api/v1/auth/login", http.HandlerFunc(api.Login))
+	mux.Handle("/api/v1/auth/logout", http.HandlerFunc(api.Logout))
+
+	// User routes
+	mux.Handle("/api/v1/users/profile", middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			api.GetProfile(w, r)
+		} else if r.Method == http.MethodPut {
+			api.UpdateProfile(w, r)
+		} else {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})))
+
+	// Account routes
+	mux.Handle("/api/v1/accounts", middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			api.ListAccounts(w, r)
+		} else if r.Method == http.MethodPost {
+			api.CreateAccount(w, r)
+		} else {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})))
+	mux.Handle("/api/v1/accounts/", middleware.AuthMiddleware(http.HandlerFunc(api.GetAccount)))
+
+	// Ledger routes
+	mux.Handle("/api/ledger", middleware.AuthMiddleware(http.HandlerFunc(api.LedgerHandler)))
+
+	// KYC routes
+	mux.Handle("/api/kyc", middleware.AuthMiddleware(http.HandlerFunc(api.KYCHandler)))
+
+	// Catch-all for undefined routes
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Route not found: %s", r.URL.Path)
+		http.NotFound(w, r)
+	})
 
 	addr := ":" + cfg.Server.Port
 	log.Printf("Server running at http://localhost%s\n", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	if err := http.ListenAndServe(addr, middleware.CORSMiddleware(mux)); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }

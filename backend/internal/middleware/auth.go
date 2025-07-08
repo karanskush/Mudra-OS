@@ -85,7 +85,7 @@ func ValidateToken(tokenString string) (*Claims, error) {
 }
 
 // AuthMiddleware validates JWT tokens and adds user context to requests
-func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Get token from Authorization header
 		authHeader := r.Header.Get("Authorization")
@@ -152,7 +152,7 @@ func GetUserFromContext(r *http.Request) (*UserContext, error) {
 }
 
 // OptionalAuthMiddleware validates JWT tokens but doesn't require them
-func OptionalAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func OptionalAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader != "" {

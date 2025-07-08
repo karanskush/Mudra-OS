@@ -6,7 +6,7 @@ import (
 )
 
 // CORSMiddleware adds CORS headers to all responses
-func CORSMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func CORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("CORS middleware called for: %s %s", r.Method, r.URL.Path)
 
@@ -29,6 +29,6 @@ func CORSMiddleware(next http.HandlerFunc) http.HandlerFunc {
 }
 
 // CORSMiddlewareWithAuth combines CORS and Auth middleware
-func CORSMiddlewareWithAuth(next http.HandlerFunc) http.HandlerFunc {
+func CORSMiddlewareWithAuth(next http.Handler) http.Handler {
 	return CORSMiddleware(AuthMiddleware(next))
 }
