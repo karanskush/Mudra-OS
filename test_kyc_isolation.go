@@ -193,7 +193,7 @@ func startKYC(user *TestUser) error {
 	}
 
 	jsonData, _ := json.Marshal(payload)
-	req, err := http.NewRequest("POST", baseURL+"/api/kyc/start", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", baseURL+"/api/v1/kyc/start", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
@@ -225,7 +225,7 @@ func startKYC(user *TestUser) error {
 }
 
 func checkOwnKYCStatus(user *TestUser) error {
-	req, err := http.NewRequest("GET", baseURL+"/api/kyc/status", nil)
+	req, err := http.NewRequest("GET", baseURL+"/api/v1/kyc/status", nil)
 	if err != nil {
 		return err
 	}
@@ -254,7 +254,7 @@ func testDocumentVerification(user *TestUser) error {
 	}
 
 	jsonData, _ := json.Marshal(payload)
-	req, err := http.NewRequest("POST", baseURL+"/api/kyc/verify/passport", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", baseURL+"/api/v1/kyc/verify/passport", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}

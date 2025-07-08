@@ -190,7 +190,7 @@ const apiCategories = {
       {
         key: 'startKYC',
         method: 'POST',
-        path: '/api/kyc/start',
+        path: '/api/v1/kyc/start',
         description: 'Start KYC verification process 🚀',
         status: 'stable',
         complexity: 'intermediate' as const,
@@ -219,7 +219,7 @@ const apiCategories = {
       {
         key: 'getCountries',
         method: 'GET',
-        path: '/api/kyc/countries',
+        path: '/api/v1/kyc/countries',
         description: 'Get supported countries for KYC verification 🌍',
         status: 'stable',
         complexity: 'simple' as const,
@@ -245,7 +245,7 @@ const apiCategories = {
       {
         key: 'verifyDocument',
         method: 'POST',
-        path: '/api/kyc/verify/passport',
+        path: '/api/v1/kyc/verify/passport',
         description: 'Verify document using Didit integration 📄',
         status: 'stable',
         complexity: 'advanced' as const,
@@ -270,7 +270,7 @@ const apiCategories = {
       {
         key: 'getDashboard',
         method: 'GET',
-        path: '/api/kyc/dashboard',
+        path: '/api/v1/kyc/dashboard',
         description: 'Get KYC dashboard with all submissions 📊',
         status: 'stable',
         complexity: 'intermediate' as const,
@@ -302,7 +302,7 @@ const apiCategories = {
       {
         key: 'createLedgerAccount',
         method: 'POST',
-        path: '/api/ledger/accounts',
+        path: '/api/v1/ledger/accounts',
         description: 'Create a new ledger account for double-entry bookkeeping 📝',
         status: 'stable',
         complexity: 'intermediate' as const,
@@ -328,7 +328,7 @@ const apiCategories = {
       {
         key: 'createTransfer',
         method: 'POST',
-        path: '/api/ledger/transactions/transfer',
+        path: '/api/v1/ledger/transactions/transfer',
         description: 'Create a transfer transaction between accounts ↔️',
         status: 'stable',
         complexity: 'advanced' as const,
@@ -366,7 +366,7 @@ const apiCategories = {
       {
         key: 'getTrialBalance',
         method: 'GET',
-        path: '/api/ledger/trial-balance',
+        path: '/api/v1/ledger/trial-balance',
         description: 'Get trial balance for all accounts ⚖️',
         status: 'stable',
         complexity: 'intermediate' as const,

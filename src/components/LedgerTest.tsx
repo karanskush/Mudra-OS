@@ -898,7 +898,7 @@ const LedgerTest: React.FC = () => {
     setResponse('');
 
     try {
-      const response = await apiClient.authenticatedRequest("/api/ledger/trial-balance", {
+      const response = await apiClient.authenticatedRequest("/api/v1/ledger/trial-balance", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -926,7 +926,7 @@ const LedgerTest: React.FC = () => {
     setResponse('');
 
     try {
-      const response = await apiClient.authenticatedRequest(`/api/ledger/transactions/${transactionId}/post`, {
+      const response = await apiClient.authenticatedRequest(`/api/v1/ledger/transactions/${transactionId}/post`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

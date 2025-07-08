@@ -59,14 +59,18 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		})).ServeHTTP(w, r)
 
 	// Ledger routes (authentication required)
-	case strings.HasPrefix(path, "api/ledger"):
-		log.Printf("Routing to LedgerHandler (authenticated)")
-		middleware.CORSMiddlewareWithAuth(http.HandlerFunc(LedgerHandler)).ServeHTTP(w, r)
+	case strings.HasPrefix(path, "api/v1/ledger"):
+		log.Printf("Routing to handleLedgerRoutes (authenticated)")
+		middleware.CORSMiddlewareWithAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			handleLedgerRoutes(w, r, pathParts)
+		})).ServeHTTP(w, r)
 
 	// KYC routes (authentication required)
-	case strings.HasPrefix(path, "api/kyc"):
-		log.Printf("Routing to KYCHandler (authenticated)")
-		middleware.CORSMiddlewareWithAuth(http.HandlerFunc(KYCHandler)).ServeHTTP(w, r)
+	case strings.HasPrefix(path, "api/v1/kyc"):
+		log.Printf("Routing to handleKYCRoutes (authenticated)")
+		middleware.CORSMiddlewareWithAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			handleKYCRoutes(w, r, pathParts)
+		})).ServeHTTP(w, r)
 
 	// gRPC bridge routes (authentication required)
 	case strings.HasPrefix(path, "v1/kyc"):
@@ -170,4 +174,32 @@ func handleTransactionRoutes(w http.ResponseWriter, r *http.Request, pathParts [
 func handlePaymentRoutes(w http.ResponseWriter, r *http.Request, pathParts []string) {
 	// TODO: Implement payment handlers
 	http.Error(w, "Payments endpoint - to be implemented", http.StatusNotImplemented)
+}
+
+// handleLedgerRoutes routes ledger requests
+func handleLedgerRoutes(w http.ResponseWriter, r *http.Request, pathParts []string) {
+	// Remove the "api/v1/ledger" prefix to get the remaining path
+	remainingPath := strings.TrimPrefix(r.URL.Path, "/api/v1/ledger")
+	remainingPath = strings.TrimPrefix(remainingPath, "/")
+
+	// Create a new request with the remaining path for the LedgerHandler
+	newPath := "/api/ledger/" + remainingPath
+	r.URL.Path = newPath
+
+	// Call the existing LedgerHandler
+	LedgerHandler(w, r)
+}
+
+// handleKYCRoutes routes KYC requests
+func handleKYCRoutes(w http.ResponseWriter, r *http.Request, pathParts []string) {
+	// Remove the "api/v1/kyc" prefix to get the remaining path
+	remainingPath := strings.TrimPrefix(r.URL.Path, "/api/v1/kyc")
+	remainingPath = strings.TrimPrefix(remainingPath, "/")
+
+	// Create a new request with the remaining path for the KYCHandler
+	newPath := "/api/kyc/" + remainingPath
+	r.URL.Path = newPath
+
+	// Call the existing KYCHandler
+	KYCHandler(w, r)
 }

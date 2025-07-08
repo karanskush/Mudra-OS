@@ -107,7 +107,7 @@ class GrpcLedgerService {
 
   async connect(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/grpc/ledger/health`, {
+      const response = await fetch(`${this.baseUrl}/api/health`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

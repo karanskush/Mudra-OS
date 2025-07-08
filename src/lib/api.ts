@@ -153,6 +153,7 @@ class ApiClient {
 
   async getHealth(): Promise<HealthResponse> {
     try {
+      // Try the main backend health endpoint first
       const response = await fetch(`${this.baseUrl}/health`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -241,43 +242,43 @@ class ApiClient {
 
   // Ledger methods
   async getLedgerAccounts(): Promise<ApiResponse> {
-    return this.authenticatedRequest('/api/ledger/accounts');
+    return this.authenticatedRequest('/api/v1/ledger/accounts');
   }
 
   async createLedgerAccount(accountData: any): Promise<ApiResponse> {
-    return this.authenticatedRequest('/api/ledger/accounts', {
+    return this.authenticatedRequest('/api/v1/ledger/accounts', {
       method: 'POST',
       body: JSON.stringify(accountData),
     });
   }
 
   async getAvailableAccounts(): Promise<ApiResponse> {
-    return this.authenticatedRequest('/api/ledger/accounts/available');
+    return this.authenticatedRequest('/api/v1/ledger/accounts/available');
   }
 
   async createTransfer(transferData: any): Promise<ApiResponse> {
-    return this.authenticatedRequest('/api/ledger/transactions/transfer', {
+    return this.authenticatedRequest('/api/v1/ledger/transactions/transfer', {
       method: 'POST',
       body: JSON.stringify(transferData),
     });
   }
 
   async createDeposit(depositData: any): Promise<ApiResponse> {
-    return this.authenticatedRequest('/api/ledger/transactions/deposit', {
+    return this.authenticatedRequest('/api/v1/ledger/transactions/deposit', {
       method: 'POST',
       body: JSON.stringify(depositData),
     });
   }
 
   async createTestBalance(depositData: any): Promise<ApiResponse> {
-    return this.authenticatedRequest('/api/ledger/transactions/test-balance', {
+    return this.authenticatedRequest('/api/v1/ledger/transactions/test-balance', {
       method: 'POST',
       body: JSON.stringify(depositData),
     });
   }
 
   async getAccountBalance(accountId: string): Promise<ApiResponse> {
-    return this.authenticatedRequest(`/api/ledger/accounts/${accountId}/balance`);
+    return this.authenticatedRequest(`/api/v1/ledger/accounts/${accountId}/balance`);
   }
 
   async getAccountTransactions(accountId: string, limit?: number, offset?: number): Promise<ApiResponse> {
@@ -286,7 +287,7 @@ class ApiClient {
     if (offset) params.append('offset', offset.toString());
     
     const queryString = params.toString() ? `?${params.toString()}` : '';
-    return this.authenticatedRequest(`/api/ledger/accounts/${accountId}/transactions${queryString}`);
+    return this.authenticatedRequest(`/api/v1/ledger/accounts/${accountId}/transactions${queryString}`);
   }
 
   // Debug helper - generates curl command with proper auth headers

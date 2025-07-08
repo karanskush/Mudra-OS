@@ -47,7 +47,7 @@ export interface KYCStartRequest {
   avatar?: string;
 }
 
-const BASE_URL = '/api/kyc';
+const BASE_URL = '/api/v1/kyc';
 
 export class KYCApi {
   // Fetch available countries and their requirements
