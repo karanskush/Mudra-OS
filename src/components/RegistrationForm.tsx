@@ -137,7 +137,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, on
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 flex items-center justify-center z-[1000] p-4">
       {/* Backdrop with blur effect */}
       <div 
         className="absolute inset-0 bg-black/20 backdrop-blur-md"
@@ -149,7 +149,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ isOpen, onClose, on
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors z-10 p-1 rounded-full hover:bg-gray-100/80"
+          className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors z-[1001] p-1 rounded-full hover:bg-gray-100/80"
         >
           <X className="w-5 h-5" />
         </button>

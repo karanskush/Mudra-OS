@@ -76,7 +76,7 @@ export const HeroParallax = ({
       ref={ref}
       className="min-h-screen max-h-[200vh] pt-8 pb-16 sm:pt-12 sm:pb-20 lg:pt-16 lg:pb-24 overflow-hidden antialiased relative flex flex-col justify-between dark:bg-[#000008]"
     >
-      <div className="relative z-50 flex-shrink-0">
+      <div className="relative z-10 flex-shrink-0">
         <Header />
       </div>
       
@@ -136,7 +136,7 @@ export const HeroParallax = ({
       </motion.div>
       
       {/* Scroll indicator */}
-      <div className="relative z-50 flex justify-center pb-8">
+      <div className="relative z-10 flex justify-center pb-8">
         <motion.div 
           className="w-1 h-8 bg-gradient-to-b from-slate-600 to-transparent dark:from-white/50 rounded-full"
           animate={{ y: [0, 8, 0] }}
@@ -200,7 +200,7 @@ export const Header = () => {
           
           {/* Action Buttons */}
           <motion.div 
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4 relative z-60 mb-4 sm:mb-6"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 relative z-10 mb-4 sm:mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
