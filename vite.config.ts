@@ -35,6 +35,7 @@ export default defineConfig({
     port: Number(process.env.PORT) || 3000,
     allowedHosts: [
       'healthcheck.railway.app', 
+      'www.mudraos.xyz',
       'localhost', 
       '.railway.app',
       'backend-api-production-2efe.up.railway.app',
