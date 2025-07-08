@@ -6,8 +6,8 @@
       "startCommand": "npm run start",
       "buildCommand": "npm run build",
       "environment": {
-        "VITE_API_URL": "https://backend-production-xxxx.up.railway.app",
-        "VITE_GRPC_URL": "https://grpc-server-production-xxxx.up.railway.app"
+        "VITE_API_URL": "https://backend-api-production-2efe.up.railway.app",
+        "VITE_GRPC_URL": "https://grpc-api-production.up.railway.app"
       }
     },
     "backend": {

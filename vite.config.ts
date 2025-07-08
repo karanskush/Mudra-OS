@@ -26,6 +26,11 @@ export default defineConfig({
     port: 3000,
     host: true,
   },
+  preview: {
+    host: '0.0.0.0',
+    port: 3000,
+    allowedHosts: ['healthcheck.railway.app', 'localhost', '.railway.app'],
+  },
   // Ensure proper handling of client-side routes in production build
   build: {
     rollupOptions: {
