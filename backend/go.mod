@@ -16,7 +16,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.23.0
 	golang.org/x/net v0.25.0
-	google.golang.org/grpc v1.60.1
+	google.golang.org/grpc v1.58.3
 	google.golang.org/protobuf v1.34.1
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/driver/sqlite v1.5.4
