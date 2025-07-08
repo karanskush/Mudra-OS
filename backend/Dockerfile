@@ -4,17 +4,14 @@ FROM golang:1.23-alpine
 # Set the working directory
 WORKDIR /app
 
-# Install git and ca-certificates (needed for go mod download)
-RUN apk add --no-cache git ca-certificates
+# Copy the go.mod and go.sum files from the backend subdirectory
+COPY backend/go.mod backend/go.sum ./
 
-# Copy go mod and sum files
-COPY go.mod go.sum ./
-
-# Download all dependencies
+# Download dependencies
 RUN go mod download
 
-# Copy the source code
-COPY . .
+# Copy the backend source code into the current directory
+COPY backend/ .
 
 # Build the application
 RUN go build -o main .
