@@ -17,21 +17,30 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: process.env.VITE_API_URL || 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
       },
+      '/grpc': {
+        target: process.env.VITE_GRPC_URL || 'http://localhost:50051',
+        changeOrigin: true,
+        secure: false,
+      }
     },
-    // Add proper handling for SPA routing
     port: 3000,
     host: true,
   },
   preview: {
     host: '0.0.0.0',
-    port: 3000,
-    allowedHosts: ['healthcheck.railway.app', 'localhost', '.railway.app'],
+    port: Number(process.env.PORT) || 3000,
+    allowedHosts: [
+      'healthcheck.railway.app', 
+      'localhost', 
+      '.railway.app',
+      'backend-api-production-2efe.up.railway.app',
+      'grpc-api-production.up.railway.app'
+    ],
   },
-  // Ensure proper handling of client-side routes in production build
   build: {
     rollupOptions: {
       output: {
@@ -41,7 +50,8 @@ export default defineConfig({
         },
       },
     },
+    // Ensure source maps for better debugging
+    sourcemap: true,
   },
-  // Add base URL configuration
   base: '/',
 });

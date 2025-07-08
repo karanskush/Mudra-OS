@@ -84,7 +84,9 @@ func main() {
 	// Catch-all for undefined routes
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Route not found: %s", r.URL.Path)
-		http.NotFound(w, r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"error": "API endpoint not found", "status": 404}`))
 	})
 
 	addr := ":" + cfg.Server.Port
