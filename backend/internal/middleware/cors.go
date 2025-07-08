@@ -15,7 +15,7 @@ func CORSMiddleware(next http.Handler) http.Handler {
 		// Get allowed origins from environment variable or use default
 		allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
 		if allowedOrigins == "" {
-			allowedOrigins = "http://localhost:3000,https://project-2-production-de10.up.railway.app"
+			allowedOrigins = "http://localhost:3000,https://project-2-production-de10.up.railway.app,https://www.mudraos.xyz"
 		}
 
 		// Check if the request origin is allowed
