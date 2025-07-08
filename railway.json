@@ -1,49 +1,12 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
-  "services": {
-    "frontend": {
-      "name": "Frontend",
-      "rootDirectory": ".",
-      "buildCommand": "npm install && npm run build",
-      "startCommand": "npx serve -s dist -l $PORT",
-      "environment": {
-        "VITE_API_URL": "https://backend-api-production-2efe.up.railway.app",
-        "VITE_GRPC_URL": "https://grpc-api-production.up.railway.app",
-        "NODE_ENV": "production",
-        "MODE": "production"
-      }
-    },
-    "backend": {
-      "name": "Backend APIs",
-      "rootDirectory": ".",
-      "build": {
-        "builder": "DOCKERFILE",
-        "dockerfilePath": "backend/Dockerfile"
-      },
-      "startCommand": "./main",
-      "healthcheckPath": "/health",
-      "healthcheckTimeout": 300,
-      "restartPolicyType": "ON_FAILURE",
-      "restartPolicyMaxRetries": 10,
-      "environment": {
-        "DATABASE_URL": "${{ Postgres.DATABASE_URL }}",
-        "PORT": "8080",
-        "ENVIRONMENT": "production"
-      }
-    },
-    "grpc-server": {
-      "name": "gRPC Server",
-      "rootDirectory": "backend",
-      "build": {
-        "builder": "DOCKERFILE",
-        "dockerfilePath": "Dockerfile.grpc"
-      },
-      "startCommand": "./grpc-server",
-      "environment": {
-        "DATABASE_URL": "${{ Postgres.DATABASE_URL }}",
-        "PORT": "50051",
-        "ENVIRONMENT": "production"
-      }
-    }
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "backend/Dockerfile"
+  },
+  "deploy": {
+    "healthcheckPath": "/api/health",
+    "healthcheckTimeout": 300,
+    "startCommand": "./main"
   }
 } 
