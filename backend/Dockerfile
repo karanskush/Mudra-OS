@@ -1,17 +1,17 @@
 # Use the official Go image as the base image
-FROM golang:1.23-alpine
+FROM golang:1.22-alpine
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the go.mod and go.sum files from the backend subdirectory
-COPY backend/go.mod backend/go.sum ./
+# Copy go.mod and go.sum files
+COPY go.mod go.sum ./
 
 # Download dependencies
 RUN go mod download
 
-# Copy the backend source code into the current directory
-COPY backend/ .
+# Copy the source code
+COPY . .
 
 # Build the application
 RUN go build -o main .

@@ -89,9 +89,8 @@ func main() {
 		w.Write([]byte(`{"error": "API endpoint not found", "status": 404}`))
 	})
 
-	addr := ":" + cfg.Server.Port
-	log.Printf("Server running at http://localhost%s\n", addr)
-	if err := http.ListenAndServe(addr, middleware.CORSMiddleware(mux)); err != nil {
+	log.Printf("Server running at http://[::]:8080\n")
+	if err := http.ListenAndServe(":"+cfg.Server.Port, middleware.CORSMiddleware(mux)); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }
