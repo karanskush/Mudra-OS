@@ -12,10 +12,6 @@
     {
       "src": "/health",
       "dest": "/api/health"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/$1"
     }
   ],
   "env": {
