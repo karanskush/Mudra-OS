@@ -16,6 +16,13 @@ Your project has three main components:
 - ✅ **Automatic deployments** - Git-based deployments
 - ✅ **Free tier available** - Good for development/testing
 
+## 🐛 **FIXED: Go Installation Issue**
+
+The error `/bin/bash: line 1: go: command not found` has been resolved by:
+- ✅ **Docker-based deployment** - Using Dockerfiles instead of NIXPACKS
+- ✅ **Proper Go installation** - Using official Go Docker images
+- ✅ **Optimized builds** - Multi-stage builds for efficiency
+
 ## 📋 Step-by-Step Deployment
 
 ### 1. Prepare Your Repository
@@ -23,7 +30,7 @@ Your project has three main components:
 ```bash
 # Ensure all files are committed
 git add .
-git commit -m "Prepare for deployment"
+git commit -m "Fix Railway deployment with Docker configuration"
 git push origin main
 ```
 
@@ -52,6 +59,7 @@ git push origin main
    - Click "New Service" → "GitHub Repo"
    - Select your repository
    - Set the **Root Directory** to `backend`
+   - Railway will automatically use the `Dockerfile` for Go installation
    - Set environment variables:
      ```
      DATABASE_URL=postgresql://... (from PostgreSQL service)
@@ -63,7 +71,7 @@ git push origin main
    - Click "New Service" → "GitHub Repo"
    - Select your repository
    - Set the **Root Directory** to `backend`
-   - Set the **Start Command** to: `go run cmd/grpc-server/main.go`
+   - Railway will automatically use the `Dockerfile.grpc` for Go installation
    - Set environment variables:
      ```
      DATABASE_URL=postgresql://... (from PostgreSQL service)
@@ -71,15 +79,17 @@ git push origin main
      ENVIRONMENT=production
      ```
 
-#### Option B: Vercel + Railway Hybrid
+#### Option B: Use the Deployment Script
 
-1. **Frontend + Backend APIs on Vercel**:
-   - Push to GitHub
-   - Connect to Vercel
-   - Vercel will auto-deploy
+```bash
+# Navigate to backend directory
+cd backend
 
-2. **gRPC Server on Railway**:
-   - Follow steps 6-7 from Option A
+# Run the deployment script
+./deploy-railway.sh
+
+# Follow the script's instructions for deployment
+```
 
 ### 3. Update Environment Variables
 
@@ -132,16 +142,11 @@ npm install -g @railway/cli
 # Login to Railway
 railway login
 
-# Deploy frontend
-cd /path/to/your/project
-railway up
-
-# Deploy backend
+# Deploy backend (from backend directory)
 cd backend
 railway up
 
-# Deploy gRPC server
-cd backend
+# Deploy gRPC server (from backend directory)
 railway up --service grpc-server
 ```
 
@@ -157,10 +162,11 @@ After deployment, verify your services:
 
 ### Common Issues:
 
-1. **CORS Errors**: Railway automatically handles CORS
-2. **Database Connection**: Ensure `DATABASE_URL` is set correctly
-3. **gRPC-Web Issues**: Verify the gRPC server URL in frontend
-4. **Build Failures**: Check Railway logs for Go/Node.js build errors
+1. **✅ Go Installation Fixed**: Using Docker-based deployment
+2. **CORS Errors**: Railway automatically handles CORS
+3. **Database Connection**: Ensure `DATABASE_URL` is set correctly
+4. **gRPC-Web Issues**: Verify the gRPC server URL in frontend
+5. **Build Failures**: Check Railway logs for Go/Node.js build errors
 
 ### Debug Commands:
 ```bash
@@ -172,6 +178,9 @@ railway status
 
 # View environment variables
 railway variables
+
+# Check deployment status
+railway deployments
 ```
 
 ## 📊 Monitoring
