@@ -7,15 +7,21 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "vite preview --host 0.0.0.0 --port $PORT"
   },
   "dependencies": {
-    "@types/react-router-dom": "^5.3.3",
+    "@grpc/grpc-js": "^1.13.4",
+    "@grpc/proto-loader": "^0.7.15",
+    "@heroicons/react": "^2.2.0",
     "clsx": "^2.1.0",
     "framer-motion": "^11.0.0",
+    "google-protobuf": "^3.21.4",
+    "grpc-web": "^1.5.0",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.5.2",
     "react-router-dom": "^7.6.3",
     "tailwind-merge": "^2.2.0"
   },

@@ -77,7 +77,7 @@ Create a `.env` file in the root directory:
 VITE_API_URL=http://localhost:8080
 
 # Development settings
-VITE_APP_TITLE=Fintech OS Platform
+VITE_APP_TITLE=MudraCore OS Platform
 VITE_APP_VERSION=1.0.0
 ```
 

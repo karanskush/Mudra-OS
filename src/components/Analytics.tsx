@@ -90,7 +90,7 @@ const Analytics: React.FC = () => {
   };
 
   return (
-    <section className="py-24 bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 rounded-full px-4 py-2 mb-6 text-sm font-medium">
@@ -104,7 +104,7 @@ const Analytics: React.FC = () => {
             </span>
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Monitor your fintech platform with comprehensive analytics. Track performance, compliance, and business metrics in real-time.
+            Monitor your MudraCore platform with comprehensive analytics. Track performance, compliance, and business metrics in real-time.
           </p>
         </div>
 
@@ -113,7 +113,7 @@ const Analytics: React.FC = () => {
           <div className="bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 rounded-3xl p-8 shadow-2xl border border-gray-800">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h3 className="text-2xl font-bold text-white mb-2">Fintech OS Dashboard</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">MudraCore OS Dashboard</h3>
                 <p className="text-gray-400">Real-time platform monitoring and analytics</p>
               </div>
               <div className="flex items-center gap-3">

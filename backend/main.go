@@ -7,7 +7,6 @@ import (
 	"fintech-backend/api"
 	"fintech-backend/internal/config"
 	"fintech-backend/internal/database"
-	"fintech-backend/internal/models"
 	"fintech-backend/pkg/logger"
 )
 
@@ -32,15 +31,12 @@ func main() {
 		log.Fatalf("Failed to setup Neon database: %v", err)
 	}
 
-	// Run database migrations including User model
-	if err := database.AutoMigrate(&models.User{}); err != nil {
-		log.Fatalf("Failed to migrate database: %v", err)
-	}
+	// User model is already migrated in SetupNeonDatabase() - removing redundant migration
 
-	// // Run ledger migrations
-	// if err := database.MigrateLedgerTables(database.GetDB()); err != nil {
-	// 	log.Fatalf("Failed to migrate ledger tables: %v", err)
-	// }
+	// Run ledger migrations
+	if err := database.MigrateLedgerTables(database.GetDB()); err != nil {
+		log.Fatalf("Failed to migrate ledger tables: %v", err)
+	}
 
 	// Log connection info
 	connInfo := database.GetNeonConnectionInfo()

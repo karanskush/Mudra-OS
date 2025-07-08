@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package fintech.compliance.v1;
+
+option go_package = "fintech-backend/proto/gen/compliance";
+
+import "google/protobuf/timestamp.proto";
+
+// ComplianceService service definition
+service ComplianceService {
+  // Generate Suspicious Activity Report for a given date
+  rpc GenerateSAR(GenerateSARRequest) returns (GenerateSARResponse);
+  
+  // Generate GST report for outbound FX (India context)
+  rpc GenerateGST(GenerateGSTRequest) returns (GenerateGSTResponse);
+}
+
+// Report status enum
+enum ReportStatus {
+  REPORT_STATUS_UNSPECIFIED = 0;
+  REPORT_STATUS_GENERATING = 1;
+  REPORT_STATUS_COMPLETED = 2;
+  REPORT_STATUS_FAILED = 3;
+  REPORT_STATUS_EXPIRED = 4;
+}
+
+// Report format enum
+enum ReportFormat {
+  REPORT_FORMAT_UNSPECIFIED = 0;
+  REPORT_FORMAT_PDF = 1;
+  REPORT_FORMAT_CSV = 2;
+  REPORT_FORMAT_JSON = 3;
+  REPORT_FORMAT_XML = 4;
+}
+
+// SAR-specific structures
+message SuspiciousActivity {
+  string transaction_id = 1;
+  string user_id = 2;
+  double amount = 3;
+  string currency = 4;
+  string activity_type = 5;  // "high_value", "unusual_pattern", "blacklist_match"
+  string description = 6;
+  repeated string risk_indicators = 7;
+  int32 risk_score = 8;
+  google.protobuf.Timestamp detected_at = 9;
+  string investigator_notes = 10;
+}
+
+message SARReport {
+  string report_id = 1;
+  string date = 2;  // YYYY-MM-DD
+  ReportStatus status = 3;
+  int32 total_activities = 4;
+  double total_amount = 5;
+  repeated SuspiciousActivity activities = 6;
+  repeated string download_links = 7;  // PDF/CSV download URLs
+  google.protobuf.Timestamp generated_at = 8;
+  google.protobuf.Timestamp expires_at = 9;
+  string regulator_reference = 10;  // Reference number for filing
+}
+
+// GST-specific structures
+message FXTransaction {
+  string transaction_id = 1;
+  string user_id = 2;
+  double inr_amount = 3;
+  double foreign_amount = 4;
+  string foreign_currency = 5;
+  double exchange_rate = 6;
+  string purpose_code = 7;  // RBI purpose codes
+  string bank_reference = 8;
+  google.protobuf.Timestamp transaction_date = 9;
+}
+
+message GSTReport {
+  string report_id = 1;
+  string month = 2;  // YYYY-MM
+  ReportStatus status = 3;
+  int32 total_transactions = 4;
+  double total_inr_amount = 5;
+  map<string, double> currency_wise_amounts = 6;  // currency -> total_amount
+  repeated FXTransaction transactions = 7;
+  repeated string download_links = 8;  // Regulator-ready forms
+  google.protobuf.Timestamp generated_at = 9;
+  google.protobuf.Timestamp filing_deadline = 10;
+  string gst_period = 11;
+}
+
+// Request/Response messages
+message GenerateSARRequest {
+  string date = 1;  // YYYY-MM-DD format
+  double threshold_amount = 2;  // Optional: override default threshold
+  repeated ReportFormat formats = 3;  // Desired output formats
+  bool include_resolved = 4;  // Include previously resolved activities
+}
+
+message GenerateSARResponse {
+  SARReport report = 1;
+  string message = 2;
+  int32 estimated_completion_seconds = 3;  // If status is GENERATING
+}
+
+message GenerateGSTRequest {
+  string month = 1;  // YYYY-MM format
+  repeated ReportFormat formats = 2;  // Desired output formats
+  bool include_draft_transactions = 3;  // Include unposted transactions
+  string filing_entity = 4;  // Entity name for filing
+}
+
+message GenerateGSTResponse {
+  GSTReport report = 1;
+  string message = 2;
+  int32 estimated_completion_seconds = 3;  // If status is GENERATING
+} 

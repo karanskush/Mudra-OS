@@ -66,9 +66,9 @@ const LandingPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 overflow-hidden">
+      <section className="relative pb-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -153,7 +153,7 @@ const LandingPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                Why Choose Our Fintech Platform?
+                Why Choose Our MudraCore Platform?
               </h2>
               <p className="text-xl text-gray-600 mb-8">
                 Built for modern financial institutions, our platform delivers unmatched performance, 
@@ -231,7 +231,7 @@ const LandingPage: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Zap className="h-8 w-8 text-blue-400" />
-                <span className="text-xl font-bold">Fintech OS</span>
+                <span className="text-xl font-bold">MudraCore OS</span>
               </div>
               <p className="text-gray-400">
                 The complete fintech operating system for modern financial applications.
@@ -266,7 +266,7 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Fintech OS. All rights reserved.</p>
+            <p>&copy; 2024 MudraCore OS. All rights reserved.</p>
           </div>
         </div>
       </footer>

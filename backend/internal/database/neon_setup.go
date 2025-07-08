@@ -12,6 +12,12 @@ func SetupNeonDatabase() error {
 		return fmt.Errorf("database connection not established")
 	}
 
+	// Check if database is already set up
+	if isAlreadySetup() {
+		logger.Info("Database already set up, skipping initialization")
+		return nil
+	}
+
 	// Enable required PostgreSQL extensions for Neon
 	if err := enableExtensions(); err != nil {
 		return fmt.Errorf("failed to enable extensions: %w", err)
@@ -22,12 +28,30 @@ func SetupNeonDatabase() error {
 		&models.User{},
 		&models.Account{},
 		&models.Transaction{},
+		&models.KYCSubmission{},
+		&models.KYCDocument{},
 	); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
 	logger.Info("Neon database setup completed successfully")
 	return nil
+}
+
+// isAlreadySetup checks if the database is already configured
+func isAlreadySetup() bool {
+	// Check if core tables exist
+	if !DB.Migrator().HasTable(&models.User{}) {
+		return false
+	}
+	if !DB.Migrator().HasTable(&models.Account{}) {
+		return false
+	}
+
+	// Check if extensions are installed
+	var count int64
+	DB.Raw("SELECT COUNT(*) FROM pg_extension WHERE extname IN ('uuid-ossp', 'pgcrypto')").Scan(&count)
+	return count >= 2
 }
 
 // enableExtensions enables required PostgreSQL extensions
@@ -38,6 +62,17 @@ func enableExtensions() error {
 	}
 
 	for _, ext := range extensions {
+		// Check if extension already exists
+		var exists bool
+		if err := DB.Raw("SELECT EXISTS(SELECT 1 FROM pg_extension WHERE extname = ?)", ext).Scan(&exists).Error; err != nil {
+			return fmt.Errorf("failed to check extension %s: %w", ext, err)
+		}
+
+		if exists {
+			logger.Infof("PostgreSQL extension %s already enabled", ext)
+			continue
+		}
+
 		// Quote the extension name to handle hyphens and special characters
 		if err := DB.Exec(fmt.Sprintf("CREATE EXTENSION IF NOT EXISTS \"%s\"", ext)).Error; err != nil {
 			return fmt.Errorf("failed to enable extension %s: %w", ext, err)

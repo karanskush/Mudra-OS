@@ -12,6 +12,7 @@ import (
 
 	"fintech-backend/internal/database"
 	"fintech-backend/internal/handlers"
+	"fintech-backend/internal/middleware"
 	"fintech-backend/internal/models"
 	"fintech-backend/internal/services"
 
@@ -159,6 +160,12 @@ func handleLedgerTransactionRoutes(w http.ResponseWriter, r *http.Request, pathP
 			} else {
 				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			}
+		case "test-balance":
+			if r.Method == http.MethodPost {
+				createTestBalance(w, r)
+			} else {
+				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			}
 		default:
 			// Handle transaction ID-based routes
 			if len(pathParts) >= 5 && pathParts[4] == "post" {
@@ -178,6 +185,13 @@ func handleLedgerTransactionRoutes(w http.ResponseWriter, r *http.Request, pathP
 
 // createLedgerAccount creates a new ledger account
 func createLedgerAccount(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
@@ -190,15 +204,11 @@ func createLedgerAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For testing purposes, use a default user ID
-	// In production, you'd get this from authentication middleware
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
 	// Generate account number automatically using the existing function
 	accountNumber := generateAccountNumber()
 
 	account, err := service.CreateAccount(
-		testUserID,
+		user.UserID,   // Use authenticated user's ID
 		accountNumber, // Use generated account number
 		req.Name,
 		req.Description,
@@ -219,16 +229,20 @@ func createLedgerAccount(w http.ResponseWriter, r *http.Request) {
 
 // listLedgerAccounts lists all ledger accounts
 func listLedgerAccounts(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
 		return
 	}
 
-	// For testing purposes, use a default user ID
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
-	accounts, err := service.GetAccounts(testUserID)
+	accounts, err := service.GetUserAccounts(user.UserID) // Use GetUserAccounts to exclude system accounts
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -241,6 +255,13 @@ func listLedgerAccounts(w http.ResponseWriter, r *http.Request) {
 
 // createLedgerTransfer creates a transfer transaction
 func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
@@ -253,11 +274,8 @@ func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For testing purposes, use a default user ID
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
 	transaction, err := service.CreateTransfer(
-		testUserID,
+		user.UserID, // Use authenticated user's ID
 		req.FromAccountID,
 		req.ToAccountID,
 		req.Amount,
@@ -278,6 +296,13 @@ func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
 
 // createLedgerDeposit creates a deposit transaction
 func createLedgerDeposit(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
@@ -290,11 +315,8 @@ func createLedgerDeposit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For testing purposes, use a default user ID
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
 	transaction, err := service.CreateDeposit(
-		testUserID,
+		user.UserID, // Use authenticated user's ID
 		req.AccountID,
 		req.Amount,
 		req.Currency,
@@ -306,6 +328,68 @@ func createLedgerDeposit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Automatically post the transaction so the balance is immediately updated
+	if err := service.PostTransaction(transaction.ID); err != nil {
+		http.Error(w, fmt.Sprintf("Transaction created but failed to post: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Mark the transaction as posted in the response
+	transaction.Status = models.LedgerTransactionStatusPosted
+	now := time.Now()
+	transaction.PostedAt = &now
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(transaction)
+}
+
+// createTestBalance creates a test balance transaction without validation
+func createTestBalance(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
+	service := getLedgerService()
+	if service == nil {
+		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
+		return
+	}
+
+	var req handlers.CreateDepositRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	transaction, err := service.CreateTestBalance(
+		user.UserID, // Use authenticated user's ID
+		req.AccountID,
+		req.Amount,
+		req.Currency,
+		req.Description,
+		req.Reference,
+	)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Automatically post the transaction so the balance is immediately updated
+	if err := service.PostTransaction(transaction.ID); err != nil {
+		http.Error(w, fmt.Sprintf("Transaction created but failed to post: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Mark the transaction as posted in the response
+	transaction.Status = models.LedgerTransactionStatusPosted
+	now := time.Now()
+	transaction.PostedAt = &now
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -402,32 +486,49 @@ func getLedgerAccountTransactions(w http.ResponseWriter, r *http.Request, accoun
 	json.NewEncoder(w).Encode(transactions)
 }
 
-// handleTrialBalance returns a trial balance for all accounts
+// handleTrialBalance returns a trial balance for all user accounts (excluding system accounts)
 func handleTrialBalance(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
 		return
 	}
 
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	// Get user accounts (excluding system accounts)
+	accounts, err := service.GetUserAccounts(user.UserID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	trialBalance, err := service.GetTrialBalance()
+	// Get balances for user accounts only
+	balances, err := service.GetAccountBalancesBatch(accounts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(trialBalance)
+	json.NewEncoder(w).Encode(balances)
 }
 
 // getAvailableAccounts returns available accounts for transfers
 func getAvailableAccounts(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
+
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
 
 	service := getLedgerService()
 	if service == nil {
@@ -435,10 +536,7 @@ func getAvailableAccounts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For testing purposes, use a default user ID
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
-	accounts, err := service.GetAccounts(testUserID)
+	accounts, err := service.GetUserAccounts(user.UserID) // Use GetUserAccounts to exclude system accounts
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -460,7 +558,7 @@ func getAvailableAccounts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Build response
-	var responseAccounts []map[string]interface{}
+	responseAccounts := make([]map[string]interface{}, 0)
 	for _, account := range activeAccounts {
 		balance := balances[account.ID]
 		responseAccounts = append(responseAccounts, map[string]interface{}{

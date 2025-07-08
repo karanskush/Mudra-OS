@@ -4,21 +4,12 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"fintech-backend/internal/middleware"
 )
 
 // Handler is the main entry point for Vercel
 func Handler(w http.ResponseWriter, r *http.Request) {
-	// Add CORS headers
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-	// Handle preflight requests
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	// Parse the path
 	path := strings.TrimPrefix(r.URL.Path, "/")
 	pathParts := strings.Split(path, "/")
@@ -30,41 +21,75 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case path == "health" || path == "api/health":
 		log.Printf("Routing to Health")
-		Health(w, r)
+		middleware.CORSMiddleware(Health)(w, r)
 
-	// Auth routes
+	// Auth routes (no authentication required)
 	case strings.HasPrefix(path, "api/v1/auth"):
 		log.Printf("Routing to handleAuthRoutes")
-		handleAuthRoutes(w, r, pathParts)
+		middleware.CORSMiddleware(func(w http.ResponseWriter, r *http.Request) {
+			handleAuthRoutes(w, r, pathParts)
+		})(w, r)
 
-	// User routes
+	// User routes (authentication required)
 	case strings.HasPrefix(path, "api/v1/users"):
-		log.Printf("Routing to handleUserRoutes")
-		handleUserRoutes(w, r, pathParts)
+		log.Printf("Routing to handleUserRoutes (authenticated)")
+		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
+			handleUserRoutes(w, r, pathParts)
+		})(w, r)
 
-	// Account routes
+	// Account routes (authentication required)
 	case strings.HasPrefix(path, "api/v1/accounts"):
-		log.Printf("Routing to handleAccountRoutes")
-		handleAccountRoutes(w, r, pathParts)
+		log.Printf("Routing to handleAccountRoutes (authenticated)")
+		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
+			handleAccountRoutes(w, r, pathParts)
+		})(w, r)
 
-	// Transaction routes
+	// Transaction routes (authentication required)
 	case strings.HasPrefix(path, "api/v1/transactions"):
-		log.Printf("Routing to handleTransactionRoutes")
-		handleTransactionRoutes(w, r, pathParts)
+		log.Printf("Routing to handleTransactionRoutes (authenticated)")
+		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
+			handleTransactionRoutes(w, r, pathParts)
+		})(w, r)
 
-	// Payment routes
+	// Payment routes (authentication required)
 	case strings.HasPrefix(path, "api/v1/payments"):
-		log.Printf("Routing to handlePaymentRoutes")
-		handlePaymentRoutes(w, r, pathParts)
+		log.Printf("Routing to handlePaymentRoutes (authenticated)")
+		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
+			handlePaymentRoutes(w, r, pathParts)
+		})(w, r)
 
-	// Ledger routes
+	// Ledger routes (authentication required)
 	case strings.HasPrefix(path, "api/ledger"):
-		log.Printf("Routing to LedgerHandler")
-		LedgerHandler(w, r)
+		log.Printf("Routing to LedgerHandler (authenticated)")
+		middleware.CORSMiddlewareWithAuth(LedgerHandler)(w, r)
+
+	// KYC routes (authentication required)
+	case strings.HasPrefix(path, "api/kyc"):
+		log.Printf("Routing to KYCHandler (authenticated)")
+		middleware.CORSMiddlewareWithAuth(KYCHandler)(w, r)
+
+	// gRPC bridge routes (authentication required)
+	case strings.HasPrefix(path, "v1/kyc"):
+		log.Printf("Routing to gRPC KYC bridge (authenticated)")
+		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
+			handleGRPCKYCRoutes(w, r, pathParts)
+		})(w, r)
+
+	case strings.HasPrefix(path, "v1/payments"):
+		log.Printf("Routing to gRPC Payment bridge (authenticated)")
+		middleware.CORSMiddlewareWithAuth(func(w http.ResponseWriter, r *http.Request) {
+			handleGRPCPaymentRoutes(w, r, pathParts)
+		})(w, r)
+
+	case path == "health" || path == "v1/health" || strings.HasPrefix(path, "v1/health"):
+		log.Printf("Routing to Health")
+		middleware.CORSMiddleware(Health)(w, r)
 
 	default:
 		log.Printf("No matching route found, returning 404")
-		http.NotFound(w, r)
+		middleware.CORSMiddleware(func(w http.ResponseWriter, r *http.Request) {
+			http.NotFound(w, r)
+		})(w, r)
 	}
 }
 

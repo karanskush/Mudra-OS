@@ -89,7 +89,7 @@ const Gallery: React.FC = () => {
             See the platform in action
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Explore our comprehensive fintech platform through interactive demos. 
+            Explore our comprehensive MudraCore platform through interactive demos. 
             From payment processing to compliance automation—see how it all works together.
           </p>
         </motion.div>

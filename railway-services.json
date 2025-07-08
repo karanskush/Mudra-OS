@@ -1,0 +1,34 @@
+{
+  "services": {
+    "frontend": {
+      "name": "Frontend",
+      "rootDirectory": ".",
+      "startCommand": "npm run start",
+      "buildCommand": "npm run build",
+      "environment": {
+        "VITE_API_URL": "https://backend-production-xxxx.up.railway.app",
+        "VITE_GRPC_URL": "https://grpc-server-production-xxxx.up.railway.app"
+      }
+    },
+    "backend": {
+      "name": "Backend APIs",
+      "rootDirectory": "backend",
+      "startCommand": "go run main.go",
+      "environment": {
+        "DATABASE_URL": "${{ Postgres.DATABASE_URL }}",
+        "PORT": "8080",
+        "ENVIRONMENT": "production"
+      }
+    },
+    "grpc-server": {
+      "name": "gRPC Server",
+      "rootDirectory": "backend",
+      "startCommand": "go run cmd/grpc-server/main.go",
+      "environment": {
+        "DATABASE_URL": "${{ Postgres.DATABASE_URL }}",
+        "PORT": "50051",
+        "ENVIRONMENT": "production"
+      }
+    }
+  }
+} 

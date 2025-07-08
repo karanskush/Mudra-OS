@@ -7,11 +7,13 @@ import (
 	"net/http"
 	"time"
 
+	"fintech-backend/internal/database"
+	"fintech-backend/internal/middleware"
 	"fintech-backend/internal/models"
 	"fintech-backend/pkg/response"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 // Initialize random seed
@@ -41,10 +43,23 @@ type AccountData struct {
 	CreatedAt     time.Time `json:"created_at"`
 }
 
+// getDB returns the database connection
+func getDB() *gorm.DB {
+	// Import database connection from the database package
+	return database.GetDB()
+}
+
 // ListAccounts handles listing user accounts
 func ListAccounts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		response.MethodNotAllowed(w, r)
+		return
+	}
+
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		response.Unauthorized(w, r, "Authentication required")
 		return
 	}
 
@@ -54,12 +69,8 @@ func ListAccounts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Get user ID from authentication middleware
-	// For now, use a default user ID for testing
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
-	// Get accounts from ledger system
-	ledgerAccounts, err := service.GetAccounts(testUserID)
+	// Get accounts from ledger system for the authenticated user
+	ledgerAccounts, err := service.GetAccounts(user.UserID)
 	if err != nil {
 		response.InternalServerError(w, r, fmt.Sprintf("Failed to get accounts: %v", err))
 		return
@@ -96,15 +107,22 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	service := getLedgerService()
-	if service == nil {
-		response.InternalServerError(w, r, "Database not initialized")
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		response.Unauthorized(w, r, "Authentication required")
 		return
 	}
 
 	var req CreateAccountRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		response.BadRequest(w, r, "Invalid request body")
+		return
+	}
+
+	service := getLedgerService()
+	if service == nil {
+		response.InternalServerError(w, r, "Database not initialized")
 		return
 	}
 
@@ -115,23 +133,25 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Get user ID from authentication middleware
-	// For now, use a default user ID for testing
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
+	// Set default currency if not provided
+	currency := req.Currency
+	if currency == "" {
+		currency = "USD"
+	}
 
-	// Generate account number
+	// Generate unique account number
 	accountNumber := generateAccountNumber()
 
 	// Convert account type to ledger account type
 	ledgerAccountType := convertToLedgerAccountType(req.Type)
 
-	// Create account in ledger system
+	// Create account for the authenticated user
 	ledgerAccount, err := service.CreateAccount(
-		testUserID,
+		user.UserID, // Use authenticated user's ID
 		accountNumber,
 		req.Name,
 		req.Description,
-		req.Currency,
+		currency,
 		ledgerAccountType,
 		nil, // No parent account for now
 	)
@@ -143,10 +163,10 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 	// If initial balance is provided, create a deposit transaction
 	if req.InitialBalance > 0 {
 		_, err := service.CreateDeposit(
-			testUserID,
+			user.UserID,
 			ledgerAccount.ID,
 			req.InitialBalance,
-			req.Currency,
+			currency,
 			"Initial deposit",
 			"INIT-"+accountNumber,
 		)
@@ -202,18 +222,21 @@ func GetAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		response.Unauthorized(w, r, "Authentication required")
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		response.InternalServerError(w, r, "Database not initialized")
 		return
 	}
 
-	// TODO: Get account ID from URL and fetch from database
-	// For now, return a sample account from the ledger system
-	testUserID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
-
-	// Get accounts from ledger system
-	ledgerAccounts, err := service.GetAccounts(testUserID)
+	// Get accounts from ledger system for the authenticated user
+	ledgerAccounts, err := service.GetAccounts(user.UserID)
 	if err != nil {
 		response.InternalServerError(w, r, fmt.Sprintf("Failed to get accounts: %v", err))
 		return

@@ -10,8 +10,20 @@ import {
   Activity,
   CheckCircle,
   AlertTriangle,
-  Clock
+  Clock,
+  Shield,
+  Eye,
+  Globe,
+  Copy,
+  ArrowRightLeft,
+  Users,
+  Wallet
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { apiClient } from "../lib/api";
+import toast from 'react-hot-toast';
+import { grpcLedgerService, type LedgerStreamResponse } from '../lib/grpcLedgerService';
+import { getSessionUserId } from '../lib/utils';
 
 interface Account {
   id: string;
@@ -169,22 +181,15 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
     setLoading(true);
     setError('');
     try {
-      // Simulate API call to create/connect account
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/accounts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(accountDetails),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setStep(5);
-        setTimeout(() => {
-          onAccountConnected();
-        }, 1200);
-      } else {
-        setError(data.error || 'Failed to connect account');
-      }
+      // Create account using the same pattern as handleCreateAccount
+      const response = await apiClient.createLedgerAccount(accountDetails);
+      // The response is the account object directly, not wrapped in a data field
+      setStep(5);
+      setTimeout(() => {
+        onAccountConnected();
+      }, 1200);
     } catch (err) {
+      console.error('Account creation error:', err);
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -202,61 +207,144 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
 
   return (
     <div>
-      {/* Stepper */}
-      <div className="flex items-center justify-center mb-8">
-        {steps.map((label, idx) => (
-          <React.Fragment key={label}>
-            <div className={`flex flex-col items-center ${idx <= currentStep ? 'text-blue-600' : 'text-gray-400'}`}> 
-              <div className={`rounded-full h-8 w-8 flex items-center justify-center font-bold border-2 ${idx <= currentStep ? 'border-blue-600 bg-blue-100' : 'border-gray-300 bg-gray-100'}`}>{idx + 1}</div>
-              <span className="text-xs mt-1">{label}</span>
+      {/* Enhanced Progress Stepper */}
+      <div className="relative mb-12">
+        <div className="flex items-center justify-between mb-4">
+          {steps.map((label, idx) => (
+            <div key={label} className={`flex flex-col items-center relative z-10 transition-all duration-300 ${
+              idx <= currentStep ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
+            }`}>
+              <div className={`rounded-2xl h-12 w-12 flex items-center justify-center font-bold border-2 transition-all duration-300 ${
+                idx < currentStep 
+                  ? 'bg-gradient-to-br from-green-500 to-green-600 border-green-500 text-white shadow-lg scale-110' 
+                  : idx === currentStep
+                  ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-500 text-white shadow-lg scale-110'
+                  : 'border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-400'
+              }`}>
+                {idx < currentStep ? (
+                  <CheckCircle className="h-6 w-6" />
+                ) : (
+                  idx + 1
+                )}
+              </div>
+              <span className="text-xs mt-2 font-medium text-center max-w-[80px]">{label}</span>
             </div>
-            {idx < steps.length - 1 && <div className={`flex-1 h-0.5 mx-2 ${idx < currentStep ? 'bg-blue-600' : 'bg-gray-200'}`}></div>}
-          </React.Fragment>
-        ))}
+          ))}
+        </div>
+        {/* Animated Progress Line */}
+        <div className="absolute top-6 left-6 right-6 h-1 bg-gray-200 dark:bg-slate-600 rounded-full">
+          <div 
+            className="h-full bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 rounded-full transition-all duration-700 ease-out"
+            style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+          ></div>
+        </div>
       </div>
 
-      {/* Step 1: Select Country */}
+      {/* Step 1: Enhanced Country Selection */}
       {step === 1 && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Choose your country</label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white mb-6"
-            value={selectedCountry}
-            onChange={e => handleCountrySelect(e.target.value)}
-          >
-            <option value="">Select country</option>
+        <div className="space-y-6">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl mx-auto mb-4 flex items-center justify-center">
+              <Globe className="h-10 w-10 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Where are you located?</h3>
+            <p className="text-gray-600 dark:text-gray-400">Select your country to see available banking partners</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {COUNTRY_LIST.map(country => (
-              <option key={country} value={country}>{country}</option>
+              <button
+                key={country}
+                onClick={() => handleCountrySelect(country)}
+                className="group flex flex-col items-center p-6 bg-white dark:bg-slate-700 rounded-2xl border-2 border-gray-200 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-200 hover:shadow-lg hover:scale-105"
+              >
+                <div className="w-12 h-12 bg-gray-100 dark:bg-slate-600 rounded-xl mb-3 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
+                  <span className="text-2xl">
+                    {country === 'USA' && '🇺🇸'}
+                    {country === 'UK' && '🇬🇧'}
+                    {country === 'Brazil' && '🇧🇷'}
+                    {country === 'India' && '🇮🇳'}
+                    {country === 'Germany' && '🇩🇪'}
+                  </span>
+                </div>
+                <span className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {country}
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {COUNTRY_PROVIDERS[country]?.length - 1} providers
+                </span>
+              </button>
             ))}
-          </select>
+          </div>
         </div>
       )}
 
-      {/* Step 2: Select Provider */}
+      {/* Step 2: Enhanced Provider Selection */}
       {step === 2 && selectedCountry && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Choose your account provider</label>
-          <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="space-y-6">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-3xl mx-auto mb-4 flex items-center justify-center">
+              <CreditCard className="h-10 w-10 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Choose your bank</h3>
+            <p className="text-gray-600 dark:text-gray-400">Connect securely with your banking provider in {selectedCountry}</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {COUNTRY_PROVIDERS[selectedCountry].map(provider => (
               <button
                 key={provider.id}
                 onClick={() => handleProviderSelect(provider.id)}
-                className={`flex items-center gap-3 p-4 border rounded-lg w-full transition-colors focus:outline-none ${selectedProvider === provider.id ? 'border-blue-600 bg-blue-50 dark:bg-slate-700' : 'border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700'}`}
+                className={`group flex items-center gap-4 p-6 border-2 rounded-2xl w-full transition-all duration-200 focus:outline-none ${
+                  selectedProvider === provider.id 
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg' 
+                    : 'border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md hover:scale-[1.02]'
+                }`}
               >
-                {provider.logo ? (
-                  <img src={provider.logo} alt={provider.name} className="h-8 w-8 rounded" />
-                ) : (
-                  <Database className="h-8 w-8 text-gray-400" />
-                )}
-                <span className="font-medium text-gray-900 dark:text-white">{provider.name}</span>
+                <div className="flex-shrink-0">
+                  {provider.logo ? (
+                    <div className="w-14 h-14 rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-200 dark:border-slate-600 flex items-center justify-center">
+                      <img src={provider.logo} alt={provider.name} className="h-10 w-10 object-contain" />
+                    </div>
+                  ) : (
+                    <div className="w-14 h-14 bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl flex items-center justify-center">
+                      <Database className="h-8 w-8 text-white" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="font-bold text-gray-900 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {provider.name}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    {provider.id === 'manual' ? 'Enter details manually' : 'Instant secure connection'}
+                  </div>
+                  {provider.id !== 'manual' && (
+                    <div className="flex items-center gap-1 mt-2">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                      <span className="text-xs text-green-600 dark:text-green-400 font-medium">OAuth Supported</span>
+                    </div>
+                  )}
+                </div>
+                <ArrowRight className={`h-5 w-5 transition-colors ${
+                  selectedProvider === provider.id 
+                    ? 'text-blue-500' 
+                    : 'text-gray-400 group-hover:text-blue-500'
+                }`} />
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={() => { setStep(1); setSelectedCountry(''); setSelectedProvider(''); setOAuthSuccess(false); }}
-            className="px-4 py-2 rounded-md border border-gray-300 dark:border-slate-600 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
-          >Back</button>
+
+          <div className="flex justify-start">
+            <button
+              type="button"
+              onClick={() => { setStep(1); setSelectedCountry(''); setSelectedProvider(''); setOAuthSuccess(false); }}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-all"
+            >
+              <ArrowRight className="h-4 w-4 rotate-180" />
+              Back
+            </button>
+          </div>
         </div>
       )}
 
@@ -406,6 +494,25 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
 };
 
 const LedgerTest: React.FC = () => {
+  const { user } = useAuth(); // Add user from auth context
+  
+  // Helper function to get user's first name
+  const getUserFirstName = () => {
+    if (!user) return 'Friend';
+    
+    // Check for actual content (not just empty strings)
+    const firstName = user.firstName?.trim();
+    const first_name = user.first_name?.trim();
+    
+    let name = '';
+    if (firstName) name = firstName;
+    else if (first_name) name = first_name;
+    else return 'Friend';
+    
+    // Capitalize first character
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  };
+  
   const [loading, setLoading] = useState(false);
   const [availableAccounts, setAvailableAccounts] = useState<Account[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -413,6 +520,8 @@ const LedgerTest: React.FC = () => {
   const [response, setResponse] = useState<string>('');
   const [accountBalance, setAccountBalance] = useState<null | { balance: number, currency: string }>(null);
   const [activeForm, setActiveForm] = useState<'account' | 'transfer' | 'deposit' | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'accounts' | 'transactions' | 'analytics'>('overview');
+  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
   // Form states
   const [accountForm, setAccountForm] = useState({
@@ -447,31 +556,170 @@ const LedgerTest: React.FC = () => {
   const [lastTransferRailInfo, setLastTransferRailInfo] = useState<TransferRailInfo | null>(null);
   const [showTransferSuccess, setShowTransferSuccess] = useState(false);
 
+  // gRPC streaming state
+  const [isGrpcConnected, setIsGrpcConnected] = useState(false);
+  const [streamingEvents, setStreamingEvents] = useState<LedgerStreamResponse[]>([]);
+  const [realTimeBalances, setRealTimeBalances] = useState<Record<string, number>>({});
+
+  // Initialize gRPC connection
+  useEffect(() => {
+    const initializeGrpc = async () => {
+      try {
+        const connected = await grpcLedgerService.connect();
+        setIsGrpcConnected(connected);
+        
+        if (connected) {
+          // Start streaming ledger events
+          const userId = getSessionUserId();
+          await grpcLedgerService.startLedgerStream(userId, handleLedgerStreamEvent);
+          
+          // Subscribe to all user transactions
+          await grpcLedgerService.subscribeToUserTransactions(userId);
+          
+          console.log('gRPC Ledger streaming started');
+        }
+      } catch (error) {
+        console.error('Failed to initialize gRPC Ledger service:', error);
+        setIsGrpcConnected(false);
+      }
+    };
+
+    initializeGrpc();
+
+    return () => {
+      grpcLedgerService.disconnect();
+    };
+  }, []);
+
+  // Handle gRPC stream events
+  const handleLedgerStreamEvent = (event: LedgerStreamResponse) => {
+    setStreamingEvents(prev => [...prev, event]);
+    
+    // Handle different event types
+    if (event.event.balanceUpdate) {
+      const { accountId, balance, changeAmount, changeType } = event.event.balanceUpdate;
+      
+      // Update real-time balances
+      setRealTimeBalances(prev => ({
+        ...prev,
+        [accountId]: balance
+      }));
+      
+      // Update available accounts with new balance
+      setAvailableAccounts(prev => 
+        prev.map(account => 
+          account.id === accountId 
+            ? { ...account, balance }
+            : account
+        )
+      );
+      
+      // Show balance update notification
+      toast.success(
+        `Balance ${changeType.toLowerCase()}: ${changeType === 'CREDIT' ? '+' : '-'}$${changeAmount.toFixed(2)}`,
+        { duration: 3000 }
+      );
+    }
+    
+    if (event.event.transactionCreated) {
+      const { transactionId, amount, status, fromAccountId, toAccountId } = event.event.transactionCreated;
+      
+      // Add to transactions list
+      const newTransaction: Transaction = {
+        id: transactionId,
+        type: 'transfer',
+        status: status.toLowerCase(),
+        amount,
+        currency: event.event.transactionCreated.currency,
+        description: event.event.transactionCreated.description,
+        reference: event.event.transactionCreated.reference,
+        entries: []
+      };
+      
+      setTransactions(prev => [newTransaction, ...prev]);
+      
+      toast(`Transaction created: ${transactionId}`, {
+        duration: 3000,
+        icon: 'ℹ️'
+      });
+    }
+    
+    if (event.event.transactionStatusUpdate) {
+      const { transactionId, status, message } = event.event.transactionStatusUpdate;
+      
+      // Update transaction status
+      setTransactions(prev => 
+        prev.map(tx => 
+          tx.id === transactionId 
+            ? { ...tx, status: status.toLowerCase() }
+            : tx
+        )
+      );
+      
+      if (status === 'COMPLETED') {
+        toast.success(`Transaction completed: ${transactionId}`);
+      } else if (status === 'FAILED') {
+        toast.error(`Transaction failed: ${message}`);
+      }
+    }
+    
+    if (event.event.reconciliationResult) {
+      const { accountId, reconciled, variance } = event.event.reconciliationResult;
+      
+      if (!reconciled && variance !== 0) {
+        toast(`Account reconciliation issue: Variance of $${variance.toFixed(2)}`, {
+          duration: 5000,
+          icon: '⚠️'
+        });
+      } else {
+        toast.success('Account reconciliation completed successfully');
+      }
+    }
+    
+    if (event.event.lowBalanceAlert) {
+      const { accountId, currentBalance, threshold } = event.event.lowBalanceAlert;
+      
+      toast.error(
+        `Low balance alert: Account ${accountId} has $${currentBalance.toFixed(2)} (below $${threshold.toFixed(2)})`,
+        { duration: 10000 }
+      );
+    }
+    
+    if (event.event.accountLocked) {
+      const { accountId, reason } = event.event.accountLocked;
+      
+      toast.error(
+        `Account locked: ${accountId} - ${reason}`,
+        { duration: 10000 }
+      );
+    }
+  };
+
   // Load available accounts
   const loadAvailableAccounts = async () => {
     setLoading(true);
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const response = await apiClient.getAvailableAccounts();
+      // The response could be a direct array of accounts or an object with accounts property
+      const data = response as any;
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/accounts/available`, {
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      const data = await response.json();
-      
-      if (response.ok && data.accounts) {
+      if (Array.isArray(data)) {
+        // Direct array of accounts
+        setAvailableAccounts(data);
+      } else if (data.accounts && Array.isArray(data.accounts)) {
+        // Wrapped in accounts property
         setAvailableAccounts(data.accounts);
+      } else if (data.data && Array.isArray(data.data)) {
+        // Wrapped in data property
+        setAvailableAccounts(data.data);
       } else {
-        console.error('Failed to load accounts:', data);
+        console.error('Failed to load accounts:', response);
+        setAvailableAccounts([]);
       }
     } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.log('Request was aborted');
-      } else {
-        console.error('Error loading available accounts:', error);
-      }
+      console.error('Error loading available accounts:', error);
+      setAvailableAccounts([]);
+      // If authentication error, the apiClient will handle token cleanup
     } finally {
       setLoading(false);
     }
@@ -500,25 +748,17 @@ const LedgerTest: React.FC = () => {
     setResponse('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/accounts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(accountForm)
-      });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        setResponse(JSON.stringify(data, null, 2));
-        // Refresh available accounts after creating new account
-        loadAvailableAccounts();
-      } else {
-        setResponse(`Error: ${data.error || 'Failed to create account'}`);
-      }
+      const response = await apiClient.createLedgerAccount(accountForm);
+      // The response is the account object directly, not wrapped in a data field
+      setResponse(JSON.stringify(response, null, 2));
+      // Refresh available accounts after creating new account
+      await loadAvailableAccounts();
+      setActiveForm(null); // Close the form on success
+      toast.success('Account created successfully!');
     } catch (error) {
-      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Account creation error:', error);
+      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -532,33 +772,55 @@ const LedgerTest: React.FC = () => {
     setShowTransferSuccess(false);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/transactions/transfer`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(transferForm)
-      });
-
-      const data = await response.json();
-      // If the response includes rail info, use it
-      if (response.ok && data.rail) {
-        setLastTransferRailInfo(data as TransferRailInfo);
-        setTransactions([...transactions, data.transaction]);
-        setResponse(JSON.stringify(data, null, 2));
+      if (isGrpcConnected && grpcLedgerService) {
+        // Use gRPC streaming service
+        const transactionId = await grpcLedgerService.createTransaction({
+          fromAccountId: transferForm.from_account_id,
+          toAccountId: transferForm.to_account_id,
+          amount: transferForm.amount,
+          currency: transferForm.currency,
+          description: transferForm.description,
+          reference: transferForm.reference
+        });
+        
+        // Real-time updates will be handled by the stream event handler
+        toast(`Transfer initiated: ${transactionId}`, {
+          duration: 3000,
+          icon: '💸'
+        });
+        
+        setResponse(`Transaction ID: ${transactionId}`);
         setShowTransferSuccess(true);
-        loadAvailableAccounts();
-      } else if (response.ok && data.id) {
-        // fallback for old response
-        setTransactions([...transactions, data]);
-        setResponse(JSON.stringify(data, null, 2));
-        setShowTransferSuccess(true);
-        loadAvailableAccounts();
       } else {
-        setResponse(`Error: ${data.error || 'Failed to create transfer'}`);
+        // Fallback to REST API
+        const response = await apiClient.createTransfer(transferForm);
+        // The response is the transfer object directly, not wrapped in a data field
+        const data = response as any;
+        
+        // If the response includes rail info, use it
+        if (data.rail) {
+          setLastTransferRailInfo(data as TransferRailInfo);
+          setTransactions([...transactions, data.transaction]);
+          setResponse(JSON.stringify(data, null, 2));
+          setShowTransferSuccess(true);
+          await loadAvailableAccounts();
+          toast.success('Transfer created successfully!');
+        } else if (data.id) {
+          // fallback for old response
+          setTransactions([...transactions, data]);
+          setResponse(JSON.stringify(data, null, 2));
+          setShowTransferSuccess(true);
+          await loadAvailableAccounts();
+          toast.success('Transfer created successfully!');
+        } else {
+          setResponse(`Error: ${data.error || 'Failed to create transfer'}`);
+          toast.error('Failed to create transfer');
+        }
       }
     } catch (error) {
-      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Transfer creation error:', error);
+      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to create transfer');
     } finally {
       setLoading(false);
     }
@@ -570,26 +832,39 @@ const LedgerTest: React.FC = () => {
     setResponse('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/transactions/deposit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(depositForm)
-      });
-
-      const data = await response.json();
-      
-      if (response.ok) {
-        setResponse(JSON.stringify(data, null, 2));
-        setTransactions([...transactions, data]);
-        // Refresh available accounts after deposit
-        loadAvailableAccounts();
-      } else {
-        setResponse(`Error: ${data.error || 'Failed to create deposit'}`);
-      }
+      const response = await apiClient.createDeposit(depositForm);
+      // The response is the deposit object directly, not wrapped in a data field
+      setResponse(JSON.stringify(response, null, 2));
+      setTransactions([...transactions, response as any]);
+      // Refresh available accounts after deposit
+      await loadAvailableAccounts();
+      toast.success('Deposit created successfully!');
     } catch (error) {
-      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Deposit creation error:', error);
+      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to create deposit');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateTestBalance = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setResponse('');
+
+    try {
+      const response = await apiClient.createTestBalance(depositForm);
+      // The response is the test balance object directly, not wrapped in a data field
+      setResponse(JSON.stringify(response, null, 2));
+      setTransactions([...transactions, response as any]);
+      // Refresh available accounts after test balance
+      await loadAvailableAccounts();
+      toast.success('Test balance created successfully!');
+    } catch (error) {
+      console.error('Test balance creation error:', error);
+      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to create test balance');
     } finally {
       setLoading(false);
     }
@@ -602,19 +877,17 @@ const LedgerTest: React.FC = () => {
     setAccountBalance(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/accounts/${balanceForm.account_id}/balance`);
-      const data = await response.json();
-      
-      if (response.ok) {
-        setAccountBalance({ balance: data.balance, currency: data.currency });
-        setResponse('');
-      } else {
-        setAccountBalance(null);
-        setResponse(`Error: ${data.error || 'Failed to get balance'}`);
-      }
+      const response = await apiClient.getAccountBalance(balanceForm.account_id);
+      // The response is the balance object directly, not wrapped in a data field
+      const data = response as any;
+      setAccountBalance({ balance: data.balance, currency: data.currency });
+      setResponse('');
+      toast.success('Balance retrieved successfully!');
     } catch (error) {
+      console.error('Balance retrieval error:', error);
       setAccountBalance(null);
-      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to retrieve balance');
     } finally {
       setLoading(false);
     }
@@ -625,17 +898,24 @@ const LedgerTest: React.FC = () => {
     setResponse('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/trial-balance`);
+      const response = await apiClient.authenticatedRequest("/api/ledger/trial-balance", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
       const result = await response.json();
       
       if (response.ok) {
         setTrialBalance(result);
         setResponse(JSON.stringify(result, null, 2));
+        toast.success('Trial balance retrieved successfully!');
       } else {
         setResponse(`Error: ${result.error || 'Failed to get trial balance'}`);
+        toast.error('Failed to get trial balance');
       }
     } catch (error) {
+      console.error('Trial balance retrieval error:', error);
       setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to get trial balance');
     } finally {
       setLoading(false);
     }
@@ -646,7 +926,7 @@ const LedgerTest: React.FC = () => {
     setResponse('');
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/ledger/transactions/${transactionId}/post`, {
+      const response = await apiClient.authenticatedRequest(`/api/ledger/transactions/${transactionId}/post`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -675,234 +955,831 @@ const LedgerTest: React.FC = () => {
   // Calculate total balance
   const totalBalance = availableAccounts.reduce((total, account) => total + (account.balance || 0), 0);
 
+  // Debug helper function
+  const generateAuthenticatedCurl = (endpoint: string, method: string = 'GET', body?: any) => {
+    const token = localStorage.getItem('authToken');
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    
+    let curlCommand = `curl -X ${method} '${baseUrl}${endpoint}' \\\n`;
+    curlCommand += `  -H 'Content-Type: application/json' \\\n`;
+    
+    if (token) {
+      curlCommand += `  -H 'Authorization: Bearer ${token}'`;
+    } else {
+      curlCommand += `  -H 'Authorization: Bearer YOUR_TOKEN_HERE' # ⚠️ Token not found! Please login first.`;
+    }
+    
+    if (body) {
+      curlCommand += ` \\\n  --data-raw '${JSON.stringify(body)}'`;
+    }
+    
+    return curlCommand;
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success('Copied to clipboard!');
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pt-20">
-      {/* Header */}
-      <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              🧾 Ledger System Test
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Test the double-entry accounting system with real-time operations
-            </p>
+      <div className="min-h-screen">
+        {/* Header Section */}
+      <div className="relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-700/50">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+                  <BookOpen className="h-6 w-6 text-white" />
+                </div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Hello {getUserFirstName()}, Welcome to the Ledger!
+                </h1>
+              </div>
+
+
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                Enterprise-grade accounting system with real-time operations
+              </p>
+            </div>
+            <div className="hidden lg:flex items-center gap-3">
+              {/* Authentication Status Indicator */}
+              {user ? (
+                <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full">
+                  <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                    Authenticated as {user.firstName}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+                  <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                  <span className="text-sm font-medium text-red-700 dark:text-red-300">Not Authenticated</span>
+                </div>
+              )}
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full">
+                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <span className="text-sm font-medium text-green-700 dark:text-green-300">System Online</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                <Activity className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Live</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex">
-        {/* Left Sidebar - Navigation */}
-        <div className="w-64 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 min-h-screen p-6">
-          <div className="space-y-4">
-            <button
-              onClick={() => setActiveForm(null)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                activeForm === null
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-50 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600'
-              }`}
-            >
-              <Database className="h-5 w-5" />
-              Dashboard
-            </button>
-            <button
-              onClick={() => setActiveForm('account')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                activeForm === 'account'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-50 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600'
-              }`}
-            >
-              <Plus className="h-5 w-5" />
-              Connect Account
-            </button>
-            <button
-              onClick={() => setActiveForm('transfer')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                activeForm === 'transfer'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-50 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600'
-              }`}
-            >
-              <ArrowRight className="h-5 w-5" />
-              Create Transfer
-            </button>
-            <button
-              onClick={() => setActiveForm('deposit')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                activeForm === 'deposit'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-50 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600'
-              }`}
-            >
-              <DollarSign className="h-5 w-5" />
-              Create Deposit
-            </button>
+      {/* Modern Navigation Tabs */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-slate-700/50 p-6 mb-6">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: 'overview', label: 'Overview', icon: Database },
+              { id: 'accounts', label: 'Accounts', icon: CreditCard },
+              { id: 'transactions', label: 'Transactions', icon: ArrowRight },
+              { id: 'analytics', label: 'Analytics', icon: TrendingUp }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => { 
+                  setActiveTab(tab.id as any); 
+                  setActiveForm(null);
+                }}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25'
+                    : 'bg-white/50 dark:bg-slate-700/50 text-gray-700 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-slate-700/80'
+                }`}
+              >
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
+      </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-6">
-          {/* Dashboard Content */}
-          {activeForm === null && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Quick Actions for Overview */}
+          {activeTab === 'overview' && !activeForm && (
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button
+                  onClick={() => setActiveForm('account')}
+                  className="group p-6 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-2xl text-white transition-all duration-200 transform hover:scale-105 hover:shadow-xl"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white/20 rounded-xl">
+                      <Plus className="h-6 w-6" />
+                    </div>
+                    <div className="text-left">
+                      <h4 className="font-semibold">Connect Account</h4>
+                      <p className="text-blue-100 text-sm">Link new bank accounts</p>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveForm('transfer')}
+                  className="group p-6 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-2xl text-white transition-all duration-200 transform hover:scale-105 hover:shadow-xl"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white/20 rounded-xl">
+                      <ArrowRight className="h-6 w-6" />
+                    </div>
+                    <div className="text-left">
+                      <h4 className="font-semibold">Transfer Funds</h4>
+                      <p className="text-green-100 text-sm">Move money between accounts</p>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveForm('deposit')}
+                  className="group p-6 bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 rounded-2xl text-white transition-all duration-200 transform hover:scale-105 hover:shadow-xl"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white/20 rounded-xl">
+                      <DollarSign className="h-6 w-6" />
+                    </div>
+                    <div className="text-left">
+                      <h4 className="font-semibold">Make Deposit</h4>
+                      <p className="text-purple-100 text-sm">Add funds and see balance update</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Overview Tab */}
+          {activeTab === 'overview' && !activeForm && (
             <>
-              {/* Stats Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Accounts</p>
-                      <p className="text-2xl font-bold text-blue-600">{availableAccounts.length}</p>
+              {/* Enhanced Stats Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="group relative bg-gradient-to-br from-blue-500/10 to-blue-600/20 dark:from-blue-500/20 dark:to-blue-600/30 backdrop-blur-xl rounded-2xl p-6 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
+                  <div className="absolute top-4 right-4 p-2 bg-blue-500/20 rounded-xl group-hover:scale-110 transition-transform">
+                    <Database className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Accounts</p>
+                    <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{availableAccounts.length}</p>
+                    <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+                      <TrendingUp className="h-3 w-3" />
+                      <span>Active connections</span>
                     </div>
-                    <Database className="h-8 w-8 text-blue-500" />
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Transactions</p>
-                      <p className="text-2xl font-bold text-green-600">{transactions.length}</p>
+                <div className="group relative bg-gradient-to-br from-green-500/10 to-green-600/20 dark:from-green-500/20 dark:to-green-600/30 backdrop-blur-xl rounded-2xl p-6 border border-green-200/50 dark:border-green-700/50 hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300">
+                  <div className="absolute top-4 right-4 p-2 bg-green-500/20 rounded-xl group-hover:scale-110 transition-transform">
+                    <Activity className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-green-700 dark:text-green-300">Total Transactions</p>
+                    <p className="text-3xl font-bold text-green-900 dark:text-green-100">{transactions.length}</p>
+                    <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                      <CheckCircle className="h-3 w-3" />
+                      <span>All time</span>
                     </div>
-                    <Activity className="h-8 w-8 text-green-500" />
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Transactions</p>
-                      <p className="text-2xl font-bold text-purple-600">
-                        {transactions.filter(t => t.status === 'active').length}
-                      </p>
+                <div className="group relative bg-gradient-to-br from-purple-500/10 to-purple-600/20 dark:from-purple-500/20 dark:to-purple-600/30 backdrop-blur-xl rounded-2xl p-6 border border-purple-200/50 dark:border-purple-700/50 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300">
+                  <div className="absolute top-4 right-4 p-2 bg-purple-500/20 rounded-xl group-hover:scale-110 transition-transform">
+                    <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Pending Transactions</p>
+                    <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">
+                      {transactions.filter(t => t.status === 'draft').length}
+                    </p>
+                    <div className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400">
+                      <AlertTriangle className="h-3 w-3" />
+                      <span>Awaiting approval</span>
                     </div>
-                    <CheckCircle className="h-8 w-8 text-purple-500" />
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Transaction Volume</p>
-                      <p className="text-2xl font-bold text-green-600">
-                        ${transactions.reduce((total, tx) => total + tx.amount, 0).toFixed(2)}
-                      </p>
+                <div className="group relative bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 dark:from-emerald-500/20 dark:to-emerald-600/30 backdrop-blur-xl rounded-2xl p-6 border border-emerald-200/50 dark:border-emerald-700/50 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300">
+                  <div className="absolute top-4 right-4 p-2 bg-emerald-500/20 rounded-xl group-hover:scale-110 transition-transform">
+                    <DollarSign className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Total Volume</p>
+                    <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">
+                      ${transactions.reduce((total, tx) => total + tx.amount, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                    <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                      <TrendingUp className="h-3 w-3" />
+                      <span>Transaction value</span>
                     </div>
-                    <TrendingUp className="h-8 w-8 text-green-500" />
                   </div>
                 </div>
               </div>
 
-              {/* Total Balance */}
-              <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 mb-8 border border-gray-200 dark:border-slate-700">
-                <div className="text-center">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Total Balance</h2>
-                  <div className="text-4xl font-bold text-green-600 mb-2">
-                    ${availableAccounts.reduce((total, account) => total + (account.balance || 0), 0).toFixed(2)}
+              {/* Enhanced Total Balance Card */}
+              <div className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 dark:from-slate-800 dark:via-blue-800 dark:to-purple-800 rounded-3xl p-8 mb-8 overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/10 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-500/20 to-transparent rounded-full translate-y-12 -translate-x-12"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white/20 rounded-xl backdrop-blur">
+                        <CreditCard className="h-6 w-6 text-white" />
+                      </div>
+                      <h2 className="text-xl font-semibold text-white">Portfolio Balance</h2>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-1 bg-green-500/20 rounded-full">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-green-200 font-medium">Live</span>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Across all accounts
-                  </p>
+                  
+                  <div className="text-center space-y-4">
+                    <div className="space-y-2">
+                      <div className="text-5xl font-bold text-white tracking-tight">
+                        ${availableAccounts.reduce((total, account) => total + (account.balance || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
+                      <div className="text-white/70 text-lg">USD</div>
+                    </div>
+                    
+                    <div className="flex items-center justify-center gap-6 text-sm">
+                      <div className="flex items-center gap-2 text-white/80">
+                        <Database className="h-4 w-4" />
+                        <span>{availableAccounts.length} accounts connected</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-green-300">
+                        <TrendingUp className="h-4 w-4" />
+                        <span>Real-time sync</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Data Display Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Accounts List */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-                  <div className="flex items-center gap-2 mb-6">
-                    <Database className="h-5 w-5 text-blue-500" />
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Created Accounts</h2>
+              {/* Recent Activity Summary */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
+                    <button 
+                      onClick={() => setActiveTab('transactions')}
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                    >
+                      View all →
+                    </button>
                   </div>
-                  {availableAccounts.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Database className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500 dark:text-gray-400">No accounts created yet</p>
-                      <p className="text-sm text-gray-400">Create an account to see it here</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
-                      {availableAccounts.map((account) => (
-                        <div key={account.id} className="border border-gray-200 dark:border-slate-600 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-medium text-gray-900 dark:text-white">{account.name}</h3>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">#{account.account_number}</p>
-                              <p className="text-sm text-gray-500 dark:text-gray-500">{account.description}</p>
-                              <p className="text-sm text-gray-500 dark:text-gray-500">
-                                Type: {account.type} | Currency: {account.currency}
-                              </p>
-                              {account.balance !== undefined && (
-                                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                  Balance: ${account.balance.toFixed(2)}
-                                </p>
-                              )}
-                            </div>
-                            <div className="text-xs text-gray-400 dark:text-gray-500 font-mono">{account.id}</div>
+                  <div className="space-y-3">
+                    {transactions.slice(0, 3).map((transaction) => (
+                      transaction && typeof transaction.amount === 'number' ? (
+                        <div key={transaction.id} className="flex items-center gap-3 p-3 bg-white/50 dark:bg-slate-700/50 rounded-xl">
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                            transaction.type === 'transfer' ? 'bg-green-500' : 'bg-purple-500'
+                          }`}>
+                            {transaction.type === 'transfer' ? (
+                              <ArrowRight className="h-4 w-4 text-white" />
+                            ) : (
+                              <DollarSign className="h-4 w-4 text-white" />
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900 dark:text-white capitalize">{transaction.type}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.description}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-gray-900 dark:text-white">
+                              ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      ) : null
+                    ))}
+                    {transactions.length === 0 && (
+                      <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+                        No recent activity
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {/* Transactions List */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-                  <div className="flex items-center gap-2 mb-6">
-                    <Activity className="h-5 w-5 text-green-500" />
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Created Transactions</h2>
+                <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Account Summary</h3>
+                  <div className="space-y-4">
+                    {availableAccounts.slice(0, 3).map((account) => (
+                      account && typeof account.balance === 'number' ? (
+                        <div key={account.id} className="flex items-center justify-between p-3 bg-white/50 dark:bg-slate-700/50 rounded-xl">
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-white">{account.name}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">{account.type}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-gray-900 dark:text-white">
+                              ${(account.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                        </div>
+                      ) : null
+                    ))}
+                    {availableAccounts.length === 0 && (
+                      <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+                        No accounts connected
+                      </div>
+                    )}
                   </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Accounts Tab */}
+          {activeTab === 'accounts' && !activeForm && (
+            <>
+              {/* Accounts Header */}
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Account Management</h2>
+                  <p className="text-gray-600 dark:text-gray-400">Manage your connected accounts and view balances</p>
+                </div>
+                <button
+                  onClick={() => setActiveForm('account')}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+                >
+                  <Plus className="h-5 w-5" />
+                  Connect New Account
+                </button>
+              </div>
+
+              {/* Account Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/20 dark:from-blue-500/20 dark:to-blue-600/30 backdrop-blur-xl rounded-2xl p-6 border border-blue-200/50 dark:border-blue-700/50">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-blue-500/20 rounded-xl">
+                      <Database className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Accounts</p>
+                      <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{availableAccounts.length}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-green-500/10 to-green-600/20 dark:from-green-500/20 dark:to-green-600/30 backdrop-blur-xl rounded-2xl p-6 border border-green-200/50 dark:border-green-700/50">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-green-500/20 rounded-xl">
+                      <DollarSign className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-green-700 dark:text-green-300">Total Balance</p>
+                      <p className="text-2xl font-bold text-green-900 dark:text-green-100">
+                        ${availableAccounts.reduce((total, account) => total + (account.balance || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/20 dark:from-purple-500/20 dark:to-purple-600/30 backdrop-blur-xl rounded-2xl p-6 border border-purple-200/50 dark:border-purple-700/50">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-purple-500/20 rounded-xl">
+                      <CheckCircle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Active Accounts</p>
+                      <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{availableAccounts.length}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Connected Accounts - List-Detail View */}
+              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-slate-700/50 shadow-xl">
+                <div className="p-6 border-b border-gray-200/50 dark:border-slate-700/50">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Connected Accounts</h3>
+                    <div className="flex items-center gap-4">
+                      <button className="flex items-center gap-2 px-4 py-2 text-sm bg-white/50 dark:bg-slate-700/50 rounded-lg hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all">
+                        <TrendingUp className="h-4 w-4" />
+                        Sync All
+                      </button>
+                      <button className="flex items-center gap-2 px-4 py-2 text-sm bg-white/50 dark:bg-slate-700/50 rounded-lg hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all">
+                        Export
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {availableAccounts.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="relative mb-8">
+                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-3xl mx-auto flex items-center justify-center">
+                        <Database className="h-10 w-10 text-blue-500 dark:text-blue-400" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">No accounts connected</h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                      Connect your bank accounts to start managing your finances with our ledger system
+                    </p>
+                    <button
+                      onClick={() => setActiveForm('account')}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
+                    >
+                      <Plus className="h-5 w-5" />
+                      Connect Your First Account
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex h-[600px]">
+                    {/* Accounts List - Left Side */}
+                    <div className="w-1/3 border-r border-gray-200/50 dark:border-slate-700/50 overflow-y-auto">
+                      <div className="p-4 space-y-2">
+                        {availableAccounts.map((account) => (
+                          account && typeof account.balance === 'number' ? (
+                            <button
+                              key={account.id}
+                              onClick={() => setSelectedAccount(account)}
+                              className={`w-full text-left p-4 rounded-xl transition-all duration-200 ${
+                                selectedAccount?.id === account.id
+                                  ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border border-blue-300/50 dark:border-blue-600/50'
+                                  : 'bg-white/30 dark:bg-slate-700/30 hover:bg-white/50 dark:hover:bg-slate-700/50 border border-transparent'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                  selectedAccount?.id === account.id
+                                    ? 'bg-gradient-to-br from-blue-500 to-purple-600'
+                                    : 'bg-gradient-to-br from-gray-400 to-gray-500'
+                                }`}>
+                                  <CreditCard className="h-5 w-5 text-white" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className={`font-semibold truncate ${
+                                    selectedAccount?.id === account.id
+                                      ? 'text-blue-900 dark:text-blue-100'
+                                      : 'text-gray-900 dark:text-white'
+                                  }`}>
+                                    {account.name}
+                                  </h4>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                                    #{account.account_number}
+                                  </p>
+                                  {account.balance !== undefined && typeof account.balance === 'number' && (
+                                    <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                                      ${account.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                                </div>
+                              </div>
+                            </button>
+                          ) : null
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Account Details - Right Side */}
+                    <div className="flex-1 p-6">
+                      {selectedAccount ? (
+                        <div className="h-full">
+                          {/* Account Header */}
+                          <div className="flex items-start justify-between mb-8">
+                            <div className="flex items-center gap-4">
+                              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                                <CreditCard className="h-8 w-8 text-white" />
+                              </div>
+                              <div>
+                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedAccount.name}</h2>
+                                <p className="text-gray-500 dark:text-gray-400">Account #{selectedAccount.account_number}</p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                                  <span className="text-sm text-green-600 dark:text-green-400 font-medium">Active</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setActiveForm('transfer')}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all"
+                              >
+                                <ArrowRight className="h-4 w-4" />
+                                Transfer
+                              </button>
+                              <button
+                                onClick={() => setActiveForm('deposit')}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all"
+                              >
+                                <DollarSign className="h-4 w-4" />
+                                Deposit
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Account Balance */}
+                          {selectedAccount.balance !== undefined && typeof selectedAccount.balance === 'number' && (
+                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-800 mb-8">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="text-sm font-medium text-green-700 dark:text-green-300 mb-2">Available Balance</p>
+                                  <p className="text-4xl font-bold text-green-900 dark:text-green-100">
+                                    ${selectedAccount.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </p>
+                                  <p className="text-sm text-green-600 dark:text-green-400 mt-1">{selectedAccount.currency}</p>
+                                </div>
+                                <div className="text-green-600 dark:text-green-400">
+                                  <TrendingUp className="h-12 w-12" />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Account Details */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div className="bg-white/50 dark:bg-slate-700/50 rounded-xl p-6 border border-white/20 dark:border-slate-600/50">
+                              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Account Information</h3>
+                              <div className="space-y-3">
+                                <div>
+                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Account Type</label>
+                                  <div className="mt-1">
+                                    <span className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium capitalize">
+                                      {selectedAccount.type}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Currency</label>
+                                  <div className="mt-1">
+                                    <span className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-slate-600 text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium">
+                                      {selectedAccount.currency}
+                                    </span>
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                                  <p className="mt-1 text-gray-600 dark:text-gray-400">{selectedAccount.description}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="bg-white/50 dark:bg-slate-700/50 rounded-xl p-6 border border-white/20 dark:border-slate-600/50">
+                              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+                              <div className="space-y-3">
+                                <button
+                                  onClick={() => {
+                                    setBalanceForm({account_id: selectedAccount.id});
+                                    handleGetBalance(new Event('submit') as any);
+                                  }}
+                                  className="w-full flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg hover:from-blue-100 hover:to-blue-200 dark:hover:from-blue-800/30 dark:hover:to-blue-700/30 transition-all"
+                                >
+                                  <Database className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                  <span className="text-blue-700 dark:text-blue-300 font-medium">Refresh Balance</span>
+                                </button>
+                                <button className="w-full flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg hover:from-purple-100 hover:to-purple-200 dark:hover:from-purple-800/30 dark:hover:to-purple-700/30 transition-all">
+                                  <Activity className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                                  <span className="text-purple-700 dark:text-purple-300 font-medium">View Transactions</span>
+                                </button>
+                                <button className="w-full flex items-center gap-3 p-3 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg hover:from-green-100 hover:to-green-200 dark:hover:from-green-800/30 dark:hover:to-green-700/30 transition-all">
+                                  <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                  <span className="text-green-700 dark:text-green-300 font-medium">Export Statement</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="h-full flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl mx-auto flex items-center justify-center mb-4">
+                              <CreditCard className="h-8 w-8 text-gray-400" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Select an Account</h3>
+                            <p className="text-gray-500 dark:text-gray-400">
+                              Choose an account from the list to view its details and manage transactions
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Transactions Tab */}
+          {activeTab === 'transactions' && !activeForm && (
+            <>
+              {/* Transactions Header */}
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Transaction History</h2>
+                  <p className="text-gray-600 dark:text-gray-400">View and manage all your financial transactions</p>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setActiveForm('deposit')}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    <DollarSign className="h-5 w-5" />
+                    Deposit
+                  </button>
+                  <button
+                    onClick={() => setActiveForm('transfer')}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    <ArrowRight className="h-5 w-5" />
+                    Transfer
+                  </button>
+                </div>
+              </div>
+
+              {/* Transaction Analytics Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="bg-gradient-to-br from-green-500/10 to-green-600/20 dark:from-green-500/20 dark:to-green-600/30 backdrop-blur-xl rounded-2xl p-6 border border-green-200/50 dark:border-green-700/50">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-500/20 rounded-xl">
+                      <Activity className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-green-700 dark:text-green-300">Total Transactions</p>
+                      <p className="text-2xl font-bold text-green-900 dark:text-green-100">{transactions.length}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/20 dark:from-blue-500/20 dark:to-blue-600/30 backdrop-blur-xl rounded-2xl p-6 border border-blue-200/50 dark:border-blue-700/50">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/20 rounded-xl">
+                      <CheckCircle className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Posted</p>
+                      <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                        {transactions.filter(t => t.status === 'posted').length}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/20 dark:from-yellow-500/20 dark:to-yellow-600/30 backdrop-blur-xl rounded-2xl p-6 border border-yellow-200/50 dark:border-yellow-700/50">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-yellow-500/20 rounded-xl">
+                      <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Pending</p>
+                      <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
+                        {transactions.filter(t => t.status === 'draft').length}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 dark:from-emerald-500/20 dark:to-emerald-600/30 backdrop-blur-xl rounded-2xl p-6 border border-emerald-200/50 dark:border-emerald-700/50">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-emerald-500/20 rounded-xl">
+                      <DollarSign className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Total Volume</p>
+                      <p className="text-xl font-bold text-emerald-900 dark:text-emerald-100">
+                        ${transactions.reduce((total, tx) => total + tx.amount, 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Transaction Filters and Search */}
+              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl mb-8">
+                <div className="flex flex-col lg:flex-row gap-4">
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      placeholder="Search transactions..."
+                      className="w-full px-4 py-3 bg-white/50 dark:bg-slate-700/50 border border-white/20 dark:border-slate-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <select className="px-4 py-3 bg-white/50 dark:bg-slate-700/50 border border-white/20 dark:border-slate-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white">
+                      <option>All Types</option>
+                      <option>Transfer</option>
+                      <option>Deposit</option>
+                    </select>
+                    <select className="px-4 py-3 bg-white/50 dark:bg-slate-700/50 border border-white/20 dark:border-slate-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white">
+                      <option>All Status</option>
+                      <option>Posted</option>
+                      <option>Draft</option>
+                    </select>
+                    <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all">
+                      Export
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Transactions List */}
+              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-slate-700/50 shadow-xl">
+                <div className="p-6">
                   {transactions.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500 dark:text-gray-400">No transactions created yet</p>
-                      <p className="text-sm text-gray-400">Create a transaction to see it here</p>
+                    <div className="text-center py-16">
+                      <div className="relative mb-8">
+                        <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30 rounded-3xl mx-auto flex items-center justify-center">
+                          <Activity className="h-10 w-10 text-green-500 dark:text-green-400" />
+                        </div>
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">No transactions yet</h3>
+                      <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                        Start by creating your first transaction to see your financial activity here
+                      </p>
+                      <div className="flex gap-4 justify-center">
+                        <button
+                          onClick={() => setActiveForm('transfer')}
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl"
+                        >
+                          <ArrowRight className="h-5 w-5" />
+                          Create Transfer
+                        </button>
+                        <button
+                          onClick={() => setActiveForm('deposit')}
+                          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+                        >
+                          <DollarSign className="h-5 w-5" />
+                          Make Deposit
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                    <div className="space-y-4">
                       {transactions.map((transaction) => (
-                        <div key={transaction.id} className="border border-gray-200 dark:border-slate-600 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-medium text-gray-900 dark:text-white">{transaction.type}</h3>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">{transaction.description}</p>
-                              <p className="text-sm text-gray-500 dark:text-gray-500">Reference: {transaction.reference}</p>
-                              <p className="text-sm text-gray-500 dark:text-gray-500">
-                                Amount: ${transaction.amount.toFixed(2)} {transaction.currency}
-                              </p>
-                              <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium mt-1 ${
-                                transaction.status === 'posted' 
-                                  ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400' 
-                                  : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-400'
-                              }`}>
-                                {transaction.status === 'posted' ? (
-                                  <>
-                                    <CheckCircle className="h-3 w-3" />
-                                    Posted
-                                  </>
-                                ) : (
-                                  <>
-                                    <Clock className="h-3 w-3" />
-                                    Draft
-                                  </>
+                        transaction && typeof transaction.amount === 'number' ? (
+                          <div key={transaction.id} className="group bg-white/50 dark:bg-slate-700/50 backdrop-blur border border-white/20 dark:border-slate-600/50 rounded-2xl p-6 hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all duration-200 hover:shadow-lg">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                                  transaction.type === 'transfer' 
+                                    ? 'bg-gradient-to-br from-green-500 to-green-600'
+                                    : 'bg-gradient-to-br from-purple-500 to-purple-600'
+                                }`}>
+                                  {transaction.type === 'transfer' ? (
+                                    <ArrowRight className="h-6 w-6 text-white" />
+                                  ) : (
+                                    <DollarSign className="h-6 w-6 text-white" />
+                                  )}
+                                </div>
+                                <div>
+                                  <h3 className="font-bold text-gray-900 dark:text-white text-lg capitalize">{transaction.type}</h3>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.reference}</p>
+                                  <p className="text-gray-600 dark:text-gray-300">{transaction.description}</p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-6">
+                                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
+                                  transaction.status === 'posted' 
+                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
+                                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800'
+                                }`}>
+                                  {transaction.status === 'posted' ? (
+                                    <>
+                                      <CheckCircle className="h-4 w-4" />
+                                      Posted
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Clock className="h-4 w-4" />
+                                      Draft
+                                    </>
+                                  )}
+                                </div>
+
+                                <div className="text-right">
+                                  <div className="text-xl font-bold text-gray-900 dark:text-white">
+                                    ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </div>
+                                  <div className="text-sm text-gray-500 dark:text-gray-400">{transaction.currency}</div>
+                                </div>
+
+                                {transaction.status === 'draft' && (
+                                  <button
+                                    onClick={() => handlePostTransaction(transaction.id)}
+                                    disabled={loading}
+                                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 transition-all"
+                                  >
+                                    <CheckCircle className="h-4 w-4" />
+                                    {loading ? 'Posting...' : 'Post'}
+                                  </button>
                                 )}
                               </div>
                             </div>
-                            <div className="flex flex-col space-y-2">
-                              <div className="text-xs text-gray-400 dark:text-gray-500 font-mono">{transaction.id}</div>
-                              {transaction.status === 'draft' && (
-                                <button
-                                  onClick={() => handlePostTransaction(transaction.id)}
-                                  disabled={loading}
-                                  className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                                >
-                                  Post
-                                </button>
-                              )}
-                            </div>
                           </div>
-                        </div>
+                        ) : null
                       ))}
                     </div>
                   )}
@@ -911,32 +1788,104 @@ const LedgerTest: React.FC = () => {
             </>
           )}
 
-          {/* Form Content */}
-          {activeForm === 'account' && (
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700 max-w-2xl mx-auto">
-              <div className="flex items-center gap-2 mb-6">
-                <Plus className="h-5 w-5 text-blue-500" />
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Connect Account</h2>
+          {/* Analytics Tab */}
+          {activeTab === 'analytics' && !activeForm && (
+            <>
+              <div className="text-center py-16">
+                <div className="relative mb-8">
+                  <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 rounded-3xl mx-auto flex items-center justify-center">
+                    <TrendingUp className="h-10 w-10 text-purple-500 dark:text-purple-400" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Analytics Dashboard</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                  Advanced financial analytics and insights will be available here soon
+                </p>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">
+                  <Clock className="h-4 w-4" />
+                  Coming Soon
+                </div>
               </div>
-              {/* Enhanced Multi-Step Connect Account Flow */}
-              <ConnectAccountFlow onAccountConnected={() => { loadAvailableAccounts(); setActiveForm(null); }} />
+            </>
+          )}
+
+          {/* Enhanced Account Connection Form */}
+          {activeForm === 'account' && (
+            <div className="max-w-4xl mx-auto">
+              {/* Modern Header with Progress */}
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-8 border border-white/20 dark:border-slate-700/50 shadow-2xl mb-8">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                    <Database className="h-8 w-8 text-white" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Connect Your Account</h2>
+                  <p className="text-gray-600 dark:text-gray-400 text-lg">Securely link your bank account to get started</p>
+                </div>
+
+                {/* Trust Indicators */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                  <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                    <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                      <Shield className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-green-700 dark:text-green-300 text-sm">Bank-Level Security</p>
+                      <p className="text-xs text-green-600 dark:text-green-400">256-bit encryption</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <CheckCircle className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-blue-700 dark:text-blue-300 text-sm">Instant Connection</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">Real-time verification</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                    <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                      <Eye className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-purple-700 dark:text-purple-300 text-sm">Read-Only Access</p>
+                      <p className="text-xs text-purple-600 dark:text-purple-400">We never store passwords</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Enhanced Multi-Step Connect Account Flow */}
+                <ConnectAccountFlow onAccountConnected={() => { loadAvailableAccounts(); setActiveForm(null); }} />
+              </div>
             </div>
           )}
 
+          {/* Enhanced Transfer Form */}
           {activeForm === 'transfer' && (
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-              <div className="flex items-center gap-2 mb-6">
-                <ArrowRight className="h-5 w-5 text-green-500" />
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Create Transfer</h2>
-              </div>
-              {/* Success Toast Notification */}
-              {showTransferSuccess && (
-                <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 animate-fade-in">
-                  <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-                  <span className="text-green-800 dark:text-green-200 font-medium">Transfer created successfully!</span>
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-8 border border-white/20 dark:border-slate-700/50 shadow-2xl">
+                {/* Header */}
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                    <ArrowRight className="h-8 w-8 text-white" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Transfer</h2>
+                  <p className="text-gray-600 dark:text-gray-400 text-lg">Move money between your accounts instantly</p>
                 </div>
-              )}
-              <form onSubmit={handleCreateTransfer} className="space-y-4 max-w-2xl">
+
+                {/* Success Toast Notification */}
+                {showTransferSuccess && (
+                  <div className="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 animate-fade-in">
+                    <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
+                      <CheckCircle className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-green-800 dark:text-green-200">Transfer created successfully!</p>
+                      <p className="text-sm text-green-600 dark:text-green-400">Your transaction has been processed</p>
+                    </div>
+                  </div>
+                )}
+
+                <form onSubmit={handleCreateTransfer} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     From Account
@@ -1059,6 +2008,7 @@ const LedgerTest: React.FC = () => {
                   </div>
                 </div>
               )}
+              </div>
             </div>
           )}
 
@@ -1138,25 +2088,36 @@ const LedgerTest: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                   />
                 </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-purple-600 text-white py-2 px-6 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 transition-colors"
-                >
-                  {loading ? 'Creating...' : 'Create Deposit'}
-                </button>
+                <div className="flex gap-4">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="bg-purple-600 text-white py-2 px-6 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 transition-colors flex-1"
+                  >
+                    {loading ? 'Creating...' : 'Create Deposit'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCreateTestBalance}
+                    disabled={loading}
+                    className="bg-orange-600 text-white py-2 px-6 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 transition-colors flex-1"
+                  >
+                    {loading ? 'Creating...' : 'Get Test Balance'}
+                  </button>
+                </div>
               </form>
             </div>
           )}
 
           {/* Response Display */}
           {response && (
-            <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-white px-4 py-3 rounded-lg mt-6">
+            <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 text-gray-900 dark:text-white px-6 py-4 rounded-2xl mt-6">
               <pre className="text-sm whitespace-pre-wrap">{response}</pre>
             </div>
           )}
+
+
         </div>
-      </div>
     </div>
   );
 };
