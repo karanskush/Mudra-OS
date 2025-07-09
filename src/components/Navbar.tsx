@@ -144,15 +144,6 @@ const Navbar: React.FC = () => {
           category: 'Infrastructure'
         },
         { 
-          name: 'Payment Rails', 
-          href: '/payment-rails', 
-          icon: CreditCard, 
-          description: 'Smart payment routing & processing',
-          badge: 'Popular',
-          status: 'stable',
-          category: 'Payments'
-        },
-        { 
           name: 'KYC & Compliance', 
           href: '/kyc', 
           icon: Shield, 
@@ -178,23 +169,23 @@ const Navbar: React.FC = () => {
             },
           ]
         },
-        { 
-          name: 'Analytics & Insights', 
-          href: '/analytics', 
-          icon: TrendingUp, 
-          description: 'Real-time business intelligence',
-          badge: 'Pro',
+                { 
+          name: 'Payment Rails', 
+          href: '/payment-rails', 
+          icon: CreditCard, 
+          description: 'Smart payment routing & processing',
+          badge: 'Test',
           status: 'stable',
-          category: 'Analytics'
+          category: 'Payments'
         },
         { 
-          name: 'gRPC Streaming Demo', 
-          href: '/grpc-demo', 
-          icon: Zap, 
-          description: 'Real-time bidirectional streaming APIs',
-          badge: 'New',
+          name: 'Analytics & Insights', 
+          href: '#', 
+          icon: TrendingUp, 
+          description: 'Real-time business intelligence',
+          badge: 'Upcoming',
           status: 'beta',
-          category: 'Infrastructure'
+          category: 'Analytics'
         },
       ]
     },
@@ -211,8 +202,16 @@ const Navbar: React.FC = () => {
           icon: Code,
           description: 'Interactive API testing & exploration',
           badge: 'Interactive',
-          status: 'active',
+          status: 'stable',
           category: 'Development'
+        },{
+          name: 'gRPC Streaming Demo',
+          href: '/grpc-demo',
+          icon: Zap,
+          description: 'Real-time bidirectional streaming APIs',
+          badge: 'New',
+          status: 'active',
+          category: 'Infrastructure'
         },
         {
           name: 'View Documentation',
@@ -220,21 +219,12 @@ const Navbar: React.FC = () => {
           icon: Database,
           description: 'Comprehensive API documentation',
           badge: 'Complete',
-          status: 'stable',
+          status: 'beta',
           category: 'Development'
         },
         {
-          name: 'gRPC Demo',
-          href: '/grpc-demo',
-          icon: Zap,
-          description: 'Real-time bidirectional streaming APIs',
-          badge: 'New',
-          status: 'beta',
-          category: 'Infrastructure'
-        },
-        {
           name: 'Quick Start',
-          href: '/developers/quickstart',
+          href: '#',
           icon: Sparkles,
           description: 'Get started in minutes',
           badge: 'Guide',
@@ -243,7 +233,7 @@ const Navbar: React.FC = () => {
         },
         {
           name: 'SDKs & Libraries',
-          href: '/developers/sdks',
+          href: '#',
           icon: Building,
           description: 'Client libraries & SDKs',
           badge: 'Multi-Lang',
@@ -550,12 +540,17 @@ const Navbar: React.FC = () => {
                               ) : (
                                 <Link
                                   to={subItem.href}
+                                  onClick={() => {
+                                    setActiveDropdown(null);
+                                    setActiveSubDropdown(null);
+                                  }}
                                   className={`flex items-start gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-                                    isDark 
-                                      ? 'hover:bg-slate-700/50 hover:shadow-lg' 
-                                      : 'hover:bg-gray-50 hover:shadow-sm'
+                                    subItem.href === '#' 
+                                      ? 'cursor-not-allowed opacity-60' 
+                                      : isDark 
+                                        ? 'hover:bg-slate-700/50 hover:shadow-lg cursor-pointer' 
+                                        : 'hover:bg-gray-50 hover:shadow-sm cursor-pointer'
                                   }`}
-                                  onClick={() => setActiveDropdown(null)}
                                 >
                                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center mt-0.5 transition-all duration-200 group-hover:scale-105 ${
                                     isDark 
@@ -840,18 +835,23 @@ const Navbar: React.FC = () => {
                                     )}
                                   </>
                                 ) : (
-                                  <Link
-                                    to={subItem.href}
+                                  <div
                                     className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
-                                      isDark 
-                                        ? 'text-gray-400 hover:text-white hover:bg-slate-800' 
-                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                      subItem.href === '#' 
+                                        ? 'cursor-not-allowed opacity-60' 
+                                        : isDark 
+                                          ? 'text-gray-400 hover:text-white hover:bg-slate-800' 
+                                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                                     }`}
-                                    onClick={() => setIsOpen(false)}
+                                    onClick={() => {
+                                      if (subItem.href !== '#') {
+                                        setIsOpen(false);
+                                      }
+                                    }}
                                   >
                                     <subItem.icon className="h-4 w-4" />
                                     {subItem.name}
-                                  </Link>
+                                  </div>
                                 )}
                               </div>
                             ))}

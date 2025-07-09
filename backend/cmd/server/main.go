@@ -314,7 +314,7 @@ func setupRoutes(router *gin.Engine, cfg *config.Config) {
 
 		// Determine overall status
 		overallStatus := "ok"
-		message := "Fintech Backend is running with Neon database"
+		message := "Fintech Backend is running with database"
 
 		if dbStatus == "error" || dbStatus == "disconnected" {
 			overallStatus = "degraded"

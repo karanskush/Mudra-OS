@@ -599,7 +599,7 @@ const apiCategories = {
         requestBody: {},
         response: {
           status: 'ok',
-          message: 'Fintech Backend is running with Neon database',
+          message: 'Fintech Backend is running with database',
           time: '2024-01-20T15:30:00Z',
           timestamp: 1705758600,
           database: {

@@ -20,6 +20,7 @@ import KYCFlow from './components/KYCFlow';
 import KYCDashboard from './components/KYCDashboard';
 import Developers from './components/Developers';
 import APIExplorer from './components/Developers/APIExplorer';
+import Documentation from './components/Developers/Documentation';
 import GRPCDemo from './components/GRPCDemo';
 import GRPCTest from './components/GRPCTest';
 import RouterTest from './components/RouterTest';
@@ -164,6 +165,7 @@ function App() {
               <Route path="/kyc/dashboard" element={<ProtectedRoute><Layout><KYCDashboard /></Layout></ProtectedRoute>} />
               <Route path="/developers" element={<Layout><Developers /></Layout>} />
               <Route path="/developers/api-explorer" element={<Layout><APIExplorer /></Layout>} />
+              <Route path="/developers/docs" element={<Layout><Documentation /></Layout>} />
               <Route path="/grpc-demo" element={<Layout><GRPCDemo /></Layout>} />
               <Route path="/grpc-test" element={<Layout><GRPCTest /></Layout>} />
               <Route path="/router-test" element={<Layout><RouterTest /></Layout>} />
