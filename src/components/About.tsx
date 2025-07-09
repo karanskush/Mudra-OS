@@ -258,20 +258,37 @@ func LoadAmazingDeveloper(ctx context.Context) (*Developer, error) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 * index }}
                   key={index}
-                  className="relative flex items-center justify-between w-full mb-12"
+                  className="relative flex items-center justify-between w-full mb-8"
                 >
-                  <div className="w-5/12" /> {/* Empty space on the left */}
+                  {index % 2 === 1 ? (
+                    // Left side content for odd indices (Siply)
+                    <div className="w-5/12 text-right bg-gray-900/30 backdrop-blur-sm rounded-xl p-6 border border-gray-800/30">
+                      <p className="text-sm font-semibold text-purple-400 mb-1">{exp.duration}</p>
+                      <h3 className="text-xl font-bold mb-2">{exp.title}</h3>
+                      <p className="text-md font-medium text-gray-300">{exp.company}</p>
+                      <p className="text-sm text-gray-400 mt-2 whitespace-pre-line">{exp.description}</p>
+                    </div>
+                  ) : (
+                    // Empty space for even indices
+                    <div className="w-5/12" />
+                  )}
                   
                   <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg flex items-center justify-center text-white z-10">
                     {exp.icon}
                   </div>
 
-                  <div className="w-5/12 text-left bg-gray-900/30 backdrop-blur-sm rounded-xl p-6 border border-gray-800/30">
-                    <p className="text-sm font-semibold text-purple-400 mb-1">{exp.duration}</p>
-                    <h3 className="text-xl font-bold mb-2">{exp.title}</h3>
-                    <p className="text-md font-medium text-gray-300">{exp.company}</p>
-                    <p className="text-sm text-gray-400 mt-2 whitespace-pre-line">{exp.description}</p>
-                  </div>
+                  {index % 2 === 0 ? (
+                    // Right side content for even indices (Walmart, SuperK)
+                    <div className="w-5/12 text-left bg-gray-900/30 backdrop-blur-sm rounded-xl p-6 border border-gray-800/30">
+                      <p className="text-sm font-semibold text-purple-400 mb-1">{exp.duration}</p>
+                      <h3 className="text-xl font-bold mb-2">{exp.title}</h3>
+                      <p className="text-md font-medium text-gray-300">{exp.company}</p>
+                      <p className="text-sm text-gray-400 mt-2 whitespace-pre-line">{exp.description}</p>
+                    </div>
+                  ) : (
+                    // Empty space for odd indices
+                    <div className="w-5/12" />
+                  )}
                 </motion.div>
               ))}
             </div>
