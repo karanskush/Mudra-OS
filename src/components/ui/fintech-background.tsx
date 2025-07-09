@@ -36,6 +36,12 @@ export const FintechBackground: React.FC<FintechBackgroundProps> = ({
   const [elements, setElements] = useState<FloatingElement[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
+  const elementsRef = useRef<FloatingElement[]>([]);
+
+  // Update ref when elements change
+  useEffect(() => {
+    elementsRef.current = elements;
+  }, [elements]);
 
   // Generate floating elements
   useEffect(() => {
@@ -116,7 +122,7 @@ export const FintechBackground: React.FC<FintechBackgroundProps> = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [elements, enableGrid]);
+  }, [enableGrid, primaryColor, secondaryColor, accentColor]); // Removed 'elements' from dependencies
 
   const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     const gridSize = 60;

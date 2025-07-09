@@ -149,6 +149,9 @@ function App() {
     console.log('getApiUrl():', getApiUrl());
     console.log('NODE_ENV:', import.meta.env.NODE_ENV);
     console.log('MODE:', import.meta.env.MODE);
+    
+    // Scroll to top when route changes
+    window.scrollTo(0, 0);
   }, [location.pathname]);
 
   return (
