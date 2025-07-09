@@ -17,7 +17,8 @@ import {
   Copy,
   ArrowRightLeft,
   Users,
-  Wallet
+  Wallet,
+  RefreshCw
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from "../lib/api";
@@ -725,6 +726,50 @@ const LedgerTest: React.FC = () => {
     }
   };
 
+  const loadTransactionHistory = async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.getTransactionHistory(50, 0);
+      const data = response as any;
+      
+      if (data.data && Array.isArray(data.data)) {
+        // Transform the backend transaction format to frontend format
+        const transformedTransactions = data.data.map((tx: any) => ({
+          id: tx.id,
+          type: tx.type?.toLowerCase() || 'unknown',
+          status: tx.status?.toLowerCase() || 'pending',
+          amount: tx.total_amount || 0,
+          currency: tx.currency || 'USD',
+          description: tx.description || '',
+          reference: tx.reference || '',
+          entries: tx.entries || []
+        }));
+        setTransactions(transformedTransactions);
+      } else if (Array.isArray(data)) {
+        // Direct array of transactions
+        const transformedTransactions = data.map((tx: any) => ({
+          id: tx.id,
+          type: tx.type?.toLowerCase() || 'unknown',
+          status: tx.status?.toLowerCase() || 'pending',
+          amount: tx.total_amount || 0,
+          currency: tx.currency || 'USD',
+          description: tx.description || '',
+          reference: tx.reference || '',
+          entries: tx.entries || []
+        }));
+        setTransactions(transformedTransactions);
+      } else {
+        console.error('Failed to load transactions:', response);
+        setTransactions([]);
+      }
+    } catch (error) {
+      console.error('Error loading transaction history:', error);
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Load accounts on component mount
   useEffect(() => {
     let mounted = true;
@@ -732,6 +777,7 @@ const LedgerTest: React.FC = () => {
     const loadAccounts = async () => {
       if (mounted) {
         await loadAvailableAccounts();
+        await loadTransactionHistory();
       }
     };
     
@@ -1582,6 +1628,14 @@ const LedgerTest: React.FC = () => {
                   <p className="text-gray-600 dark:text-gray-400">View and manage all your financial transactions</p>
                 </div>
                 <div className="flex gap-3">
+                  <button
+                    onClick={loadTransactionHistory}
+                    disabled={loading}
+                    className="inline-flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 disabled:opacity-50 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+                    {loading ? 'Loading...' : 'Refresh'}
+                  </button>
                   <button
                     onClick={() => setActiveForm('deposit')}
                     className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"

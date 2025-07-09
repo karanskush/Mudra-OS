@@ -290,6 +290,15 @@ class ApiClient {
     return this.authenticatedRequest(`/api/v1/ledger/accounts/${accountId}/transactions${queryString}`);
   }
 
+  async getTransactionHistory(limit?: number, offset?: number): Promise<ApiResponse> {
+    const params = new URLSearchParams();
+    if (limit) params.append('limit', limit.toString());
+    if (offset) params.append('offset', offset.toString());
+    
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    return this.authenticatedRequest(`/api/v1/ledger/transactions/history${queryString}`);
+  }
+
   // Debug helper - generates curl command with proper auth headers
   generateCurlCommand(endpoint: string, options: RequestInit = {}): string {
     const url = `${this.baseUrl}${endpoint}`;
