@@ -738,20 +738,22 @@ const LedgerTest: React.FC = () => {
         const transformedTransactions = data.data.map((tx: any) => ({
           id: tx.id,
           type: tx.type?.toLowerCase() || 'unknown',
-          status: tx.status?.toLowerCase() || 'pending',
+          status: tx.status?.toLowerCase() || 'draft',
           amount: tx.total_amount || 0,
           currency: tx.currency || 'USD',
           description: tx.description || '',
           reference: tx.reference || '',
           entries: tx.entries || []
         }));
+        console.log('Loaded transactions:', transformedTransactions);
+        console.log('Draft transactions count:', transformedTransactions.filter((t: any) => t.status === 'draft').length);
         setTransactions(transformedTransactions);
       } else if (Array.isArray(data)) {
         // Direct array of transactions
         const transformedTransactions = data.map((tx: any) => ({
           id: tx.id,
           type: tx.type?.toLowerCase() || 'unknown',
-          status: tx.status?.toLowerCase() || 'pending',
+          status: tx.status?.toLowerCase() || 'draft',
           amount: tx.total_amount || 0,
           currency: tx.currency || 'USD',
           description: tx.description || '',
@@ -991,6 +993,42 @@ const LedgerTest: React.FC = () => {
         setResponse(JSON.stringify(result, null, 2));
       } else {
         setResponse(`Error: ${result.error || 'Failed to post transaction'}`);
+      }
+    } catch (error) {
+      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggleTransactionStatus = async (transactionId: string, currentStatus: string) => {
+    setLoading(true);
+    setResponse('');
+
+    try {
+      const newStatus = currentStatus === 'draft' ? 'posted' : 'draft';
+      const endpoint = currentStatus === 'draft' 
+        ? `/api/v1/ledger/transactions/${transactionId}/post`
+        : `/api/v1/ledger/transactions/${transactionId}/unpost`;
+
+      const response = await apiClient.authenticatedRequest(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        setTransactions(prev => prev.map(tx => 
+          tx.id === transactionId 
+            ? { ...tx, status: newStatus }
+            : tx
+        ));
+        setResponse(JSON.stringify(result, null, 2));
+      } else {
+        setResponse(`Error: ${result.error || `Failed to ${currentStatus === 'draft' ? 'post' : 'unpost'} transaction`}`);
       }
     } catch (error) {
       setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -1775,19 +1813,19 @@ const LedgerTest: React.FC = () => {
                       <table className="w-full bg-white/50 dark:bg-slate-700/50 backdrop-blur border border-white/20 dark:border-slate-600/50 rounded-2xl">
                         <thead>
                           <tr className="border-b border-gray-200 dark:border-slate-600">
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Type</th>
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Reference</th>
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Description</th>
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
-                            <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900 dark:text-white">Amount</th>
-                            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-white">Actions</th>
+                            <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Type</th>
+                            <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Reference</th>
+                            <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Description</th>
+                            <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
+                            <th className="px-6 py-2.5 text-right text-sm font-semibold text-gray-900 dark:text-white">Amount</th>
+                            <th className="px-6 py-2.5 text-center text-sm font-semibold text-gray-900 dark:text-white">Actions</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-slate-600">
                           {transactions.map((transaction) => (
                             transaction && typeof transaction.amount === 'number' ? (
                               <tr key={transaction.id} className="hover:bg-white/80 dark:hover:bg-slate-700/80 transition-colors">
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-2.5">
                                   <div className="flex items-center gap-3">
                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                                       transaction.type === 'transfer' 
@@ -1805,13 +1843,13 @@ const LedgerTest: React.FC = () => {
                                     </span>
                                   </div>
                                 </td>
-                                <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
+                                <td className="px-6 py-2.5 text-gray-600 dark:text-gray-300">
                                   {transaction.reference}
                                 </td>
-                                <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
+                                <td className="px-6 py-2.5 text-gray-600 dark:text-gray-300">
                                   {transaction.description}
                                 </td>
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-2.5">
                                   <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
                                     transaction.status === 'posted' 
                                       ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
@@ -1830,23 +1868,34 @@ const LedgerTest: React.FC = () => {
                                     )}
                                   </div>
                                 </td>
-                                <td className="px-6 py-4 text-right">
+                                <td className="px-6 py-2.5 text-right">
                                   <div className="text-gray-900 dark:text-white font-medium">
                                     ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     <div className="text-xs text-gray-500 dark:text-gray-400">{transaction.currency}</div>
                                   </div>
                                 </td>
-                                <td className="px-6 py-4 text-center">
-                                  {transaction.status === 'draft' && (
-                                    <button
-                                      onClick={() => handlePostTransaction(transaction.id)}
-                                      disabled={loading}
-                                      className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 transition-all text-sm"
-                                    >
-                                      <CheckCircle className="h-3 w-3" />
-                                      {loading ? 'Posting...' : 'Post'}
-                                    </button>
-                                  )}
+                                <td className="px-6 py-2.5 text-center">
+                                  <button
+                                    onClick={() => handleToggleTransactionStatus(transaction.id, transaction.status)}
+                                    disabled={loading}
+                                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg disabled:opacity-50 transition-all text-sm ${
+                                      transaction.status === 'draft'
+                                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
+                                        : 'bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700'
+                                    }`}
+                                  >
+                                    {transaction.status === 'draft' ? (
+                                      <>
+                                        <CheckCircle className="h-3 w-3" />
+                                        {loading ? 'Posting...' : 'Post'}
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Clock className="h-3 w-3" />
+                                        {loading ? 'Unposting...' : 'Unpost'}
+                                      </>
+                                    )}
+                                  </button>
                                 </td>
                               </tr>
                             ) : null
