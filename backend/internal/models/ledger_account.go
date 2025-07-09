@@ -62,6 +62,7 @@ type LedgerAccount struct {
 	Description   string              `json:"description"`
 	ParentID      *uuid.UUID          `json:"parent_id" gorm:"type:uuid"`
 	IsSystem      bool                `json:"is_system" gorm:"default:false"`
+	Balance       float64             `json:"balance" gorm:"default:0"` // Cached balance for performance
 	CreatedAt     time.Time           `json:"created_at"`
 	UpdatedAt     time.Time           `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt      `json:"-" gorm:"index"`
@@ -119,6 +120,12 @@ func (la *LedgerAccount) IsCreditAccount() bool {
 
 // GetBalance calculates the current balance of the account
 func (la *LedgerAccount) GetBalance(db *gorm.DB) (float64, error) {
+	// Return cached balance for performance
+	return la.Balance, nil
+}
+
+// RecalculateBalance recalculates the balance from all entries and updates the cached value
+func (la *LedgerAccount) RecalculateBalance(db *gorm.DB) error {
 	var balance float64
 
 	// Sum all debit entries
@@ -127,7 +134,7 @@ func (la *LedgerAccount) GetBalance(db *gorm.DB) (float64, error) {
 		Where("debit_account_id = ?", la.ID).
 		Select("COALESCE(SUM(amount), 0)").
 		Scan(&totalDebits).Error; err != nil {
-		return 0, err
+		return err
 	}
 
 	// Sum all credit entries
@@ -136,7 +143,7 @@ func (la *LedgerAccount) GetBalance(db *gorm.DB) (float64, error) {
 		Where("credit_account_id = ?", la.ID).
 		Select("COALESCE(SUM(amount), 0)").
 		Scan(&totalCredits).Error; err != nil {
-		return 0, err
+		return err
 	}
 
 	if la.IsDebitAccount() {
@@ -145,5 +152,16 @@ func (la *LedgerAccount) GetBalance(db *gorm.DB) (float64, error) {
 		balance = totalCredits - totalDebits
 	}
 
-	return balance, nil
+	// Update the cached balance
+	la.Balance = balance
+	return nil
+}
+
+// UpdateBalance updates the account balance by the given amount
+func (la *LedgerAccount) UpdateBalance(amount float64) {
+	if la.IsDebitAccount() {
+		la.Balance += amount
+	} else {
+		la.Balance -= amount
+	}
 }

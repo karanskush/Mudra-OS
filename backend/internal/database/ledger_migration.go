@@ -3,48 +3,58 @@ package database
 import (
 	"fintech-backend/internal/models"
 	"fmt"
+	"log"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-// MigrateLedgerTables creates the ledger tables with proper indexes and constraints
+// MigrateLedgerTables creates the ledger-related tables
 func MigrateLedgerTables(db *gorm.DB) error {
-	// Check if ledger tables are already set up
-	if isLedgerAlreadySetup(db) {
-		fmt.Println("Ledger tables already set up, skipping migration")
-		return nil
+	log.Println("Migrating ledger tables...")
+
+	// Create tables
+	if err := db.AutoMigrate(
+		&models.LedgerAccount{},
+		&models.LedgerTransaction{},
+		&models.LedgerEntry{},
+	); err != nil {
+		return fmt.Errorf("failed to migrate ledger tables: %w", err)
 	}
 
-	// Fix the account number constraint first (for existing installations)
-	if err := FixAccountNumberConstraint(db); err != nil {
-		// Log but don't fail if this doesn't work (might be a fresh install)
-		fmt.Printf("Warning: Failed to fix account number constraint (might be fresh install): %v\n", err)
+	// Add balance column if it doesn't exist
+	if !db.Migrator().HasColumn(&models.LedgerAccount{}, "balance") {
+		log.Println("Adding balance column to ledger_account table...")
+		if err := db.Exec("ALTER TABLE ledger_account ADD COLUMN balance DECIMAL(20,8) DEFAULT 0").Error; err != nil {
+			return fmt.Errorf("failed to add balance column: %w", err)
+		}
 	}
 
-	// Create ledger_account table
-	if err := db.AutoMigrate(&models.LedgerAccount{}); err != nil {
-		return err
+	// Populate balance column with calculated balances
+	log.Println("Populating account balances...")
+	if err := populateAccountBalances(db); err != nil {
+		return fmt.Errorf("failed to populate account balances: %w", err)
 	}
 
-	// Create ledger_transaction table
-	if err := db.AutoMigrate(&models.LedgerTransaction{}); err != nil {
-		return err
+	log.Println("Ledger tables migration completed successfully")
+	return nil
+}
+
+// populateAccountBalances calculates and updates the balance for all accounts
+func populateAccountBalances(db *gorm.DB) error {
+	var accounts []models.LedgerAccount
+	if err := db.Find(&accounts).Error; err != nil {
+		return fmt.Errorf("failed to fetch accounts: %w", err)
 	}
 
-	// Create ledger_entry table
-	if err := db.AutoMigrate(&models.LedgerEntry{}); err != nil {
-		return err
-	}
+	for _, account := range accounts {
+		if err := account.RecalculateBalance(db); err != nil {
+			return fmt.Errorf("failed to recalculate balance for account %s: %w", account.ID, err)
+		}
 
-	// Create additional indexes for better performance
-	if err := CreateLedgerIndexes(db); err != nil {
-		fmt.Printf("Warning: Failed to create some indexes: %v\n", err)
-	}
-
-	// Create foreign key constraints (with proper error handling)
-	if err := CreateLedgerConstraints(db); err != nil {
-		fmt.Printf("Warning: Failed to create some foreign key constraints: %v\n", err)
+		if err := db.Model(&account).Update("balance", account.Balance).Error; err != nil {
+			return fmt.Errorf("failed to update balance for account %s: %w", account.ID, err)
+		}
 	}
 
 	return nil
