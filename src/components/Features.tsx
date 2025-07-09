@@ -18,13 +18,7 @@ const features = [
     description: 'Full funds-flow API with UPI, SEPA, and Crypto rails. Asynchronous status lifecycle with real-time updates.',
     category: 'Payments',
     color: 'purple',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Smart Routing Optimizer',
-    description: 'Intelligent cost and SLA analysis. Chooses optimal rails and tracks savings per transaction.',
-    category: 'Optimization',
-    color: 'green',
+    action: 'payment-rails',
   },
   {
     icon: Shield,
@@ -33,6 +27,30 @@ const features = [
     category: 'Compliance',
     color: 'red',
     action: 'kyc',
+  },
+  {
+    icon: Code,
+    title: 'Dual API Surface',
+    description: 'gRPC with Protobuf and REST mirror. Streaming endpoints for real-time payment events.',
+    category: 'Developer Experience',
+    color: 'pink',
+    action: 'grpc-demo',
+  },
+  {
+    icon: Webhook,
+    title: 'Self-Serve APIs',
+    description: 'HMAC-signed webhooks with retry logic. Auto-generated SDKs for Go and TypeScript.',
+    category: 'Integration',
+    color: 'indigo',
+    action: 'developers/api-explorer',
+  },
+  {
+    icon: Lock,
+    title: 'Security & Observability',
+    description: 'Rate limiting, CSRF protection, structured logging, and Prometheus metrics integration.',
+    category: 'Security',
+    color: 'gray',
+    action: 'status',
   },
   {
     icon: BarChart3,
@@ -49,20 +67,6 @@ const features = [
     color: 'cyan',
   },
   {
-    icon: Webhook,
-    title: 'Self-Serve APIs',
-    description: 'HMAC-signed webhooks with retry logic. Auto-generated SDKs for Go and TypeScript.',
-    category: 'Integration',
-    color: 'indigo',
-  },
-  {
-    icon: Code,
-    title: 'Dual API Surface',
-    description: 'gRPC with Protobuf and REST mirror. Streaming endpoints for real-time payment events.',
-    category: 'Developer Experience',
-    color: 'pink',
-  },
-  {
     icon: Eye,
     title: 'Ops Console',
     description: 'HTMX-powered dashboard with live payment tables, SSE updates, and comprehensive analytics.',
@@ -70,11 +74,11 @@ const features = [
     color: 'teal',
   },
   {
-    icon: Lock,
-    title: 'Security & Observability',
-    description: 'Rate limiting, CSRF protection, structured logging, and Prometheus metrics integration.',
-    category: 'Security',
-    color: 'gray',
+    icon: TrendingUp,
+    title: 'Smart Routing Optimizer',
+    description: 'Intelligent cost and SLA analysis. Chooses optimal rails and tracks savings per transaction.',
+    category: 'Optimization',
+    color: 'green',
   },
   {
     icon: Users,
@@ -114,8 +118,16 @@ const Features: React.FC = () => {
   const handleFeatureClick = (feature: any) => {
     if (feature.action === 'ledger') {
       navigate('/ledger');
+    } else if (feature.action === 'payment-rails') {
+      navigate('/payment-rails');
     } else if (feature.action === 'kyc') {
       navigate('/kyc');
+    } else if (feature.action === 'grpc-demo') {
+      navigate('/grpc-demo');
+    } else if (feature.action === 'developers/api-explorer') {
+      navigate('/developers/api-explorer');
+    } else if (feature.action === 'status') {
+      navigate('/status');
     }
   };
 
