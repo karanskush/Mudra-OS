@@ -316,9 +316,19 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 			Reference:       reference,
 			Timestamp:       time.Now(),
 		},
+		{
+			DebitAccountID:  toAccountID,   // Destination account gets debited (increased)
+			CreditAccountID: fromAccountID, // Source account gets credited (decreased)
+			Amount:          amount,
+			Currency:        currency,
+			EntryType:       models.EntryTypeCredit,
+			Description:     fmt.Sprintf("Transfer from %s", fromAccount.Name),
+			Reference:       reference,
+			Timestamp:       time.Now(),
+		},
 	}
 
-	transaction, err := ls.CreateTransactionWithoutValidation(userID, models.LedgerTransactionTypeTransfer, description, reference, entries)
+	transaction, err := ls.CreateTransaction(userID, models.LedgerTransactionTypeTransfer, description, reference, entries)
 	if err != nil {
 		return nil, err
 	}
