@@ -88,7 +88,15 @@ func LoadAmazingDeveloper(ctx context.Context) (*Developer, error) {
       title: "Lead Backend Engineer",
       company: "Siply",
       duration: "May 2021 - Nov 2022",
-      description: "Launched a ₹125 Cr+ lending platform integrating NBFCs & EWA products, improving credit access across partners.\n\nEngineered an internal credit scoring system and JWT-based state-less auth with rotational token security.",
+      description: (
+        <>
+          Launched a ₹125 Cr+ lending platform integrating NBFCs & EWA products, improving credit access across partners.
+          <br /><br />
+          Engineered an internal credit scoring system and JWT-based state-less auth with rotational token security.
+          <br /><br />
+          <a href='https://ieeexplore.ieee.org/document/8674919' target='_blank' rel='noopener noreferrer' className='text-blue-400 hover:text-blue-300 underline'>News Article</a>
+        </>
+      ),
       icon: <Lock />,
     },
     {
@@ -214,19 +222,19 @@ func LoadAmazingDeveloper(ctx context.Context) (*Developer, error) {
               <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-8 border border-gray-800/50 shadow-2xl">
                 <h3 className="text-2xl font-bold mb-6">About Me</h3>
                 <p className="text-lg text-gray-300 mb-6">
-                  Relentless builder and optimizer. I refactor, scale, and ship. Obsessed with squeezing every drop of performance from distributed systems and cloud platforms.
+                  ⚡ Go-powered distributed-systems hacker squeezing milli-cores into mega-throughput & razor-thin latency.
                 </p>
-                <p className="text-md text-gray-400 mb-6">
-                Currently, at Walmart Global Tech I havee been optimizing cloud-native systems at scale, leading Go-based refactoring and performance initiatives for algo engine processing 2 Million+ daily transactions and driving $100M+ in annual savings last year. <br/>This includes Architecting robust, production-ready microservices, implementing milli-core CPU optimizations, and building real-time streaming with gRPC and Kafka.
+                <p className="text-lg text-gray-300 mb-6">
+                  🛰 Cloud-agnostic K8s maestro with secure gRPC microservices + Kafka streams humming - saved 100M$ last year.
                 </p>
-                <p className="text-md text-gray-400 mb-6">
-                Previously led the end-to-end development of a FinTech lending platform, launching from 0 to ₹125 Crore disbursed in 8 months. Designed secure APIs, integrated with NBFCs, and built advanced credit and authorization systems under tight deadlines.
-                  <a href="https://www.thehindu.com/business/siply-claims-zero-npa-disburses-loans-of-over-125-crore/article65342118.ece" 
-                     target="_blank" 
-                     rel="noopener noreferrer"
-                     className="text-blue-400 hover:text-blue-300 ml-1 underline">
-                    [Read more]
-                  </a>
+                <p className="text-lg text-gray-300 mb-6">
+                  💳 FinTech native, ledger-tight APIs & credit rails raced a lending product from 0 → ₹125 Cr in 8 months.
+                </p>
+                <p className="text-lg text-gray-300 mb-6">
+                  🚀 Zero-to-one champ: blueprint, build, launch & hyperscale products without breaking stride.
+                </p>
+                <p className="text-lg text-gray-300 mb-6">
+                  🌐 Full-stack polyglot (React/TypeScript ↔︎ Go/gRPC) crafting pixel-perfect UIs over bulletproof pipelines.
                 </p>
                 <div className="space-y-4">
                   <div>
