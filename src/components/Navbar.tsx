@@ -145,7 +145,7 @@ const Navbar: React.FC = () => {
         },
         { 
           name: 'Payment Rails', 
-          href: '/payments', 
+          href: '/payment-rails', 
           icon: CreditCard, 
           description: 'Smart payment routing & processing',
           badge: 'Popular',
@@ -253,6 +253,7 @@ const Navbar: React.FC = () => {
       ]
     },
     { name: 'Status', href: '/status', icon: Activity, description: 'System status & uptime' },
+    { name: 'About', href: '/about', icon: Users, description: 'Learn more about me' },
   ];
 
   const isActive = (href: string) => {

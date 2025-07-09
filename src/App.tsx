@@ -24,6 +24,8 @@ import GRPCDemo from './components/GRPCDemo';
 import GRPCTest from './components/GRPCTest';
 import RouterTest from './components/RouterTest';
 import RealTimePayments from './components/RealTimePayments';
+import PaymentRails from './components/PaymentRails';
+import About from './components/About';
 import { getApiUrl } from './lib/env';
 
 // Enhanced fintech-focused products with more relevant imagery
@@ -113,11 +115,15 @@ const HomePage: React.FC = () => (
 // Layout component that includes Navbar and Footer
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <ConsistentBackground>
-    <Navbar />
-    <main className="pt-20">
-      {children}
-    </main>
-    <Footer />
+    <div className="relative">
+      <div className="relative z-10">
+        <Navbar />
+        <main className="pt-20">
+          {children}
+        </main>
+        <Footer />
+      </div>
+    </div>
   </ConsistentBackground>
 );
 
@@ -162,6 +168,8 @@ function App() {
               <Route path="/grpc-test" element={<Layout><GRPCTest /></Layout>} />
               <Route path="/router-test" element={<Layout><RouterTest /></Layout>} />
               <Route path="/payments" element={<ProtectedRoute><RealTimePayments /></ProtectedRoute>} />
+              <Route path="/payment-rails" element={<ProtectedRoute><Layout><PaymentRails /></Layout></ProtectedRoute>} />
+              <Route path="/about" element={<Layout><About /></Layout>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </ToastProvider>

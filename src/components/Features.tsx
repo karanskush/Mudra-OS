@@ -212,21 +212,6 @@ const Features: React.FC = () => {
           ))}
         </div>
 
-        {/* Bottom CTA */}
-        <div className="text-center mt-16">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Ready to explore the complete platform?</h3>
-            <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-              Experience all 14 domains in action with our interactive demo. See how enterprise fintech is built.
-            </p>
-            <button 
-              onClick={() => navigate('/ledger')}
-              className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
-            >
-              Launch Interactive Demo
-            </button>
-          </div>
-        </div>
       </div>
     </section>
   );

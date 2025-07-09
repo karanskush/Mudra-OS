@@ -4,40 +4,58 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const demoScreenshots = [
   {
+    id: 5,
+    title: 'gRPC Live Streaming',
+    category: 'Developer Tools',
+    image: '/images/hero-features/Live Streaming.png',
+    description: 'Live view to monitor the transactions in real-time',
+    icon: Code,
+    link: '/grpc-demo',
+  },{
+    id: 6,
+    title: 'KYC Supporting over 220+ Countries',
+    category: 'Developer Tools',
+    image: '/images/hero-features/StartKYC.png',
+    description: 'Enable KYC for your customers from over 220+ countries',
+    features: ['Auto-Generated SDKs', 'Webhook Management', 'API Documentation'],
+    icon: Code,
+    link: '/kyc',
+  },{
     id: 1,
     title: 'Payment Orchestration Dashboard',
     category: 'Core Platform',
-    image: 'https://images.pexels.com/photos/590020/pexels-photo-590020.jpeg?auto=compress&cs=tinysrgb&w=800',
+    image: '/images/hero-features/payment_rails.png',
     description: 'Real-time payment processing with multi-rail routing and cost optimization',
     features: ['UPI, SEPA, Crypto Rails', 'Smart Cost Routing', 'Real-time Status Updates'],
     icon: TrendingUp,
-  },
-  {
+    link: '/payment-rails',
+  },{
     id: 2,
     title: 'Core Ledger System',
     category: 'Foundation',
-    image: 'https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg?auto=compress&cs=tinysrgb&w=800',
+    image: '/images/hero-features/ledger.png',
     description: 'Double-entry bookkeeping with multi-currency support and atomic transactions',
     features: ['Double-Entry Ledger', 'Multi-Currency Support', 'Point-in-Time Queries'],
     icon: Database,
-  },
-  {
+    link: '/ledger',
+  },{
     id: 3,
-    title: 'Compliance & Risk Engine',
+    title: 'KYC & Compliance Dashboard',
     category: 'Regulatory',
-    image: 'https://images.pexels.com/photos/7567443/pexels-photo-7567443.jpeg?auto=compress&cs=tinysrgb&w=800',
+    image: '/images/hero-features/KYC Dashboard.png',
     description: 'Automated KYC processing with configurable risk rules and compliance reporting',
     features: ['Automated KYC', 'Risk Scoring', 'Compliance Reports'],
     icon: Shield,
-  },
-  {
+    link: '/kyc/dashboard',
+  },{
     id: 4,
     title: 'Developer Console',
     category: 'Developer Tools',
-    image: 'https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=800',
+    image: '/images/hero-features/API Doc.png',
     description: 'Comprehensive API documentation with SDK generation and webhook management',
     features: ['Auto-Generated SDKs', 'Webhook Management', 'API Documentation'],
     icon: Code,
+    link: '/developers/api-explorer',
   },
 ];
 
@@ -122,54 +140,56 @@ const Gallery: React.FC = () => {
                   
                   {/* Demo Info Overlay */}
                   <motion.div 
-                    className="absolute bottom-0 left-0 right-0 p-8 text-white"
+                    className="absolute bottom-0 left-0 right-0 p-8"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
                   >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-lg flex items-center justify-center">
-                        <currentDemo.icon className="h-5 w-5 text-white" />
+                    <div className="absolute left-0 right-0 bottom-0 w-full bg-black/40 backdrop-blur-md px-8 py-3 rounded-b-3xl">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-lg flex items-center justify-center">
+                          <currentDemo.icon className="h-5 w-5 text-white" />
+                        </div>
+                        <span className="px-3 py-1 bg-blue-600/80 backdrop-blur-md rounded-full text-sm font-medium">
+                          {currentDemo.category}
+                        </span>
                       </div>
-                      <span className="px-3 py-1 bg-blue-600/80 backdrop-blur-md rounded-full text-sm font-medium">
-                        {currentDemo.category}
-                      </span>
-                    </div>
-                    <h3 className="text-2xl font-bold mb-2">{currentDemo.title}</h3>
-                    <p className="text-white/90 mb-4 max-w-2xl">{currentDemo.description}</p>
-                    
-                    {/* Feature Tags */}
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {currentDemo.features.map((feature, idx) => (
-                        <motion.span 
-                          key={idx} 
-                          className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-sm"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3, delay: 0.4 + idx * 0.1 }}
+                      <h3 className="text-2xl font-bold mb-2 text-white drop-shadow-lg">{currentDemo.title}</h3>
+                      <p className="text-white/90 mb-4 max-w-2xl drop-shadow">{currentDemo.description}</p>
+                      {/* Feature Tags */}
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {(currentDemo.features || []).map((feature, idx) => (
+                          <motion.span 
+                            key={idx} 
+                            className="px-3 py-1 bg-black/60 backdrop-blur text-white rounded-full text-sm"
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, delay: 0.4 + idx * 0.1 }}
+                          >
+                            {feature}
+                          </motion.span>
+                        ))}
+                      </div>
+                      <div className="flex gap-3">
+                        <motion.button 
+                          className="flex items-center gap-2 bg-white/20 backdrop-blur-md hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                         >
-                          {feature}
-                        </motion.span>
-                      ))}
-                    </div>
-                    
-                    <div className="flex gap-3">
-                      <motion.button 
-                        className="flex items-center gap-2 bg-white/20 backdrop-blur-md hover:bg-white/30 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Eye className="h-4 w-4" />
-                        Live Demo
-                      </motion.button>
-                      <motion.button 
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                        Try Now
-                      </motion.button>
+                          <Eye className="h-4 w-4" />
+                          Live Demo
+                        </motion.button>
+                        {/* Try Now button: replace motion.button with <a> */}
+                        <a
+                          href={currentDemo.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Try Now
+                        </a>
+                      </div>
                     </div>
                   </motion.div>
                 </div>
@@ -256,12 +276,12 @@ const Gallery: React.FC = () => {
           ].map((stat, index) => (
             <motion.div 
               key={index}
-              className="text-center p-6 bg-white rounded-xl border border-gray-200 shadow-sm"
-              whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}
+              className="text-center p-6 bg-black/40 backdrop-blur-md rounded-xl border border-gray-200 shadow-sm"
+              whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
               transition={{ duration: 0.2 }}
             >
-              <div className={`text-3xl font-bold text-${stat.color}-600 mb-2`}>{stat.value}</div>
-              <div className="text-gray-600 text-sm">{stat.label}</div>
+              <div className="text-3xl font-bold text-white drop-shadow-lg mb-2">{stat.value}</div>
+              <div className="text-gray-200 text-sm drop-shadow">{stat.label}</div>
             </motion.div>
           ))}
         </motion.div>

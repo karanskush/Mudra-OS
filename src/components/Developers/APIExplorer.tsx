@@ -756,6 +756,12 @@ const APIExplorer: React.FC = () => {
               ].map((item, index) => (
                 <AnimatedCard key={index} delay={index * 0.1}>
                   <motion.button
+                    onClick={() => {
+                      const mainContent = document.querySelector('#api-main-content');
+                      if (mainContent) {
+                        mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
                     className="w-full p-4 lg:p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-700 transition-all duration-300 text-left group"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -793,7 +799,13 @@ const APIExplorer: React.FC = () => {
                         {Object.entries(apiCategories).map(([key, category]) => (
                           <motion.button
                             key={key}
-                            onClick={() => setSelectedCategory(key as keyof typeof apiCategories)}
+                            onClick={() => {
+                              setSelectedCategory(key as keyof typeof apiCategories);
+                              const mainContent = document.querySelector('#api-main-content');
+                              if (mainContent) {
+                                mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }}
                             className={`flex-shrink-0 text-left p-3 rounded-xl transition-all duration-300 border whitespace-nowrap ${
                               selectedCategory === key 
                                 ? `bg-gradient-to-r ${category.color} text-white border-transparent shadow-lg` 
@@ -819,7 +831,13 @@ const APIExplorer: React.FC = () => {
                         {Object.entries(apiCategories).map(([key, category]) => (
                           <motion.button
                             key={key}
-                            onClick={() => setSelectedCategory(key as keyof typeof apiCategories)}
+                            onClick={() => {
+                              setSelectedCategory(key as keyof typeof apiCategories);
+                              const mainContent = document.querySelector('#api-main-content');
+                              if (mainContent) {
+                                mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }}
                             className={`w-full text-left p-4 rounded-xl transition-all duration-300 border ${
                               selectedCategory === key 
                                 ? `bg-gradient-to-r ${category.color} text-white border-transparent shadow-lg` 
@@ -846,7 +864,7 @@ const APIExplorer: React.FC = () => {
               </div>
 
               {/* Main Content */}
-              <div className="xl:col-span-2 order-2 xl:order-2 space-y-4 lg:space-y-5">
+              <div id="api-main-content" className="xl:col-span-2 order-2 xl:order-2 space-y-4 lg:space-y-5">
                 {/* Category Overview */}
                 <AnimatedCard>
                   <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-200/50 dark:border-gray-700/50">

@@ -42,7 +42,7 @@ const GRPCDemo: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
   const [showMetrics, setShowMetrics] = useState(true);
-  const [autoScroll, setAutoScroll] = useState(true);
+  const [autoScroll, setAutoScroll] = useState(false);
   const [streamingEvents, setStreamingEvents] = useState<StreamEvent[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [mockStreamingCleanup, setMockStreamingCleanup] = useState<(() => void) | null>(null);
@@ -274,8 +274,8 @@ const GRPCDemo: React.FC = () => {
   };
 
   useEffect(() => {
-    // Auto-scroll to bottom
-    if (autoScroll && eventsEndRef.current) {
+    // Auto-scroll to bottom only when there are new streaming events
+    if (autoScroll && eventsEndRef.current && streamingEvents.length > 0) {
       eventsEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [autoScroll, streamingEvents]);

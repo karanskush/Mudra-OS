@@ -273,6 +273,14 @@ export const ProductCard = ({
   translate: MotionValue<number>;
   tilesActive: boolean;
 }) => {
+  const handleImageClick = () => {
+    // Scroll to the Features section
+    const featuresSection = document.querySelector('#features');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <motion.div
       style={{
@@ -286,9 +294,9 @@ export const ProductCard = ({
       className={`group/product relative shrink-0 ${!tilesActive ? 'pointer-events-none opacity-40' : 'pointer-events-auto'}`}
     >
       {tilesActive ? (
-        <Link
-          to={product.link}
-          className="block group-hover/product:shadow-2xl"
+        <div
+          onClick={handleImageClick}
+          className="block group-hover/product:shadow-2xl cursor-pointer"
         >
           <img
             src={product.thumbnail}
@@ -297,7 +305,7 @@ export const ProductCard = ({
             className="object-cover object-center absolute h-full w-full inset-0 rounded-lg sm:rounded-xl border border-slate-200/50 dark:border-white/10"
             alt={product.title}
           />
-        </Link>
+        </div>
       ) : (
         <div className="block">
           <img
