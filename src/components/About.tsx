@@ -141,7 +141,7 @@ func LoadAmazingDeveloper(ctx context.Context) (*Developer, error) {
                 <h1 className="font-mono leading-tight">
                   <span className="block text-4xl md:text-5xl lg:text-6xl font-bold">Hi, I'm Karan</span>
                   <span className="block text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-green-400 text-transparent bg-clip-text">
-                    Golang veteran, Full-Stack lead, Blockchain innovator, Cloud & Infra, AI integrator
+                    Golang veteran, Full-Stack expert, Blockchain Specialist, Cloud/K8s Architect, AI integrator
                   </span>
                 </h1>
               </motion.div>

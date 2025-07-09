@@ -76,10 +76,12 @@ export const HeroParallax = ({
       ref={ref}
       className="min-h-screen max-h-[200vh] pt-8 pb-16 sm:pt-12 sm:pb-20 lg:pt-16 lg:pb-24 overflow-hidden antialiased relative flex flex-col justify-between dark:bg-[#000008]"
     >
-      <div className="relative z-10 flex-shrink-0">
+      {/* Header - Outside of transformed motion div */}
+      <div className="relative z-50 flex-shrink-0">
         <Header />
       </div>
       
+      {/* Product cards with transforms */}
       <motion.div
         style={{
           rotateX,
@@ -200,27 +202,25 @@ export const Header = () => {
           
           {/* Action Buttons */}
           <motion.div 
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4 relative z-10 mb-4 sm:mb-6"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <motion.button 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer pointer-events-auto shadow-2xl hover:shadow-blue-500/25"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-2xl hover:shadow-blue-500/25"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleStartBuilding}
-              style={{ position: 'relative', zIndex: 100 }}
             >
               Start Building
             </motion.button>
             
             <motion.button 
-              className="bg-slate-100/80 dark:bg-white/10 backdrop-blur-md hover:bg-slate-200/80 dark:hover:bg-white/20 text-slate-900 dark:text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 border border-slate-200/50 dark:border-white/20 hover:border-slate-300/50 dark:hover:border-white/30 cursor-pointer pointer-events-auto"
+              className="bg-slate-100/80 dark:bg-white/10 backdrop-blur-md hover:bg-slate-200/80 dark:hover:bg-white/20 text-slate-900 dark:text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 border border-slate-200/50 dark:border-white/20 hover:border-slate-300/50 dark:hover:border-white/30 cursor-pointer"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleViewDocumentation}
-              style={{ position: 'relative', zIndex: 100 }}
             >
               View Documentation
             </motion.button>
