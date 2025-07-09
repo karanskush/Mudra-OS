@@ -27,14 +27,9 @@ func main() {
 	}
 	defer database.Close()
 
-	// Setup Neon database (extensions and migrations)
-	if err := database.SetupNeonDatabase(); err != nil {
-		log.Fatalf("Failed to setup Neon database: %v", err)
-	}
-
-	// Run ledger migrations
-	if err := database.MigrateLedgerTables(database.GetDB()); err != nil {
-		log.Fatalf("Failed to migrate ledger tables: %v", err)
+	// Setup database (run migrations)
+	if err := database.SetupDatabase(); err != nil {
+		log.Fatalf("Failed to setup database: %v", err)
 	}
 
 	// Log connection info
