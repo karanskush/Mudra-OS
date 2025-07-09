@@ -11,6 +11,8 @@ import (
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+
+	"fintech-backend/internal/models"
 )
 
 // DB is the global database instance
@@ -98,4 +100,28 @@ func GetDB() *gorm.DB {
 // Transaction executes a function within a database transaction
 func Transaction(fn func(tx *gorm.DB) error) error {
 	return DB.Transaction(fn)
+}
+
+// SetupDatabase initializes the database with required migrations
+func SetupDatabase() error {
+	if DB == nil {
+		return fmt.Errorf("database connection not established")
+	}
+
+	// Run migrations
+	if err := AutoMigrate(
+		&models.User{},
+		&models.Account{},
+		&models.Transaction{},
+		&models.KYCSubmission{},
+		&models.KYCDocument{},
+		&models.LedgerAccount{},
+		&models.LedgerTransaction{},
+		&models.LedgerEntry{},
+	); err != nil {
+		return fmt.Errorf("failed to run migrations: %w", err)
+	}
+
+	logger.Info("Database setup completed successfully")
+	return nil
 }

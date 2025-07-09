@@ -35,9 +35,9 @@ func main() {
 	}
 	defer database.Close()
 
-	// Setup Neon database (extensions and migrations)
-	if err := database.SetupNeonDatabase(); err != nil {
-		logger.Fatalf("Failed to setup Neon database: %v", err)
+	// Setup database (run migrations)
+	if err := database.SetupDatabase(); err != nil {
+		logger.Fatalf("Failed to setup database: %v", err)
 	}
 
 	// Initialize KYC service after database is ready
