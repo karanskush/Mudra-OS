@@ -780,7 +780,10 @@ const Navbar: React.FC = () => {
                     {item.hasDropdown ? (
                       <div>
                         <button
-                          onClick={() => setActiveDropdown(activeDropdown === item.name ? null : item.name)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDropdown(activeDropdown === item.name ? null : item.name);
+                          }}
                           className={`flex items-center justify-between w-full px-3 py-2 text-base font-medium rounded-lg transition-colors duration-200 ${
                             isDark 
                               ? 'text-gray-300 hover:text-white hover:bg-slate-800' 
@@ -799,7 +802,10 @@ const Navbar: React.FC = () => {
                                 {subItem.hasSubDropdown ? (
                                   <>
                                     <button
-                                      onClick={() => setActiveSubDropdown(activeSubDropdown === subItem.name ? null : subItem.name)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveSubDropdown(activeSubDropdown === subItem.name ? null : subItem.name);
+                                      }}
                                       className={`flex items-center justify-between w-full gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
                                         isDark 
                                           ? 'text-gray-400 hover:text-white hover:bg-slate-800' 
@@ -835,7 +841,8 @@ const Navbar: React.FC = () => {
                                     )}
                                   </>
                                 ) : (
-                                  <div
+                                  <Link
+                                    to={subItem.href}
                                     className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-200 ${
                                       subItem.href === '#' 
                                         ? 'cursor-not-allowed opacity-60' 
@@ -851,7 +858,7 @@ const Navbar: React.FC = () => {
                                   >
                                     <subItem.icon className="h-4 w-4" />
                                     {subItem.name}
-                                  </div>
+                                  </Link>
                                 )}
                               </div>
                             ))}
