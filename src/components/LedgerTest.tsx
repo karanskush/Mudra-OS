@@ -18,7 +18,8 @@ import {
   ArrowRightLeft,
   Users,
   Wallet,
-  RefreshCw
+  RefreshCw,
+  X
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from "../lib/api";
@@ -1770,71 +1771,93 @@ const LedgerTest: React.FC = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {transactions.map((transaction) => (
-                        transaction && typeof transaction.amount === 'number' ? (
-                          <div key={transaction.id} className="group bg-white/50 dark:bg-slate-700/50 backdrop-blur border border-white/20 dark:border-slate-600/50 rounded-2xl p-6 hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all duration-200 hover:shadow-lg">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-4">
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                                  transaction.type === 'transfer' 
-                                    ? 'bg-gradient-to-br from-green-500 to-green-600'
-                                    : 'bg-gradient-to-br from-purple-500 to-purple-600'
-                                }`}>
-                                  {transaction.type === 'transfer' ? (
-                                    <ArrowRight className="h-6 w-6 text-white" />
-                                  ) : (
-                                    <DollarSign className="h-6 w-6 text-white" />
-                                  )}
-                                </div>
-                                <div>
-                                  <h3 className="font-bold text-gray-900 dark:text-white text-lg capitalize">{transaction.type}</h3>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.reference}</p>
-                                  <p className="text-gray-600 dark:text-gray-300">{transaction.description}</p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-6">
-                                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
-                                  transaction.status === 'posted' 
-                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
-                                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800'
-                                }`}>
-                                  {transaction.status === 'posted' ? (
-                                    <>
-                                      <CheckCircle className="h-4 w-4" />
-                                      Posted
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Clock className="h-4 w-4" />
-                                      Draft
-                                    </>
-                                  )}
-                                </div>
-
-                                <div className="text-right">
-                                  <div className="text-xl font-bold text-gray-900 dark:text-white">
-                                    ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    <div className="overflow-x-auto">
+                      <table className="w-full bg-white/50 dark:bg-slate-700/50 backdrop-blur border border-white/20 dark:border-slate-600/50 rounded-2xl">
+                        <thead>
+                          <tr className="border-b border-gray-200 dark:border-slate-600">
+                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Type</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Reference</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Description</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
+                            <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900 dark:text-white">Amount</th>
+                            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-white">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 dark:divide-slate-600">
+                          {transactions.map((transaction) => (
+                            transaction && typeof transaction.amount === 'number' ? (
+                              <tr key={transaction.id} className="hover:bg-white/80 dark:hover:bg-slate-700/80 transition-colors">
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                      transaction.type === 'transfer' 
+                                        ? 'bg-gradient-to-br from-green-500 to-green-600'
+                                        : 'bg-gradient-to-br from-purple-500 to-purple-600'
+                                    }`}>
+                                      {transaction.type === 'transfer' ? (
+                                        <ArrowRight className="h-4 w-4 text-white" />
+                                      ) : (
+                                        <DollarSign className="h-4 w-4 text-white" />
+                                      )}
+                                    </div>
+                                    <span className="font-medium text-gray-900 dark:text-white capitalize">
+                                      {transaction.type}
+                                    </span>
                                   </div>
-                                  <div className="text-sm text-gray-500 dark:text-gray-400">{transaction.currency}</div>
-                                </div>
-
-                                {transaction.status === 'draft' && (
-                                  <button
-                                    onClick={() => handlePostTransaction(transaction.id)}
-                                    disabled={loading}
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 transition-all"
-                                  >
-                                    <CheckCircle className="h-4 w-4" />
-                                    {loading ? 'Posting...' : 'Post'}
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ) : null
-                      ))}
+                                </td>
+                                <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
+                                  {transaction.reference}
+                                </td>
+                                <td className="px-6 py-4 text-gray-600 dark:text-gray-300">
+                                  {transaction.description}
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
+                                    transaction.status === 'posted' 
+                                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
+                                      : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800'
+                                  }`}>
+                                    {transaction.status === 'posted' ? (
+                                      <>
+                                        <CheckCircle className="h-3 w-3" />
+                                        Posted
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Clock className="h-3 w-3" />
+                                        Draft
+                                      </>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                  <div className="text-gray-900 dark:text-white font-medium">
+                                    ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    <div className="text-xs text-gray-500 dark:text-gray-400">{transaction.currency}</div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  {transaction.status === 'draft' && (
+                                    <button
+                                      onClick={() => handlePostTransaction(transaction.id)}
+                                      disabled={loading}
+                                      className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 transition-all text-sm"
+                                    >
+                                      <CheckCircle className="h-3 w-3" />
+                                      {loading ? 'Posting...' : 'Post'}
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            ) : null
+                          ))}
+                        </tbody>
+                      </table>
+                      {transactions.length === 0 && (
+                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                          No transactions found
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -2163,10 +2186,21 @@ const LedgerTest: React.FC = () => {
             </div>
           )}
 
-          {/* Response Display */}
+          {/* Response Display - Moving it outside the transactions view */}
           {response && (
-            <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 text-gray-900 dark:text-white px-6 py-4 rounded-2xl mt-6">
-              <pre className="text-sm whitespace-pre-wrap">{response}</pre>
+            <div className="max-w-4xl mx-auto mt-6">
+              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 text-gray-900 dark:text-white px-6 py-4 rounded-2xl">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-medium text-gray-900 dark:text-white">API Response</h3>
+                  <button
+                    onClick={() => setResponse('')}
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <pre className="text-sm whitespace-pre-wrap">{response}</pre>
+              </div>
             </div>
           )}
 
