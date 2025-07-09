@@ -108,11 +108,6 @@ func SetupDatabase() error {
 		return fmt.Errorf("database connection not established")
 	}
 
-	// Enable required PostgreSQL extensions
-	if err := enableExtensions(); err != nil {
-		return fmt.Errorf("failed to enable extensions: %w", err)
-	}
-
 	// Run migrations
 	if err := AutoMigrate(
 		&models.User{},
@@ -125,16 +120,6 @@ func SetupDatabase() error {
 		&models.LedgerEntry{},
 	); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
-	}
-
-	// Create indexes for better performance
-	if err := CreateLedgerIndexes(DB); err != nil {
-		logger.Warnf("Failed to create ledger indexes: %v", err)
-	}
-
-	// Create foreign key constraints
-	if err := CreateLedgerConstraints(DB); err != nil {
-		logger.Warnf("Failed to create ledger constraints: %v", err)
 	}
 
 	logger.Info("Database setup completed successfully")
