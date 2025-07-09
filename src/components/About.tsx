@@ -93,8 +93,6 @@ func LoadAmazingDeveloper(ctx context.Context) (*Developer, error) {
           Launched a ₹125 Cr+ lending platform integrating NBFCs & EWA products, improving credit access across partners.
           <br /><br />
           Engineered an internal credit scoring system and JWT-based state-less auth with rotational token security.
-          <br /><br />
-          <a href='https://ieeexplore.ieee.org/document/8674919' target='_blank' rel='noopener noreferrer' className='text-blue-400 hover:text-blue-300 underline'>News Article</a>
         </>
       ),
       icon: <Lock />,
@@ -228,7 +226,7 @@ func LoadAmazingDeveloper(ctx context.Context) (*Developer, error) {
                   🛰 Cloud-agnostic K8s maestro with secure gRPC microservices + Kafka streams humming - saved 100M$ last year.
                 </p>
                 <p className="text-lg text-gray-300 mb-6">
-                  💳 FinTech native, ledger-tight APIs & credit rails raced a lending product from 0 → ₹125 Cr in 8 months.
+                  💳 FinTech native, ledger-tight APIs & credit rails raced a lending product from 0 → ₹125 Cr in 8 months. <a href="https://www.thehindu.com/business/siply-claims-zero-npa-disburses-loans-of-over-125-crore/article65342118.ece" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">[source]</a>
                 </p>
                 <p className="text-lg text-gray-300 mb-6">
                   🚀 Zero-to-one champ: blueprint, build, launch & hyperscale products without breaking stride.

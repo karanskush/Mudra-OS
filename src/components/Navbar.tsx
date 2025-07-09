@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ChevronDown, ChevronRight, Zap, Code, Database, Shield, TrendingUp, Activity, CreditCard, Users, Building, Settings, LogOut, Bell, UserCheck, Plus, ArrowRight, Sparkles, BadgeCheck, Clock, LucideIcon } from 'lucide-react';
+import { Menu, X, ChevronDown, ChevronRight, Zap, Code, Database, Shield, TrendingUp, Activity, CreditCard, User, Users, Building, Settings, LogOut, Bell, UserCheck, Plus, ArrowRight, Sparkles, BadgeCheck, Clock, LucideIcon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import ThemeToggle from './ui/theme-toggle';
@@ -243,7 +243,7 @@ const Navbar: React.FC = () => {
       ]
     },
     { name: 'Status', href: '/status', icon: Activity, description: 'System status & uptime' },
-    { name: 'About', href: '/about', icon: Users, description: 'Learn more about me' },
+    { name: 'About the Creator', href: '/about', icon: User, description: 'Learn more about the person behind MudraCore OS' },
   ];
 
   const isActive = (href: string) => {
