@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useHealth } from '../contexts/HealthContext';
-import HealthStatus from './HealthStatus';
 import { 
   Server, 
   Database, 
@@ -10,20 +9,85 @@ import {
   TrendingUp,
   AlertTriangle,
   CheckCircle,
-  XCircle
+  XCircle,
+  Bell,
+  RefreshCw,
+  Shield,
+  Zap,
+  Network,
+  Cpu,
+  LineChart
 } from 'lucide-react';
 import {
   RocketLaunchIcon,
   SparklesIcon,
-  MapIcon,
-  CircleStackIcon,
-  CloudIcon,
-  CpuChipIcon,
-  WifiIcon
+  MapIcon
 } from '@heroicons/react/24/outline';
 
-// 🌟 2025 DESIGN TREND: AI-Powered Performance Dashboard
-const GRPCPerformanceDashboard: React.FC = () => {
+// Modern Status Card Component
+const StatusCard: React.FC<{
+  title: string;
+  status: string;
+  icon: React.ReactNode;
+  metrics?: { label: string; value: string | number }[];
+  className?: string;
+}> = ({ title, status, icon, metrics, className }) => {
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'operational':
+        return 'bg-green-500';
+      case 'degraded':
+        return 'bg-yellow-500';
+      case 'outage':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-slate-700 overflow-hidden ${className}`}
+    >
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-slate-700 flex items-center justify-center">
+              {icon}
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${getStatusColor(status)}`} />
+            <span className={`text-sm font-medium ${
+              status.toLowerCase() === 'operational' ? 'text-green-600 dark:text-green-400' :
+              status.toLowerCase() === 'degraded' ? 'text-yellow-600 dark:text-yellow-400' :
+              'text-red-600 dark:text-red-400'
+            }`}>
+              {status}
+            </span>
+          </div>
+        </div>
+        
+        {metrics && (
+          <div className="space-y-3 mt-4">
+            {metrics.map((metric, idx) => (
+              <div key={idx} className="flex items-center justify-between">
+                <span className="text-sm text-gray-600 dark:text-gray-400">{metric.label}</span>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">{metric.value}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+// Real-time Performance Intelligence Dashboard
+const PerformanceIntelligence: React.FC = () => {
   const [metrics, setMetrics] = useState({
     latency: Math.random() * 20 + 5,
     throughput: Math.random() * 10000 + 40000,
@@ -56,69 +120,57 @@ const GRPCPerformanceDashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-gradient-to-br from-slate-900/90 via-indigo-900/80 to-purple-900/90 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-      <div className="flex items-center justify-between mb-8">
-        <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+    <div className="bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 rounded-xl p-6 shadow-xl border border-indigo-500/20">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
             <RocketLaunchIcon className="h-6 w-6 text-white" />
           </div>
-          Real-time Performance Intelligence
-        </h3>
+          <h3 className="text-xl font-bold text-white">Real-time Performance Intelligence</h3>
+        </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <span className="text-emerald-400 text-sm font-medium">Live</span>
         </div>
       </div>
 
-      {/* Glassmorphism Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         {[
-          { label: 'Latency', value: `${metrics.latency.toFixed(1)}ms`, trend: 'down', color: 'from-green-400 to-emerald-500' },
-          { label: 'Throughput', value: `${Math.floor(metrics.throughput/1000)}K/s`, trend: 'up', color: 'from-blue-400 to-cyan-500' },
-          { label: 'Error Rate', value: `${(metrics.errorRate).toFixed(2)}%`, trend: 'down', color: 'from-red-400 to-pink-500' },
-          { label: 'Active Streams', value: metrics.activeStreams.toString(), trend: 'up', color: 'from-purple-400 to-violet-500' },
-          { label: 'CPU Usage', value: `${metrics.cpuUsage.toFixed(0)}%`, trend: 'stable', color: 'from-yellow-400 to-orange-500' },
-          { label: 'Memory', value: `${metrics.memoryUsage.toFixed(0)}%`, trend: 'stable', color: 'from-indigo-400 to-blue-500' },
+          { label: 'Latency', value: `${metrics.latency.toFixed(1)}ms`, icon: <Zap className="h-4 w-4" />, color: 'from-green-400/20 to-emerald-500/20' },
+          { label: 'Throughput', value: `${Math.floor(metrics.throughput/1000)}K/s`, icon: <Activity className="h-4 w-4" />, color: 'from-blue-400/20 to-cyan-500/20' },
+          { label: 'Error Rate', value: `${(metrics.errorRate).toFixed(2)}%`, icon: <AlertTriangle className="h-4 w-4" />, color: 'from-red-400/20 to-pink-500/20' },
+          { label: 'Active Streams', value: metrics.activeStreams.toString(), icon: <Network className="h-4 w-4" />, color: 'from-purple-400/20 to-violet-500/20' },
+          { label: 'CPU Usage', value: `${metrics.cpuUsage.toFixed(0)}%`, icon: <Cpu className="h-4 w-4" />, color: 'from-yellow-400/20 to-orange-500/20' },
+          { label: 'Memory', value: `${metrics.memoryUsage.toFixed(0)}%`, icon: <LineChart className="h-4 w-4" />, color: 'from-indigo-400/20 to-blue-500/20' },
         ].map((metric, index) => (
           <motion.div
             key={metric.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: index * 0.1 }}
-            className="relative overflow-hidden bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-all duration-300"
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            className={`relative overflow-hidden bg-gradient-to-br ${metric.color} backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:bg-white/5 transition-all duration-300`}
           >
-            <div className={`absolute inset-0 bg-gradient-to-br ${metric.color} opacity-5`}></div>
-            <div className="relative z-10">
-              <div className="text-white/70 text-xs uppercase tracking-wider mb-1">{metric.label}</div>
-              <div className="text-white text-xl font-bold mb-2">{metric.value}</div>
-              <div className={`text-xs flex items-center gap-1 ${
-                metric.trend === 'up' ? 'text-green-400' : 
-                metric.trend === 'down' ? 'text-red-400' : 'text-gray-400'
-              }`}>
-                <div className={`w-2 h-2 rounded-full ${
-                  metric.trend === 'up' ? 'bg-green-400' : 
-                  metric.trend === 'down' ? 'bg-red-400' : 'bg-gray-400'
-                }`}></div>
-                {metric.trend === 'up' ? '↗' : metric.trend === 'down' ? '↘' : '→'}
-              </div>
+            <div className="flex items-center gap-2 mb-2 text-white/70">
+              {metric.icon}
+              <span className="text-xs uppercase tracking-wider">{metric.label}</span>
             </div>
+            <div className="text-white text-xl font-bold">{metric.value}</div>
           </motion.div>
         ))}
       </div>
 
-      {/* AI Insights Panel */}
-      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-        <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
+      <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6">
+        <div className="flex items-center gap-2 mb-4">
           <SparklesIcon className="h-5 w-5 text-yellow-400" />
-          AI Performance Insights
-        </h4>
-        <div className="space-y-3">
+          <h4 className="text-white font-semibold">AI Performance Insights</h4>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {aiInsights.map((insight, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
+              transition={{ duration: 0.5, delay: index * 0.15 }}
               className="text-white/80 text-sm flex items-center gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all"
             >
               <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
@@ -131,8 +183,8 @@ const GRPCPerformanceDashboard: React.FC = () => {
   );
 };
 
-// 🌈 2025 DESIGN TREND: Interactive 3D Stream Topology
-const InteractiveStreamTopology: React.FC = () => {
+// Interactive Stream Topology
+const StreamTopology: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [streamFlow, setStreamFlow] = useState(true);
 
@@ -164,29 +216,27 @@ const InteractiveStreamTopology: React.FC = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 rounded-3xl p-8 border border-white/10 backdrop-blur-sm">
+    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-6 shadow-xl border border-slate-700">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center">
             <MapIcon className="h-6 w-6 text-white" />
           </div>
-          Interactive Stream Topology
-        </h3>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setStreamFlow(!streamFlow)}
-            className={`px-4 py-2 rounded-xl transition-all ${
-              streamFlow 
-                ? 'bg-green-600 hover:bg-green-700 text-white' 
-                : 'bg-gray-600 hover:bg-gray-700 text-white'
-            }`}
-          >
-            {streamFlow ? '⏸️ Pause Flow' : '▶️ Resume Flow'}
-          </button>
+          <h3 className="text-xl font-bold text-white">Interactive Stream Topology</h3>
         </div>
+        <button
+          onClick={() => setStreamFlow(!streamFlow)}
+          className={`px-4 py-2 rounded-xl transition-all ${
+            streamFlow 
+              ? 'bg-green-600 hover:bg-green-700 text-white' 
+              : 'bg-gray-600 hover:bg-gray-700 text-white'
+          }`}
+        >
+          {streamFlow ? '⏸️ Pause Flow' : '▶️ Resume Flow'}
+        </button>
       </div>
 
-      <div className="relative bg-black/20 rounded-2xl p-6 h-96 overflow-hidden">
+      <div className="relative bg-black/20 backdrop-blur rounded-xl p-6 h-96 overflow-hidden">
         <svg className="w-full h-full" viewBox="0 0 1000 300">
           {/* Connection Lines with Animated Flow */}
           {nodes.map(node => 
@@ -283,201 +333,123 @@ const InteractiveStreamTopology: React.FC = () => {
   );
 };
 
+// Main Status Page Component
 const StatusPage: React.FC = () => {
   const { health, databaseInfo, lastUpdated } = useHealth();
+  const [refreshing, setRefreshing] = useState(false);
 
-  const getUptimePercentage = () => {
-    // This would typically come from the backend
-    // For now, we'll show a placeholder
-    return 99.99;
-  };
-
-  const getResponseTime = () => {
-    // This would typically be measured from the frontend
-    // For now, we'll show a placeholder
-    return 45; // ms
+  const handleRefresh = () => {
+    setRefreshing(true);
+    // Simulate refresh - replace with actual refresh logic
+    setTimeout(() => setRefreshing(false), 1000);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            System Status
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Real-time monitoring of our MudraCore platform infrastructure
-          </p>
-          {lastUpdated && (
-            <p className="text-sm text-gray-500 mt-2">
-              Last updated: {lastUpdated.toLocaleString()}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">System Status</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
+              Real-time monitoring of our infrastructure
             </p>
-          )}
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleRefresh}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 dark:bg-slate-800 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-slate-700 transition-colors"
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+              <Bell className="h-4 w-4" />
+              Subscribe
+            </button>
+          </div>
         </div>
 
         {/* Overall Status */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Overall Status</p>
-                <p className={`text-2xl font-bold ${health?.status === 'ok' ? 'text-green-600' : health?.status === 'degraded' ? 'text-yellow-600' : 'text-red-600'}`}>
-                  {health?.status?.toUpperCase() || 'UNKNOWN'}
-                </p>
-              </div>
-              {health?.status === 'ok' ? (
-                <CheckCircle className="h-8 w-8 text-green-500" />
-              ) : health?.status === 'degraded' ? (
-                <AlertTriangle className="h-8 w-8 text-yellow-500" />
-              ) : (
-                <XCircle className="h-8 w-8 text-red-500" />
-              )}
+        <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-8 mb-8 text-white">
+          <div className="flex items-center gap-4 mb-4">
+            <Shield className="h-8 w-8" />
+            <div>
+              <h2 className="text-2xl font-bold">Overall System Status</h2>
+              <p className="text-blue-100">Last updated: {lastUpdated?.toLocaleString()}</p>
             </div>
           </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Uptime</p>
-                <p className="text-2xl font-bold text-green-600">{getUptimePercentage()}%</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-green-500" />
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Response Time</p>
-                <p className="text-2xl font-bold text-blue-600">{getResponseTime()}ms</p>
-              </div>
-              <Activity className="h-8 w-8 text-blue-500" />
-            </div>
+          <div className="flex items-center gap-3">
+            <div className={`w-3 h-3 rounded-full ${
+              health?.status === 'ok' ? 'bg-green-400' :
+              health?.status === 'degraded' ? 'bg-yellow-400' :
+              'bg-red-400'
+            }`} />
+            <span className="text-xl font-semibold">
+              {health?.status === 'ok' ? 'All Systems Operational' :
+               health?.status === 'degraded' ? 'Partial System Outage' :
+               'Major System Outage'}
+            </span>
           </div>
         </div>
 
-        {/* Detailed Status */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Health Status Component */}
-          <div>
-            <HealthStatus />
-          </div>
-
-          {/* System Information */}
-          <div className="space-y-6">
-            {/* Backend Information */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-              <div className="flex items-center gap-2 mb-4">
-                <Server className="h-5 w-5 text-blue-500" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Backend Services</h3>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">API Gateway</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-green-600">Operational</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Authentication</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-green-600">Operational</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Payment Processing</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-green-600">Operational</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Database Information */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-              <div className="flex items-center gap-2 mb-4">
-                <Database className="h-5 w-5 text-purple-500" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Neon Database</h3>
-              </div>
-              
-              {databaseInfo ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Connection</span>
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${databaseInfo.connected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                      <span className={`text-sm font-medium ${databaseInfo.connected ? 'text-green-600' : 'text-red-600'}`}>
-                        {databaseInfo.connected ? 'Connected' : 'Disconnected'}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Connection Pool</span>
-                    <span className="text-sm font-medium">
-                      {databaseInfo.in_use || 0} / {databaseInfo.max_open_connections || 0}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Region</span>
-                    <span className="text-sm font-medium">East US 2 (Azure)</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">SSL/TLS</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm font-medium text-green-600">Enabled</span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500">Database information unavailable</p>
-              )}
-            </div>
-
-            {/* Recent Incidents */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="h-5 w-5 text-gray-500" />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Incidents</h3>
-              </div>
-              
-              <div className="text-center py-8">
-                <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-gray-400">No incidents reported</p>
-                <p className="text-sm text-gray-500">All systems operational</p>
-              </div>
-            </div>
-          </div>
+        {/* Service Status Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <StatusCard
+            title="API Gateway"
+            status="Operational"
+            icon={<Server className="h-5 w-5 text-blue-600 dark:text-blue-400" />}
+            metrics={[
+              { label: 'Response Time', value: '45ms' },
+              { label: 'Success Rate', value: '99.99%' }
+            ]}
+          />
+          <StatusCard
+            title="Database Cluster"
+            status="Operational"
+            icon={<Database className="h-5 w-5 text-purple-600 dark:text-purple-400" />}
+            metrics={[
+              { label: 'Active Connections', value: `${databaseInfo?.in_use || 0} / ${databaseInfo?.max_open_connections || 0}` },
+              { label: 'Query Response Time', value: '12ms' }
+            ]}
+          />
+          <StatusCard
+            title="Authentication Service"
+            status="Operational"
+            icon={<Shield className="h-5 w-5 text-green-600 dark:text-green-400" />}
+            metrics={[
+              { label: 'Active Sessions', value: '2,451' },
+              { label: 'Auth Latency', value: '89ms' }
+            ]}
+          />
+          <StatusCard
+            title="Payment Processing"
+            status="Operational"
+            icon={<Activity className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />}
+            metrics={[
+              { label: 'Transaction Rate', value: '850/min' },
+              { label: 'Success Rate', value: '99.95%' }
+            ]}
+          />
         </div>
 
-        {/* Real-time Performance Dashboard */}
-        <div className="mt-12">
-          <GRPCPerformanceDashboard />
+        {/* Performance Intelligence Dashboard */}
+        <div className="mb-8">
+          <PerformanceIntelligence />
         </div>
 
-        {/* Interactive Stream Topology */}
-        <div className="mt-8">
-          <InteractiveStreamTopology />
+        {/* Stream Topology */}
+        <div className="mb-8">
+          <StreamTopology />
         </div>
 
         {/* Footer */}
         <div className="mt-12 text-center">
           <p className="text-sm text-gray-500">
-            For real-time updates, follow our{' '}
-            <a href="#status" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-              status page
+            Need help? Contact our{' '}
+            <a href="#support" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+              support team
             </a>
-            {' '}or contact support.
           </p>
         </div>
       </div>

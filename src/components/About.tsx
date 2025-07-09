@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Github, Linkedin, Briefcase, Award, Code, Server, Database, BrainCircuit, Cpu, Cloud, Lock, Zap } from 'lucide-react';
+import { Mail, Github, Linkedin, Briefcase, Award, Code, Server, Database, BrainCircuit, Cpu, Cloud, Lock, Zap, FileText } from 'lucide-react';
 
 const About: React.FC = () => {
   const experienceData = [
@@ -28,10 +28,11 @@ const About: React.FC = () => {
   ];
 
   const skills = {
-    "Core Technologies": ["Go", "AWS", "Kubernetes", "Docker"],
-    "System & Streaming": ["gRPC", "Kafka", "Microservices", "System Design"],
-    "Database & Performance": ["SQL", "NoSQL", "Performance Optimization", "Database Design"],
-    "Cloud & DevOps": ["Cloud Architecture", "CI/CD", "Infrastructure as Code", "Cost Optimization"],
+    "Programming & Core": ["Go", "Java", "Python", "C", "System Design"],
+    "Database & Data": ["MySQL", "SQLServer", "AzureSQL", "NoSQL", "Redis", "Kafka", "Prometheus", "Grafana", "AVRO"],
+    "Web & API": ["ReactJS", "Redux", "VueJS", "NodeJS", "REST", "Swagger", "Bootstrap"],
+    "Cloud & DevOps": ["AWS", "Kubernetes", "Docker", "CI/CD", "Infrastructure as Code"],
+    "AI & Blockchain": ["NLP", "Neural Networks", "CNN", "RNN", "IPFS", "EtherJS", "WebJS", "Smart Contracts"]
   };
 
   const socialLinks = [
@@ -117,10 +118,16 @@ const About: React.FC = () => {
                 Relentless builder and optimizer. I refactor, scale, and ship. Obsessed with squeezing every drop of performance from distributed systems and cloud platforms.
               </p>
               <p className="text-md text-gray-400 mb-6">
-                Currently optimizing cloud-native systems at scale, leading Go-based refactoring and performance initiatives for platforms processing 2 Million+ daily transactions and driving $100M+ in annual savings. Architecting robust, production-ready microservices, implementing milli-core CPU optimizations, and building real-time streaming with gRPC and Kafka.
+                Currently optimizing cloud-native systems at scale, leading Go-based refactoring and performance initiatives for platforms processing 2 Million+ daily transactions and driving $100M+ in annual savings last year. Architecting robust, production-ready microservices, implementing milli-core CPU optimizations, and building real-time streaming with gRPC and Kafka.
               </p>
               <p className="text-md text-gray-400 mb-6">
                 Previously led the end-to-end development of a FinTech lending platform, launching from 0 to ₹125 Crore disbursed in 8 months. Designed secure APIs, integrated with NBFCs, and built advanced credit and authorization systems under tight deadlines.
+                <a href="https://www.thehindu.com/business/siply-claims-zero-npa-disburses-loans-of-over-125-crore/article65342118.ece" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   className="text-blue-400 hover:text-blue-300 ml-1 underline">
+                  [Read more]
+                </a>
               </p>
               <div className="space-y-4">
                 <div>
@@ -210,13 +217,24 @@ const About: React.FC = () => {
             <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
               I'm constantly building in this space and excited about the chance to collaborate with global teams on challenging technical problems.
             </p>
-            <a
-              href="mailto:karansinghkachwah@gmail.com"
-              className="inline-flex items-center gap-3 px-8 py-3 rounded-xl text-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 transform hover:scale-105"
-            >
-              <span>Get in Touch</span>
-              <Mail className="w-5 h-5" />
-            </a>
+            <div className="flex justify-center gap-4">
+              <a
+                href="mailto:karansinghkachwah@gmail.com"
+                className="inline-flex items-center gap-3 px-8 py-3 rounded-xl text-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300 transform hover:scale-105"
+              >
+                <span>Get in Touch</span>
+                <Mail className="w-5 h-5" />
+              </a>
+              <a
+                href="https://drive.google.com/file/d/12VVCIMGVIGaOGtYoI_nLCAn_JYgUiaqC/view?usp=drive_link"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-8 py-3 rounded-xl text-lg font-semibold bg-gray-700 hover:bg-gray-600 text-white transition-all duration-300 transform hover:scale-105"
+              >
+                <span>View Resume</span>
+                <FileText className="w-5 h-5" />
+              </a>
+            </div>
           </motion.section>
         </motion.div>
       </div>

@@ -19,7 +19,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
-      return saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      // Always default to dark mode, only use saved preference if it's explicitly set to 'light'
+      return saved === 'light' ? false : true;
     }
     return true; // Default to dark mode
   });
