@@ -90,6 +90,11 @@ func (ls *LedgerService) CreateTransaction(userID uuid.UUID, transactionType mod
 			}
 		}
 
+		// Update account balances
+		if err := ls.updateAccountBalances(tx, entries); err != nil {
+			return fmt.Errorf("failed to update account balances: %w", err)
+		}
+
 		return nil
 	})
 
@@ -302,8 +307,8 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 
 	entries := []models.LedgerEntry{
 		{
-			DebitAccountID:  toAccountID,
-			CreditAccountID: fromAccountID,
+			DebitAccountID:  toAccountID,   // Destination account gets debited (increased)
+			CreditAccountID: fromAccountID, // Source account gets credited (decreased)
 			Amount:          amount,
 			Currency:        currency,
 			EntryType:       models.EntryTypeDebit,
@@ -311,19 +316,9 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 			Reference:       reference,
 			Timestamp:       time.Now(),
 		},
-		{
-			DebitAccountID:  fromAccountID,
-			CreditAccountID: toAccountID,
-			Amount:          amount,
-			Currency:        currency,
-			EntryType:       models.EntryTypeCredit,
-			Description:     fmt.Sprintf("Transfer from %s", fromAccount.Name),
-			Reference:       reference,
-			Timestamp:       time.Now(),
-		},
 	}
 
-	transaction, err := ls.CreateTransaction(userID, models.LedgerTransactionTypeTransfer, description, reference, entries)
+	transaction, err := ls.CreateTransactionWithoutValidation(userID, models.LedgerTransactionTypeTransfer, description, reference, entries)
 	if err != nil {
 		return nil, err
 	}
@@ -436,6 +431,11 @@ func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, am
 			return err
 		}
 
+		// Update account balances
+		if err := ls.updateAccountBalances(tx, transaction.Entries); err != nil {
+			return fmt.Errorf("failed to update account balances: %w", err)
+		}
+
 		return nil
 	})
 
@@ -525,6 +525,45 @@ func (ls *LedgerService) validateAccounts(entries []models.LedgerEntry) error {
 	return nil
 }
 
+// updateAccountBalances updates the balance of all accounts involved in the given entries
+func (ls *LedgerService) updateAccountBalances(tx *gorm.DB, entries []models.LedgerEntry) error {
+	// Group entries by account to calculate net changes
+	accountChanges := make(map[uuid.UUID]float64)
+
+	for _, entry := range entries {
+		// Debit account gets increased (for debit accounts) or decreased (for credit accounts)
+		if entry.EntryType == models.EntryTypeDebit {
+			accountChanges[entry.DebitAccountID] += entry.Amount
+		}
+
+		// Credit account gets decreased (for debit accounts) or increased (for credit accounts)
+		if entry.EntryType == models.EntryTypeCredit {
+			accountChanges[entry.CreditAccountID] -= entry.Amount
+		}
+	}
+
+	// Update each account's balance
+	for accountID, change := range accountChanges {
+		var account models.LedgerAccount
+		if err := tx.Where("id = ?", accountID).First(&account).Error; err != nil {
+			return fmt.Errorf("account %s not found for balance update", accountID)
+		}
+
+		// Update the balance based on account type
+		if account.IsDebitAccount() {
+			account.Balance += change
+		} else {
+			account.Balance -= change
+		}
+
+		if err := tx.Model(&account).Update("balance", account.Balance).Error; err != nil {
+			return fmt.Errorf("failed to update balance for account %s: %w", accountID, err)
+		}
+	}
+
+	return nil
+}
+
 // GetTrialBalance returns a trial balance for all accounts
 func (ls *LedgerService) GetTrialBalance() (map[uuid.UUID]float64, error) {
 	var accounts []models.LedgerAccount
@@ -587,6 +626,11 @@ func (ls *LedgerService) CreateTransactionWithoutValidation(userID uuid.UUID, tr
 			if err := tx.Create(&transaction.Entries[i]).Error; err != nil {
 				return err
 			}
+		}
+
+		// Update account balances
+		if err := ls.updateAccountBalances(tx, entries); err != nil {
+			return fmt.Errorf("failed to update account balances: %w", err)
 		}
 
 		return nil
@@ -655,6 +699,12 @@ func (ls *LedgerService) CreateTestBalance(userID uuid.UUID, accountID uuid.UUID
 			return err
 		}
 
+		// Update account balances
+		entries := []models.LedgerEntry{entry}
+		if err := ls.updateAccountBalances(tx, entries); err != nil {
+			return fmt.Errorf("failed to update account balances: %w", err)
+		}
+
 		return nil
 	})
 
@@ -668,4 +718,56 @@ func (ls *LedgerService) CreateTestBalance(userID uuid.UUID, accountID uuid.UUID
 	}
 
 	return transaction, nil
+}
+
+// GetTransactionHistory returns transaction history for a user
+func (ls *LedgerService) GetTransactionHistory(userID uuid.UUID, limit, offset int) ([]models.LedgerTransaction, error) {
+	var transactions []models.LedgerTransaction
+
+	query := ls.db.Where("user_id = ?", userID).
+		Preload("Entries").
+		Preload("Entries.DebitAccount").
+		Preload("Entries.CreditAccount").
+		Order("timestamp DESC")
+
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	if offset > 0 {
+		query = query.Offset(offset)
+	}
+
+	if err := query.Find(&transactions).Error; err != nil {
+		return nil, fmt.Errorf("failed to get transaction history: %w", err)
+	}
+
+	return transactions, nil
+}
+
+// GetTransactionByID returns a specific transaction by ID
+func (ls *LedgerService) GetTransactionByID(transactionID uuid.UUID) (*models.LedgerTransaction, error) {
+	var transaction models.LedgerTransaction
+	if err := ls.db.Preload("Entries").
+		Preload("Entries.DebitAccount").
+		Preload("Entries.CreditAccount").
+		Where("id = ?", transactionID).
+		First(&transaction).Error; err != nil {
+		return nil, fmt.Errorf("transaction not found: %w", err)
+	}
+
+	return &transaction, nil
+}
+
+// GetTransactionByReference returns a transaction by its reference
+func (ls *LedgerService) GetTransactionByReference(reference string) (*models.LedgerTransaction, error) {
+	var transaction models.LedgerTransaction
+	if err := ls.db.Preload("Entries").
+		Preload("Entries.DebitAccount").
+		Preload("Entries.CreditAccount").
+		Where("reference = ?", reference).
+		First(&transaction).Error; err != nil {
+		return nil, fmt.Errorf("transaction not found: %w", err)
+	}
+
+	return &transaction, nil
 }

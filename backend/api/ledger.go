@@ -166,11 +166,24 @@ func handleLedgerTransactionRoutes(w http.ResponseWriter, r *http.Request, pathP
 			} else {
 				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			}
+		case "history":
+			if r.Method == http.MethodGet {
+				getTransactionHistory(w, r)
+			} else {
+				http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			}
 		default:
 			// Handle transaction ID-based routes
 			if len(pathParts) >= 5 && pathParts[4] == "post" {
 				if r.Method == http.MethodPost {
 					postLedgerTransaction(w, r, pathParts[3])
+				} else {
+					http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+				}
+			} else if len(pathParts) >= 4 {
+				// Handle getting transaction by ID
+				if r.Method == http.MethodGet {
+					getTransactionByID(w, r, pathParts[3])
 				} else {
 					http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 				}
@@ -519,10 +532,8 @@ func handleTrialBalance(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(balances)
 }
 
-// getAvailableAccounts returns available accounts for transfers
+// getAvailableAccounts returns available accounts for a user
 func getAvailableAccounts(w http.ResponseWriter, r *http.Request) {
-	start := time.Now()
-
 	// Get authenticated user
 	user, err := middleware.GetUserFromContext(r)
 	if err != nil {
@@ -536,50 +547,114 @@ func getAvailableAccounts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accounts, err := service.GetUserAccounts(user.UserID) // Use GetUserAccounts to exclude system accounts
+	accounts, err := service.GetUserAccounts(user.UserID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Error getting available accounts: %v", err)
+		http.Error(w, "Failed to get accounts", http.StatusInternalServerError)
 		return
 	}
 
-	// Filter only active accounts
-	var activeAccounts []models.LedgerAccount
-	for _, account := range accounts {
-		if account.IsActive() {
-			activeAccounts = append(activeAccounts, account)
+	// Return accounts as JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"data":    accounts,
+	})
+}
+
+// getTransactionHistory returns transaction history for a user
+func getTransactionHistory(w http.ResponseWriter, r *http.Request) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
+	service := getLedgerService()
+	if service == nil {
+		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
+		return
+	}
+
+	// Parse query parameters for pagination
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
+
+	limit := 50 // Default limit
+	offset := 0 // Default offset
+
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+			limit = l
 		}
 	}
 
-	// Get all balances in a single optimized query
-	balances, err := service.GetAccountBalancesBatch(activeAccounts)
+	if offsetStr != "" {
+		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
+			offset = o
+		}
+	}
+
+	transactions, err := service.GetTransactionHistory(user.UserID, limit, offset)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Error getting transaction history: %v", err)
+		http.Error(w, "Failed to get transaction history", http.StatusInternalServerError)
 		return
 	}
 
-	// Build response
-	responseAccounts := make([]map[string]interface{}, 0)
-	for _, account := range activeAccounts {
-		balance := balances[account.ID]
-		responseAccounts = append(responseAccounts, map[string]interface{}{
-			"id":             account.ID.String(),
-			"account_number": account.AccountNumber,
-			"name":           account.Name,
-			"type":           string(account.Type),
-			"currency":       account.Currency,
-			"balance":        balance,
-			"description":    account.Description,
-		})
+	// Return transactions as JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"data":    transactions,
+		"pagination": map[string]interface{}{
+			"limit":  limit,
+			"offset": offset,
+			"count":  len(transactions),
+		},
+	})
+}
+
+// getTransactionByID returns a specific transaction by ID
+func getTransactionByID(w http.ResponseWriter, r *http.Request, transactionIDStr string) {
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"accounts": responseAccounts,
-		"count":    len(responseAccounts),
-	})
+	service := getLedgerService()
+	if service == nil {
+		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
+		return
+	}
 
-	// Log performance metrics
-	duration := time.Since(start)
-	fmt.Printf("getAvailableAccounts: processed %d accounts in %v\n", len(responseAccounts), duration)
+	// Parse transaction ID
+	transactionID, err := uuid.Parse(transactionIDStr)
+	if err != nil {
+		http.Error(w, "Invalid transaction ID", http.StatusBadRequest)
+		return
+	}
+
+	transaction, err := service.GetTransactionByID(transactionID)
+	if err != nil {
+		log.Printf("Error getting transaction: %v", err)
+		http.Error(w, "Transaction not found", http.StatusNotFound)
+		return
+	}
+
+	// Verify the transaction belongs to the authenticated user
+	if transaction.UserID != user.UserID {
+		http.Error(w, "Access denied", http.StatusForbidden)
+		return
+	}
+
+	// Return transaction as JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"data":    transaction,
+	})
 }
