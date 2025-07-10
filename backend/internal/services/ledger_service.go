@@ -324,8 +324,8 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 
 	entries := []models.LedgerEntry{
 		{
-			DebitAccountID:  toAccountID,   // Destination account gets debited (increased)
-			CreditAccountID: fromAccountID, // Source account gets credited (decreased)
+			DebitAccountID:  fromAccountID,
+			CreditAccountID: toAccountID,
 			Amount:          amount,
 			Currency:        currency,
 			EntryType:       models.EntryTypeDebit,
@@ -334,8 +334,8 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 			Timestamp:       time.Now(),
 		},
 		{
-			DebitAccountID:  fromAccountID, // Source account gets debited (decreased)
-			CreditAccountID: toAccountID,   // Destination account gets credited (increased)
+			DebitAccountID:  toAccountID,   // Destination account gets debited (increased)
+			CreditAccountID: fromAccountID, // Source account gets credited (decreased)
 			Amount:          amount,
 			Currency:        currency,
 			EntryType:       models.EntryTypeCredit,
@@ -564,32 +564,39 @@ func (ls *LedgerService) updateAccountBalances(tx *gorm.DB, entries []models.Led
 	accountChanges := make(map[uuid.UUID]float64)
 
 	for _, entry := range entries {
-		// Debit account gets increased (for debit accounts) or decreased (for credit accounts)
-		if entry.EntryType == models.EntryTypeDebit {
-			accountChanges[entry.DebitAccountID] += entry.Amount
+		var debitAccount, creditAccount models.LedgerAccount
+
+		// Load both accounts involved in the entry
+		if err := tx.Where("id = ?", entry.DebitAccountID).First(&debitAccount).Error; err != nil {
+			return fmt.Errorf("debit account %s not found for balance update", entry.DebitAccountID)
+		}
+		if err := tx.Where("id = ?", entry.CreditAccountID).First(&creditAccount).Error; err != nil {
+			return fmt.Errorf("credit account %s not found for balance update", entry.CreditAccountID)
 		}
 
-		// Credit account gets decreased (for debit accounts) or increased (for credit accounts)
-		if entry.EntryType == models.EntryTypeCredit {
+		// For debit accounts:
+		// - Debit entries increase the balance
+		// - Credit entries decrease the balance
+		if debitAccount.IsDebitAccount() {
+			accountChanges[entry.DebitAccountID] += entry.Amount
+		} else {
+			accountChanges[entry.DebitAccountID] -= entry.Amount
+		}
+
+		// For credit accounts:
+		// - Debit entries decrease the balance
+		// - Credit entries increase the balance
+		if creditAccount.IsDebitAccount() {
 			accountChanges[entry.CreditAccountID] -= entry.Amount
+		} else {
+			accountChanges[entry.CreditAccountID] += entry.Amount
 		}
 	}
 
 	// Update each account's balance
 	for accountID, change := range accountChanges {
-		var account models.LedgerAccount
-		if err := tx.Where("id = ?", accountID).First(&account).Error; err != nil {
-			return fmt.Errorf("account %s not found for balance update", accountID)
-		}
-
-		// Update the balance based on account type
-		if account.IsDebitAccount() {
-			account.Balance += change
-		} else {
-			account.Balance -= change
-		}
-
-		if err := tx.Model(&account).Update("balance", account.Balance).Error; err != nil {
+		if err := tx.Model(&models.LedgerAccount{}).Where("id = ?", accountID).
+			UpdateColumn("balance", gorm.Expr("balance + ?", change)).Error; err != nil {
 			return fmt.Errorf("failed to update balance for account %s: %w", accountID, err)
 		}
 	}
