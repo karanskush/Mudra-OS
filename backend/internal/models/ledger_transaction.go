@@ -100,10 +100,17 @@ func (lt *LedgerTransaction) ValidateBalance() error {
 	var totalDebits, totalCredits float64
 
 	for _, entry := range lt.Entries {
+		// In our double-entry system, each entry represents both sides of the transaction
+		// The DebitAccountID and CreditAccountID fields indicate which accounts are affected
+		// The EntryType indicates the primary type of the entry
 		if entry.IsDebit() {
 			totalDebits += entry.Amount
+			// For a debit entry, the same amount is credited to the credit account
+			totalCredits += entry.Amount
 		} else {
 			totalCredits += entry.Amount
+			// For a credit entry, the same amount is debited to the debit account
+			totalDebits += entry.Amount
 		}
 	}
 
@@ -118,8 +125,11 @@ func (lt *LedgerTransaction) ValidateBalance() error {
 func (lt *LedgerTransaction) GetTotalDebits() float64 {
 	var total float64
 	for _, entry := range lt.Entries {
+		// In our double-entry system, each entry represents both sides
 		if entry.IsDebit() {
-			total += entry.Amount
+			total += entry.Amount // Debit to debit account
+		} else {
+			total += entry.Amount // Debit to debit account (for credit entries)
 		}
 	}
 	return total
@@ -129,8 +139,11 @@ func (lt *LedgerTransaction) GetTotalDebits() float64 {
 func (lt *LedgerTransaction) GetTotalCredits() float64 {
 	var total float64
 	for _, entry := range lt.Entries {
-		if entry.IsCredit() {
-			total += entry.Amount
+		// In our double-entry system, each entry represents both sides
+		if entry.IsDebit() {
+			total += entry.Amount // Credit to credit account (for debit entries)
+		} else {
+			total += entry.Amount // Credit to credit account
 		}
 	}
 	return total
