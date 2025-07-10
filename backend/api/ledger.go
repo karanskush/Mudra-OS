@@ -570,6 +570,21 @@ func getAvailableAccounts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get current balances for all accounts
+	balances, err := service.GetAccountBalancesBatch(accounts)
+	if err != nil {
+		log.Printf("Error getting account balances: %v", err)
+		http.Error(w, "Failed to get account balances", http.StatusInternalServerError)
+		return
+	}
+
+	// Update the accounts with current balances
+	for i := range accounts {
+		if balance, exists := balances[accounts[i].ID]; exists {
+			accounts[i].Balance = balance
+		}
+	}
+
 	// Return accounts as JSON
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{

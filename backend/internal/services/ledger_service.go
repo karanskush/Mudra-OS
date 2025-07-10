@@ -281,6 +281,15 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 		return nil, errors.New("currency conversion not yet implemented")
 	}
 
+	// Check if source account has sufficient balance
+	fromBalance, err := ls.GetAccountBalance(fromAccountID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get source account balance: %w", err)
+	}
+	if fromBalance < amount {
+		return nil, fmt.Errorf("insufficient balance: account has %f but trying to transfer %f", fromBalance, amount)
+	}
+
 	// Generate unique reference for this transfer
 	reference := ls.generateUniqueReference()
 
@@ -317,29 +326,23 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 		latency = "60s"
 	}
 
-	err := orchestrator.Transfer(payment, &railType)
+	err = orchestrator.Transfer(payment, &railType)
 	if err != nil {
 		return nil, fmt.Errorf("payment rail transfer failed: %w", err)
 	}
 
+	// Create a SINGLE entry for the transfer
+	// In double-entry bookkeeping:
+	// - Debit the destination account (increases its balance)
+	// - Credit the source account (decreases its balance)
 	entries := []models.LedgerEntry{
 		{
-			DebitAccountID:  fromAccountID,
-			CreditAccountID: toAccountID,
+			DebitAccountID:  toAccountID,   // Destination account gets debited (balance increases)
+			CreditAccountID: fromAccountID, // Source account gets credited (balance decreases)
 			Amount:          amount,
 			Currency:        currency,
-			EntryType:       models.EntryTypeDebit,
-			Description:     fmt.Sprintf("Transfer to %s", toAccount.Name),
-			Reference:       reference,
-			Timestamp:       time.Now(),
-		},
-		{
-			DebitAccountID:  toAccountID,   // Destination account gets debited (increased)
-			CreditAccountID: fromAccountID, // Source account gets credited (decreased)
-			Amount:          amount,
-			Currency:        currency,
-			EntryType:       models.EntryTypeCredit,
-			Description:     fmt.Sprintf("Transfer from %s", fromAccount.Name),
+			EntryType:       models.EntryTypeDebit, // This is the primary entry type
+			Description:     fmt.Sprintf("Transfer from %s to %s", fromAccount.Name, toAccount.Name),
 			Reference:       reference,
 			Timestamp:       time.Now(),
 		},
