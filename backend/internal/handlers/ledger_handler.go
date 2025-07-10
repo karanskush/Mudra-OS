@@ -129,6 +129,25 @@ func (h *LedgerHandler) CreateTransfer(c *gin.Context) {
 		return
 	}
 
+	// Extract transaction from response
+	transaction, ok := response["transaction"].(*models.LedgerTransaction)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid transaction response"})
+		return
+	}
+
+	// Automatically post the transaction
+	if err := h.ledgerService.PostTransaction(transaction.ID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Transaction created but failed to post: %v", err)})
+		return
+	}
+
+	// Update transaction status in response
+	transaction.Status = models.LedgerTransactionStatusPosted
+	now := time.Now()
+	transaction.PostedAt = &now
+	response["transaction"] = transaction
+
 	c.JSON(http.StatusCreated, response)
 }
 

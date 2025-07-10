@@ -287,7 +287,7 @@ func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	transaction, err := service.CreateTransfer(
+	result, err := service.CreateTransfer(
 		user.UserID, // Use authenticated user's ID
 		req.FromAccountID,
 		req.ToAccountID,
@@ -301,9 +301,28 @@ func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Extract transaction from result map
+	transaction, ok := result["transaction"].(*models.LedgerTransaction)
+	if !ok {
+		http.Error(w, "Invalid transaction response", http.StatusInternalServerError)
+		return
+	}
+
+	// Automatically post the transaction so the balance is immediately updated
+	if err := service.PostTransaction(transaction.ID); err != nil {
+		http.Error(w, fmt.Sprintf("Transaction created but failed to post: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Update the transaction status in the result map
+	transaction.Status = models.LedgerTransactionStatusPosted
+	now := time.Now()
+	transaction.PostedAt = &now
+	result["transaction"] = transaction
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(transaction)
+	json.NewEncoder(w).Encode(result)
 }
 
 // createLedgerDeposit creates a deposit transaction
