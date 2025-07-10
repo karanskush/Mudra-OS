@@ -602,13 +602,7 @@ const LedgerTest: React.FC = () => {
     if (event.event.balanceUpdate) {
       const { accountId, balance, changeAmount, changeType } = event.event.balanceUpdate;
       
-      // Update real-time balances
-      setRealTimeBalances(prev => ({
-        ...prev,
-        [accountId]: balance
-      }));
-      
-      // Update available accounts with new balance
+      // Only update available accounts, don't maintain separate real-time balances
       setAvailableAccounts(prev => 
         prev.map(account => 
           account.id === accountId 
@@ -885,11 +879,10 @@ const LedgerTest: React.FC = () => {
 
     try {
       const response = await apiClient.createDeposit(depositForm);
-      // The response is the deposit object directly, not wrapped in a data field
-      setResponse(JSON.stringify(response, null, 2));
-      setTransactions([...transactions, response as any]);
-      // Don't refresh accounts here as we'll get the update via gRPC stream
-      toast.success('Deposit created successfully!');
+      // Only update the transactions list, balance will come through gRPC stream
+      setTransactions(prev => [response as any, ...prev]);
+      setResponse('');
+      toast.success('Deposit initiated successfully!');
     } catch (error) {
       console.error('Deposit creation error:', error);
       setResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
