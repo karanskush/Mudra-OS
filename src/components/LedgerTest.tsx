@@ -45,6 +45,8 @@ interface Transaction {
   currency: string;
   description: string;
   entries: any[];
+  timestamp?: string;
+  created_at?: string;
 }
 
 interface TransferRailInfo {
@@ -631,7 +633,9 @@ const LedgerTest: React.FC = () => {
         amount,
         currency: event.event.transactionCreated.currency,
         description: event.event.transactionCreated.description,
-        entries: []
+        entries: [],
+        timestamp: new Date().toISOString(),
+        created_at: new Date().toISOString()
       };
       
       setTransactions(prev => [newTransaction, ...prev]);
@@ -738,7 +742,9 @@ const LedgerTest: React.FC = () => {
           amount: tx.total_amount || 0,
           currency: tx.currency || 'USD',
           description: tx.description || '',
-          entries: tx.entries || []
+          entries: tx.entries || [],
+          timestamp: tx.timestamp || tx.created_at,
+          created_at: tx.created_at
         }));
         console.log('Loaded transactions:', transformedTransactions);
         console.log('Draft transactions count:', transformedTransactions.filter((t: any) => t.status === 'draft').length);
@@ -752,7 +758,9 @@ const LedgerTest: React.FC = () => {
           amount: tx.total_amount || 0,
           currency: tx.currency || 'USD',
           description: tx.description || '',
-          entries: tx.entries || []
+          entries: tx.entries || [],
+          timestamp: tx.timestamp || tx.created_at,
+          created_at: tx.created_at
         }));
         setTransactions(transformedTransactions);
       } else {
@@ -1060,6 +1068,76 @@ const LedgerTest: React.FC = () => {
     });
   };
 
+  // Helper function to format date/time
+  const formatDateTime = (dateString?: string) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      return 'Invalid Date';
+    }
+  };
+
+  // Bulk approve all draft transactions
+  const handleBulkApproveDrafts = async () => {
+    const draftTransactions = transactions.filter(tx => tx.status === 'draft');
+    
+    if (draftTransactions.length === 0) {
+      toast.error('No draft transactions to approve');
+      return;
+    }
+
+    setLoading(true);
+    setResponse('');
+
+    try {
+      // Process each draft transaction
+      const promises = draftTransactions.map(tx => 
+        apiClient.authenticatedRequest(`/api/v1/ledger/transactions/${tx.id}/post`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+      );
+
+      const results = await Promise.allSettled(promises);
+      
+      // Count successful and failed operations
+      const successful = results.filter(result => result.status === 'fulfilled' && result.value.ok).length;
+      const failed = results.length - successful;
+
+      // Update local state for successful operations
+      setTransactions(prev => prev.map(tx => 
+        tx.status === 'draft' 
+          ? { ...tx, status: 'posted' }
+          : tx
+      ));
+
+      setResponse(`Bulk approve completed: ${successful} approved, ${failed} failed`);
+      
+      if (successful > 0) {
+        toast.success(`Successfully approved ${successful} transactions!`);
+      }
+      if (failed > 0) {
+        toast.error(`${failed} transactions failed to approve`);
+      }
+    } catch (error) {
+      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Bulk approve failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
       <div className="min-h-screen">
         {/* Header Section */}
@@ -1330,6 +1408,9 @@ const LedgerTest: React.FC = () => {
                           <div className="flex-1">
                             <p className="font-medium text-gray-900 dark:text-white capitalize">{transaction.type}</p>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.description}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500">
+                              {formatDateTime(transaction.timestamp || transaction.created_at)}
+                            </p>
                           </div>
                           <div className="text-right">
                             <p className="font-semibold text-gray-900 dark:text-white">
@@ -1680,6 +1761,16 @@ const LedgerTest: React.FC = () => {
                     <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
                     {loading ? 'Loading...' : 'Refresh'}
                   </button>
+                  {transactions.filter(tx => tx.status === 'draft').length > 0 && (
+                    <button
+                      onClick={handleBulkApproveDrafts}
+                      disabled={loading}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl hover:from-emerald-600 hover:to-green-700 disabled:opacity-50 transition-all shadow-lg hover:shadow-xl"
+                    >
+                      <CheckCircle className="h-5 w-5" />
+                      {loading ? 'Approving...' : `Approve All Drafts (${transactions.filter(tx => tx.status === 'draft').length})`}
+                    </button>
+                  )}
                   <button
                     onClick={() => setActiveForm('deposit')}
                     className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
@@ -1822,6 +1913,7 @@ const LedgerTest: React.FC = () => {
                             <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Description</th>
                             <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
                             <th className="px-6 py-2.5 text-right text-sm font-semibold text-gray-900 dark:text-white">Amount</th>
+                            <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Date/Time</th>
                             <th className="px-6 py-2.5 text-center text-sm font-semibold text-gray-900 dark:text-white">Actions</th>
                           </tr>
                         </thead>
@@ -1876,6 +1968,11 @@ const LedgerTest: React.FC = () => {
                                     <div className="text-xs text-gray-500 dark:text-gray-400">{transaction.currency}</div>
                                   </div>
                                 </td>
+                                <td className="px-6 py-2.5 text-gray-600 dark:text-gray-300">
+                                  <div className="text-sm">
+                                    {formatDateTime(transaction.timestamp || transaction.created_at)}
+                                  </div>
+                                </td>
                                 <td className="px-6 py-2.5 text-center">
                                   <button
                                     onClick={() => handleToggleTransactionStatus(transaction.id, transaction.status)}
@@ -1889,7 +1986,7 @@ const LedgerTest: React.FC = () => {
                                     {transaction.status === 'draft' ? (
                                       <>
                                         <CheckCircle className="h-3 w-3" />
-                                        {loading ? 'Posting...' : 'Post'}
+                                        {loading ? 'Posting...' : 'Approve'}
                                       </>
                                     ) : (
                                       <>
