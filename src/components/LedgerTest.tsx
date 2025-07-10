@@ -888,8 +888,7 @@ const LedgerTest: React.FC = () => {
       // The response is the deposit object directly, not wrapped in a data field
       setResponse(JSON.stringify(response, null, 2));
       setTransactions([...transactions, response as any]);
-      // Refresh available accounts after deposit
-      await loadAvailableAccounts();
+      // Don't refresh accounts here as we'll get the update via gRPC stream
       toast.success('Deposit created successfully!');
     } catch (error) {
       console.error('Deposit creation error:', error);
