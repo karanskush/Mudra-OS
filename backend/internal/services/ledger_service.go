@@ -149,7 +149,31 @@ func (ls *LedgerService) GetAccountBalance(accountID uuid.UUID) (float64, error)
 		return 0, fmt.Errorf("account not found: %w", err)
 	}
 
-	return account.GetBalance(ls.db)
+	// Calculate balance directly from ledger entries for accuracy
+	var totalDebits float64
+	if err := ls.db.Model(&models.LedgerEntry{}).
+		Where("debit_account_id = ? AND entry_type = ?", accountID, models.EntryTypeDebit).
+		Select("COALESCE(SUM(amount), 0)").
+		Scan(&totalDebits).Error; err != nil {
+		return 0, fmt.Errorf("failed to calculate debits: %w", err)
+	}
+
+	var totalCredits float64
+	if err := ls.db.Model(&models.LedgerEntry{}).
+		Where("credit_account_id = ? AND entry_type = ?", accountID, models.EntryTypeCredit).
+		Select("COALESCE(SUM(amount), 0)").
+		Scan(&totalCredits).Error; err != nil {
+		return 0, fmt.Errorf("failed to calculate credits: %w", err)
+	}
+
+	var balance float64
+	if account.IsDebitAccount() {
+		balance = totalDebits - totalCredits
+	} else {
+		balance = totalCredits - totalDebits
+	}
+
+	return balance, nil
 }
 
 // GetAccountBalancesBatch returns balances for multiple accounts in a single optimized query
@@ -530,52 +554,12 @@ func (ls *LedgerService) validateAccounts(entries []models.LedgerEntry) error {
 
 // updateAccountBalances updates the balance of all accounts involved in the given entries
 func (ls *LedgerService) updateAccountBalances(tx *gorm.DB, entries []models.LedgerEntry) error {
-	// Group entries by account to calculate net changes
-	accountChanges := make(map[uuid.UUID]float64)
+	// Since we're calculating balances directly from ledger entries,
+	// we don't need to update cached balances anymore.
+	// The balance will be calculated fresh each time from the ledger entries.
 
-	for _, entry := range entries {
-		// Process each entry exactly once based on its EntryType
-		// This prevents double-application when we have 2 entries per transaction
-
-		if entry.EntryType == models.EntryTypeDebit {
-			// This is a DEBIT entry - only update the debit account
-			var debitAccount models.LedgerAccount
-			if err := tx.Where("id = ?", entry.DebitAccountID).First(&debitAccount).Error; err != nil {
-				return fmt.Errorf("debit account %s not found for balance update", entry.DebitAccountID)
-			}
-
-			if debitAccount.IsDebitAccount() {
-				// For debit accounts (assets, expenses): debit increases balance
-				accountChanges[entry.DebitAccountID] += entry.Amount
-			} else {
-				// For credit accounts (liabilities, equity, revenue): debit decreases balance
-				accountChanges[entry.DebitAccountID] -= entry.Amount
-			}
-
-		} else if entry.EntryType == models.EntryTypeCredit {
-			// This is a CREDIT entry - only update the credit account
-			var creditAccount models.LedgerAccount
-			if err := tx.Where("id = ?", entry.CreditAccountID).First(&creditAccount).Error; err != nil {
-				return fmt.Errorf("credit account %s not found for balance update", entry.CreditAccountID)
-			}
-
-			if creditAccount.IsDebitAccount() {
-				// For debit accounts (assets, expenses): credit decreases balance
-				accountChanges[entry.CreditAccountID] -= entry.Amount
-			} else {
-				// For credit accounts (liabilities, equity, revenue): credit increases balance
-				accountChanges[entry.CreditAccountID] += entry.Amount
-			}
-		}
-	}
-
-	// Update each account's balance
-	for accountID, change := range accountChanges {
-		if err := tx.Model(&models.LedgerAccount{}).Where("id = ?", accountID).
-			UpdateColumn("balance", gorm.Expr("balance + ?", change)).Error; err != nil {
-			return fmt.Errorf("failed to update balance for account %s: %w", accountID, err)
-		}
-	}
+	// This method is kept for compatibility but no longer updates cached balances
+	// as they can become stale and cause discrepancies.
 
 	return nil
 }
@@ -589,7 +573,7 @@ func (ls *LedgerService) GetTrialBalance() (map[uuid.UUID]float64, error) {
 
 	trialBalance := make(map[uuid.UUID]float64)
 	for _, account := range accounts {
-		balance, err := account.GetBalance(ls.db)
+		balance, err := ls.GetAccountBalance(account.ID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get balance for account %s: %w", account.ID, err)
 		}
@@ -773,22 +757,16 @@ func (ls *LedgerService) ReconcileAccountBalances() error {
 
 	// Recalculate balance for each account
 	for _, account := range accounts {
-		// Calculate correct balance from ledger entries
-		if err := account.RecalculateBalance(ls.db); err != nil {
+		// Calculate correct balance from ledger entries using the new method
+		balance, err := ls.GetAccountBalance(account.ID)
+		if err != nil {
 			log.Printf("Error recalculating balance for account %s: %v", account.ID, err)
 			errors++
 			continue
 		}
 
-		// Update the cached balance in database
-		if err := ls.db.Model(&account).Update("balance", account.Balance).Error; err != nil {
-			log.Printf("Error updating balance for account %s: %v", account.ID, err)
-			errors++
-			continue
-		}
-
 		log.Printf("Reconciled account %s (%s): balance = %.2f %s",
-			account.Name, account.ID, account.Balance, account.Currency)
+			account.Name, account.ID, balance, account.Currency)
 		reconciled++
 	}
 
