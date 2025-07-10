@@ -334,8 +334,8 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 			Timestamp:       time.Now(),
 		},
 		{
-			DebitAccountID:  toAccountID,   // Destination account gets debited (increased)
-			CreditAccountID: fromAccountID, // Source account gets credited (decreased)
+			DebitAccountID:  fromAccountID, // Source account gets debited (decreased)
+			CreditAccountID: toAccountID,   // Destination account gets credited (increased)
 			Amount:          amount,
 			Currency:        currency,
 			EntryType:       models.EntryTypeCredit,
