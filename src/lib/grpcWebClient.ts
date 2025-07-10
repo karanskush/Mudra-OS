@@ -96,7 +96,7 @@ export interface CreatePaymentRequest {
   amount: number;
   currency: string;
   description: string;
-  reference?: string;
+  reference: string;
   forceRail?: boolean;
   preferredRail?: string;
 }

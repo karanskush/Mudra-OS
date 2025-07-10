@@ -90,6 +90,7 @@ const GRPCTest: React.FC = () => {
           amount: 100000, // $1,000 in cents
           currency: 'USD',
           description: 'Test payment for gRPC testing',
+          reference: 'TEST-001',
           forceRail: false,
           preferredRail: 'ACH'
         };

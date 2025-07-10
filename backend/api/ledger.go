@@ -294,6 +294,7 @@ func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
 		req.Amount,
 		req.Currency,
 		req.Description,
+		req.Reference,
 	)
 
 	if err != nil {
@@ -333,6 +334,7 @@ func createLedgerDeposit(w http.ResponseWriter, r *http.Request) {
 		req.Amount,
 		req.Currency,
 		req.Description,
+		req.Reference,
 	)
 
 	if err != nil {
@@ -383,6 +385,7 @@ func createTestBalance(w http.ResponseWriter, r *http.Request) {
 		req.Amount,
 		req.Currency,
 		req.Description,
+		req.Reference,
 	)
 
 	if err != nil {

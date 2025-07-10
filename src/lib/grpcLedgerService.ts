@@ -14,7 +14,7 @@ export interface LedgerStreamRequest {
       amount: number;
       currency: string;
       description: string;
-      reference?: string;
+      reference: string;
       metadata?: Record<string, string>;
     };
     getBalance?: {

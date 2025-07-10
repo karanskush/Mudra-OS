@@ -3,7 +3,6 @@ package services
 import (
 	"errors"
 	"fmt"
-	"math/rand"
 	"time"
 
 	"fintech-backend/internal/models"
@@ -21,14 +20,6 @@ type LedgerService struct {
 // NewLedgerService creates a new ledger service
 func NewLedgerService(db *gorm.DB) *LedgerService {
 	return &LedgerService{db: db}
-}
-
-// generateUniqueReference generates a unique reference number for transactions
-func (ls *LedgerService) generateUniqueReference() string {
-	// Generate a timestamp-based reference with random suffix
-	timestamp := time.Now().Format("20060102150405")
-	randomSuffix := rand.Intn(9999) + 1000 // 4-digit random number
-	return fmt.Sprintf("TXN%s%d", timestamp, randomSuffix)
 }
 
 // CreateAccount creates a new ledger account
@@ -53,11 +44,6 @@ func (ls *LedgerService) CreateAccount(userID uuid.UUID, accountNumber, name, de
 
 // CreateTransaction creates a new ledger transaction with entries
 func (ls *LedgerService) CreateTransaction(userID uuid.UUID, transactionType models.LedgerTransactionType, description, reference string, entries []models.LedgerEntry) (*models.LedgerTransaction, error) {
-	// Generate unique reference if not provided
-	if reference == "" {
-		reference = ls.generateUniqueReference()
-	}
-
 	// Calculate total amount - in double-entry accounting, we only count debits to avoid doubling
 	var totalAmount float64
 	for _, entry := range entries {
@@ -263,7 +249,7 @@ func (ls *LedgerService) GetAccountTransactions(accountID uuid.UUID, limit, offs
 }
 
 // CreateTransfer creates a transfer between two accounts
-func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccountID uuid.UUID, amount float64, currency, description string) (map[string]interface{}, error) {
+func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccountID uuid.UUID, amount float64, currency, description, reference string) (map[string]interface{}, error) {
 	// Validate accounts
 	var fromAccount, toAccount models.LedgerAccount
 	if err := ls.db.Where("id = ?", fromAccountID).First(&fromAccount).Error; err != nil {
@@ -280,9 +266,6 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 	if fromAccount.Currency != toAccount.Currency {
 		return nil, errors.New("currency conversion not yet implemented")
 	}
-
-	// Generate unique reference for this transfer
-	reference := ls.generateUniqueReference()
 
 	country := ""
 	payment := paymentrails.Payment{
@@ -394,7 +377,7 @@ func (ls *LedgerService) GetOrCreateSystemAccount(userID uuid.UUID, accountNumbe
 }
 
 // CreateDeposit creates a deposit transaction
-func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, amount float64, currency, description string) (*models.LedgerTransaction, error) {
+func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, amount float64, currency, description, reference string) (*models.LedgerTransaction, error) {
 	// Validate account
 	var account models.LedgerAccount
 	if err := ls.db.Where("id = ?", accountID).First(&account).Error; err != nil {
@@ -410,9 +393,6 @@ func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, am
 	if err != nil {
 		return nil, fmt.Errorf("failed to get system equity account: %w", err)
 	}
-
-	// Generate unique reference for this deposit
-	reference := ls.generateUniqueReference()
 
 	// Create a single properly balanced entry for deposit
 	// In double-entry bookkeeping: Debit = User Account (increases balance), Credit = System Account (source of funds)
@@ -477,7 +457,7 @@ func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, am
 }
 
 // CreateWithdrawal creates a withdrawal transaction
-func (ls *LedgerService) CreateWithdrawal(userID uuid.UUID, accountID uuid.UUID, amount float64, currency, description string) (*models.LedgerTransaction, error) {
+func (ls *LedgerService) CreateWithdrawal(userID uuid.UUID, accountID uuid.UUID, amount float64, currency, description, reference string) (*models.LedgerTransaction, error) {
 	// Validate account
 	var account models.LedgerAccount
 	if err := ls.db.Where("id = ?", accountID).First(&account).Error; err != nil {
@@ -502,9 +482,6 @@ func (ls *LedgerService) CreateWithdrawal(userID uuid.UUID, accountID uuid.UUID,
 	if err != nil {
 		return nil, fmt.Errorf("failed to get system equity account: %w", err)
 	}
-
-	// Generate unique reference for this withdrawal
-	reference := ls.generateUniqueReference()
 
 	// Create balanced entries for withdrawal
 	// When someone withdraws cash, we:
@@ -677,7 +654,7 @@ func (ls *LedgerService) CreateTransactionWithoutValidation(userID uuid.UUID, tr
 }
 
 // CreateTestBalance creates a test balance transaction without validation
-func (ls *LedgerService) CreateTestBalance(userID uuid.UUID, accountID uuid.UUID, amount float64, currency, description string) (*models.LedgerTransaction, error) {
+func (ls *LedgerService) CreateTestBalance(userID uuid.UUID, accountID uuid.UUID, amount float64, currency, description, reference string) (*models.LedgerTransaction, error) {
 	// Validate account
 	var account models.LedgerAccount
 	if err := ls.db.Where("id = ?", accountID).First(&account).Error; err != nil {
@@ -694,9 +671,6 @@ func (ls *LedgerService) CreateTestBalance(userID uuid.UUID, accountID uuid.UUID
 	if err != nil {
 		return nil, fmt.Errorf("failed to get void account: %w", err)
 	}
-
-	// Generate unique reference for this test balance
-	reference := ls.generateUniqueReference()
 
 	// Create the transaction first
 	transaction := &models.LedgerTransaction{

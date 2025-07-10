@@ -17,7 +17,7 @@ export interface PaymentRequest {
     amount: number;
     currency: string;
     description: string;
-    reference?: string;
+    reference: string;
     preferredRail: number;
     forceRail: boolean;
   };

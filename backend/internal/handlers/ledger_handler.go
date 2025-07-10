@@ -93,6 +93,7 @@ type CreateTransferRequest struct {
 	Amount        float64   `json:"amount" binding:"required,gt=0"`
 	Currency      string    `json:"currency" binding:"required"`
 	Description   string    `json:"description"`
+	Reference     string    `json:"reference"`
 }
 
 // CreateTransfer creates a transfer between two accounts
@@ -123,6 +124,7 @@ func (h *LedgerHandler) CreateTransfer(c *gin.Context) {
 		req.Amount,
 		req.Currency,
 		req.Description,
+		req.Reference,
 	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -138,6 +140,7 @@ type CreateDepositRequest struct {
 	Amount      float64   `json:"amount" binding:"required,gt=0"`
 	Currency    string    `json:"currency" binding:"required"`
 	Description string    `json:"description" binding:"required"`
+	Reference   string    `json:"reference" binding:"required"`
 }
 
 // CreateDeposit creates a deposit transaction
@@ -167,6 +170,7 @@ func (h *LedgerHandler) CreateDeposit(c *gin.Context) {
 		req.Amount,
 		req.Currency,
 		req.Description,
+		req.Reference,
 	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -203,6 +207,7 @@ func (h *LedgerHandler) CreateTestBalance(c *gin.Context) {
 		req.Amount,
 		req.Currency,
 		req.Description,
+		req.Reference,
 	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

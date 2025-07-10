@@ -168,6 +168,7 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 			req.InitialBalance,
 			currency,
 			"Initial deposit",
+			"INIT-"+accountNumber,
 		)
 		if err != nil {
 			// Log the error but don't fail the account creation

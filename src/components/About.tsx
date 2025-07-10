@@ -223,10 +223,10 @@ func LoadAmazingDeveloper(ctx context.Context) (*Developer, error) {
                   ⚡ Go-powered distributed-systems hacker squeezing milli-cores into mega-throughput & razor-thin latency.
                 </p>
                 <p className="text-lg text-gray-300 mb-6">
-                  🛰 Cloud-agnostic K8s maestro with secure gRPC microservices + Kafka streams humming → saved 100M$ last year.
+                  🛰 Cloud-agnostic K8s maestro with secure gRPC microservices + Kafka streams humming - saved 100M$ last year.
                 </p>
                 <p className="text-lg text-gray-300 mb-6">
-                  💳 FinTech expert, ledger-tight APIs, scoring system. Raced a lending product from 0 → ₹125 Cr in 8 months. <a href="https://www.thehindu.com/business/siply-claims-zero-npa-disburses-loans-of-over-125-crore/article65342118.ece" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">[source]</a>
+                  💳 FinTech native, ledger-tight APIs & credit rails raced a lending product from 0 → ₹125 Cr in 8 months. <a href="https://www.thehindu.com/business/siply-claims-zero-npa-disburses-loans-of-over-125-crore/article65342118.ece" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">[source]</a>
                 </p>
                 <p className="text-lg text-gray-300 mb-6">
                   🚀 Zero-to-one champ: blueprint, build, launch & hyperscale products without breaking stride.
