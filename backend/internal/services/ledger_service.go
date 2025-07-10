@@ -534,11 +534,10 @@ func (ls *LedgerService) updateAccountBalances(tx *gorm.DB, entries []models.Led
 	accountChanges := make(map[uuid.UUID]float64)
 
 	for _, entry := range entries {
-		// Process each entry exactly once based on its EntryType
-		// This prevents double-application when we have 2 entries per transaction
-
+		// Only process DEBIT entries to avoid double-application
+		// CREDIT entries are for audit purposes but don't affect balance calculations
 		if entry.EntryType == models.EntryTypeDebit {
-			// This is a DEBIT entry - only update the debit account
+			// This is a DEBIT entry - update the debit account
 			var debitAccount models.LedgerAccount
 			if err := tx.Where("id = ?", entry.DebitAccountID).First(&debitAccount).Error; err != nil {
 				return fmt.Errorf("debit account %s not found for balance update", entry.DebitAccountID)
@@ -552,8 +551,7 @@ func (ls *LedgerService) updateAccountBalances(tx *gorm.DB, entries []models.Led
 				accountChanges[entry.DebitAccountID] -= entry.Amount
 			}
 
-		} else if entry.EntryType == models.EntryTypeCredit {
-			// This is a CREDIT entry - only update the credit account
+			// Also update the credit account for the same transaction
 			var creditAccount models.LedgerAccount
 			if err := tx.Where("id = ?", entry.CreditAccountID).First(&creditAccount).Error; err != nil {
 				return fmt.Errorf("credit account %s not found for balance update", entry.CreditAccountID)
@@ -567,6 +565,7 @@ func (ls *LedgerService) updateAccountBalances(tx *gorm.DB, entries []models.Led
 				accountChanges[entry.CreditAccountID] += entry.Amount
 			}
 		}
+		// Skip CREDIT entries as they are processed as part of the DEBIT entry above
 	}
 
 	// Update each account's balance
