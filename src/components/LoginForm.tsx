@@ -96,15 +96,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ isOpen, onClose, onSuccess, onReg
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 flex items-center justify-center z-[9999] p-4">
       {/* Backdrop with blur effect */}
       <div 
-        className="absolute inset-0 bg-black/20 backdrop-blur-md"
+        className="absolute inset-0 bg-black/20 backdrop-blur-md z-[9998]"
         onClick={onClose}
       ></div>
       
       {/* Modal Container */}
-      <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-full max-w-sm mx-auto overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300 scale-90">
+      <div className="relative bg-white/90 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl w-full max-w-sm mx-auto overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300 scale-90 z-[10000]">
         {/* Close Button */}
         <button
           onClick={onClose}

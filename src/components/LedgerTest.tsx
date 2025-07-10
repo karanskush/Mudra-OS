@@ -352,7 +352,7 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
 
       {/* Simulated OAuth Modal */}
       {showOAuth && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8 max-w-sm w-full relative">
             <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => setShowOAuth(false)}>&times;</button>
             <div className="flex flex-col items-center">
@@ -1550,14 +1550,26 @@ const LedgerTest: React.FC = () => {
                             </div>
                             <div className="flex gap-2">
                               <button
-                                onClick={() => setActiveForm('transfer')}
+                                onClick={() => {
+                                  setActiveForm('transfer');
+                                  setTransferForm(prev => ({
+                                    ...prev,
+                                    from_account_id: selectedAccount.id
+                                  }));
+                                }}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all"
                               >
                                 <ArrowRight className="h-4 w-4" />
                                 Transfer
                               </button>
                               <button
-                                onClick={() => setActiveForm('deposit')}
+                                onClick={() => {
+                                  setActiveForm('deposit');
+                                  setDepositForm(prev => ({
+                                    ...prev,
+                                    account_id: selectedAccount.id
+                                  }));
+                                }}
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all"
                               >
                                 <DollarSign className="h-4 w-4" />

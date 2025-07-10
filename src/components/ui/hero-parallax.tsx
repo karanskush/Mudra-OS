@@ -77,7 +77,7 @@ export const HeroParallax = ({
       className="min-h-screen max-h-[200vh] pt-8 pb-16 sm:pt-12 sm:pb-20 lg:pt-16 lg:pb-24 overflow-hidden antialiased relative flex flex-col justify-between dark:bg-[#000008]"
     >
       {/* Header - Outside of transformed motion div */}
-      <div className="relative z-50 flex-shrink-0">
+      <div className="relative z-40 flex-shrink-0">
         <Header />
       </div>
       
@@ -89,7 +89,7 @@ export const HeroParallax = ({
           translateY,
           opacity,
         }}
-        className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-screen-2xl mx-auto w-full flex-grow flex flex-col justify-center py-8 lg:py-12"
+        className="relative z-5 px-4 sm:px-6 lg:px-8 max-w-screen-2xl mx-auto w-full flex-grow flex flex-col justify-center py-8 lg:py-12"
       >
         {/* First Row */}
         <motion.div 
@@ -138,7 +138,7 @@ export const HeroParallax = ({
       </motion.div>
       
       {/* Scroll indicator */}
-      <div className="relative z-10 flex justify-center pb-8">
+      <div className="relative z-5 flex justify-center pb-8">
         <motion.div 
           className="w-1 h-8 bg-gradient-to-b from-slate-600 to-transparent dark:from-white/50 rounded-full"
           animate={{ y: [0, 8, 0] }}
@@ -202,13 +202,13 @@ export const Header = () => {
           
           {/* Action Buttons */}
           <motion.div 
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6 relative z-50"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <motion.button 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-2xl hover:shadow-blue-500/25"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-2xl hover:shadow-blue-500/25 relative z-50"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleStartBuilding}
@@ -217,7 +217,7 @@ export const Header = () => {
             </motion.button>
             
             <motion.button 
-              className="bg-slate-100/80 dark:bg-white/10 backdrop-blur-md hover:bg-slate-200/80 dark:hover:bg-white/20 text-slate-900 dark:text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 border border-slate-200/50 dark:border-white/20 hover:border-slate-300/50 dark:hover:border-white/30 cursor-pointer"
+              className="bg-slate-100/80 dark:bg-white/10 backdrop-blur-md hover:bg-slate-200/80 dark:hover:bg-white/20 text-slate-900 dark:text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 border border-slate-200/50 dark:border-white/20 hover:border-slate-300/50 dark:hover:border-white/30 cursor-pointer relative z-50"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleViewDocumentation}
