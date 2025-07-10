@@ -331,17 +331,28 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 		return nil, fmt.Errorf("payment rail transfer failed: %w", err)
 	}
 
-	// Create a SINGLE entry for the transfer
+	// Create TWO entries for proper double-entry bookkeeping
 	// In double-entry bookkeeping:
 	// - Debit the destination account (increases its balance)
 	// - Credit the source account (decreases its balance)
+	// Both entries must have the same amount for the transaction to balance
 	entries := []models.LedgerEntry{
 		{
 			DebitAccountID:  toAccountID,   // Destination account gets debited (balance increases)
 			CreditAccountID: fromAccountID, // Source account gets credited (balance decreases)
 			Amount:          amount,
 			Currency:        currency,
-			EntryType:       models.EntryTypeDebit, // This is the primary entry type
+			EntryType:       models.EntryTypeDebit, // DEBIT entry for destination account
+			Description:     fmt.Sprintf("Transfer from %s to %s", fromAccount.Name, toAccount.Name),
+			Reference:       reference,
+			Timestamp:       time.Now(),
+		},
+		{
+			DebitAccountID:  toAccountID,   // Same accounts referenced
+			CreditAccountID: fromAccountID, // Same accounts referenced
+			Amount:          amount,        // Same amount
+			Currency:        currency,
+			EntryType:       models.EntryTypeCredit, // CREDIT entry for source account
 			Description:     fmt.Sprintf("Transfer from %s to %s", fromAccount.Name, toAccount.Name),
 			Reference:       reference,
 			Timestamp:       time.Now(),
@@ -417,7 +428,7 @@ func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, am
 	// Generate unique reference for this deposit
 	reference := ls.generateUniqueReference()
 
-	// Create a single properly balanced entry for deposit
+	// Create TWO entries for proper double-entry bookkeeping
 	// In double-entry bookkeeping: Debit = User Account (increases balance), Credit = System Account (source of funds)
 	entries := []models.LedgerEntry{
 		{
@@ -425,7 +436,17 @@ func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, am
 			CreditAccountID: systemEquityAccount.ID, // System equity account gets credited (source of funds)
 			Amount:          amount,
 			Currency:        currency,
-			EntryType:       models.EntryTypeDebit, // Required field
+			EntryType:       models.EntryTypeDebit, // DEBIT entry for user account
+			Description:     fmt.Sprintf("Deposit to %s", account.Name),
+			Reference:       reference,
+			Timestamp:       time.Now(),
+		},
+		{
+			DebitAccountID:  accountID,              // Same accounts referenced
+			CreditAccountID: systemEquityAccount.ID, // Same accounts referenced
+			Amount:          amount,                 // Same amount
+			Currency:        currency,
+			EntryType:       models.EntryTypeCredit, // CREDIT entry for system equity account
 			Description:     fmt.Sprintf("Deposit to %s", account.Name),
 			Reference:       reference,
 			Timestamp:       time.Now(),
@@ -457,11 +478,13 @@ func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, am
 			return err
 		}
 
-		// Create the entry
-		transaction.Entries[0].TransactionID = transaction.ID
-		transaction.Entries[0].ID = uuid.Nil // Ensure a new UUID is generated
-		if err := tx.Create(&transaction.Entries[0]).Error; err != nil {
-			return err
+		// Create all entries
+		for i := range transaction.Entries {
+			transaction.Entries[i].TransactionID = transaction.ID
+			transaction.Entries[i].ID = uuid.Nil // Ensure a new UUID is generated
+			if err := tx.Create(&transaction.Entries[i]).Error; err != nil {
+				return err
+			}
 		}
 
 		// Update account balances
@@ -727,26 +750,42 @@ func (ls *LedgerService) CreateTestBalance(userID uuid.UUID, accountID uuid.UUID
 			return err
 		}
 
-		// Create a single entry that only debits the user's account
-		entry := models.LedgerEntry{
-			ID:              uuid.New(),
-			TransactionID:   transaction.ID,
-			DebitAccountID:  accountID,      // User's account gets debited (balance increases)
-			CreditAccountID: voidAccount.ID, // Void account gets credited (we never query this)
-			Amount:          amount,
-			Currency:        currency,
-			EntryType:       models.EntryTypeDebit,
-			Description:     fmt.Sprintf("Test balance deposit to %s", account.Name),
-			Reference:       reference,
-			Timestamp:       time.Now(),
+		// Create TWO entries for proper double-entry bookkeeping
+		entries := []models.LedgerEntry{
+			{
+				ID:              uuid.New(),
+				TransactionID:   transaction.ID,
+				DebitAccountID:  accountID,      // User's account gets debited (balance increases)
+				CreditAccountID: voidAccount.ID, // Void account gets credited
+				Amount:          amount,
+				Currency:        currency,
+				EntryType:       models.EntryTypeDebit, // DEBIT entry for user account
+				Description:     fmt.Sprintf("Test balance deposit to %s", account.Name),
+				Reference:       reference,
+				Timestamp:       time.Now(),
+			},
+			{
+				ID:              uuid.New(),
+				TransactionID:   transaction.ID,
+				DebitAccountID:  accountID,      // Same accounts referenced
+				CreditAccountID: voidAccount.ID, // Same accounts referenced
+				Amount:          amount,         // Same amount
+				Currency:        currency,
+				EntryType:       models.EntryTypeCredit, // CREDIT entry for void account
+				Description:     fmt.Sprintf("Test balance deposit to %s", account.Name),
+				Reference:       reference,
+				Timestamp:       time.Now(),
+			},
 		}
 
-		if err := tx.Create(&entry).Error; err != nil {
-			return err
+		// Create all entries
+		for _, entry := range entries {
+			if err := tx.Create(&entry).Error; err != nil {
+				return err
+			}
 		}
 
 		// Update account balances
-		entries := []models.LedgerEntry{entry}
 		if err := ls.updateAccountBalances(tx, entries); err != nil {
 			return fmt.Errorf("failed to update account balances: %w", err)
 		}
