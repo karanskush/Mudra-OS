@@ -239,7 +239,7 @@ export const Header = () => {
             <motion.img
               src="/images/hero-images/hero back.png"
               alt="MudraCore OS Hero Background"
-              className="w-[130%] h-auto max-w-none rounded-2xl shadow-xl lg:w-[130%] lg:h-auto lg:max-w-none border-r-4 border-blue-500"
+              className="w-[130%] h-auto max-w-none rounded-2xl shadow-xl lg:w-[130%] lg:h-auto lg:max-w-none"
               initial={{ scale: 0.98, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 1.2, delay: 0.5 }}
