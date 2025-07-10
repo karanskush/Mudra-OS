@@ -1215,29 +1215,32 @@ const LedgerTest: React.FC = () => {
     }) => (
       <div
         onClick={onClick}
-        className={`relative p-6 rounded-2xl border-2 transition-all cursor-pointer ${
+        className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer ${
           selected 
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
             : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
         }`}
       >
-        {selected && (
-          <div className="absolute top-4 right-4">
-            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-              <Check className="h-4 w-4 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+              <CreditCard className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white">{account.name}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{account.account_number}</p>
             </div>
           </div>
-        )}
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-            <CreditCard className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">{account.name}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{account.account_number}</p>
-            <p className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
+          
+          <div className="flex items-center gap-3">
+            <p className="text-lg font-semibold text-gray-900 dark:text-white">
               {formatBalance(account.balance, account.currency)}
             </p>
+            {selected && (
+              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                <Check className="h-4 w-4 text-white" />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1314,14 +1317,14 @@ const LedgerTest: React.FC = () => {
       return (
         <div className="space-y-6">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Transfer Amount</h2>
-            <p className="text-gray-600 dark:text-gray-400">How much would you like to send?</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Transfer Amount</h2>
+            <p className="text-gray-400">How much would you like to send?</p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
+          <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Amount
                 </label>
                 <div className="relative">
@@ -1329,7 +1332,7 @@ const LedgerTest: React.FC = () => {
                     type="number"
                     value={transferData.amount}
                     onChange={(e) => setTransferData(prev => ({ ...prev, amount: parseFloat(e.target.value) }))}
-                    className="w-full pl-12 pr-4 py-3 text-2xl font-semibold border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
+                    className="w-full pl-12 pr-4 py-3 text-2xl font-semibold bg-slate-700/50 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     step="0.01"
                     min="0"
                   />
@@ -1340,13 +1343,13 @@ const LedgerTest: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Currency
                 </label>
                 <select
                   value={transferData.currency}
                   onChange={(e) => setTransferData(prev => ({ ...prev, currency: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
+                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="USD">USD - US Dollar</option>
                   <option value="EUR">EUR - Euro</option>
@@ -1355,7 +1358,7 @@ const LedgerTest: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
                   Description (Optional)
                 </label>
                 <input
@@ -1363,7 +1366,7 @@ const LedgerTest: React.FC = () => {
                   value={transferData.description}
                   onChange={(e) => setTransferData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="What's this transfer for?"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 dark:bg-gray-700"
+                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 text-white placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -1372,13 +1375,13 @@ const LedgerTest: React.FC = () => {
           <div className="flex justify-between pt-4">
             <button
               onClick={() => setStep(2)}
-              className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className="px-6 py-2 text-gray-400 hover:text-white transition-colors"
             >
               Back
             </button>
             <button
               onClick={() => handleAmountSubmit(transferData.amount, transferData.currency)}
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="px-6 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors"
             >
               Continue
             </button>
