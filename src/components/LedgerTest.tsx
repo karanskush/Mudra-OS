@@ -843,9 +843,6 @@ const LedgerTest: React.FC = () => {
         
         setResponse(`Transaction ID: ${transactionId}`);
         setShowTransferSuccess(true);
-        await loadAvailableAccounts();
-        await loadTransactionHistory(); // Refresh transaction history to show correct amounts
-        toast.success('Transfer created successfully!');
       } else {
         // Fallback to REST API
         const response = await apiClient.createTransfer(transferForm);
@@ -859,7 +856,6 @@ const LedgerTest: React.FC = () => {
           setResponse(JSON.stringify(data, null, 2));
           setShowTransferSuccess(true);
           await loadAvailableAccounts();
-          await loadTransactionHistory(); // Refresh transaction history to show correct amounts
           toast.success('Transfer created successfully!');
         } else if (data.id) {
           // fallback for old response
@@ -867,7 +863,6 @@ const LedgerTest: React.FC = () => {
           setResponse(JSON.stringify(data, null, 2));
           setShowTransferSuccess(true);
           await loadAvailableAccounts();
-          await loadTransactionHistory(); // Refresh transaction history to show correct amounts
           toast.success('Transfer created successfully!');
         } else {
           setResponse(`Error: ${data.error || 'Failed to create transfer'}`);
@@ -895,7 +890,6 @@ const LedgerTest: React.FC = () => {
       setTransactions([...transactions, response as any]);
       // Refresh available accounts after deposit
       await loadAvailableAccounts();
-      await loadTransactionHistory(); // Refresh transaction history to show correct amounts
       toast.success('Deposit created successfully!');
     } catch (error) {
       console.error('Deposit creation error:', error);
@@ -918,7 +912,6 @@ const LedgerTest: React.FC = () => {
       setTransactions([...transactions, response as any]);
       // Refresh available accounts after test balance
       await loadAvailableAccounts();
-      await loadTransactionHistory(); // Refresh transaction history to show correct amounts
       toast.success('Test balance created successfully!');
     } catch (error) {
       console.error('Test balance creation error:', error);
