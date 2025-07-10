@@ -128,19 +128,19 @@ func (la *LedgerAccount) GetBalance(db *gorm.DB) (float64, error) {
 func (la *LedgerAccount) RecalculateBalance(db *gorm.DB) error {
 	var balance float64
 
-	// Sum all debit entries
+	// Sum all DEBIT entries where this account is the DEBIT account
 	var totalDebits float64
 	if err := db.Model(&LedgerEntry{}).
-		Where("debit_account_id = ?", la.ID).
+		Where("debit_account_id = ? AND entry_type = ?", la.ID, EntryTypeDebit).
 		Select("COALESCE(SUM(amount), 0)").
 		Scan(&totalDebits).Error; err != nil {
 		return err
 	}
 
-	// Sum all credit entries
+	// Sum all CREDIT entries where this account is the CREDIT account
 	var totalCredits float64
 	if err := db.Model(&LedgerEntry{}).
-		Where("credit_account_id = ?", la.ID).
+		Where("credit_account_id = ? AND entry_type = ?", la.ID, EntryTypeCredit).
 		Select("COALESCE(SUM(amount), 0)").
 		Scan(&totalCredits).Error; err != nil {
 		return err

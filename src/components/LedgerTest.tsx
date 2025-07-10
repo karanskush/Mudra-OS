@@ -836,7 +836,6 @@ const LedgerTest: React.FC = () => {
         });
         
         // Real-time updates will be handled by the stream event handler
-        // Don't call loadAvailableAccounts() here as gRPC will handle balance updates
         toast(`Transfer initiated: ${transactionId}`, {
           duration: 3000,
           icon: '💸'
@@ -856,7 +855,6 @@ const LedgerTest: React.FC = () => {
           setTransactions([...transactions, data.transaction]);
           setResponse(JSON.stringify(data, null, 2));
           setShowTransferSuccess(true);
-          // Only refresh accounts when not using gRPC streaming
           await loadAvailableAccounts();
           toast.success('Transfer created successfully!');
         } else if (data.id) {
@@ -864,7 +862,6 @@ const LedgerTest: React.FC = () => {
           setTransactions([...transactions, data]);
           setResponse(JSON.stringify(data, null, 2));
           setShowTransferSuccess(true);
-          // Only refresh accounts when not using gRPC streaming
           await loadAvailableAccounts();
           toast.success('Transfer created successfully!');
         } else {
@@ -891,8 +888,7 @@ const LedgerTest: React.FC = () => {
       // The response is the deposit object directly, not wrapped in a data field
       setResponse(JSON.stringify(response, null, 2));
       setTransactions([...transactions, response as any]);
-      // Refresh available accounts after deposit to get updated balances
-      // This is needed since deposits don't use gRPC streaming
+      // Refresh available accounts after deposit
       await loadAvailableAccounts();
       toast.success('Deposit created successfully!');
     } catch (error) {
@@ -914,8 +910,7 @@ const LedgerTest: React.FC = () => {
       // The response is the test balance object directly, not wrapped in a data field
       setResponse(JSON.stringify(response, null, 2));
       setTransactions([...transactions, response as any]);
-      // Refresh available accounts after test balance to get updated balances
-      // This is needed since test balance doesn't use gRPC streaming
+      // Refresh available accounts after test balance
       await loadAvailableAccounts();
       toast.success('Test balance created successfully!');
     } catch (error) {
@@ -2432,12 +2427,8 @@ const LedgerTest: React.FC = () => {
                   availableAccounts={availableAccounts}
                   onTransferComplete={() => {
                     setActiveForm(null);
-                    // Only refresh accounts when not using gRPC streaming
-                    // gRPC streaming will handle real-time balance updates
-                    if (!isGrpcConnected) {
-                      loadAvailableAccounts();
-                      loadTransactionHistory();
-                    }
+                    loadAvailableAccounts();
+                    loadTransactionHistory();
                   }}
                   onCancel={() => setActiveForm(null)}
                   loading={loading}
