@@ -425,6 +425,89 @@ func createTestBalance(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(transaction)
 }
 
+// handleBalanceReconciliation reconciles all account balances for the authenticated user
+func handleBalanceReconciliation(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Get authenticated user
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
+	service := getLedgerService()
+	if service == nil {
+		http.Error(w, "Database not initialized", http.StatusServiceUnavailable)
+		return
+	}
+
+	// Get user accounts before reconciliation
+	accountsBefore, err := service.GetUserAccounts(user.UserID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get accounts: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Get balances before reconciliation
+	balancesBefore, err := service.GetAccountBalancesBatch(accountsBefore)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get balances before reconciliation: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Perform balance reconciliation for all accounts (system-wide)
+	if err := service.ReconcileAccountBalances(); err != nil {
+		http.Error(w, fmt.Sprintf("Balance reconciliation failed: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Get user accounts after reconciliation
+	accountsAfter, err := service.GetUserAccounts(user.UserID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get accounts after reconciliation: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Get balances after reconciliation
+	balancesAfter, err := service.GetAccountBalancesBatch(accountsAfter)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get balances after reconciliation: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Build reconciliation report
+	var changes []map[string]interface{}
+	for _, account := range accountsAfter {
+		balanceBefore := balancesBefore[account.ID]
+		balanceAfter := balancesAfter[account.ID]
+
+		if balanceBefore != balanceAfter {
+			changes = append(changes, map[string]interface{}{
+				"account_id":     account.ID,
+				"account_name":   account.Name,
+				"balance_before": balanceBefore,
+				"balance_after":  balanceAfter,
+				"change":         balanceAfter - balanceBefore,
+			})
+		}
+	}
+
+	response := map[string]interface{}{
+		"success":            true,
+		"message":            "Balance reconciliation completed successfully",
+		"accounts_processed": len(accountsAfter),
+		"accounts_changed":   len(changes),
+		"changes":            changes,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
 // postLedgerTransaction posts a transaction to the ledger
 func postLedgerTransaction(w http.ResponseWriter, r *http.Request, transactionIDStr string) {
 	service := getLedgerService()

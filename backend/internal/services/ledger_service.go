@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
@@ -332,17 +333,16 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 	}
 
 	// Create TWO entries for proper double-entry bookkeeping
-	// In double-entry bookkeeping:
-	// - Debit the destination account (increases its balance)
-	// - Credit the source account (decreases its balance)
-	// Both entries must have the same amount for the transaction to balance
+	// Transfer:
+	// 1. DEBIT Destination Account (increases destination balance)
+	// 2. CREDIT Source Account (decreases source balance)
 	entries := []models.LedgerEntry{
 		{
-			DebitAccountID:  toAccountID,   // Destination account gets debited (balance increases)
-			CreditAccountID: fromAccountID, // Source account gets credited (balance decreases)
+			DebitAccountID:  toAccountID,   // Destination account gets debited
+			CreditAccountID: fromAccountID, // Source account gets credited
 			Amount:          amount,
 			Currency:        currency,
-			EntryType:       models.EntryTypeDebit, // DEBIT entry for destination account
+			EntryType:       models.EntryTypeDebit, // This is the DEBIT entry
 			Description:     fmt.Sprintf("Transfer from %s to %s", fromAccount.Name, toAccount.Name),
 			Reference:       reference,
 			Timestamp:       time.Now(),
@@ -352,8 +352,8 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 			CreditAccountID: fromAccountID, // Same accounts referenced
 			Amount:          amount,        // Same amount
 			Currency:        currency,
-			EntryType:       models.EntryTypeCredit, // CREDIT entry for source account
-			Description:     fmt.Sprintf("Transfer from %s to %s", fromAccount.Name, toAccount.Name),
+			EntryType:       models.EntryTypeCredit, // This is the CREDIT entry
+			Description:     fmt.Sprintf("Transfer source from %s to %s", fromAccount.Name, toAccount.Name),
 			Reference:       reference,
 			Timestamp:       time.Now(),
 		},
@@ -429,14 +429,16 @@ func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, am
 	reference := ls.generateUniqueReference()
 
 	// Create TWO entries for proper double-entry bookkeeping
-	// In double-entry bookkeeping: Debit = User Account (increases balance), Credit = System Account (source of funds)
+	// Deposit:
+	// 1. DEBIT User Account (increases user's balance)
+	// 2. CREDIT System Equity Account (represents source of funds)
 	entries := []models.LedgerEntry{
 		{
-			DebitAccountID:  accountID,              // User's account gets debited (increased balance)
-			CreditAccountID: systemEquityAccount.ID, // System equity account gets credited (source of funds)
+			DebitAccountID:  accountID,              // User's account gets debited
+			CreditAccountID: systemEquityAccount.ID, // System equity account gets credited
 			Amount:          amount,
 			Currency:        currency,
-			EntryType:       models.EntryTypeDebit, // DEBIT entry for user account
+			EntryType:       models.EntryTypeDebit, // This is the DEBIT entry
 			Description:     fmt.Sprintf("Deposit to %s", account.Name),
 			Reference:       reference,
 			Timestamp:       time.Now(),
@@ -446,60 +448,14 @@ func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, am
 			CreditAccountID: systemEquityAccount.ID, // Same accounts referenced
 			Amount:          amount,                 // Same amount
 			Currency:        currency,
-			EntryType:       models.EntryTypeCredit, // CREDIT entry for system equity account
-			Description:     fmt.Sprintf("Deposit to %s", account.Name),
+			EntryType:       models.EntryTypeCredit, // This is the CREDIT entry
+			Description:     fmt.Sprintf("Deposit source for %s", account.Name),
 			Reference:       reference,
 			Timestamp:       time.Now(),
 		},
 	}
 
-	// Create transaction with proper total amount calculation
-	transaction := &models.LedgerTransaction{
-		UserID:      userID,
-		Type:        models.LedgerTransactionTypeDeposit,
-		Status:      models.LedgerTransactionStatusPending,
-		Description: description,
-		Reference:   reference,
-		TotalAmount: amount, // Single amount, not doubled
-		Currency:    currency,
-		Timestamp:   time.Now(),
-		Entries:     entries,
-	}
-
-	// Validate accounts exist and are active
-	if err := ls.validateAccounts(entries); err != nil {
-		return nil, fmt.Errorf("account validation failed: %w", err)
-	}
-
-	// Create transaction and entries in a database transaction
-	err = ls.db.Transaction(func(tx *gorm.DB) error {
-		// Create the transaction
-		if err := tx.Create(transaction).Error; err != nil {
-			return err
-		}
-
-		// Create all entries
-		for i := range transaction.Entries {
-			transaction.Entries[i].TransactionID = transaction.ID
-			transaction.Entries[i].ID = uuid.Nil // Ensure a new UUID is generated
-			if err := tx.Create(&transaction.Entries[i]).Error; err != nil {
-				return err
-			}
-		}
-
-		// Update account balances
-		if err := ls.updateAccountBalances(tx, transaction.Entries); err != nil {
-			return fmt.Errorf("failed to update account balances: %w", err)
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to create deposit transaction: %w", err)
-	}
-
-	return transaction, nil
+	return ls.CreateTransaction(userID, models.LedgerTransactionTypeDeposit, description, reference, entries)
 }
 
 // CreateWithdrawal creates a withdrawal transaction
@@ -532,28 +488,16 @@ func (ls *LedgerService) CreateWithdrawal(userID uuid.UUID, accountID uuid.UUID,
 	// Generate unique reference for this withdrawal
 	reference := ls.generateUniqueReference()
 
-	// Create balanced entries for withdrawal
-	// When someone withdraws cash, we:
-	// 1. Debit the system equity account (represents the destination of funds)
-	// 2. Credit the user's account (decrease their balance)
+	// Create ONE entry for withdrawal
+	// Withdrawal: Debit System Account (destination of funds), Credit User Account (decreases balance)
 	entries := []models.LedgerEntry{
 		{
-			DebitAccountID:  systemEquityAccount.ID, // System equity account (debit - represents destination of funds)
+			DebitAccountID:  systemEquityAccount.ID, // System equity account (destination of funds)
 			CreditAccountID: accountID,              // User's account (credit - decreases balance)
 			Amount:          amount,
 			Currency:        currency,
-			EntryType:       models.EntryTypeDebit, // This entry represents the debit side
-			Description:     fmt.Sprintf("Withdrawal debit to system equity"),
-			Reference:       reference,
-			Timestamp:       time.Now(),
-		},
-		{
-			DebitAccountID:  systemEquityAccount.ID, // System equity account (debit - represents destination of funds)
-			CreditAccountID: accountID,              // User's account (credit - decreases balance)
-			Amount:          amount,
-			Currency:        currency,
-			EntryType:       models.EntryTypeCredit, // This entry represents the credit side
-			Description:     fmt.Sprintf("Withdrawal credit from %s", account.Name),
+			EntryType:       models.EntryTypeDebit, // This field is kept for compatibility but not used in logic
+			Description:     fmt.Sprintf("Withdrawal from %s", account.Name),
 			Reference:       reference,
 			Timestamp:       time.Now(),
 		},
@@ -590,32 +534,38 @@ func (ls *LedgerService) updateAccountBalances(tx *gorm.DB, entries []models.Led
 	accountChanges := make(map[uuid.UUID]float64)
 
 	for _, entry := range entries {
-		var debitAccount, creditAccount models.LedgerAccount
+		// Process each entry exactly once based on its EntryType
+		// This prevents double-application when we have 2 entries per transaction
 
-		// Load both accounts involved in the entry
-		if err := tx.Where("id = ?", entry.DebitAccountID).First(&debitAccount).Error; err != nil {
-			return fmt.Errorf("debit account %s not found for balance update", entry.DebitAccountID)
-		}
-		if err := tx.Where("id = ?", entry.CreditAccountID).First(&creditAccount).Error; err != nil {
-			return fmt.Errorf("credit account %s not found for balance update", entry.CreditAccountID)
-		}
+		if entry.EntryType == models.EntryTypeDebit {
+			// This is a DEBIT entry - only update the debit account
+			var debitAccount models.LedgerAccount
+			if err := tx.Where("id = ?", entry.DebitAccountID).First(&debitAccount).Error; err != nil {
+				return fmt.Errorf("debit account %s not found for balance update", entry.DebitAccountID)
+			}
 
-		// For debit accounts:
-		// - Debit entries increase the balance
-		// - Credit entries decrease the balance
-		if debitAccount.IsDebitAccount() {
-			accountChanges[entry.DebitAccountID] += entry.Amount
-		} else {
-			accountChanges[entry.DebitAccountID] -= entry.Amount
-		}
+			if debitAccount.IsDebitAccount() {
+				// For debit accounts (assets, expenses): debit increases balance
+				accountChanges[entry.DebitAccountID] += entry.Amount
+			} else {
+				// For credit accounts (liabilities, equity, revenue): debit decreases balance
+				accountChanges[entry.DebitAccountID] -= entry.Amount
+			}
 
-		// For credit accounts:
-		// - Debit entries decrease the balance
-		// - Credit entries increase the balance
-		if creditAccount.IsDebitAccount() {
-			accountChanges[entry.CreditAccountID] -= entry.Amount
-		} else {
-			accountChanges[entry.CreditAccountID] += entry.Amount
+		} else if entry.EntryType == models.EntryTypeCredit {
+			// This is a CREDIT entry - only update the credit account
+			var creditAccount models.LedgerAccount
+			if err := tx.Where("id = ?", entry.CreditAccountID).First(&creditAccount).Error; err != nil {
+				return fmt.Errorf("credit account %s not found for balance update", entry.CreditAccountID)
+			}
+
+			if creditAccount.IsDebitAccount() {
+				// For debit accounts (assets, expenses): credit decreases balance
+				accountChanges[entry.CreditAccountID] -= entry.Amount
+			} else {
+				// For credit accounts (liabilities, equity, revenue): credit increases balance
+				accountChanges[entry.CreditAccountID] += entry.Amount
+			}
 		}
 	}
 
@@ -751,15 +701,18 @@ func (ls *LedgerService) CreateTestBalance(userID uuid.UUID, accountID uuid.UUID
 		}
 
 		// Create TWO entries for proper double-entry bookkeeping
+		// Test Balance:
+		// 1. DEBIT User Account (increases user's balance)
+		// 2. CREDIT Void Account (represents test source)
 		entries := []models.LedgerEntry{
 			{
 				ID:              uuid.New(),
 				TransactionID:   transaction.ID,
-				DebitAccountID:  accountID,      // User's account gets debited (balance increases)
+				DebitAccountID:  accountID,      // User's account gets debited
 				CreditAccountID: voidAccount.ID, // Void account gets credited
 				Amount:          amount,
 				Currency:        currency,
-				EntryType:       models.EntryTypeDebit, // DEBIT entry for user account
+				EntryType:       models.EntryTypeDebit, // This is the DEBIT entry
 				Description:     fmt.Sprintf("Test balance deposit to %s", account.Name),
 				Reference:       reference,
 				Timestamp:       time.Now(),
@@ -771,8 +724,8 @@ func (ls *LedgerService) CreateTestBalance(userID uuid.UUID, accountID uuid.UUID
 				CreditAccountID: voidAccount.ID, // Same accounts referenced
 				Amount:          amount,         // Same amount
 				Currency:        currency,
-				EntryType:       models.EntryTypeCredit, // CREDIT entry for void account
-				Description:     fmt.Sprintf("Test balance deposit to %s", account.Name),
+				EntryType:       models.EntryTypeCredit, // This is the CREDIT entry
+				Description:     fmt.Sprintf("Test balance source for %s", account.Name),
 				Reference:       reference,
 				Timestamp:       time.Now(),
 			},
@@ -803,6 +756,49 @@ func (ls *LedgerService) CreateTestBalance(userID uuid.UUID, accountID uuid.UUID
 	}
 
 	return transaction, nil
+}
+
+// ReconcileAccountBalances recalculates all account balances from ledger entries
+// This function fixes any balance corruption caused by previous bugs
+func (ls *LedgerService) ReconcileAccountBalances() error {
+	log.Println("Starting account balance reconciliation...")
+
+	// Get all accounts
+	var accounts []models.LedgerAccount
+	if err := ls.db.Find(&accounts).Error; err != nil {
+		return fmt.Errorf("failed to get accounts: %w", err)
+	}
+
+	var reconciled, errors int
+
+	// Recalculate balance for each account
+	for _, account := range accounts {
+		// Calculate correct balance from ledger entries
+		if err := account.RecalculateBalance(ls.db); err != nil {
+			log.Printf("Error recalculating balance for account %s: %v", account.ID, err)
+			errors++
+			continue
+		}
+
+		// Update the cached balance in database
+		if err := ls.db.Model(&account).Update("balance", account.Balance).Error; err != nil {
+			log.Printf("Error updating balance for account %s: %v", account.ID, err)
+			errors++
+			continue
+		}
+
+		log.Printf("Reconciled account %s (%s): balance = %.2f %s",
+			account.Name, account.ID, account.Balance, account.Currency)
+		reconciled++
+	}
+
+	log.Printf("Balance reconciliation completed: %d accounts reconciled, %d errors", reconciled, errors)
+
+	if errors > 0 {
+		return fmt.Errorf("reconciliation completed with %d errors", errors)
+	}
+
+	return nil
 }
 
 // GetTransactionHistory returns transaction history for a user
