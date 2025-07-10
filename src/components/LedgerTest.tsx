@@ -19,13 +19,15 @@ import {
   Users,
   Wallet,
   RefreshCw,
-  X
+  X,
+  Check
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from "../lib/api";
 import toast from 'react-hot-toast';
 import { grpcLedgerService, type LedgerStreamResponse } from '../lib/grpcLedgerService';
 import { getSessionUserId } from '../lib/utils';
+import { Loader2 } from 'lucide-react';
 
 interface Account {
   id: string;
@@ -44,8 +46,9 @@ interface Transaction {
   amount: number;
   currency: string;
   description: string;
-  reference: string;
   entries: any[];
+  timestamp?: string;
+  created_at?: string;
 }
 
 interface TransferRailInfo {
@@ -539,16 +542,14 @@ const LedgerTest: React.FC = () => {
     to_account_id: '',
     amount: 100.00,
     currency: 'USD',
-    description: 'Test transfer',
-    reference: 'TRX-001'
+    description: 'Test transfer'
   });
 
   const [depositForm, setDepositForm] = useState({
     account_id: '',
     amount: 500.00,
     currency: 'USD',
-    description: 'Initial deposit',
-    reference: 'DEP-001'
+    description: 'Initial deposit'
   });
 
   const [balanceForm, setBalanceForm] = useState({
@@ -634,8 +635,9 @@ const LedgerTest: React.FC = () => {
         amount,
         currency: event.event.transactionCreated.currency,
         description: event.event.transactionCreated.description,
-        reference: event.event.transactionCreated.reference,
-        entries: []
+        entries: [],
+        timestamp: new Date().toISOString(),
+        created_at: new Date().toISOString()
       };
       
       setTransactions(prev => [newTransaction, ...prev]);
@@ -742,8 +744,9 @@ const LedgerTest: React.FC = () => {
           amount: tx.total_amount || 0,
           currency: tx.currency || 'USD',
           description: tx.description || '',
-          reference: tx.reference || '',
-          entries: tx.entries || []
+          entries: tx.entries || [],
+          timestamp: tx.timestamp || tx.created_at,
+          created_at: tx.created_at
         }));
         console.log('Loaded transactions:', transformedTransactions);
         console.log('Draft transactions count:', transformedTransactions.filter((t: any) => t.status === 'draft').length);
@@ -757,8 +760,9 @@ const LedgerTest: React.FC = () => {
           amount: tx.total_amount || 0,
           currency: tx.currency || 'USD',
           description: tx.description || '',
-          reference: tx.reference || '',
-          entries: tx.entries || []
+          entries: tx.entries || [],
+          timestamp: tx.timestamp || tx.created_at,
+          created_at: tx.created_at
         }));
         setTransactions(transformedTransactions);
       } else {
@@ -828,8 +832,7 @@ const LedgerTest: React.FC = () => {
           toAccountId: transferForm.to_account_id,
           amount: transferForm.amount,
           currency: transferForm.currency,
-          description: transferForm.description,
-          reference: transferForm.reference
+          description: transferForm.description
         });
         
         // Real-time updates will be handled by the stream event handler
@@ -1065,6 +1068,409 @@ const LedgerTest: React.FC = () => {
     navigator.clipboard.writeText(text).then(() => {
       toast.success('Copied to clipboard!');
     });
+  };
+
+  // Helper function to format date/time
+  const formatDateTime = (dateString?: string) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      return 'Invalid Date';
+    }
+  };
+
+  // Bulk approve all draft transactions
+  const handleBulkApproveDrafts = async () => {
+    const draftTransactions = transactions.filter(tx => tx.status === 'draft');
+    
+    if (draftTransactions.length === 0) {
+      toast.error('No draft transactions to approve');
+      return;
+    }
+
+    setLoading(true);
+    setResponse('');
+
+    try {
+      // Process each draft transaction
+      const promises = draftTransactions.map(tx => 
+        apiClient.authenticatedRequest(`/api/v1/ledger/transactions/${tx.id}/post`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+      );
+
+      const results = await Promise.allSettled(promises);
+      
+      // Count successful and failed operations
+      const successful = results.filter(result => result.status === 'fulfilled' && result.value.ok).length;
+      const failed = results.length - successful;
+
+      // Update local state for successful operations
+      setTransactions(prev => prev.map(tx => 
+        tx.status === 'draft' 
+          ? { ...tx, status: 'posted' }
+          : tx
+      ));
+
+      setResponse(`Bulk approve completed: ${successful} approved, ${failed} failed`);
+      
+      if (successful > 0) {
+        toast.success(`Successfully approved ${successful} transactions!`);
+      }
+      if (failed > 0) {
+        toast.error(`${failed} transactions failed to approve`);
+      }
+    } catch (error) {
+      setResponse(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Bulk approve failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // New TransferFlow component
+  interface TransferFlowProps {
+    availableAccounts: Account[];
+    onTransferComplete: () => void;
+    onCancel: () => void;
+    loading: boolean;
+  }
+
+  const TransferFlow: React.FC<TransferFlowProps> = ({
+    availableAccounts,
+    onTransferComplete,
+    onCancel,
+    loading
+  }) => {
+    const [step, setStep] = useState(1); // 1: source, 2: destination, 3: amount, 4: confirm
+    const [transferData, setTransferData] = useState({
+      from_account_id: '',
+      to_account_id: '',
+      amount: 100.00,
+      currency: 'USD',
+      description: ''
+    });
+    const [sourceAccount, setSourceAccount] = useState<Account | null>(null);
+    const [destinationAccount, setDestinationAccount] = useState<Account | null>(null);
+
+    // Helper to format account balance
+    const formatBalance = (balance?: number, currency = 'USD') => {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: currency
+      }).format(balance || 0);
+    };
+
+    // Handle source account selection
+    const handleSourceSelect = (accountId: string) => {
+      const account = availableAccounts.find(a => a.id === accountId);
+      setSourceAccount(account || null);
+      setTransferData(prev => ({ ...prev, from_account_id: accountId }));
+      setStep(2);
+    };
+
+    // Handle destination account selection
+    const handleDestinationSelect = (accountId: string) => {
+      const account = availableAccounts.find(a => a.id === accountId);
+      setDestinationAccount(account || null);
+      setTransferData(prev => ({ ...prev, to_account_id: accountId }));
+      setStep(3);
+    };
+
+    // Handle amount and currency input
+    const handleAmountSubmit = (amount: number, currency: string) => {
+      setTransferData(prev => ({ ...prev, amount, currency }));
+      setStep(4);
+    };
+
+    // Handle final confirmation
+    const handleConfirm = async () => {
+      try {
+        const response = await apiClient.createTransfer(transferData);
+        onTransferComplete();
+        toast.success('Transfer completed successfully!');
+      } catch (error) {
+        console.error('Transfer error:', error);
+        toast.error('Failed to complete transfer');
+      }
+    };
+
+    // Render account selection card
+    const AccountCard = ({ account, selected, onClick }: { 
+      account: Account, 
+      selected: boolean,
+      onClick: () => void 
+    }) => (
+      <div
+        onClick={onClick}
+        className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer ${
+          selected 
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
+            : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+              <CreditCard className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white">{account.name}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{account.account_number}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <p className="text-lg font-semibold text-gray-900 dark:text-white">
+              {formatBalance(account.balance, account.currency)}
+            </p>
+            {selected && (
+              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                <Check className="h-4 w-4 text-white" />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+
+    // Step 1: Source Account Selection
+    if (step === 1) {
+      return (
+        <div className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Select Source Account</h2>
+            <p className="text-gray-600 dark:text-gray-400">Choose the account to transfer from</p>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-4">
+            {availableAccounts.map(account => (
+              <AccountCard
+                key={account.id}
+                account={account}
+                selected={account.id === transferData.from_account_id}
+                onClick={() => handleSourceSelect(account.id)}
+              />
+            ))}
+          </div>
+
+          <div className="flex justify-between pt-4">
+            <button
+              onClick={onCancel}
+              className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Step 2: Destination Account Selection
+    if (step === 2) {
+      return (
+        <div className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Select Destination</h2>
+            <p className="text-gray-600 dark:text-gray-400">Choose where to send the money</p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {availableAccounts
+              .filter(account => account.id !== transferData.from_account_id)
+              .map(account => (
+                <AccountCard
+                  key={account.id}
+                  account={account}
+                  selected={account.id === transferData.to_account_id}
+                  onClick={() => handleDestinationSelect(account.id)}
+                />
+              ))}
+          </div>
+
+          <div className="flex justify-between pt-4">
+            <button
+              onClick={() => setStep(1)}
+              className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Step 3: Amount and Currency
+    if (step === 3) {
+      return (
+        <div className="space-y-6">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-white mb-2">Transfer Amount</h2>
+            <p className="text-gray-400">How much would you like to send?</p>
+          </div>
+
+          <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Amount
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={transferData.amount}
+                    onChange={(e) => setTransferData(prev => ({ ...prev, amount: parseFloat(e.target.value) }))}
+                    className="w-full pl-12 pr-4 py-3 text-2xl font-semibold bg-slate-700/50 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    step="0.01"
+                    min="0"
+                  />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-semibold text-gray-400">
+                    $
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Currency
+                </label>
+                <select
+                  value={transferData.currency}
+                  onChange={(e) => setTransferData(prev => ({ ...prev, currency: e.target.value }))}
+                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="USD">USD - US Dollar</option>
+                  <option value="EUR">EUR - Euro</option>
+                  <option value="GBP">GBP - British Pound</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Description (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={transferData.description}
+                  onChange={(e) => setTransferData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="What's this transfer for?"
+                  className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 text-white placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-between pt-4">
+            <button
+              onClick={() => setStep(2)}
+              className="px-6 py-2 text-gray-400 hover:text-white transition-colors"
+            >
+              Back
+            </button>
+            <button
+              onClick={() => handleAmountSubmit(transferData.amount, transferData.currency)}
+              className="px-6 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-colors"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Step 4: Confirmation
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Confirm Transfer</h2>
+          <p className="text-gray-600 dark:text-gray-400">Please review the transfer details</p>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
+          <div className="space-y-6">
+            {/* From Account */}
+            <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">From</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{sourceAccount?.name}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{sourceAccount?.account_number}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Available Balance</p>
+                <p className="font-semibold text-gray-900 dark:text-white">
+                  {formatBalance(sourceAccount?.balance, sourceAccount?.currency)}
+                </p>
+              </div>
+            </div>
+
+            {/* To Account */}
+            <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">To</p>
+                <p className="font-semibold text-gray-900 dark:text-white">{destinationAccount?.name}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{destinationAccount?.account_number}</p>
+              </div>
+            </div>
+
+            {/* Amount */}
+            <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Amount</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {formatBalance(transferData.amount, transferData.currency)}
+                </p>
+              </div>
+            </div>
+
+            {/* Description */}
+            {transferData.description && (
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Description</p>
+                <p className="text-gray-900 dark:text-white">{transferData.description}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex justify-between pt-4">
+          <button
+            onClick={() => setStep(3)}
+            className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          >
+            Back
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={loading}
+            className="px-8 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              <>
+                <Check className="h-5 w-5" />
+                Confirm Transfer
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -1337,6 +1743,9 @@ const LedgerTest: React.FC = () => {
                           <div className="flex-1">
                             <p className="font-medium text-gray-900 dark:text-white capitalize">{transaction.type}</p>
                             <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.description}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500">
+                              {formatDateTime(transaction.timestamp || transaction.created_at)}
+                            </p>
                           </div>
                           <div className="text-right">
                             <p className="font-semibold text-gray-900 dark:text-white">
@@ -1687,6 +2096,16 @@ const LedgerTest: React.FC = () => {
                     <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
                     {loading ? 'Loading...' : 'Refresh'}
                   </button>
+                  {transactions.filter(tx => tx.status === 'draft').length > 0 && (
+                    <button
+                      onClick={handleBulkApproveDrafts}
+                      disabled={loading}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl hover:from-emerald-600 hover:to-green-700 disabled:opacity-50 transition-all shadow-lg hover:shadow-xl"
+                    >
+                      <CheckCircle className="h-5 w-5" />
+                      {loading ? 'Approving...' : `Approve All Drafts (${transactions.filter(tx => tx.status === 'draft').length})`}
+                    </button>
+                  )}
                   <button
                     onClick={() => setActiveForm('deposit')}
                     className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
@@ -1826,10 +2245,10 @@ const LedgerTest: React.FC = () => {
                         <thead>
                           <tr className="border-b border-gray-200 dark:border-slate-600">
                             <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Type</th>
-                            <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Reference</th>
                             <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Description</th>
                             <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
                             <th className="px-6 py-2.5 text-right text-sm font-semibold text-gray-900 dark:text-white">Amount</th>
+                            <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Date/Time</th>
                             <th className="px-6 py-2.5 text-center text-sm font-semibold text-gray-900 dark:text-white">Actions</th>
                           </tr>
                         </thead>
@@ -1855,9 +2274,7 @@ const LedgerTest: React.FC = () => {
                                     </span>
                                   </div>
                                 </td>
-                                <td className="px-6 py-2.5 text-gray-600 dark:text-gray-300">
-                                  {transaction.reference}
-                                </td>
+
                                 <td className="px-6 py-2.5 text-gray-600 dark:text-gray-300">
                                   {transaction.description}
                                 </td>
@@ -1886,6 +2303,11 @@ const LedgerTest: React.FC = () => {
                                     <div className="text-xs text-gray-500 dark:text-gray-400">{transaction.currency}</div>
                                   </div>
                                 </td>
+                                <td className="px-6 py-2.5 text-gray-600 dark:text-gray-300">
+                                  <div className="text-sm">
+                                    {formatDateTime(transaction.timestamp || transaction.created_at)}
+                                  </div>
+                                </td>
                                 <td className="px-6 py-2.5 text-center">
                                   <button
                                     onClick={() => handleToggleTransactionStatus(transaction.id, transaction.status)}
@@ -1899,7 +2321,7 @@ const LedgerTest: React.FC = () => {
                                     {transaction.status === 'draft' ? (
                                       <>
                                         <CheckCircle className="h-3 w-3" />
-                                        {loading ? 'Posting...' : 'Post'}
+                                        {loading ? 'Posting...' : 'Approve'}
                                       </>
                                     ) : (
                                       <>
@@ -2001,151 +2423,16 @@ const LedgerTest: React.FC = () => {
           {activeForm === 'transfer' && (
             <div className="max-w-4xl mx-auto">
               <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-8 border border-white/20 dark:border-slate-700/50 shadow-2xl">
-                {/* Header */}
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                    <ArrowRight className="h-8 w-8 text-white" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Transfer</h2>
-                  <p className="text-gray-600 dark:text-gray-400 text-lg">Move money between your accounts instantly</p>
-                </div>
-
-                {/* Success Toast Notification */}
-                {showTransferSuccess && (
-                  <div className="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 animate-fade-in">
-                    <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
-                      <CheckCircle className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-green-800 dark:text-green-200">Transfer created successfully!</p>
-                      <p className="text-sm text-green-600 dark:text-green-400">Your transaction has been processed</p>
-                    </div>
-                  </div>
-                )}
-
-                <form onSubmit={handleCreateTransfer} className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    From Account
-                  </label>
-                  <select
-                    value={transferForm.from_account_id}
-                    onChange={(e) => setTransferForm({...transferForm, from_account_id: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                    required
-                  >
-                    <option value="">Select source account</option>
-                    {availableAccounts.map(account => (
-                      <option key={account.id} value={account.id}>
-                        {account.name} ({account.account_number})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    To Account
-                  </label>
-                  <select
-                    value={transferForm.to_account_id}
-                    onChange={(e) => setTransferForm({...transferForm, to_account_id: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                    required
-                  >
-                    <option value="">Select destination account</option>
-                    {availableAccounts.map(account => (
-                      <option key={account.id} value={account.id}>
-                        {account.name} ({account.account_number})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Amount
-                    </label>
-                    <input
-                      type="number"
-                      value={transferForm.amount}
-                      onChange={(e) => setTransferForm({...transferForm, amount: parseFloat(e.target.value)})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                      step="0.01"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Currency
-                    </label>
-                    <select
-                      value={transferForm.currency}
-                      onChange={(e) => setTransferForm({...transferForm, currency: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                    >
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="GBP">GBP</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Description
-                  </label>
-                  <input
-                    type="text"
-                    value={transferForm.description}
-                    onChange={(e) => setTransferForm({...transferForm, description: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Reference
-                  </label>
-                  <input
-                    type="text"
-                    value={transferForm.reference}
-                    onChange={(e) => setTransferForm({...transferForm, reference: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
-                >
-                  {loading ? 'Creating...' : 'Create Transfer'}
-                </button>
-              </form>
-              {/* Display rail info after transfer */}
-              {lastTransferRailInfo && (
-                <div className="mt-6 p-6 rounded-xl bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 dark:from-blue-900/40 dark:via-blue-900/60 dark:to-blue-900/30 border border-blue-300 dark:border-blue-700 shadow-md">
-                  <div className="flex items-center gap-3 mb-3">
-                    <CheckCircle className="h-6 w-6 text-blue-600 dark:text-blue-300" />
-                    <h3 className="font-semibold text-blue-800 dark:text-blue-100 text-lg">Payment Rail Details</h3>
-                    <span className={`ml-2 px-3 py-1 rounded-full text-xs font-bold bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 border border-blue-400 dark:border-blue-700`}>{lastTransferRailInfo.rail}</span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">Fee</span>
-                      <span className="font-bold text-blue-700 dark:text-blue-200 text-lg">{lastTransferRailInfo.fee}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">FX Rate</span>
-                      <span className="font-bold text-blue-700 dark:text-blue-200 text-lg">{lastTransferRailInfo.fx_rate}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">Estimated Settlement</span>
-                      <span className="font-bold text-blue-700 dark:text-blue-200 text-lg">{lastTransferRailInfo.latency}</span>
-                    </div>
-                  </div>
-                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    Transaction ID: <span className="font-mono">{lastTransferRailInfo.transaction.id}</span>
-                  </div>
-                </div>
-              )}
+                <TransferFlow
+                  availableAccounts={availableAccounts}
+                  onTransferComplete={() => {
+                    setActiveForm(null);
+                    loadAvailableAccounts();
+                    loadTransactionHistory();
+                  }}
+                  onCancel={() => setActiveForm(null)}
+                  loading={loading}
+                />
               </div>
             </div>
           )}
@@ -2215,17 +2502,7 @@ const LedgerTest: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Reference
-                  </label>
-                  <input
-                    type="text"
-                    value={depositForm.reference}
-                    onChange={(e) => setDepositForm({...depositForm, reference: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                  />
-                </div>
+
                 <div className="flex gap-4">
                   <button
                     type="submit"

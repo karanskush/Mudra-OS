@@ -10,7 +10,7 @@ export interface PaymentStreamRequest {
       amount: number;
       currency: string;
       description: string;
-      reference: string;
+      reference?: string;
       preferredRail?: string;
       forceRail?: boolean;
     };
