@@ -338,8 +338,7 @@ const apiCategories = {
           to_account_id: 'ledger_acc_456',
           amount: 1000.00,
           currency: 'USD',
-          description: 'Transfer to savings',
-          reference: 'TXN001'
+          description: 'Transfer to savings'
         },
         response: {
           id: 'txn_123',
@@ -484,8 +483,7 @@ const apiCategories = {
           to_account_id: "acc_789",
           amount: 1000.0,
           currency: "USD",
-          description: "Monthly rent payment",
-          reference: "RENT_JAN_2024"
+          description: "Monthly rent payment"
         },
         response: {
           payment: {

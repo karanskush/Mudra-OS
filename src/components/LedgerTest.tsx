@@ -44,7 +44,6 @@ interface Transaction {
   amount: number;
   currency: string;
   description: string;
-  reference: string;
   entries: any[];
 }
 
@@ -539,16 +538,14 @@ const LedgerTest: React.FC = () => {
     to_account_id: '',
     amount: 100.00,
     currency: 'USD',
-    description: 'Test transfer',
-    reference: 'TRX-001'
+    description: 'Test transfer'
   });
 
   const [depositForm, setDepositForm] = useState({
     account_id: '',
     amount: 500.00,
     currency: 'USD',
-    description: 'Initial deposit',
-    reference: 'DEP-001'
+    description: 'Initial deposit'
   });
 
   const [balanceForm, setBalanceForm] = useState({
@@ -634,7 +631,6 @@ const LedgerTest: React.FC = () => {
         amount,
         currency: event.event.transactionCreated.currency,
         description: event.event.transactionCreated.description,
-        reference: event.event.transactionCreated.reference,
         entries: []
       };
       
@@ -742,7 +738,6 @@ const LedgerTest: React.FC = () => {
           amount: tx.total_amount || 0,
           currency: tx.currency || 'USD',
           description: tx.description || '',
-          reference: tx.reference || '',
           entries: tx.entries || []
         }));
         console.log('Loaded transactions:', transformedTransactions);
@@ -757,7 +752,6 @@ const LedgerTest: React.FC = () => {
           amount: tx.total_amount || 0,
           currency: tx.currency || 'USD',
           description: tx.description || '',
-          reference: tx.reference || '',
           entries: tx.entries || []
         }));
         setTransactions(transformedTransactions);
@@ -828,8 +822,7 @@ const LedgerTest: React.FC = () => {
           toAccountId: transferForm.to_account_id,
           amount: transferForm.amount,
           currency: transferForm.currency,
-          description: transferForm.description,
-          reference: transferForm.reference
+          description: transferForm.description
         });
         
         // Real-time updates will be handled by the stream event handler
@@ -1826,7 +1819,6 @@ const LedgerTest: React.FC = () => {
                         <thead>
                           <tr className="border-b border-gray-200 dark:border-slate-600">
                             <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Type</th>
-                            <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Reference</th>
                             <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Description</th>
                             <th className="px-6 py-2.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Status</th>
                             <th className="px-6 py-2.5 text-right text-sm font-semibold text-gray-900 dark:text-white">Amount</th>
@@ -1855,9 +1847,7 @@ const LedgerTest: React.FC = () => {
                                     </span>
                                   </div>
                                 </td>
-                                <td className="px-6 py-2.5 text-gray-600 dark:text-gray-300">
-                                  {transaction.reference}
-                                </td>
+
                                 <td className="px-6 py-2.5 text-gray-600 dark:text-gray-300">
                                   {transaction.description}
                                 </td>
@@ -2100,17 +2090,7 @@ const LedgerTest: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Reference
-                  </label>
-                  <input
-                    type="text"
-                    value={transferForm.reference}
-                    onChange={(e) => setTransferForm({...transferForm, reference: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                  />
-                </div>
+
                 <button
                   type="submit"
                   disabled={loading}
@@ -2215,17 +2195,7 @@ const LedgerTest: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Reference
-                  </label>
-                  <input
-                    type="text"
-                    value={depositForm.reference}
-                    onChange={(e) => setDepositForm({...depositForm, reference: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                  />
-                </div>
+
                 <div className="flex gap-4">
                   <button
                     type="submit"

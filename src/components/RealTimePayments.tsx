@@ -51,7 +51,6 @@ const RealTimePayments: React.FC = () => {
     amount: 100,
     currency: 'USD',
     description: 'Real-time payment demo',
-    reference: '',
     preferredRail: 'ACH'
   });
 
@@ -197,18 +196,13 @@ const RealTimePayments: React.FC = () => {
     if (!isConnected) return;
     
     try {
-      const reference = `PAY_${Date.now()}`;
       const userId = getSessionUserId();
       const paymentRequest = {
         userId,
-        ...paymentForm,
-        reference
+        ...paymentForm
       };
       
       await grpcPaymentService.initiatePayment(paymentRequest);
-      
-      // Update form with new reference
-      setPaymentForm(prev => ({ ...prev, reference }));
     } catch (error) {
       console.error('Failed to initiate payment:', error);
     }

@@ -199,7 +199,6 @@ const GRPCDemo: React.FC = () => {
         amount: 1000,
         currency: 'USD',
         description: 'Test payment from gRPC demo',
-        reference: `TEST_${Date.now()}`,
         preferredRail: 1, // UPI
         forceRail: false
       }
