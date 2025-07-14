@@ -13,14 +13,6 @@ const features = [
     action: 'ledger',
   },
   {
-    icon: Zap,
-    title: 'Payment Orchestration',
-    description: 'Full funds-flow API with UPI, SEPA, and Crypto rails. Asynchronous status lifecycle with real-time updates.',
-    category: 'Payments',
-    color: 'purple',
-    action: 'payment-rails',
-  },
-  {
     icon: Shield,
     title: 'KYC & Risk Engine',
     description: 'Automated compliance with synthetic profiles and hot-reload policy rules via JSONLogic.',
@@ -43,8 +35,14 @@ const features = [
     category: 'Integration',
     color: 'indigo',
     action: 'developers/api-explorer',
-  },
-  {
+  },{
+    icon: Zap,
+    title: 'Payment Orchestration',
+    description: 'Full funds-flow API with UPI, SEPA, and Crypto rails. Asynchronous status lifecycle with real-time updates.',
+    category: 'Payments',
+    color: 'purple',
+    action: 'payment-rails',
+  },{
     icon: Lock,
     title: 'Security & Observability',
     description: 'Rate limiting, CSRF protection, structured logging, and Prometheus metrics integration.',
