@@ -15,12 +15,12 @@ import (
 
 // RegisterRequest represents the registration request
 type RegisterRequest struct {
-	Email       string    `json:"email" validate:"required,email"`
-	Password    string    `json:"password" validate:"required,min=8"`
-	FirstName   string    `json:"first_name" validate:"required"`
-	LastName    string    `json:"last_name" validate:"required"`
-	Phone       string    `json:"phone"`
-	DateOfBirth time.Time `json:"date_of_birth"`
+	Email       string `json:"email" validate:"required,email"`
+	Password    string `json:"password" validate:"required,min=8"`
+	FirstName   string `json:"first_name" validate:"required"`
+	LastName    string `json:"last_name" validate:"required"`
+	Phone       string `json:"phone"`
+	DateOfBirth string `json:"date_of_birth"` // Accepts YYYY-MM-DD or RFC3339
 }
 
 // LoginRequest represents the login request
@@ -72,6 +72,20 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Parse date of birth (accept YYYY-MM-DD or RFC3339)
+	var dob time.Time
+	if req.DateOfBirth != "" {
+		var parseErr error
+		dob, parseErr = time.Parse("2006-01-02", req.DateOfBirth)
+		if parseErr != nil {
+			dob, parseErr = time.Parse(time.RFC3339, req.DateOfBirth)
+			if parseErr != nil {
+				response.BadRequest(w, r, "Invalid date_of_birth format, use YYYY-MM-DD")
+				return
+			}
+		}
+	}
+
 	// Create new user
 	user := models.User{
 		Email:       req.Email,
@@ -79,7 +93,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		FirstName:   req.FirstName,
 		LastName:    req.LastName,
 		Phone:       req.Phone,
-		DateOfBirth: req.DateOfBirth,
+		DateOfBirth: dob,
 		IsActive:    true,
 		IsVerified:  false,
 		Role:        "user",
@@ -130,13 +144,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// Find user by email
 	var user models.User
 	if err := database.GetDB().Where("email = ?", req.Email).First(&user).Error; err != nil {
-		response.BadRequest(w, r, "Invalid email or password")
+		response.Unauthorized(w, r, "Invalid email or password")
 		return
 	}
 
 	// Check password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		response.BadRequest(w, r, "Invalid email or password")
+		response.Unauthorized(w, r, "Invalid email or password")
 		return
 	}
 

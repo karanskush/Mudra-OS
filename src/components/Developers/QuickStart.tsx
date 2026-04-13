@@ -22,7 +22,7 @@ const QuickStart: React.FC = () => (
       <a href="https://github.com/your-org/mudracoreos" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-semibold shadow transition-all">
         <Github className="w-4 h-4" /> GitHub SDKs & Code
       </a>
-      <a href="https://community.yourdomain.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold shadow transition-all">
+      <a href="https://community.yourdomain.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-brand-500 hover:bg-brand-500 text-white px-4 py-2 rounded-lg font-semibold shadow transition-all">
         <MessageCircle className="w-4 h-4" /> Join Community Chat
       </a>
     </div>

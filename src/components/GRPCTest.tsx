@@ -147,7 +147,7 @@ const GRPCTest: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'text-green-600';
+      case 'success': return 'text-brand-300';
       case 'error': return 'text-red-600';
       case 'pending': return 'text-yellow-600';
       default: return 'text-gray-600';
@@ -156,7 +156,7 @@ const GRPCTest: React.FC = () => {
 
   const getConnectionColor = () => {
     switch (connectionStatus) {
-      case 'connected': return 'text-green-600';
+      case 'connected': return 'text-brand-300';
       case 'disconnected': return 'text-red-600';
       case 'checking': return 'text-yellow-600';
       default: return 'text-gray-600';
@@ -164,7 +164,27 @@ const GRPCTest: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-4xl mx-auto p-6">
+      {/* Local-only notice */}
+      <div className="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3 items-start">
+        <span className="text-amber-500 text-lg">⚠️</span>
+        <div className="text-sm text-amber-800">
+          <strong>Requires local setup.</strong> gRPC services do not run on Vercel.{' '}
+          <a
+            href="https://github.com/karanskush/fintech-os"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline font-medium hover:text-amber-900"
+          >
+            Clone the repo
+          </a>{' '}
+          and start the gRPC server with{' '}
+          <code className="bg-amber-100 px-1 rounded">go run ./backend/cmd/grpc-server</code>{' '}
+          to run these tests.
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">gRPC API Test Suite</h1>
         <p className="text-gray-600">
@@ -197,7 +217,7 @@ const GRPCTest: React.FC = () => {
           className={`px-6 py-3 rounded-lg font-medium transition-colors ${
             isRunning || connectionStatus === 'disconnected'
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-green-500 text-white hover:bg-green-600'
+              : 'bg-brand-500 text-white hover:bg-brand-500'
           }`}
         >
           {isRunning ? 'Running Tests...' : 'Run All Tests'}
@@ -247,6 +267,7 @@ const GRPCTest: React.FC = () => {
           </ul>
         </div>
       )}
+      </div>{/* closes bg-white card */}
     </div>
   );
 };

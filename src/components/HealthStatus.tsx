@@ -18,7 +18,7 @@ const HealthStatus: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'ok':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-brand-300" />;
       case 'degraded':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />;
       case 'error':
@@ -31,7 +31,7 @@ const HealthStatus: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'ok':
-        return 'text-green-500';
+        return 'text-brand-300';
       case 'degraded':
         return 'text-yellow-500';
       case 'error':
@@ -122,13 +122,13 @@ const HealthStatus: React.FC = () => {
                 <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-4">
                   <div className="flex items-center gap-2 mb-2">
                     {databaseInfo.connected ? (
-                      <Wifi className="h-4 w-4 text-green-500" />
+                      <Wifi className="h-4 w-4 text-brand-300" />
                     ) : (
                       <WifiOff className="h-4 w-4 text-red-500" />
                     )}
                     <span className="text-sm font-medium">Connection</span>
                   </div>
-                  <p className={`text-sm ${databaseInfo.connected ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className={`text-sm ${databaseInfo.connected ? 'text-brand-300' : 'text-red-600'}`}>
                     {databaseInfo.connected ? 'Connected' : 'Disconnected'}
                   </p>
                   {databaseInfo.error && (
@@ -169,7 +169,7 @@ const HealthStatus: React.FC = () => {
                     <div
                       className={`h-2 rounded-full transition-all duration-300 ${
                         getConnectionUtilization() > 80 ? 'bg-red-500' :
-                        getConnectionUtilization() > 60 ? 'bg-yellow-500' : 'bg-green-500'
+                        getConnectionUtilization() > 60 ? 'bg-yellow-500' : 'bg-brand-500'
                       }`}
                       style={{ width: `${getConnectionUtilization()}%` }}
                     />

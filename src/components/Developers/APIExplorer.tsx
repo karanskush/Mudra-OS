@@ -42,8 +42,8 @@ const apiCategories = {
   authentication: {
     name: 'Authentication & Users',
     icon: ShieldCheckIcon,
-    description: '🔐 Secure user authentication and profile management',
-    color: 'from-blue-500 to-indigo-600',
+    description: 'Secure user authentication and profile management',
+    color: 'from-[#2E6F40] to-[#68BA7F]',
     emoji: '🛡️',
     endpoints: [
       { 
@@ -125,7 +125,7 @@ const apiCategories = {
     name: 'Accounts & Banking',
     icon: BanknotesIcon,
     description: '💰 Account management and banking operations',
-    color: 'from-green-500 to-emerald-600',
+    color: 'from-brand-500 to-brand-300',
     emoji: '💳',
     endpoints: [
       { 
@@ -183,8 +183,8 @@ const apiCategories = {
   kyc: {
     name: 'KYC & Compliance',
     icon: IdentificationIcon,
-    description: '🛂 Know Your Customer verification and compliance',
-    color: 'from-purple-500 to-pink-600',
+    description: 'Know Your Customer verification and compliance',
+    color: 'from-[#253D2C] to-[#2E6F40]',
     emoji: '🔍',
     endpoints: [
       {
@@ -400,8 +400,8 @@ const apiCategories = {
   grpc: {
     name: 'gRPC Streaming APIs',
     icon: BoltIcon,
-    description: '⚡ Next-generation streaming APIs with microsecond latency',
-    color: 'from-indigo-500 to-purple-600',
+    description: 'Next-generation streaming APIs with microsecond latency',
+    color: 'from-[#2E6F40] to-[#253D2C]',
     emoji: '🚀',
     endpoints: [
       { 
@@ -616,48 +616,33 @@ const apiCategories = {
 };
 
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case 'stable':
-        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700';
-      case 'beta':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700';
-      case 'deprecated':
-        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-700';
-    }
-  };
-
+  const style = status === 'stable'
+    ? { background: 'rgba(46,111,64,0.15)', color: '#CFFFDC', border: '1px solid rgba(104,186,127,0.25)' }
+    : status === 'beta'
+      ? { background: 'rgba(245,158,11,0.12)', color: '#fcd34d', border: '1px solid rgba(245,158,11,0.25)' }
+      : { background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.25)' };
   return (
-    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusStyle(status)}`}>
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" style={style}>
       {status}
     </span>
   );
 };
 
 const MethodBadge: React.FC<{ method: string }> = ({ method }) => {
-  const getMethodStyle = (method: string) => {
-    switch (method) {
-      case 'GET':
-        return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700';
-      case 'POST':
-        return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700';
-      case 'PUT':
-        return 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-700';
-      case 'DELETE':
-        return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700';
-      case 'BIDIRECTIONAL_STREAM':
-        return 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700';
-      case 'UNARY':
-        return 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-700';
-    }
-  };
-
+  const style: React.CSSProperties =
+    method === 'GET'
+      ? { background: 'rgba(104,186,127,0.15)', color: '#68BA7F', border: '1px solid rgba(104,186,127,0.25)' }
+    : method === 'POST'
+      ? { background: 'rgba(46,111,64,0.20)', color: '#CFFFDC', border: '1px solid rgba(207,255,220,0.25)' }
+    : method === 'PUT'
+      ? { background: 'rgba(245,158,11,0.12)', color: '#fcd34d', border: '1px solid rgba(245,158,11,0.25)' }
+    : method === 'DELETE'
+      ? { background: 'rgba(239,68,68,0.12)', color: '#fca5a5', border: '1px solid rgba(239,68,68,0.25)' }
+    : method === 'BIDIRECTIONAL_STREAM'
+      ? { background: 'rgba(37,61,44,0.50)', color: '#CFFFDC', border: '1px solid rgba(104,186,127,0.30)' }
+      : { background: 'rgba(37,61,44,0.35)', color: '#68BA7F', border: '1px solid rgba(104,186,127,0.20)' };
   return (
-    <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-mono font-semibold border ${getMethodStyle(method)}`}>
+    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-semibold" style={style}>
       {method}
     </span>
   );
@@ -701,14 +686,15 @@ const CopyButton: React.FC<{ text: string }> = ({ text }) => {
   return (
     <motion.button
       onClick={handleCopy}
-      className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+      className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
       {copied ? (
-        <CheckCircleIcon className="h-4 w-4 text-green-500" />
+        <CheckCircleIcon className="h-4 w-4 text-brand-300" />
       ) : (
-        <ClipboardDocumentIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+        <ClipboardDocumentIcon className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.45)' }} />
       )}
     </motion.button>
   );
@@ -725,49 +711,56 @@ const APIExplorer: React.FC = () => {
   }, [selectedCategory]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
+    <div className="min-h-screen" style={{ background: '#0B0C0E' }}>
       <div className="pt-16 sm:pt-20">
-        {/* Hero Section */}
-        <section className="relative py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
+        {/* Hero */}
+        <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center mb-12 lg:mb-16"
+              transition={{ duration: 0.6 }}
+              className="text-center mb-12"
             >
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 leading-tight">
-                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  🧪 API Explorer
-                </span>
+              <div
+                className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-6 text-xs font-semibold tracking-widest uppercase"
+                style={{ background: 'rgba(46,111,64,0.10)', border: '1px solid rgba(104,186,127,0.18)', color: '#68BA7F' }}
+              >
+                <CodeBracketIcon className="h-3 w-3" />
+                Developer Tools
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+                API{' '}
+                <span style={{
+                  background: 'linear-gradient(95deg, #ffffff 0%, #CFFFDC 45%, #68BA7F 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}>Explorer</span>
               </h1>
-              <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed px-4">
+              <p className="text-lg sm:text-xl max-w-3xl mx-auto px-4" style={{ color: 'rgba(255,255,255,0.42)' }}>
                 Explore our comprehensive APIs and start building amazing fintech applications
               </p>
             </motion.div>
 
             {/* Quick Links */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-12 lg:mb-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
               {[
-                { name: 'Quick Start', icon: RocketLaunchIcon, description: 'Get started in minutes' },
-                { name: 'API Reference', icon: DocumentTextIcon, description: 'Complete documentation' },
-                { name: 'Code Examples', icon: CodeBracketIcon, description: 'Ready-to-use snippets' },
-                { name: 'Support', icon: ChatBubbleLeftRightIcon, description: '24/7 developer support' }
-              ].map((item, index) => (
-                <AnimatedCard key={index} delay={index * 0.1}>
+                { name: 'Quick Start',   icon: RocketLaunchIcon,          description: 'Get started in minutes' },
+                { name: 'API Reference', icon: DocumentTextIcon,           description: 'Complete documentation' },
+                { name: 'Code Examples', icon: CodeBracketIcon,            description: 'Ready-to-use snippets' },
+                { name: 'Support',       icon: ChatBubbleLeftRightIcon,    description: '24/7 developer support' },
+              ].map((item, i) => (
+                <AnimatedCard key={i} delay={i * 0.08}>
                   <motion.button
-                    className="w-full p-4 lg:p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-700 transition-all duration-300 text-left group"
-                    whileHover={{ scale: 1.02 }}
+                    className="w-full p-5 glass-card rounded-xl text-left group"
+                    whileHover={{ y: -4 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <item.icon className="h-6 w-6 lg:h-8 lg:w-8 text-blue-600 dark:text-blue-400 mb-3 group-hover:scale-110 transition-transform duration-300" />
-                    <h3 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                      {item.name}
-                    </h3>
-                    <p className="text-sm lg:text-base text-gray-600 dark:text-gray-300">
-                      {item.description}
-                    </p>
-                    <ChevronRightIcon className="h-4 w-4 text-gray-400 mt-2 group-hover:translate-x-1 transition-transform duration-300" />
+                    <item.icon className="h-6 w-6 mb-3 group-hover:scale-110 transition-transform duration-300" style={{ color: '#68BA7F' }} />
+                    <h3 className="text-base font-semibold text-white mb-1">{item.name}</h3>
+                    <p className="text-sm" style={{ color: 'rgba(255,255,255,0.42)' }}>{item.description}</p>
+                    <ChevronRightIcon className="h-4 w-4 mt-2 group-hover:translate-x-1 transition-transform duration-300" style={{ color: 'rgba(255,255,255,0.25)' }} />
                   </motion.button>
                 </AnimatedCard>
               ))}
@@ -775,122 +768,105 @@ const APIExplorer: React.FC = () => {
           </div>
         </section>
 
-        {/* API Categories and Explorer */}
-        <section className="py-12 sm:py-16 lg:py-4 px-4 sm:px-6 lg:px-8 relative">
+        {/* Categories + Explorer */}
+        <section className="pb-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col xl:grid xl:grid-cols-3 gap-4 lg:gap-6">
-              {/* Categories Sidebar */}
-              <div className="xl:col-span-1 order-1 xl:order-1">
+            <div className="flex flex-col xl:grid xl:grid-cols-3 gap-5">
+              {/* Sidebar */}
+              <div className="xl:col-span-1">
                 <AnimatedCard>
-                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-200/50 dark:border-gray-700/50 xl:sticky xl:top-8">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                      <CubeIcon className="h-5 w-5" />
+                  <div className="glass-card rounded-2xl p-5 xl:sticky xl:top-8">
+                    <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                      <CubeIcon className="h-4 w-4" style={{ color: '#68BA7F' }} />
                       API Categories
                     </h3>
-                    
-                    <div className="xl:space-y-3">
-                      <div className="xl:hidden flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                        {Object.entries(apiCategories).map(([key, category]) => (
-                          <motion.button
-                            key={key}
-                            onClick={() => setSelectedCategory(key as keyof typeof apiCategories)}
-                            className={`flex-shrink-0 text-left p-3 rounded-xl transition-all duration-300 border whitespace-nowrap ${
-                              selectedCategory === key 
-                                ? `bg-gradient-to-r ${category.color} text-white border-transparent shadow-lg` 
-                                : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                            }`}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className="text-xl">{category.emoji}</div>
-                              <div>
-                                <div className="font-semibold text-sm">{category.name}</div>
-                                <div className={`text-xs ${selectedCategory === key ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'}`}>
-                                  {category.endpoints.length} endpoints
-                                </div>
-                              </div>
+                    {/* Mobile: horizontal scroll */}
+                    <div className="xl:hidden flex gap-3 overflow-x-auto pb-2">
+                      {Object.entries(apiCategories).map(([key, category]) => (
+                        <motion.button
+                          key={key}
+                          onClick={() => setSelectedCategory(key as keyof typeof apiCategories)}
+                          className="flex-shrink-0 text-left p-3 rounded-xl transition-all duration-200"
+                          style={selectedCategory === key
+                            ? { background: 'linear-gradient(135deg, #2E6F40, #68BA7F)', color: 'white', border: '1px solid transparent' }
+                            : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.08)' }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          <div className="font-semibold text-sm whitespace-nowrap">{category.name}</div>
+                          <div className="text-xs opacity-70">{category.endpoints.length} endpoints</div>
+                        </motion.button>
+                      ))}
+                    </div>
+                    {/* Desktop: vertical list */}
+                    <div className="hidden xl:block space-y-2">
+                      {Object.entries(apiCategories).map(([key, category]) => (
+                        <motion.button
+                          key={key}
+                          onClick={() => setSelectedCategory(key as keyof typeof apiCategories)}
+                          className="w-full text-left p-4 rounded-xl transition-all duration-200"
+                          style={selectedCategory === key
+                            ? { background: 'linear-gradient(135deg, #2E6F40, #68BA7F)', color: 'white', border: '1px solid transparent' }
+                            : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.08)' }}
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="font-semibold truncate text-sm">{category.name}</div>
+                              <div className="text-xs opacity-65 mt-0.5">{category.endpoints.length} endpoints</div>
                             </div>
-                          </motion.button>
-                        ))}
-                      </div>
-
-                      <div className="hidden xl:block space-y-3">
-                        {Object.entries(apiCategories).map(([key, category]) => (
-                          <motion.button
-                            key={key}
-                            onClick={() => setSelectedCategory(key as keyof typeof apiCategories)}
-                            className={`w-full text-left p-4 rounded-xl transition-all duration-300 border ${
-                              selectedCategory === key 
-                                ? `bg-gradient-to-r ${category.color} text-white border-transparent shadow-lg` 
-                                : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                            }`}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="text-2xl">{category.emoji}</div>
-                              <div className="min-w-0 flex-1">
-                                <div className="font-semibold truncate">{category.name}</div>
-                                <div className={`text-sm truncate ${selectedCategory === key ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'}`}>
-                                  {category.endpoints.length} endpoints
-                                </div>
-                              </div>
-                            </div>
-                          </motion.button>
-                        ))}
-                      </div>
+                          </div>
+                        </motion.button>
+                      ))}
                     </div>
                   </div>
                 </AnimatedCard>
               </div>
 
-              {/* Main Content */}
-              <div className="xl:col-span-2 order-2 xl:order-2 space-y-4 lg:space-y-5">
-                {/* Category Overview */}
+              {/* Main content */}
+              <div className="xl:col-span-2 space-y-5">
+                {/* Category header + endpoints */}
                 <AnimatedCard>
-                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-gray-200/50 dark:border-gray-700/50">
+                  <div className="glass-card rounded-2xl p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
-                      <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${apiCategories[selectedCategory].color} flex items-center justify-center flex-shrink-0`}>
-                        <CategoryIcon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+                      <div
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                        style={{ background: 'linear-gradient(135deg, #2E6F40, #68BA7F)' }}
+                      >
+                        <CategoryIcon className="h-7 w-7 text-white" />
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">
-                          {apiCategories[selectedCategory].name}
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm sm:text-base">
+                      <div>
+                        <h3 className="text-xl font-bold text-white">{apiCategories[selectedCategory].name}</h3>
+                        <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
                           {apiCategories[selectedCategory].description}
                         </p>
                       </div>
                     </div>
 
-                    {/* Endpoints List */}
-                    <div className="space-y-2 sm:space-y-4">
-                      {apiCategories[selectedCategory].endpoints.map((endpoint, index) => (
+                    <div className="space-y-3">
+                      {apiCategories[selectedCategory].endpoints.map((endpoint, i) => (
                         <motion.div
                           key={endpoint.key}
-                          initial={{ opacity: 0, x: -20 }}
+                          initial={{ opacity: 0, x: -16 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.1 }}
+                          transition={{ duration: 0.3, delay: i * 0.07 }}
                           onClick={() => setSelectedEndpoint(endpoint as APIEndpoint)}
-                          className={`p-4 sm:p-6 rounded-xl border transition-all duration-300 cursor-pointer ${
-                            selectedEndpoint.key === endpoint.key
-                              ? 'border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                          }`}
+                          className="p-4 rounded-xl cursor-pointer transition-all duration-200"
+                          style={selectedEndpoint.key === endpoint.key
+                            ? { background: 'rgba(46,111,64,0.12)', border: '1px solid rgba(104,186,127,0.28)' }
+                            : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
                         >
-                          <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+                          <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 min-w-0">
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
+                              <div className="flex flex-wrap items-center gap-2 mb-2">
                                 <MethodBadge method={endpoint.method} />
-                                <code className="text-xs sm:text-sm font-mono text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded break-all">
+                                <code className="text-xs font-mono px-2 py-0.5 rounded break-all"
+                                  style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.65)' }}>
                                   {endpoint.path}
                                 </code>
                                 <StatusBadge status={endpoint.status} />
                               </div>
-                              <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-                                {endpoint.description}
-                              </p>
+                              <p className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>{endpoint.description}</p>
                             </div>
                             <CopyButton text={endpoint.path} />
                           </div>
@@ -900,19 +876,18 @@ const APIExplorer: React.FC = () => {
                   </div>
                 </AnimatedCard>
 
-                {/* Code Example */}
+                {/* Code example */}
                 <AnimatedCard>
-                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50">
-                    <div className="flex items-center justify-between mb-6">
-                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                        <CodeBracketIcon className="h-5 w-5" />
+                  <div className="glass-card rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-5">
+                      <h4 className="text-base font-semibold text-white flex items-center gap-2">
+                        <CodeBracketIcon className="h-4 w-4" style={{ color: '#68BA7F' }} />
                         Code Example
                       </h4>
-                      <CopyButton text={`curl -X ${selectedEndpoint.method} "https://api.fintech-os.com${selectedEndpoint.path}" \\\n  -H "Authorization: Bearer YOUR_API_KEY" \\\n  -H "Content-Type: application/json"${selectedEndpoint.method !== 'GET' && Object.keys(selectedEndpoint.requestBody).length > 0 ? ` \\\n  -d '${JSON.stringify(selectedEndpoint.requestBody, null, 2)}'` : ''}`} />
+                      <CopyButton text={`curl -X ${selectedEndpoint.method} "https://api.fintech-os.com${selectedEndpoint.path}" \\\n  -H "Authorization: Bearer YOUR_API_KEY" \\\n  -H "Content-Type: application/json"`} />
                     </div>
-                    
-                    <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-6 overflow-x-auto">
-                      <pre className="text-sm text-gray-300">
+                    <div className="rounded-xl p-5 overflow-x-auto" style={{ background: 'rgba(0,0,0,0.35)' }}>
+                      <pre className="text-sm font-mono" style={{ color: 'rgba(207,255,220,0.85)' }}>
                         <code>{`curl -X ${selectedEndpoint.method} "https://api.fintech-os.com${selectedEndpoint.path}" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Content-Type: application/json"${selectedEndpoint.method !== 'GET' && Object.keys(selectedEndpoint.requestBody).length > 0 ? ` \\
@@ -924,45 +899,43 @@ const APIExplorer: React.FC = () => {
 
                 {/* Request & Response */}
                 <AnimatedCard>
-                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/50 dark:border-gray-700/50">
-                    <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                      <DocumentTextIcon className="h-6 w-6" />
-                      Request & Response
+                  <div className="glass-card rounded-2xl p-6">
+                    <h4 className="text-base font-semibold text-white mb-5 flex items-center gap-2">
+                      <DocumentTextIcon className="h-4 w-4" style={{ color: '#68BA7F' }} />
+                      Request &amp; Response
                     </h4>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Request Body */}
-                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-6 border border-green-200/50 dark:border-green-800/50">
-                        <div className="flex items-center justify-between mb-4">
-                          <h5 className="text-lg font-bold text-green-900 dark:text-green-300 flex items-center gap-2">
-                            <span className="text-green-600">→</span>
-                            Request Body
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                      {/* Request */}
+                      <div className="rounded-xl p-5" style={{ background: 'rgba(46,111,64,0.08)', border: '1px solid rgba(104,186,127,0.18)' }}>
+                        <div className="flex items-center justify-between mb-3">
+                          <h5 className="text-sm font-semibold flex items-center gap-1.5" style={{ color: '#68BA7F' }}>
+                            <span>→</span> Request Body
                           </h5>
                           <CopyButton text={JSON.stringify(selectedEndpoint.requestBody, null, 2)} />
                         </div>
-                        <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto">
-                          <pre className="text-sm text-green-400 font-mono">
+                        <div className="rounded-xl p-4 overflow-x-auto" style={{ background: 'rgba(0,0,0,0.35)' }}>
+                          <pre className="text-xs font-mono" style={{ color: '#68BA7F' }}>
                             <code>{JSON.stringify(selectedEndpoint.requestBody, null, 2)}</code>
                           </pre>
                         </div>
                       </div>
 
                       {/* Response */}
-                      <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-6 border border-blue-200/50 dark:border-blue-800/50">
-                        <div className="flex items-center justify-between mb-4">
-                          <h5 className="text-lg font-bold text-blue-900 dark:text-blue-300 flex items-center gap-2">
-                            <span className="text-blue-600">←</span>
-                            Response
+                      <div className="rounded-xl p-5" style={{ background: 'rgba(207,255,220,0.04)', border: '1px solid rgba(207,255,220,0.12)' }}>
+                        <div className="flex items-center justify-between mb-3">
+                          <h5 className="text-sm font-semibold flex items-center gap-1.5" style={{ color: '#CFFFDC' }}>
+                            <span>←</span> Response
                           </h5>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-2 py-1 rounded">
+                            <span className="text-xs px-2 py-0.5 rounded"
+                              style={{ background: 'rgba(46,111,64,0.15)', color: '#68BA7F', border: '1px solid rgba(104,186,127,0.2)' }}>
                               {selectedEndpoint.responseTime || 50}ms
                             </span>
                             <CopyButton text={JSON.stringify(selectedEndpoint.response, null, 2)} />
                           </div>
                         </div>
-                        <div className="bg-gray-900 dark:bg-gray-800 rounded-xl p-4 overflow-x-auto">
-                          <pre className="text-sm text-blue-400 font-mono">
+                        <div className="rounded-xl p-4 overflow-x-auto" style={{ background: 'rgba(0,0,0,0.35)' }}>
+                          <pre className="text-xs font-mono" style={{ color: '#CFFFDC' }}>
                             <code>{JSON.stringify(selectedEndpoint.response, null, 2)}</code>
                           </pre>
                         </div>

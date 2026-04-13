@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 
 interface ConsistentBackgroundProps {
   children: React.ReactNode;
@@ -8,75 +7,54 @@ interface ConsistentBackgroundProps {
 
 export const ConsistentBackground: React.FC<ConsistentBackgroundProps> = ({
   children,
-  className = ""
+  className = '',
 }) => {
   return (
-    <div className={`min-h-screen relative overflow-hidden ${className}`}>
-      {/* Base gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950" />
-      
-      {/* Animated gradient orbs */}
-      <motion.div
-        className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
-        animate={{ 
-          scale: [1, 1.2, 1], 
-          rotate: [0, 180, 360],
-          x: [0, 20, 0],
-          y: [0, -20, 0]
-        }}
-        transition={{ 
-          duration: 20, 
-          repeat: Infinity, 
-          ease: 'linear' 
-        }}
-      />
-      
-      <motion.div
-        className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-purple-400/15 to-pink-400/15 rounded-full blur-3xl"
-        animate={{ 
-          scale: [1.2, 1, 1.2], 
-          rotate: [360, 180, 0],
-          x: [0, -30, 0],
-          y: [0, 30, 0]
-        }}
-        transition={{ 
-          duration: 25, 
-          repeat: Infinity, 
-          ease: 'linear' 
-        }}
-      />
-      
-      <motion.div
-        className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-emerald-400/10 to-teal-400/10 rounded-full blur-2xl"
-        animate={{ 
-          scale: [1, 1.1, 1],
-          x: [-20, 20, -20],
-          y: [-10, 10, -10]
-        }}
-        transition={{ 
-          duration: 15, 
-          repeat: Infinity, 
-          ease: 'easeInOut',
-          delay: 2
-        }}
-      />
-
-      {/* Subtle grid pattern */}
-      <div 
-        className="absolute inset-0 opacity-30 dark:opacity-20"
+    <div
+      className={`min-h-screen relative overflow-hidden ${className}`}
+      style={{ backgroundColor: '#0B0C0E' }}
+    >
+      {/* Single focused spotlight — forest green, top-center only */}
+      <div
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: `
-            linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px'
+          background:
+            'radial-gradient(ellipse 65% 40% at 50% -2%, rgba(46,111,64,0.28) 0%, rgba(46,111,64,0.06) 50%, transparent 70%)',
         }}
       />
 
-      {/* Content */}
-      <div className="relative z-10">
-        {children}
-      </div>
+      {/* Very subtle right-side warmth */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse 35% 25% at 100% 60%, rgba(104,186,127,0.05) 0%, transparent 65%)',
+        }}
+      />
+
+      {/* Micro dot grid — barely perceptible texture */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+          maskImage:
+            'radial-gradient(ellipse 85% 45% at 50% 0%, black 20%, transparent 100%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 85% 45% at 50% 0%, black 20%, transparent 100%)',
+        }}
+      />
+
+      {/* 1px top edge line */}
+      <div
+        className="absolute top-0 left-0 right-0 h-px pointer-events-none"
+        style={{
+          background:
+            'linear-gradient(to right, transparent 0%, rgba(104,186,127,0.25) 40%, rgba(207,255,220,0.35) 50%, rgba(104,186,127,0.25) 60%, transparent 100%)',
+        }}
+      />
+
+      <div className="relative z-10">{children}</div>
     </div>
   );
-}; 
+};

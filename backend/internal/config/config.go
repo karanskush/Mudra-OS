@@ -85,7 +85,7 @@ func Load() (*Config, error) {
 
 	// Server configuration
 	config.Server = ServerConfig{
-		Port: getEnv("SERVER_PORT", "8080"),
+		Port: getEnv("SERVER_PORT", "47291"),
 		Host: getEnv("SERVER_HOST", "localhost"),
 		Env:  getEnv("ENVIRONMENT", "development"),
 	}
@@ -144,7 +144,7 @@ func Load() (*Config, error) {
 
 	config.Security = SecurityConfig{
 		BCRYPTCost:         bcryptCost,
-		CORSAllowedOrigins: []string{getEnv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")},
+		CORSAllowedOrigins: []string{getEnv("CORS_ALLOWED_ORIGINS", "http://localhost:39184")},
 		RateLimitRequests:  rateLimitRequests,
 		RateLimitWindow:    rateLimitWindow,
 	}

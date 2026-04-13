@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -35,10 +34,10 @@ type LedgerEntry struct {
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `json:"-" gorm:"index"`
 
-	// Relationships
-	Transaction   LedgerTransaction `json:"transaction,omitempty" gorm:"foreignKey:TransactionID"`
-	DebitAccount  LedgerAccount     `json:"debit_account,omitempty" gorm:"foreignKey:DebitAccountID"`
-	CreditAccount LedgerAccount     `json:"credit_account,omitempty" gorm:"foreignKey:CreditAccountID"`
+	// Relationships (pointer so omitempty works for unloaded associations)
+	Transaction   *LedgerTransaction `json:"transaction,omitempty" gorm:"foreignKey:TransactionID"`
+	DebitAccount  *LedgerAccount     `json:"debit_account,omitempty" gorm:"foreignKey:DebitAccountID"`
+	CreditAccount *LedgerAccount     `json:"credit_account,omitempty" gorm:"foreignKey:CreditAccountID"`
 }
 
 // TableName specifies the table name for LedgerEntry
@@ -48,11 +47,9 @@ func (LedgerEntry) TableName() string {
 
 // BeforeCreate will set a UUID rather than numeric ID
 func (le *LedgerEntry) BeforeCreate(tx *gorm.DB) error {
-	fmt.Printf("BeforeCreate: LedgerEntry ID before: %s\n", le.ID)
 	if le.ID == uuid.Nil {
 		le.ID = uuid.New()
 	}
-	fmt.Printf("BeforeCreate: LedgerEntry ID after: %s\n", le.ID)
 	if le.Timestamp.IsZero() {
 		le.Timestamp = time.Now()
 	}

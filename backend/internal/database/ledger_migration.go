@@ -10,6 +10,11 @@ import (
 
 // MigrateLedgerTables creates the ledger tables with proper indexes and constraints
 func MigrateLedgerTables(db *gorm.DB) error {
+	// Fix the reference constraint on every startup (idempotent)
+	if err := FixReferenceConstraint(db); err != nil {
+		fmt.Printf("Warning: Failed to fix reference constraint: %v\n", err)
+	}
+
 	// Check if ledger tables are already set up
 	if isLedgerAlreadySetup(db) {
 		fmt.Println("Ledger tables already set up, skipping migration")
@@ -287,6 +292,25 @@ func CreateSystemAccounts(db *gorm.DB, userID uuid.UUID) error {
 		}
 	}
 
+	return nil
+}
+
+// FixReferenceConstraint drops the global unique index on reference and replaces it
+// with a composite (user_id, reference) unique index so the same reference string
+// can be reused across different users, and auto-generated refs don't collide.
+func FixReferenceConstraint(db *gorm.DB) error {
+	// Drop old global unique index (ignore error if it doesn't exist)
+	db.Exec(`DROP INDEX IF EXISTS "idx_ledger_transaction_reference"`)
+	db.Exec(`DROP INDEX IF EXISTS "ledger_transaction_reference_key"`)
+
+	// Create composite unique index
+	if err := db.Exec(`
+		CREATE UNIQUE INDEX IF NOT EXISTS "idx_ledger_txn_user_ref"
+		ON "ledger_transaction" ("user_id", "reference")
+		WHERE "deleted_at" IS NULL
+	`).Error; err != nil {
+		return fmt.Errorf("failed to create composite reference index: %w", err)
+	}
 	return nil
 }
 

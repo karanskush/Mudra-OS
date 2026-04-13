@@ -116,7 +116,7 @@ const KYCDemo: React.FC = () => {
                         key={docType}
                         className="flex items-center gap-2 p-3 bg-white/5 rounded-lg border border-white/10"
                       >
-                        <Check className="h-4 w-4 text-green-400" />
+                        <Check className="h-4 w-4 text-brand-300" />
                         <span className="text-white/80 text-sm">{formatDocumentName(docType)}</span>
                       </div>
                     ))}
@@ -135,7 +135,7 @@ const KYCDemo: React.FC = () => {
           >
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <Shield className="h-6 w-6 text-green-400" />
+                <Shield className="h-6 w-6 text-brand-300" />
                 Step 2: Document Verification
               </h2>
 
@@ -187,11 +187,11 @@ const KYCDemo: React.FC = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   className="text-center py-8"
                 >
-                  <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-20 h-20 bg-gradient-to-r from-brand-500 to-brand-300 rounded-full flex items-center justify-center mx-auto mb-6">
                     <Check className="h-10 w-10 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-4">Verification Complete!</h3>
-                  <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-6 space-y-4">
+                  <div className="bg-brand-500/15 border border-brand-500/25 rounded-xl p-6 space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="text-left">
                         <div className="text-white/60">Document Type:</div>
@@ -199,7 +199,7 @@ const KYCDemo: React.FC = () => {
                       </div>
                       <div className="text-left">
                         <div className="text-white/60">Status:</div>
-                        <div className="text-green-400 font-medium">Verified ✓</div>
+                        <div className="text-brand-300 font-medium">Verified ✓</div>
                       </div>
                       <div className="text-left">
                         <div className="text-white/60">Risk Score:</div>

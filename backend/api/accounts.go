@@ -13,6 +13,7 @@ import (
 	"fintech-backend/pkg/response"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -69,31 +70,33 @@ func ListAccounts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get accounts from ledger system for the authenticated user
-	ledgerAccounts, err := service.GetAccounts(user.UserID)
+	// Get only user-owned (non-system) accounts
+	ledgerAccounts, err := service.GetUserAccounts(user.UserID)
 	if err != nil {
 		response.InternalServerError(w, r, fmt.Sprintf("Failed to get accounts: %v", err))
 		return
 	}
 
+	// Batch-fetch all balances in a single query (avoids N+1)
+	balances, balErr := service.GetAccountBalancesBatch(ledgerAccounts)
+	if balErr != nil {
+		balances = make(map[uuid.UUID]float64) // fallback to empty map
+	}
+
 	// Convert ledger accounts to AccountData format
 	accounts := make([]AccountData, len(ledgerAccounts))
-	for i, ledgerAccount := range ledgerAccounts {
-		balance, err := service.GetAccountBalance(ledgerAccount.ID)
-		if err != nil {
-			balance = 0 // Default to 0 if balance calculation fails
-		}
-
+	for i, la := range ledgerAccounts {
+		balance := balances[la.ID]
 		accounts[i] = AccountData{
-			ID:            ledgerAccount.ID.String(),
-			AccountNumber: ledgerAccount.AccountNumber,
-			Type:          string(ledgerAccount.Type),
-			Status:        string(ledgerAccount.Status),
+			ID:            la.ID.String(),
+			AccountNumber: la.AccountNumber,
+			Type:          string(la.Type),
+			Status:        string(la.Status),
 			Balance:       balance,
-			Currency:      ledgerAccount.Currency,
-			Name:          ledgerAccount.Name,
-			Description:   ledgerAccount.Description,
-			CreatedAt:     ledgerAccount.CreatedAt,
+			Currency:      la.Currency,
+			Name:          la.Name,
+			Description:   la.Description,
+			CreatedAt:     la.CreatedAt,
 		}
 	}
 
@@ -215,7 +218,9 @@ func convertToLedgerAccountType(accountType string) models.LedgerAccountType {
 	}
 }
 
-// GetAccount handles getting a specific account
+// GetAccount handles getting a specific account by ID.
+// The account ID must be injected into the request context by the router
+// under the key contextKeyAccountID before calling this handler.
 func GetAccount(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		response.MethodNotAllowed(w, r)
@@ -229,42 +234,57 @@ func GetAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Extract account ID injected by the router
+	accountIDVal := r.Context().Value(contextKeyAccountID)
+	if accountIDVal == nil {
+		response.BadRequest(w, r, "Account ID required")
+		return
+	}
+	accountIDStr, ok := accountIDVal.(string)
+	if !ok || accountIDStr == "" {
+		response.BadRequest(w, r, "Invalid account ID")
+		return
+	}
+	accountID, err := uuid.Parse(accountIDStr)
+	if err != nil {
+		response.BadRequest(w, r, "Invalid account ID format")
+		return
+	}
+
 	service := getLedgerService()
 	if service == nil {
 		response.InternalServerError(w, r, "Database not initialized")
 		return
 	}
 
-	// Get accounts from ledger system for the authenticated user
-	ledgerAccounts, err := service.GetAccounts(user.UserID)
+	// Fetch the account and verify it belongs to the authenticated user
+	accounts, err := service.GetAccounts(user.UserID)
 	if err != nil {
 		response.InternalServerError(w, r, fmt.Sprintf("Failed to get accounts: %v", err))
 		return
 	}
 
-	if len(ledgerAccounts) == 0 {
-		response.NotFound(w, r, "No accounts found")
-		return
+	for _, la := range accounts {
+		if la.ID == accountID {
+			balance, err := service.GetAccountBalance(la.ID)
+			if err != nil {
+				balance = 0
+			}
+			account := AccountData{
+				ID:            la.ID.String(),
+				AccountNumber: la.AccountNumber,
+				Type:          string(la.Type),
+				Status:        string(la.Status),
+				Balance:       balance,
+				Currency:      la.Currency,
+				Name:          la.Name,
+				Description:   la.Description,
+				CreatedAt:     la.CreatedAt,
+			}
+			response.Success(w, r, account, "Account retrieved successfully")
+			return
+		}
 	}
 
-	// Use the first account as an example
-	ledgerAccount := ledgerAccounts[0]
-	balance, err := service.GetAccountBalance(ledgerAccount.ID)
-	if err != nil {
-		balance = 0
-	}
-
-	account := AccountData{
-		ID:            ledgerAccount.ID.String(),
-		AccountNumber: ledgerAccount.AccountNumber,
-		Type:          string(ledgerAccount.Type),
-		Status:        string(ledgerAccount.Status),
-		Balance:       balance,
-		Currency:      ledgerAccount.Currency,
-		Name:          ledgerAccount.Name,
-		Description:   ledgerAccount.Description,
-		CreatedAt:     ledgerAccount.CreatedAt,
-	}
-
-	response.Success(w, r, account, "Account retrieved successfully")
+	response.NotFound(w, r, "Account not found")
 }

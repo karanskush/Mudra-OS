@@ -129,20 +129,21 @@ func KYCHandler(w http.ResponseWriter, r *http.Request) {
 		handleGetCountries(w, r)
 	case r.Method == "POST" && path == "/start":
 		handleStartKYC(w, r)
-	case r.Method == "POST" && strings.HasPrefix(path, "/verify/"):
-		handleDocumentVerification(w, r, pathParts)
+	// didit must be checked before the generic /verify/ prefix
 	case r.Method == "POST" && path == "/verify/didit":
 		handleDiditVerification(w, r)
+	case r.Method == "POST" && strings.HasPrefix(path, "/verify/"):
+		handleDocumentVerification(w, r, pathParts)
 	case r.Method == "GET" && path == "/status":
 		handleGetUserKYCStatus(w, r, pathParts)
 	case r.Method == "GET" && path == "/dashboard":
 		handleGetDashboard(w, r)
 	case r.Method == "GET" && path == "/dashboard/stats":
 		handleGetDashboardStats(w, r)
-	case r.Method == "PUT" && strings.HasPrefix(path, "/submissions/"):
-		handleUpdateSubmissionStatus(w, r, pathParts)
 	case r.Method == "POST" && path == "/submissions/bulk-update":
 		handleBulkUpdateStatus(w, r)
+	case r.Method == "PUT" && strings.HasPrefix(path, "/submissions/"):
+		handleUpdateSubmissionStatus(w, r, pathParts)
 	default:
 		http.Error(w, "Not found", http.StatusNotFound)
 	}
@@ -369,7 +370,11 @@ func handleStartKYC(w http.ResponseWriter, r *http.Request) {
 	submission, err := kycService.CreateKYCSubmission(serviceReq)
 	if err != nil {
 		logger.Errorf("Failed to create KYC submission: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   err.Error(),
+		})
 		return
 	}
 
@@ -582,13 +587,18 @@ func handleGetUserKYCStatus(w http.ResponseWriter, r *http.Request, pathParts []
 	// Get authenticated user
 	user, err := middleware.GetUserFromContext(r)
 	if err != nil {
-		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "error": "Authentication required"})
 		return
 	}
 
-	submission, err := kycService.GetKYCSubmissionByID(user.UserID)
+	submission, err := kycService.GetKYCSubmissionByUserID(user.UserID)
 	if err != nil {
-		http.Error(w, "KYC submission not found", http.StatusNotFound)
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"error":   "No KYC submission found. Start KYC via POST /api/kyc/start",
+		})
 		return
 	}
 
@@ -625,15 +635,23 @@ func handleGetUserKYCStatus(w http.ResponseWriter, r *http.Request, pathParts []
 // Helper functions
 
 func getNextStepsForCountry(country string) []string {
-	switch country {
-	case "IN":
-		return []string{"Upload Aadhaar", "Upload PAN", "Verify identity"}
-	case "US":
-		return []string{"Upload SSN", "Upload Driver's License", "Verify identity"}
-	case "UK":
-		return []string{"Upload Passport", "Upload National Insurance", "Verify identity"}
+	switch strings.ToLower(country) {
+	case "in", "india":
+		return []string{"Upload Aadhaar Card", "Upload PAN Card", "Complete face verification"}
+	case "us", "usa", "united states", "united states of america":
+		return []string{"Upload Government ID or Passport", "Upload Driver's License", "Complete identity verification"}
+	case "uk", "gb", "united kingdom", "great britain":
+		return []string{"Upload Passport or Driving Licence", "Provide proof of address", "Complete identity verification"}
+	case "ca", "canada":
+		return []string{"Upload Passport or Provincial ID", "Provide SIN documentation", "Complete identity verification"}
+	case "au", "australia":
+		return []string{"Upload Passport or Driver Licence", "Provide Medicare card", "Complete identity verification"}
+	case "de", "germany":
+		return []string{"Upload Personalausweis or Reisepass", "Complete address verification", "Biometric verification"}
+	case "fr", "france":
+		return []string{"Upload Carte d'Identité or Passport", "Complete address verification", "Biometric verification"}
 	default:
-		return []string{"Upload required documents", "Complete verification"}
+		return []string{"Upload valid government-issued photo ID", "Provide proof of address", "Complete identity verification"}
 	}
 }
 

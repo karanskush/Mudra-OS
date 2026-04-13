@@ -23,7 +23,8 @@ export default defineConfig({
       },
     },
     // Add proper handling for SPA routing
-    port: 3000,
+    port: 39184,
+    strictPort: true, // fail fast if port is taken rather than auto-incrementing
     host: true,
   },
   // Ensure proper handling of client-side routes in production build

@@ -244,8 +244,8 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <Shield className="h-3 w-3 text-green-400" />
-                                  <span className="text-green-400 text-xs">Verified</span>
+                                  <Shield className="h-3 w-3 text-brand-300" />
+                                  <span className="text-brand-300 text-xs">Verified</span>
                                 </div>
                               </div>
                             </div>

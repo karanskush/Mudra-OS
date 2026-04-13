@@ -9,8 +9,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import { HeroParallax } from './components/ui/hero-parallax';
 import { ConsistentBackground } from './components/ui/ConsistentBackground';
-import Features from './components/Features';
-import Gallery from './components/Gallery';
 import Analytics from './components/Analytics';
 import Footer from './components/Footer';
 import StatusPage from './components/StatusPage';
@@ -103,9 +101,7 @@ const fintechProducts = [
 const HomePage: React.FC = () => (
   <>
     <HeroParallax products={fintechProducts} />
-    <Features />
-    <Gallery />
-    <Analytics />
+    <LandingPage hideHero />
   </>
 );
 

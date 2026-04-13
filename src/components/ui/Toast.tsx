@@ -102,12 +102,12 @@ const ToastComponent: React.FC<ToastComponentProps> = ({ toast, onDismiss }) => 
     switch (type) {
       case 'success':
         return {
-          bg: 'bg-emerald-900/95',
-          border: 'border-emerald-500/50',
+          bg: 'bg-brand-950',
+          border: 'border-brand-500/40',
           icon: CheckCircle,
-          iconColor: 'text-emerald-400',
-          titleColor: 'text-emerald-100',
-          messageColor: 'text-emerald-200',
+          iconColor: 'text-brand-300',
+          titleColor: 'text-brand-50',
+          messageColor: 'text-brand-100',
         };
       case 'error':
         return {

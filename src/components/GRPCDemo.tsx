@@ -249,7 +249,7 @@ const GRPCDemo: React.FC = () => {
       const corsResponse = await fetch('http://localhost:50051', {
         method: 'OPTIONS',
         headers: {
-          'Origin': 'http://localhost:5173',
+          'Origin': 'http://localhost:39184',
           'Access-Control-Request-Method': 'POST',
           'Access-Control-Request-Headers': 'Content-Type',
         },
@@ -293,10 +293,10 @@ const GRPCDemo: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'text-green-500';
+      case 'success': return 'text-brand-400';
       case 'warning': return 'text-yellow-500';
       case 'error': return 'text-red-500';
-      default: return 'text-blue-500';
+      default: return 'text-[#68BA7F]';
     }
   };
 
@@ -336,9 +336,28 @@ const GRPCDemo: React.FC = () => {
 
   return (
     <div className="min-h-screen">
+      {/* Local-only notice banner */}
+      <div className="bg-amber-500/10 border-b border-amber-500/30">
+        <div className="container mx-auto px-4 py-3 flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
+          <Terminal className="w-5 h-5 text-amber-400 shrink-0" />
+          <span className="text-amber-200 text-sm font-medium">
+            gRPC requires a local server — it does not run on Vercel.{' '}
+            <a
+              href="https://github.com/karanskush/fintech-os"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-amber-300 hover:text-amber-100 transition-colors"
+            >
+              Clone the repo
+            </a>{' '}
+            and run <code className="bg-amber-500/20 px-1 rounded text-amber-200">make run</code> locally to interact with live gRPC streams.
+          </span>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20" />
+        <div className="absolute inset-0 bg-gradient-to-r [rgba(46,111,64,0.08)] to-[rgba(37,61,44,0.06)]" />
         <div className="relative z-10 container mx-auto px-4 py-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -347,7 +366,7 @@ const GRPCDemo: React.FC = () => {
             className="text-center"
           >
             <div className="flex items-center justify-center mb-4">
-              <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl">
+              <div className="p-3 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-2xl">
                 <Zap className="w-8 h-8 text-white" />
               </div>
             </div>
@@ -365,7 +384,7 @@ const GRPCDemo: React.FC = () => {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.3 }}
                 className={`relative flex items-center gap-3 px-6 py-3 rounded-2xl backdrop-blur-xl border transition-all duration-300 ${
-                  connectionStatus === 'connected' ? 'bg-green-500/20 border-green-500/30 text-green-400 shadow-lg shadow-green-500/10' :
+                  connectionStatus === 'connected' ? 'bg-brand-500/15 border-brand-500/25 text-brand-300 shadow-lg shadow-brand-500/10' :
                   connectionStatus === 'connecting' ? 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400 shadow-lg shadow-yellow-500/10' :
                   'bg-red-500/20 border-red-500/30 text-red-400 shadow-lg shadow-red-500/10'
                 }`}
@@ -375,7 +394,7 @@ const GRPCDemo: React.FC = () => {
                    connectionStatus === 'connecting' ? <RefreshCw className="w-5 h-5 animate-spin" /> :
                    <WifiOff className="w-5 h-5" />}
                   {connectionStatus === 'connected' && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-ping"></div>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-brand-300 rounded-full animate-ping"></div>
                   )}
                 </div>
                 <span className="font-semibold">
@@ -389,7 +408,7 @@ const GRPCDemo: React.FC = () => {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="flex items-center gap-3 px-6 py-3 bg-blue-500/20 border border-blue-500/30 text-blue-400 rounded-2xl backdrop-blur-xl shadow-lg shadow-blue-500/10"
+                className="flex items-center gap-3 px-6 py-3 bg-[rgba(46,111,64,0.15)] border border-[rgba(104,186,127,0.25)] text-[#68BA7F] rounded-2xl backdrop-blur-xl shadow-lg shadow-blue-500/10"
               >
                 <Activity className="w-5 h-5" />
                 <span className="font-semibold">Port 50051</span>
@@ -400,11 +419,11 @@ const GRPCDemo: React.FC = () => {
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.5 }}
-                  className="relative flex items-center gap-3 px-6 py-3 bg-green-500/20 border border-green-500/30 text-green-400 rounded-2xl backdrop-blur-xl shadow-lg shadow-green-500/10"
+                  className="relative flex items-center gap-3 px-6 py-3 bg-brand-500/15 border border-brand-500/25 text-brand-300 rounded-2xl backdrop-blur-xl shadow-lg shadow-brand-500/10"
                 >
                   <Activity className="w-5 h-5 animate-pulse" />
                   <span className="font-semibold">Streaming Active</span>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-ping"></div>
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-brand-300 rounded-full animate-ping"></div>
                 </motion.div>
               )}
             </div>
@@ -429,7 +448,7 @@ const GRPCDemo: React.FC = () => {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`relative flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 group ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20'
+                      ? 'bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] text-white shadow-lg shadow-[rgba(46,111,64,0.20)]'
                       : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                   }`}
                 >
@@ -449,14 +468,14 @@ const GRPCDemo: React.FC = () => {
                   {activeTab === tab.id && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl -z-10"
+                      className="absolute inset-0 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-xl -z-10"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
                   )}
                   
                   {/* Hover glow effect */}
                   {activeTab !== tab.id && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-indigo-600/0 group-hover:from-blue-500/10 group-hover:to-indigo-600/10 rounded-xl transition-all duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#2E6F40]/0 to-[#68BA7F]/0 group-hover:from-[rgba(46,111,64,0.10)] group-hover:to-[rgba(104,186,127,0.10)] rounded-xl transition-all duration-300" />
                   )}
                 </motion.button>
               ))}
@@ -477,7 +496,7 @@ const GRPCDemo: React.FC = () => {
               {/* Panel Header */}
               <div className="bg-gradient-to-r from-slate-800/80 to-slate-700/80 p-6 border-b border-slate-700/50">
                 <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg">
+                  <div className="p-2 bg-gradient-to-br from-[#2E6F40] to-[#68BA7F] rounded-lg shadow-lg">
                     <Settings className="w-5 h-5 text-white" />
                   </div>
                   System Controls
@@ -492,8 +511,8 @@ const GRPCDemo: React.FC = () => {
                 <div className="group">
                   <div className="flex items-center justify-between p-4 bg-slate-700/30 rounded-xl border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/30 transition-colors">
-                        <Eye className="w-4 h-4 text-blue-400" />
+                      <div className="p-2 bg-[rgba(46,111,64,0.15)] rounded-lg group-hover:bg-[rgba(46,111,64,0.25)] transition-colors">
+                        <Eye className="w-4 h-4 text-[#68BA7F]" />
                       </div>
                       <div>
                         <span className="text-white font-semibold text-sm">Auto-scroll</span>
@@ -502,9 +521,9 @@ const GRPCDemo: React.FC = () => {
                     </div>
                     <button
                       onClick={() => setAutoScroll(!autoScroll)}
-                      className={`relative w-12 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
+                      className={`relative w-12 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] ${
                         autoScroll 
-                          ? 'bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25' 
+                          ? 'bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] shadow-lg shadow-[rgba(46,111,64,0.25)]' 
                           : 'bg-slate-600 hover:bg-slate-500'
                       }`}
                     >
@@ -519,8 +538,8 @@ const GRPCDemo: React.FC = () => {
                 <div className="group">
                   <div className="flex items-center justify-between p-4 bg-slate-700/30 rounded-xl border border-slate-600/30 hover:border-slate-500/50 transition-all duration-300">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-purple-500/20 rounded-lg group-hover:bg-purple-500/30 transition-colors">
-                        <BarChart3 className="w-4 h-4 text-purple-400" />
+                      <div className="p-2 bg-[rgba(37,61,44,0.20)] rounded-lg group-hover:bg-[rgba(37,61,44,0.25)] transition-colors">
+                        <BarChart3 className="w-4 h-4 text-[#CFFFDC]" />
                       </div>
                       <div>
                         <span className="text-white font-semibold text-sm">Performance Metrics</span>
@@ -531,7 +550,7 @@ const GRPCDemo: React.FC = () => {
                       onClick={() => setShowMetrics(!showMetrics)}
                       className={`relative w-12 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50 ${
                         showMetrics 
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-600 shadow-lg shadow-purple-500/25' 
+                          ? 'bg-gradient-to-r from-[#253D2C] to-[#2E6F40] shadow-lg shadow-[rgba(37,61,44,0.25)]' 
                           : 'bg-slate-600 hover:bg-slate-500'
                       }`}
                     >
@@ -555,7 +574,7 @@ const GRPCDemo: React.FC = () => {
                         className={`w-full py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 ${
                           connectionTestStatus === 'testing'
                             ? 'bg-slate-600 text-slate-300 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/25 hover:from-blue-600 hover:to-indigo-700'
+                            : 'bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] text-white hover:shadow-lg hover:shadow-[rgba(46,111,64,0.25)] hover:from-[#253D2C] hover:to-[#2E6F40]'
                         }`}
                       >
                         {connectionTestStatus === 'testing' ? (
@@ -586,7 +605,7 @@ const GRPCDemo: React.FC = () => {
                           onClick={connectToGrpc}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-blue-500/25"
+                          className="w-full bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] hover:from-[#253D2C] hover:to-[#2E6F40] text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-[rgba(46,111,64,0.25)]"
                         >
                           <Wifi className="w-4 h-4" />
                           <span className="text-sm">Connect to gRPC Server</span>
@@ -598,7 +617,7 @@ const GRPCDemo: React.FC = () => {
                           onClick={startStreaming}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-green-500/25"
+                          className="w-full bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-brand-500/25"
                         >
                           <Play className="w-4 h-4" />
                           <span className="text-sm">Start Real-Time Stream</span>
@@ -620,7 +639,7 @@ const GRPCDemo: React.FC = () => {
                           onClick={sendTestPayment}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="w-full bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-purple-500/25 border border-purple-400/20"
+                          className="w-full bg-gradient-to-r from-[#253D2C] to-[#2E6F40] hover:from-[#2E6F40] hover:to-[#68BA7F] text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-[rgba(37,61,44,0.25)] border border-[rgba(104,186,127,0.15)]"
                         >
                           <DollarSign className="w-4 h-4" />
                           <span className="text-sm">Send Test Payment</span>
@@ -643,7 +662,7 @@ const GRPCDemo: React.FC = () => {
                 {/* Metrics Header */}
                 <div className="bg-gradient-to-r from-slate-800/80 to-slate-700/80 p-6 border-b border-slate-700/50">
                   <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg shadow-lg">
+                    <div className="p-2 bg-gradient-to-br from-brand-500 to-brand-400 rounded-lg shadow-lg">
                       <TrendingUp className="w-5 h-5 text-white" />
                     </div>
                     Live Metrics
@@ -658,16 +677,16 @@ const GRPCDemo: React.FC = () => {
                   <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/30">
                     <div className="flex justify-between items-center mb-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-brand-300 rounded-full animate-pulse"></div>
                         <span className="text-slate-300 text-sm font-medium">Active Sessions</span>
                       </div>
-                      <span className={`font-bold text-lg ${isStreaming ? 'text-green-400' : 'text-slate-400'}`}>
+                      <span className={`font-bold text-lg ${isStreaming ? 'text-brand-300' : 'text-slate-400'}`}>
                         {isStreaming ? '1' : '0'}
                       </span>
                     </div>
                     <div className="w-full bg-slate-800 rounded-full h-2">
                       <div 
-                        className={`h-2 rounded-full transition-all duration-1000 ${isStreaming ? 'bg-gradient-to-r from-green-500 to-emerald-500 w-full' : 'w-0'}`}
+                        className={`h-2 rounded-full transition-all duration-1000 ${isStreaming ? 'bg-gradient-to-r from-brand-500 to-brand-300 w-full' : 'w-0'}`}
                       ></div>
                     </div>
                   </div>
@@ -676,16 +695,16 @@ const GRPCDemo: React.FC = () => {
                   <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/30">
                     <div className="flex justify-between items-center mb-3">
                       <div className="flex items-center gap-2">
-                        <Activity className="w-4 h-4 text-blue-400" />
+                        <Activity className="w-4 h-4 text-[#68BA7F]" />
                         <span className="text-slate-300 text-sm font-medium">Throughput</span>
                       </div>
-                      <span className="font-bold text-lg text-blue-400">
+                      <span className="font-bold text-lg text-[#68BA7F]">
                         {isStreaming ? '1,247' : '0'} <span className="text-xs text-slate-400">evt/s</span>
                       </span>
                     </div>
                     <div className="w-full bg-slate-800 rounded-full h-2">
                       <div 
-                        className={`h-2 rounded-full transition-all duration-1000 ${isStreaming ? 'bg-gradient-to-r from-blue-500 to-cyan-500 w-3/4' : 'w-0'}`}
+                        className={`h-2 rounded-full transition-all duration-1000 ${isStreaming ? 'bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] w-3/4' : 'w-0'}`}
                       ></div>
                     </div>
                   </div>
@@ -694,16 +713,16 @@ const GRPCDemo: React.FC = () => {
                   <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/30">
                     <div className="flex justify-between items-center mb-3">
                       <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-purple-400" />
+                        <Clock className="w-4 h-4 text-[#CFFFDC]" />
                         <span className="text-slate-300 text-sm font-medium">Avg Latency</span>
                       </div>
-                      <span className="font-bold text-lg text-purple-400">
+                      <span className="font-bold text-lg text-[#CFFFDC]">
                         {isConnected ? '2.3' : '0'} <span className="text-xs text-slate-400">ms</span>
                       </span>
                     </div>
                     <div className="w-full bg-slate-800 rounded-full h-2">
                       <div 
-                        className={`h-2 rounded-full transition-all duration-1000 ${isConnected ? 'bg-gradient-to-r from-purple-500 to-violet-500 w-1/4' : 'w-0'}`}
+                        className={`h-2 rounded-full transition-all duration-1000 ${isConnected ? 'bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] w-1/4' : 'w-0'}`}
                       ></div>
                     </div>
                   </div>
@@ -712,16 +731,16 @@ const GRPCDemo: React.FC = () => {
                   <div className="bg-slate-700/30 rounded-xl p-4 border border-slate-600/30">
                     <div className="flex justify-between items-center mb-3">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-emerald-400" />
+                        <CheckCircle className="w-4 h-4 text-brand-300" />
                         <span className="text-slate-300 text-sm font-medium">Success Rate</span>
                       </div>
-                      <span className="font-bold text-lg text-emerald-400">
+                      <span className="font-bold text-lg text-brand-300">
                         {isConnected ? '99.8' : '0'}<span className="text-xs text-slate-400">%</span>
                       </span>
                     </div>
                     <div className="w-full bg-slate-800 rounded-full h-2">
                       <div 
-                        className={`h-2 rounded-full transition-all duration-1000 ${isConnected ? 'bg-gradient-to-r from-emerald-500 to-green-500 w-full' : 'w-0'}`}
+                        className={`h-2 rounded-full transition-all duration-1000 ${isConnected ? 'bg-gradient-to-r from-brand-500 to-brand-300 w-full' : 'w-0'}`}
                       ></div>
                     </div>
                   </div>
@@ -755,7 +774,7 @@ const GRPCDemo: React.FC = () => {
               <div className="bg-gradient-to-r from-slate-800/80 to-slate-700/80 p-6 border-b border-slate-700/50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-xl shadow-lg">
+                    <div className="p-3 bg-gradient-to-br from-[#2E6F40] to-[#68BA7F] rounded-xl shadow-lg">
                       {activeTab === 'connection' ? (
                         <Terminal className="w-6 h-6 text-white" />
                       ) : (
@@ -782,14 +801,14 @@ const GRPCDemo: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
                         isStreaming 
-                          ? 'bg-green-500/20 border border-green-500/30' 
+                          ? 'bg-brand-500/15 border border-brand-500/25' 
                           : 'bg-slate-600/30 border border-slate-600/50'
                       }`}>
                         <div className={`w-2 h-2 rounded-full ${
-                          isStreaming ? 'bg-green-400 animate-pulse' : 'bg-slate-400'
+                          isStreaming ? 'bg-brand-300 animate-pulse' : 'bg-slate-400'
                         }`}></div>
                         <span className={`text-xs font-semibold ${
-                          isStreaming ? 'text-green-400' : 'text-slate-400'
+                          isStreaming ? 'text-brand-300' : 'text-slate-400'
                         }`}>
                           {isStreaming ? 'LIVE' : 'IDLE'}
                         </span>
@@ -819,7 +838,7 @@ const GRPCDemo: React.FC = () => {
                         className={`px-4 py-2 rounded-lg font-medium transition-all ${
                           connectionTestStatus === 'testing'
                             ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:opacity-90'
+                            : 'bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] text-white hover:opacity-90'
                         } flex items-center gap-2`}
                       >
                         {connectionTestStatus === 'testing' ? (
@@ -841,14 +860,14 @@ const GRPCDemo: React.FC = () => {
 
                     {/* Connection Status */}
                     <div className={`p-4 rounded-lg border ${
-                      connectionTestStatus === 'success' ? 'border-green-500 bg-green-500/10' :
+                      connectionTestStatus === 'success' ? 'border-brand-500 bg-brand-500/10' :
                       connectionTestStatus === 'error' ? 'border-red-500 bg-red-500/10' :
                       connectionTestStatus === 'testing' ? 'border-yellow-500 bg-yellow-500/10' :
                       'border-gray-500 bg-gray-500/10'
                     }`}>
                       <div className="flex items-center gap-2 mb-2">
                         {connectionTestStatus === 'success' ? (
-                          <CheckCircle className="w-5 h-5 text-green-400" />
+                          <CheckCircle className="w-5 h-5 text-brand-300" />
                         ) : connectionTestStatus === 'error' ? (
                           <AlertTriangle className="w-5 h-5 text-red-400" />
                         ) : connectionTestStatus === 'testing' ? (
@@ -891,7 +910,7 @@ const GRPCDemo: React.FC = () => {
                     </div>
 
                     {/* Server Information */}
-                    <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4">
+                    <div className="bg-[rgba(46,111,64,0.12)] border border-[rgba(104,186,127,0.25)] rounded-lg p-4">
                       <h4 className="text-white font-medium mb-3 flex items-center gap-2">
                         <Activity className="w-4 h-4" />
                         Server Information
@@ -907,11 +926,11 @@ const GRPCDemo: React.FC = () => {
                         </div>
                         <div>
                           <span className="text-gray-400">CORS:</span>
-                          <div className="text-green-400">Enabled</div>
+                          <div className="text-brand-300">Enabled</div>
                         </div>
                         <div>
                           <span className="text-gray-400">WebSocket:</span>
-                          <div className="text-green-400">Supported</div>
+                          <div className="text-brand-300">Supported</div>
                         </div>
                       </div>
                     </div>
@@ -946,10 +965,10 @@ const GRPCDemo: React.FC = () => {
                               exit={{ opacity: 0, y: -10 }}
                               transition={{ duration: 0.2 }}
                               className={`group relative bg-slate-800/30 hover:bg-slate-800/50 border-l-2 transition-all duration-200 rounded-r-lg ${
-                                event.status === 'success' ? 'border-l-green-500 hover:bg-green-500/5' :
+                                event.status === 'success' ? 'border-l-brand-500 hover:bg-brand-500/5' :
                                 event.status === 'warning' ? 'border-l-amber-500 hover:bg-amber-500/5' :
                                 event.status === 'error' ? 'border-l-red-500 hover:bg-red-500/5' :
-                                'border-l-blue-500 hover:bg-blue-500/5'
+                                'border-l-[#2E6F40] hover:bg-[rgba(46,111,64,0.05)]'
                               }`}
                             >
                               <div className="flex items-start gap-4 p-4">
@@ -966,10 +985,10 @@ const GRPCDemo: React.FC = () => {
                                 {/* Event Type Badge */}
                                 <div className="flex-shrink-0">
                                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold ${
-                                    event.status === 'success' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                                    event.status === 'success' ? 'bg-brand-500/15 text-brand-300 border border-brand-500/25' :
                                     event.status === 'warning' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
                                     event.status === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                                    'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                    'bg-[rgba(46,111,64,0.15)] text-[#68BA7F] border border-[rgba(104,186,127,0.22)]'
                                   }`}>
                                     {getStatusIcon(event.status)}
                                     {event.type.toUpperCase()}
@@ -988,10 +1007,10 @@ const GRPCDemo: React.FC = () => {
                                 {/* Status Indicator */}
                                 <div className="flex-shrink-0 pt-1">
                                   <div className={`w-2 h-2 rounded-full ${
-                                    event.status === 'success' ? 'bg-green-400' :
+                                    event.status === 'success' ? 'bg-brand-300' :
                                     event.status === 'warning' ? 'bg-amber-400' :
                                     event.status === 'error' ? 'bg-red-400' :
-                                    'bg-blue-400'
+                                    'bg-[#68BA7F]'
                                   }`}></div>
                                 </div>
                               </div>
@@ -1019,7 +1038,7 @@ const GRPCDemo: React.FC = () => {
           className="mt-12 bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl shadow-black/20"
         >
           <h3 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl">
+            <div className="p-3 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-xl">
               <Code className="w-8 h-8" />
             </div>
             API Endpoints
@@ -1030,16 +1049,16 @@ const GRPCDemo: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="p-6 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl border border-blue-500/30 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10"
+              className="p-6 glass-card rounded-2xl border border-[rgba(104,186,127,0.22)] hover:border-[rgba(104,186,127,0.50)] transition-all duration-300 hover:shadow-lg hover:shadow-[rgba(46,111,64,0.10)]"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-blue-500/30 rounded-lg">
-                  <DollarSign className="w-6 h-6 text-blue-300" />
+                <div className="p-2 bg-[rgba(46,111,64,0.20)] rounded-lg">
+                  <DollarSign className="w-6 h-6 text-[#CFFFDC]" />
                 </div>
                 <h4 className="text-white font-bold text-lg">Payment Processing</h4>
               </div>
               <p className="text-gray-300 text-sm mb-4 leading-relaxed">Real-time payment processing with status updates</p>
-              <code className="text-sm text-blue-300 bg-blue-900/30 px-3 py-2 rounded-lg block">
+              <code className="text-sm text-[#CFFFDC] bg-[rgba(46,111,64,0.12)] px-3 py-2 rounded-lg block">
                 ProcessPayments(stream)
               </code>
             </motion.div>
@@ -1048,16 +1067,16 @@ const GRPCDemo: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="p-6 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl border border-green-500/30 hover:border-green-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/10"
+              className="p-6 bg-gradient-to-br from-brand-500/15 to-brand-300/10 rounded-2xl border border-brand-500/25 hover:border-brand-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-brand-500/10"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-green-500/30 rounded-lg">
-                  <Shield className="w-6 h-6 text-green-300" />
+                <div className="p-2 bg-brand-500/20 rounded-lg">
+                  <Shield className="w-6 h-6 text-brand-200" />
                 </div>
                 <h4 className="text-white font-bold text-lg">Risk Monitoring</h4>
               </div>
               <p className="text-gray-300 text-sm mb-4 leading-relaxed">Dynamic risk assessment with rule updates</p>
-              <code className="text-sm text-green-300 bg-green-900/30 px-3 py-2 rounded-lg block">
+              <code className="text-sm text-brand-200 bg-brand-950/50 px-3 py-2 rounded-lg block">
                 MonitorRisk(stream)
               </code>
             </motion.div>
@@ -1066,16 +1085,16 @@ const GRPCDemo: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="p-6 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl border border-purple-500/30 hover:border-purple-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10"
+              className="p-6 glass-card rounded-2xl border border-[rgba(37,61,44,0.35)] hover:border-[rgba(37,61,44,0.50)] transition-all duration-300 hover:shadow-lg hover:shadow-[rgba(37,61,44,0.10)]"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-purple-500/30 rounded-lg">
-                  <Database className="w-6 h-6 text-purple-300" />
+                <div className="p-2 bg-[rgba(37,61,44,0.25)] rounded-lg">
+                  <Database className="w-6 h-6 text-[#CFFFDC]" />
                 </div>
                 <h4 className="text-white font-bold text-lg">Account Sync</h4>
               </div>
               <p className="text-gray-300 text-sm mb-4 leading-relaxed">Real-time balance synchronization</p>
-              <code className="text-sm text-purple-300 bg-purple-900/30 px-3 py-2 rounded-lg block">
+              <code className="text-sm text-[#CFFFDC] bg-[rgba(37,61,44,0.20)] px-3 py-2 rounded-lg block">
                 SyncAccountBalances(stream)
               </code>
             </motion.div>
@@ -1111,10 +1130,10 @@ const GRPCDemo: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-blue-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10"
+            className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-[rgba(104,186,127,0.30)] transition-all duration-300 hover:shadow-xl hover:shadow-[rgba(46,111,64,0.10)]"
           >
             <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl shadow-lg">
+              <div className="p-4 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-2xl shadow-lg">
                 <Zap className="w-8 h-8 text-white" />
               </div>
               <h4 className="text-white font-bold text-xl">Ultra-low Latency</h4>
@@ -1128,10 +1147,10 @@ const GRPCDemo: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-green-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10"
+            className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-brand-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-brand-500/10"
           >
             <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl shadow-lg">
+              <div className="p-4 bg-gradient-to-r from-brand-500 to-brand-300 rounded-2xl shadow-lg">
                 <Activity className="w-8 h-8 text-white" />
               </div>
               <h4 className="text-white font-bold text-xl">Real-time Updates</h4>
@@ -1145,10 +1164,10 @@ const GRPCDemo: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-purple-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10"
+            className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 hover:border-[rgba(37,61,44,0.35)] transition-all duration-300 hover:shadow-xl hover:shadow-[rgba(37,61,44,0.10)]"
           >
             <div className="flex items-center gap-4 mb-6">
-              <div className="p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl shadow-lg">
+              <div className="p-4 bg-gradient-to-r from-[#253D2C] to-[#2E6F40] rounded-2xl shadow-lg">
                 <Shield className="w-8 h-8 text-white" />
               </div>
               <h4 className="text-white font-bold text-xl">Type Safety</h4>
@@ -1185,7 +1204,7 @@ const GRPCDemo: React.FC = () => {
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-indigo-500/20 rounded-xl">
-                <Database className="w-6 h-6 text-indigo-400" />
+                <Database className="w-6 h-6 text-[#68BA7F]" />
               </div>
               <h4 className="text-white font-semibold">Production Ready</h4>
             </div>

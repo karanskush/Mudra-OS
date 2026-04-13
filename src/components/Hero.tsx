@@ -24,8 +24,8 @@ const MetricCard = ({ value, label, trend }: { value: string; label: string; tre
     <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{value}</div>
     <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">{label}</div>
     <div className="flex items-center gap-1 text-xs">
-      <TrendingUp className="h-3 w-3 text-green-500" />
-      <span className="text-green-600 dark:text-green-400 font-medium">{trend}</span>
+      <TrendingUp className="h-3 w-3 text-brand-400" />
+      <span className="text-brand-400 dark:text-brand-300 font-medium">{trend}</span>
     </div>
   </motion.div>
 );
@@ -127,8 +127,8 @@ const Hero: React.FC = () => {
           <motion.div variants={itemVariants} className="flex justify-center mb-8">
             <div className="inline-flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-md border border-blue-200/50 dark:border-white/20 rounded-full px-6 py-3 text-sm font-medium text-gray-700 dark:text-white/90 shadow-lg">
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-green-600 dark:text-green-400 font-semibold">Live</span>
+                <div className="w-2 h-2 bg-brand-500 rounded-full animate-pulse"></div>
+                <span className="text-brand-400 dark:text-brand-300 font-semibold">Live</span>
               </div>
               <span className="text-gray-400">•</span>
               <span>Ultra-Lean MudraCore OS</span>
@@ -209,7 +209,7 @@ const Hero: React.FC = () => {
                   <div className="flex gap-2">
                     <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                     <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-brand-300 rounded-full"></div>
                   </div>
                 </div>
                 {/* --- Metrics Grid --- */}
@@ -222,7 +222,7 @@ const Hero: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
                     <span>Recent Transactions</span>
-                    <span className="text-green-600 dark:text-green-400">Live</span>
+                    <span className="text-brand-400 dark:text-brand-300">Live</span>
                   </div>
                   {[
                     { type: 'Payment', amount: '$2,450.00', status: 'Completed' },
@@ -242,7 +242,7 @@ const Hero: React.FC = () => {
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-semibold text-gray-900 dark:text-white">{transaction.amount}</div>
-                        <div className={`text-xs ${transaction.status === 'Completed' ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'}`}>{transaction.status}</div>
+                        <div className={`text-xs ${transaction.status === 'Completed' ? 'text-brand-400 dark:text-brand-300' : 'text-yellow-600 dark:text-yellow-400'}`}>{transaction.status}</div>
                       </div>
                     </motion.div>
                   ))}
@@ -256,7 +256,7 @@ const Hero: React.FC = () => {
                 className="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-xl border border-gray-200 dark:border-gray-700 backdrop-blur-xl"
               >
                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">API Response</div>
-                <div className="font-mono text-xs text-green-600 dark:text-green-400">
+                <div className="font-mono text-xs text-brand-400 dark:text-brand-300">
                   <div>POST /v1/payments</div>
                   <div className="text-gray-600 dark:text-gray-300">201 Created</div>
                   <div className="text-gray-400 dark:text-gray-500">~45ms</div>
@@ -267,7 +267,7 @@ const Hero: React.FC = () => {
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 2.5, duration: 0.5 }}
-                className="absolute -top-4 -left-4 bg-green-500 text-white rounded-full p-3 shadow-lg"
+                className="absolute -top-4 -left-4 bg-brand-500 text-white rounded-full p-3 shadow-lg"
               >
                 <CheckCircle className="h-6 w-6" />
               </motion.div>

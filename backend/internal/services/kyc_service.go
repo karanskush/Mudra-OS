@@ -97,11 +97,24 @@ func (s *KYCService) GetAllKYCSubmissions(filters KYCFilters) ([]models.KYCSubmi
 	return submissions, nil
 }
 
-// GetKYCSubmissionByID retrieves a single KYC submission
+// GetKYCSubmissionByID retrieves a single KYC submission by submission ID
 func (s *KYCService) GetKYCSubmissionByID(id uuid.UUID) (*models.KYCSubmission, error) {
 	submission, err := s.kycRepo.GetKYCSubmissionByID(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get KYC submission: %w", err)
+	}
+
+	submission.ProcessingTime = submission.CalculateProcessingTime()
+	submission.LastActivity = submission.GetTimeAgo()
+
+	return submission, nil
+}
+
+// GetKYCSubmissionByUserID retrieves the KYC submission for a specific user
+func (s *KYCService) GetKYCSubmissionByUserID(userID uuid.UUID) (*models.KYCSubmission, error) {
+	submission, err := s.kycRepo.GetKYCSubmissionByUserID(userID)
+	if err != nil {
+		return nil, fmt.Errorf("KYC submission not found for user: %w", err)
 	}
 
 	submission.ProcessingTime = submission.CalculateProcessingTime()

@@ -243,9 +243,9 @@ if __name__ == '__main__':
                 </ul>
               </div>
 
-              <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl border border-green-200 dark:border-green-800">
-                <h3 className="text-xl font-semibold text-green-900 dark:text-green-300 mb-3">Benefits</h3>
-                <ul className="space-y-2 text-green-800 dark:text-green-300">
+              <div className="bg-brand-500 dark:bg-brand-500/15 p-6 rounded-xl border border-green-200 dark:border-green-800">
+                <h3 className="text-xl font-semibold text-brand-300 dark:text-brand-300 mb-3">Benefits</h3>
+                <ul className="space-y-2 text-brand-300 dark:text-brand-300">
                   <li className="flex items-center gap-2">
                     <CheckCircleIcon className="h-5 w-5" />
                     10x faster than REST APIs
@@ -359,7 +359,7 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
                           <code>{item.code}</code>
                         </pre>
                         {copiedText === `step-${item.step}` && (
-                          <div className="absolute top-2 right-12 bg-green-600 text-white px-2 py-1 rounded text-sm">
+                          <div className="absolute top-2 right-12 bg-brand-500 text-white px-2 py-1 rounded text-sm">
                             Copied!
                           </div>
                         )}
@@ -427,7 +427,7 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
                       <code>{api.example}</code>
                     </pre>
                     {copiedText === api.name && (
-                      <div className="absolute top-2 right-12 bg-green-600 text-white px-2 py-1 rounded text-sm">
+                      <div className="absolute top-2 right-12 bg-brand-500 text-white px-2 py-1 rounded text-sm">
                         Copied!
                       </div>
                     )}
@@ -466,7 +466,7 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
                     <code>{code}</code>
                   </pre>
                   {copiedText === language && (
-                    <div className="mt-2 text-green-600 text-sm">
+                    <div className="mt-2 text-brand-300 text-sm">
                       ✓ Code copied to clipboard
                     </div>
                   )}

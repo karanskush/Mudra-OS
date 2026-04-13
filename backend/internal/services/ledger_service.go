@@ -76,12 +76,12 @@ func (ls *LedgerService) CreateTransaction(userID uuid.UUID, transactionType mod
 
 	// Create transaction and entries in a transaction
 	err := ls.db.Transaction(func(tx *gorm.DB) error {
-		// Create the transaction
-		if err := tx.Create(transaction).Error; err != nil {
+		// Create the transaction WITHOUT cascading to entries (avoid double-insert)
+		if err := tx.Omit("Entries").Create(transaction).Error; err != nil {
 			return err
 		}
 
-		// Create all entries
+		// Create all entries manually
 		for i := range transaction.Entries {
 			transaction.Entries[i].TransactionID = transaction.ID
 			transaction.Entries[i].ID = uuid.Nil // Ensure a new UUID is generated
@@ -245,6 +245,10 @@ func (ls *LedgerService) GetAccountTransactions(accountID uuid.UUID, limit, offs
 
 // CreateTransfer creates a transfer between two accounts
 func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccountID uuid.UUID, amount float64, currency, description, reference string) (map[string]interface{}, error) {
+	// Auto-generate reference if not provided
+	if reference == "" {
+		reference = "TXN-" + uuid.New().String()
+	}
 	// Validate accounts
 	var fromAccount, toAccount models.LedgerAccount
 	if err := ls.db.Where("id = ?", fromAccountID).First(&fromAccount).Error; err != nil {
@@ -260,6 +264,15 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 
 	if fromAccount.Currency != toAccount.Currency {
 		return nil, errors.New("currency conversion not yet implemented")
+	}
+
+	// Validate sender has sufficient balance
+	fromBalance, err := fromAccount.GetBalance(ls.db)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get sender balance: %w", err)
+	}
+	if fromBalance < amount {
+		return nil, fmt.Errorf("insufficient balance: available %.2f, requested %.2f", fromBalance, amount)
 	}
 
 	country := ""
@@ -295,11 +308,15 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 		latency = "60s"
 	}
 
-	err := orchestrator.Transfer(payment, &railType)
-	if err != nil {
-		return nil, fmt.Errorf("payment rail transfer failed: %w", err)
+	if railErr := orchestrator.Transfer(payment, &railType); railErr != nil {
+		return nil, fmt.Errorf("payment rail transfer failed: %w", railErr)
 	}
 
+	// Single balanced journal entry:
+	//   Debit  toAccount   → increases recipient's asset balance
+	//   Credit fromAccount → decreases sender's asset balance
+	// Using CreateTransactionWithoutValidation because ValidateBalance checks
+	// EntryType labels, not account positions — one entry IS balanced by design.
 	entries := []models.LedgerEntry{
 		{
 			DebitAccountID:  toAccountID,
@@ -307,23 +324,13 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 			Amount:          amount,
 			Currency:        currency,
 			EntryType:       models.EntryTypeDebit,
-			Description:     fmt.Sprintf("Transfer to %s", toAccount.Name),
-			Reference:       reference,
-			Timestamp:       time.Now(),
-		},
-		{
-			DebitAccountID:  fromAccountID,
-			CreditAccountID: toAccountID,
-			Amount:          amount,
-			Currency:        currency,
-			EntryType:       models.EntryTypeCredit,
-			Description:     fmt.Sprintf("Transfer from %s", fromAccount.Name),
+			Description:     fmt.Sprintf("Transfer: %s → %s", fromAccount.Name, toAccount.Name),
 			Reference:       reference,
 			Timestamp:       time.Now(),
 		},
 	}
 
-	transaction, err := ls.CreateTransaction(userID, models.LedgerTransactionTypeTransfer, description, reference, entries)
+	transaction, err := ls.CreateTransactionWithoutValidation(userID, models.LedgerTransactionTypeTransfer, description, reference, entries)
 	if err != nil {
 		return nil, err
 	}
@@ -373,6 +380,8 @@ func (ls *LedgerService) GetOrCreateSystemAccount(userID uuid.UUID, accountNumbe
 
 // CreateDeposit creates a deposit transaction
 func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, amount float64, currency, description, reference string) (*models.LedgerTransaction, error) {
+	reference = autoRef("DEP", reference)
+
 	// Validate account
 	var account models.LedgerAccount
 	if err := ls.db.Where("id = ?", accountID).First(&account).Error; err != nil {
@@ -424,12 +433,12 @@ func (ls *LedgerService) CreateDeposit(userID uuid.UUID, accountID uuid.UUID, am
 
 	// Create transaction and entries in a database transaction
 	err = ls.db.Transaction(func(tx *gorm.DB) error {
-		// Create the transaction
-		if err := tx.Create(transaction).Error; err != nil {
+		// Create the transaction WITHOUT cascading to entries (avoid double-insert)
+		if err := tx.Omit("Entries").Create(transaction).Error; err != nil {
 			return err
 		}
 
-		// Create the entry
+		// Create the entry manually
 		transaction.Entries[0].TransactionID = transaction.ID
 		transaction.Entries[0].ID = uuid.Nil // Ensure a new UUID is generated
 		if err := tx.Create(&transaction.Entries[0]).Error; err != nil {
@@ -575,12 +584,12 @@ func (ls *LedgerService) CreateTransactionWithoutValidation(userID uuid.UUID, tr
 
 	// Create transaction and entries in a transaction
 	err := ls.db.Transaction(func(tx *gorm.DB) error {
-		// Create the transaction
-		if err := tx.Create(transaction).Error; err != nil {
+		// Create the transaction WITHOUT cascading to entries (avoid double-insert)
+		if err := tx.Omit("Entries").Create(transaction).Error; err != nil {
 			return err
 		}
 
-		// Create all entries
+		// Create all entries manually
 		for i := range transaction.Entries {
 			transaction.Entries[i].TransactionID = transaction.ID
 			transaction.Entries[i].ID = uuid.Nil // Ensure a new UUID is generated
@@ -599,8 +608,18 @@ func (ls *LedgerService) CreateTransactionWithoutValidation(userID uuid.UUID, tr
 	return transaction, nil
 }
 
+// autoRef returns reference if non-empty, otherwise generates a unique one.
+func autoRef(prefix, reference string) string {
+	if reference != "" {
+		return reference
+	}
+	return fmt.Sprintf("%s-%d-%s", prefix, time.Now().UnixMilli(), uuid.New().String()[:8])
+}
+
 // CreateTestBalance creates a test balance transaction without validation
 func (ls *LedgerService) CreateTestBalance(userID uuid.UUID, accountID uuid.UUID, amount float64, currency, description, reference string) (*models.LedgerTransaction, error) {
+	reference = autoRef("DEP", reference)
+
 	// Validate account
 	var account models.LedgerAccount
 	if err := ls.db.Where("id = ?", accountID).First(&account).Error; err != nil {
@@ -668,4 +687,498 @@ func (ls *LedgerService) CreateTestBalance(userID uuid.UUID, accountID uuid.UUID
 	}
 
 	return transaction, nil
+}
+
+// ============================================================
+// Journal Entries
+// ============================================================
+
+// JournalLine is one side of a journal entry (debit or credit)
+type JournalLine struct {
+	AccountID uuid.UUID `json:"account_id"`
+	Type      string    `json:"type"` // "debit" or "credit"
+	Amount    float64   `json:"amount"`
+}
+
+// CreateJournalEntry records a manually balanced double-entry journal entry.
+func (ls *LedgerService) CreateJournalEntry(userID uuid.UUID, description, reference, currency string, lines []JournalLine) (*models.LedgerTransaction, error) {
+	reference = autoRef("JE", reference)
+	if currency == "" {
+		currency = "USD"
+	}
+
+	if len(lines) < 2 {
+		return nil, errors.New("journal entry must have at least 2 lines")
+	}
+
+	var totalDebits, totalCredits float64
+	for _, l := range lines {
+		switch l.Type {
+		case "debit":
+			totalDebits += l.Amount
+		case "credit":
+			totalCredits += l.Amount
+		default:
+			return nil, fmt.Errorf("invalid line type %q: must be 'debit' or 'credit'", l.Type)
+		}
+	}
+	const epsilon = 0.0001
+	if totalDebits-totalCredits > epsilon || totalCredits-totalDebits > epsilon {
+		return nil, fmt.Errorf("journal entry is not balanced: debits %.4f ≠ credits %.4f", totalDebits, totalCredits)
+	}
+
+	// Pair debit lines with credit lines
+	type pool struct {
+		accountID uuid.UUID
+		remaining float64
+	}
+	creditPool := make([]pool, 0, len(lines))
+	debitLines := make([]JournalLine, 0, len(lines))
+	for _, l := range lines {
+		if l.Type == "credit" {
+			creditPool = append(creditPool, pool{l.AccountID, l.Amount})
+		} else {
+			debitLines = append(debitLines, l)
+		}
+	}
+
+	var entries []models.LedgerEntry
+	for _, dl := range debitLines {
+		remaining := dl.Amount
+		for i := range creditPool {
+			if creditPool[i].remaining <= 0 {
+				continue
+			}
+			take := remaining
+			if creditPool[i].remaining < take {
+				take = creditPool[i].remaining
+			}
+			entries = append(entries, models.LedgerEntry{
+				DebitAccountID:  dl.AccountID,
+				CreditAccountID: creditPool[i].accountID,
+				Amount:          take,
+				Currency:        currency,
+				EntryType:       models.EntryTypeDebit,
+				Description:     description,
+				Reference:       reference,
+				Timestamp:       time.Now(),
+			})
+			creditPool[i].remaining -= take
+			remaining -= take
+			if remaining <= 0 {
+				break
+			}
+		}
+	}
+
+	transaction := &models.LedgerTransaction{
+		UserID:      userID,
+		Type:        models.LedgerTransactionTypeAdjustment,
+		Status:      models.LedgerTransactionStatusPending,
+		Description: description,
+		Reference:   reference,
+		TotalAmount: totalDebits,
+		Currency:    currency,
+		Timestamp:   time.Now(),
+	}
+
+	err := ls.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(transaction).Error; err != nil {
+			return err
+		}
+		for i := range entries {
+			entries[i].TransactionID = transaction.ID
+			if err := tx.Create(&entries[i]).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create journal entry: %w", err)
+	}
+
+	transaction.MarkPosted()
+	ls.db.Save(transaction)
+
+	if err := ls.db.Preload("Entries").Where("id = ?", transaction.ID).First(transaction).Error; err != nil {
+		return nil, fmt.Errorf("failed to reload journal entry: %w", err)
+	}
+	return transaction, nil
+}
+
+// ============================================================
+// Transaction Reversal
+// ============================================================
+
+// ReverseTransaction creates and posts a reversal for a previously posted transaction.
+func (ls *LedgerService) ReverseTransaction(userID uuid.UUID, transactionID uuid.UUID, reason string) (*models.LedgerTransaction, error) {
+	var original models.LedgerTransaction
+	if err := ls.db.Preload("Entries").Where("id = ?", transactionID).First(&original).Error; err != nil {
+		return nil, fmt.Errorf("transaction not found: %w", err)
+	}
+	if !original.IsPosted() {
+		return nil, errors.New("only posted transactions can be reversed")
+	}
+	if reason == "" {
+		reason = "Reversal of " + original.Description
+	}
+	reversal := original.CreateReversal(userID, reason)
+	reversal.Reference = autoRef("REV", "")
+
+	err := ls.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Omit("Entries").Create(reversal).Error; err != nil {
+			return err
+		}
+		for i := range reversal.Entries {
+			reversal.Entries[i].TransactionID = reversal.ID
+			reversal.Entries[i].ID = uuid.Nil
+			if err := tx.Create(&reversal.Entries[i]).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create reversal: %w", err)
+	}
+
+	reversal.MarkPosted()
+	ls.db.Save(reversal)
+	return reversal, nil
+}
+
+// ============================================================
+// Account Statement
+// ============================================================
+
+// StatementEntry is one row in an account statement with a running balance.
+type StatementEntry struct {
+	Timestamp    time.Time `json:"timestamp"`
+	Description  string    `json:"description"`
+	Reference    string    `json:"reference"`
+	Debit        float64   `json:"debit"`
+	Credit       float64   `json:"credit"`
+	Balance      float64   `json:"balance"`
+	TxnID        string    `json:"transaction_id"`
+	TxnType      string    `json:"transaction_type"`
+}
+
+// GetAccountStatement returns an account statement with running balance for a date range.
+func (ls *LedgerService) GetAccountStatement(accountID uuid.UUID, from, to time.Time) ([]StatementEntry, float64, error) {
+	var account models.LedgerAccount
+	if err := ls.db.Where("id = ?", accountID).First(&account).Error; err != nil {
+		return nil, 0, fmt.Errorf("account not found: %w", err)
+	}
+
+	type rawEntry struct {
+		Timestamp   time.Time
+		Description string
+		Reference   string
+		Amount      float64
+		Side        string
+		TxnID       string
+		TxnType     string
+	}
+
+	var debits []rawEntry
+	ls.db.Raw(`
+		SELECT le.timestamp, le.description, le.reference, le.amount,
+		       'debit' as side, lt.id::text as txn_id, lt.type as txn_type
+		FROM ledger_entry le
+		JOIN ledger_transaction lt ON lt.id = le.transaction_id
+		WHERE le.debit_account_id = ?
+		  AND le.timestamp BETWEEN ? AND ?
+		  AND le.deleted_at IS NULL
+		ORDER BY le.timestamp ASC
+	`, accountID, from, to).Scan(&debits)
+
+	var credits []rawEntry
+	ls.db.Raw(`
+		SELECT le.timestamp, le.description, le.reference, le.amount,
+		       'credit' as side, lt.id::text as txn_id, lt.type as txn_type
+		FROM ledger_entry le
+		JOIN ledger_transaction lt ON lt.id = le.transaction_id
+		WHERE le.credit_account_id = ?
+		  AND le.timestamp BETWEEN ? AND ?
+		  AND le.deleted_at IS NULL
+		ORDER BY le.timestamp ASC
+	`, accountID, from, to).Scan(&credits)
+
+	rows := append(debits, credits...)
+	// Sort by timestamp
+	for i := 0; i < len(rows); i++ {
+		for j := i + 1; j < len(rows); j++ {
+			if rows[j].Timestamp.Before(rows[i].Timestamp) {
+				rows[i], rows[j] = rows[j], rows[i]
+			}
+		}
+	}
+
+	var runningBalance float64
+	statements := make([]StatementEntry, 0, len(rows))
+	for _, r := range rows {
+		var debit, credit float64
+		if account.IsDebitAccount() {
+			if r.Side == "debit" {
+				debit = r.Amount
+				runningBalance += r.Amount
+			} else {
+				credit = r.Amount
+				runningBalance -= r.Amount
+			}
+		} else {
+			if r.Side == "credit" {
+				credit = r.Amount
+				runningBalance += r.Amount
+			} else {
+				debit = r.Amount
+				runningBalance -= r.Amount
+			}
+		}
+		statements = append(statements, StatementEntry{
+			Timestamp:   r.Timestamp,
+			Description: r.Description,
+			Reference:   r.Reference,
+			Debit:       debit,
+			Credit:      credit,
+			Balance:     runningBalance,
+			TxnID:       r.TxnID,
+			TxnType:     r.TxnType,
+		})
+	}
+	return statements, runningBalance, nil
+}
+
+// ============================================================
+// Chart of Accounts
+// ============================================================
+
+// AccountGroup groups accounts for the chart-of-accounts view.
+type AccountGroup struct {
+	Name     string                   `json:"name"`
+	Category string                   `json:"category"`
+	Accounts []map[string]interface{} `json:"accounts"`
+	Total    float64                  `json:"total"`
+}
+
+// GetChartOfAccounts returns accounts grouped by category with balances.
+func (ls *LedgerService) GetChartOfAccounts(userID uuid.UUID) ([]AccountGroup, error) {
+	accounts, err := ls.GetUserAccounts(userID)
+	if err != nil {
+		return nil, err
+	}
+	balances, err := ls.GetAccountBalancesBatch(accounts)
+	if err != nil {
+		return nil, err
+	}
+
+	categories := []struct {
+		name  string
+		label string
+		types []models.LedgerAccountType
+	}{
+		{"assets", "Assets", []models.LedgerAccountType{
+			models.LedgerAccountTypeAsset, models.LedgerAccountTypeCash,
+			models.LedgerAccountTypeBank, models.LedgerAccountTypeReceivable,
+			models.LedgerAccountTypeInvestment,
+		}},
+		{"liabilities", "Liabilities", []models.LedgerAccountType{
+			models.LedgerAccountTypeLiability, models.LedgerAccountTypePayable,
+			models.LedgerAccountTypeLoan, models.LedgerAccountTypeCredit,
+		}},
+		{"equity", "Equity", []models.LedgerAccountType{
+			models.LedgerAccountTypeEquity, models.LedgerAccountTypeCapital,
+			models.LedgerAccountTypeRetained,
+		}},
+		{"revenue", "Revenue", []models.LedgerAccountType{
+			models.LedgerAccountTypeRevenue, models.LedgerAccountTypeIncome,
+			models.LedgerAccountTypeGain,
+		}},
+		{"expenses", "Expenses", []models.LedgerAccountType{
+			models.LedgerAccountTypeExpense, models.LedgerAccountTypeLoss,
+			models.LedgerAccountTypeFee,
+		}},
+	}
+
+	typeSet := func(types []models.LedgerAccountType) map[models.LedgerAccountType]bool {
+		m := make(map[models.LedgerAccountType]bool)
+		for _, t := range types {
+			m[t] = true
+		}
+		return m
+	}
+
+	result := make([]AccountGroup, 0, len(categories))
+	for _, cat := range categories {
+		ts := typeSet(cat.types)
+		group := AccountGroup{Name: cat.name, Category: cat.label, Accounts: []map[string]interface{}{}}
+		for _, acc := range accounts {
+			if !ts[acc.Type] {
+				continue
+			}
+			bal := balances[acc.ID]
+			group.Total += bal
+			group.Accounts = append(group.Accounts, map[string]interface{}{
+				"id":             acc.ID.String(),
+				"account_number": acc.AccountNumber,
+				"name":           acc.Name,
+				"type":           string(acc.Type),
+				"currency":       acc.Currency,
+				"balance":        bal,
+				"description":    acc.Description,
+				"status":         string(acc.Status),
+			})
+		}
+		result = append(result, group)
+	}
+	return result, nil
+}
+
+// ============================================================
+// Financial Reports
+// ============================================================
+
+// BalanceSheetReport is the structured balance sheet output.
+type BalanceSheetReport struct {
+	AsOf         time.Time      `json:"as_of"`
+	Assets       []AccountGroup `json:"assets"`
+	Liabilities  []AccountGroup `json:"liabilities"`
+	Equity       []AccountGroup `json:"equity"`
+	TotalAssets  float64        `json:"total_assets"`
+	TotalLiabEq  float64        `json:"total_liabilities_equity"`
+	IsBalanced   bool           `json:"is_balanced"`
+}
+
+// GetBalanceSheet returns a balance sheet as of now.
+func (ls *LedgerService) GetBalanceSheet(userID uuid.UUID) (*BalanceSheetReport, error) {
+	coa, err := ls.GetChartOfAccounts(userID)
+	if err != nil {
+		return nil, err
+	}
+	report := &BalanceSheetReport{AsOf: time.Now()}
+	for _, group := range coa {
+		switch group.Name {
+		case "assets":
+			report.Assets = append(report.Assets, group)
+			report.TotalAssets += group.Total
+		case "liabilities":
+			report.Liabilities = append(report.Liabilities, group)
+			report.TotalLiabEq += group.Total
+		case "equity":
+			report.Equity = append(report.Equity, group)
+			report.TotalLiabEq += group.Total
+		}
+	}
+	const epsilon = 0.01
+	diff := report.TotalAssets - report.TotalLiabEq
+	if diff < 0 {
+		diff = -diff
+	}
+	report.IsBalanced = diff < epsilon
+	return report, nil
+}
+
+// IncomeStatementReport is the structured income statement output.
+type IncomeStatementReport struct {
+	From          time.Time      `json:"from"`
+	To            time.Time      `json:"to"`
+	Revenue       []AccountGroup `json:"revenue"`
+	Expenses      []AccountGroup `json:"expenses"`
+	TotalRevenue  float64        `json:"total_revenue"`
+	TotalExpenses float64        `json:"total_expenses"`
+	NetIncome     float64        `json:"net_income"`
+}
+
+// GetIncomeStatement returns an income statement for a date range.
+func (ls *LedgerService) GetIncomeStatement(userID uuid.UUID, from, to time.Time) (*IncomeStatementReport, error) {
+	coa, err := ls.GetChartOfAccounts(userID)
+	if err != nil {
+		return nil, err
+	}
+	report := &IncomeStatementReport{From: from, To: to}
+	for _, group := range coa {
+		switch group.Name {
+		case "revenue":
+			report.Revenue = append(report.Revenue, group)
+			report.TotalRevenue += group.Total
+		case "expenses":
+			report.Expenses = append(report.Expenses, group)
+			report.TotalExpenses += group.Total
+		}
+	}
+	report.NetIncome = report.TotalRevenue - report.TotalExpenses
+	return report, nil
+}
+
+// CashFlowEntry is one entry in the cash flow report.
+type CashFlowEntry struct {
+	Timestamp    time.Time `json:"timestamp"`
+	Type         string    `json:"type"`
+	Description  string    `json:"description"`
+	Reference    string    `json:"reference"`
+	Amount       float64   `json:"amount"`
+	Currency     string    `json:"currency"`
+	RunningTotal float64   `json:"running_total"`
+}
+
+// GetCashFlow returns cash transactions (deposits/withdrawals) in a date range.
+func (ls *LedgerService) GetCashFlow(userID uuid.UUID, from, to time.Time) ([]CashFlowEntry, float64, error) {
+	var txns []models.LedgerTransaction
+	if err := ls.db.
+		Where("user_id = ? AND type IN ? AND timestamp BETWEEN ? AND ? AND status = ?",
+			userID,
+			[]string{"deposit", "withdrawal"},
+			from, to,
+			models.LedgerTransactionStatusPosted,
+		).
+		Order("timestamp ASC").
+		Find(&txns).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to get cash flow: %w", err)
+	}
+	var running float64
+	entries := make([]CashFlowEntry, 0, len(txns))
+	for _, t := range txns {
+		amount := t.TotalAmount
+		if t.Type == models.LedgerTransactionTypeWithdrawal {
+			amount = -amount
+		}
+		running += amount
+		entries = append(entries, CashFlowEntry{
+			Timestamp:    t.Timestamp,
+			Type:         string(t.Type),
+			Description:  t.Description,
+			Reference:    t.Reference,
+			Amount:       amount,
+			Currency:     t.Currency,
+			RunningTotal: running,
+		})
+	}
+	return entries, running, nil
+}
+
+// GetAllUserTransactions returns all transactions for a user with optional filters.
+func (ls *LedgerService) GetAllUserTransactions(userID uuid.UUID, txnType, status string, limit, offset int) ([]models.LedgerTransaction, int64, error) {
+	query := ls.db.Model(&models.LedgerTransaction{}).
+		Where("user_id = ?", userID).
+		Preload("Entries")
+
+	if txnType != "" {
+		query = query.Where("type = ?", txnType)
+	}
+	if status != "" {
+		query = query.Where("status = ?", status)
+	}
+
+	var total int64
+	query.Count(&total)
+
+	var txns []models.LedgerTransaction
+	if limit <= 0 {
+		limit = 50
+	}
+	if err := query.Order("timestamp DESC").Limit(limit).Offset(offset).Find(&txns).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to get transactions: %w", err)
+	}
+	return txns, total, nil
 }

@@ -87,7 +87,7 @@ const DevelopersPage: React.FC = () => {
                   description: 'Ready-to-use code snippets and SDKs',
                   icon: CodeBracketIcon,
                   link: '/developers/examples',
-                  color: 'from-green-500 to-emerald-600'
+                  color: 'from-brand-500 to-brand-300'
                 },
                 {
                   title: '🚀 Quick Start',

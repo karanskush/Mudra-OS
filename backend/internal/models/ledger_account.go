@@ -66,8 +66,8 @@ type LedgerAccount struct {
 	UpdatedAt     time.Time           `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt      `json:"-" gorm:"index"`
 
-	// Relationships
-	User          User            `json:"user,omitempty" gorm:"foreignKey:UserID"`
+	// Relationships (pointer so omitempty works for unloaded associations)
+	User          *User           `json:"user,omitempty" gorm:"foreignKey:UserID"`
 	Parent        *LedgerAccount  `json:"parent,omitempty" gorm:"foreignKey:ParentID"`
 	Children      []LedgerAccount `json:"children,omitempty" gorm:"foreignKey:ParentID"`
 	DebitEntries  []LedgerEntry   `json:"debit_entries,omitempty" gorm:"foreignKey:DebitAccountID"`

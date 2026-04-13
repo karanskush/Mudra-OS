@@ -5,51 +5,77 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Enhanced color palette for better dark/light theme support
+        // ── Brand "Lush Forest" ───────────────────────────────────────────
+        // Use `brand-*` everywhere instead of `emerald-*` or `green-*`
+        // so the whole app stays in sync with the landing page palette.
+        brand: {
+          50:  '#CFFFDC',   // pale mint  — gradient text, chip highlights
+          100: '#b8f5c8',
+          200: '#96e8ac',
+          300: '#68BA7F',   // mid accent — active icons, badge text
+          400: '#4ea368',
+          500: '#2E6F40',   // primary    — buttons, focus rings, glows
+          600: '#265c35',
+          700: '#1f4a2a',
+          800: '#253D2C',
+          900: '#1a2d1f',
+          950: '#0D1F13',
+        },
+
+        // ── Surface backgrounds ───────────────────────────────────────────
+        // Neutral near-black — no blue tint.  Matches landing page.
+        surface: {
+          base:    '#0B0C0E',   // page root background
+          sidebar: '#0F1012',   // sidebar / nav panel
+          raised:  '#111315',   // cards, panels
+          hover:   '#161819',   // hover state on raised
+        },
+
+        // ── Legacy aliases (keep for backwards-compat) ────────────────────
+        forest: {
+          50:  '#CFFFDC',
+          100: '#b8f5c8',
+          200: '#96e8ac',
+          300: '#68BA7F',
+          400: '#4ea368',
+          500: '#2E6F40',
+          600: '#265c35',
+          700: '#1f4a2a',
+          800: '#253D2C',
+          900: '#1a2d1f',
+          950: '#0D1F13',
+        },
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#172554',
+          50: '#CFFFDC', 100: '#b8f5c8', 200: '#96e8ac',
+          300: '#68BA7F', 400: '#4ea368', 500: '#2E6F40',
+          600: '#265c35', 700: '#1f4a2a', 800: '#253D2C',
+          900: '#1a2d1f', 950: '#0D1F13',
         },
         secondary: {
-          50: '#faf5ff',
-          100: '#f3e8ff',
-          200: '#e9d5ff',
-          300: '#d8b4fe',
-          400: '#c084fc',
-          500: '#a855f7',
-          600: '#9333ea',
-          700: '#7c3aed',
-          800: '#6b21a8',
-          900: '#581c87',
-          950: '#3b0764',
+          50: '#CFFFDC', 100: '#b8f5c8', 200: '#96e8ac',
+          300: '#68BA7F', 400: '#4ea368', 500: '#2E6F40',
+          600: '#265c35', 700: '#1f4a2a', 800: '#253D2C',
+          900: '#1a2d1f', 950: '#0D1F13',
         },
       },
+
       animation: {
-        'fade-in': 'fadeIn 0.5s ease-in-out',
-        'slide-up': 'slideUp 0.5s ease-out',
+        'fade-in':       'fadeIn 0.5s ease-in-out',
+        'slide-up':      'slideUp 0.5s ease-out',
         'bounce-gentle': 'bounceGentle 2s infinite',
       },
       keyframes: {
         fadeIn: {
-          '0%': { opacity: '0' },
+          '0%':   { opacity: '0' },
           '100%': { opacity: '1' },
         },
         slideUp: {
-          '0%': { transform: 'translateY(20px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
+          '0%':   { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)',     opacity: '1' },
         },
         bounceGentle: {
           '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
+          '50%':      { transform: 'translateY(-10px)' },
         },
       },
     },

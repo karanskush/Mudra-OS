@@ -36,11 +36,11 @@ const (
 // LedgerTransaction represents a complete double-entry transaction
 type LedgerTransaction struct {
 	ID           uuid.UUID               `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	UserID       uuid.UUID               `json:"user_id" gorm:"type:uuid;not null"`
+	UserID       uuid.UUID               `json:"user_id" gorm:"type:uuid;not null;uniqueIndex:idx_ledger_txn_user_ref"`
 	Type         LedgerTransactionType   `json:"type" gorm:"not null"`
 	Status       LedgerTransactionStatus `json:"status" gorm:"default:'pending'"`
 	Description  string                  `json:"description"`
-	Reference    string                  `json:"reference" gorm:"uniqueIndex"`
+	Reference    string                  `json:"reference" gorm:"uniqueIndex:idx_ledger_txn_user_ref"`
 	TotalAmount  float64                 `json:"total_amount" gorm:"not null"`
 	Currency     string                  `json:"currency" gorm:"not null;default:'USD'"`
 	ExchangeRate float64                 `json:"exchange_rate" gorm:"default:1.0"`
@@ -52,8 +52,8 @@ type LedgerTransaction struct {
 	UpdatedAt    time.Time               `json:"updated_at"`
 	DeletedAt    gorm.DeletedAt          `json:"-" gorm:"index"`
 
-	// Relationships
-	User    User          `json:"user,omitempty" gorm:"foreignKey:UserID"`
+	// Relationships (pointer so omitempty works for unloaded associations)
+	User    *User         `json:"user,omitempty" gorm:"foreignKey:UserID"`
 	Entries []LedgerEntry `json:"entries,omitempty" gorm:"foreignKey:TransactionID"`
 }
 

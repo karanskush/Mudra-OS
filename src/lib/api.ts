@@ -272,9 +272,72 @@ class ApiClient {
     const params = new URLSearchParams();
     if (limit) params.append('limit', limit.toString());
     if (offset) params.append('offset', offset.toString());
-    
     const queryString = params.toString() ? `?${params.toString()}` : '';
     return this.authenticatedRequest(`/api/ledger/accounts/${accountId}/transactions${queryString}`);
+  }
+
+  async getAccountStatement(accountId: string, from?: string, to?: string): Promise<ApiResponse> {
+    const params = new URLSearchParams();
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    return this.authenticatedRequest(`/api/ledger/accounts/${accountId}/statement${queryString}`);
+  }
+
+  async getAllTransactions(filters?: { type?: string; status?: string; limit?: number; offset?: number }): Promise<ApiResponse> {
+    const params = new URLSearchParams();
+    if (filters?.type) params.append('type', filters.type);
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.offset) params.append('offset', filters.offset.toString());
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    return this.authenticatedRequest(`/api/ledger/transactions/all${queryString}`);
+  }
+
+  async postTransaction(transactionId: string): Promise<ApiResponse> {
+    return this.authenticatedRequest(`/api/ledger/transactions/${transactionId}/post`, { method: 'POST' });
+  }
+
+  async reverseTransaction(transactionId: string, reason?: string): Promise<ApiResponse> {
+    return this.authenticatedRequest(`/api/ledger/transactions/${transactionId}/reverse`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  async createJournalEntry(data: { description: string; reference?: string; currency?: string; lines: { account_id: string; type: 'debit' | 'credit'; amount: number }[] }): Promise<ApiResponse> {
+    return this.authenticatedRequest('/api/ledger/journal-entries', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getTrialBalance(): Promise<ApiResponse> {
+    return this.authenticatedRequest('/api/ledger/trial-balance');
+  }
+
+  async getChartOfAccounts(): Promise<ApiResponse> {
+    return this.authenticatedRequest('/api/ledger/chart-of-accounts');
+  }
+
+  async getBalanceSheet(): Promise<ApiResponse> {
+    return this.authenticatedRequest('/api/ledger/reports/balance-sheet');
+  }
+
+  async getIncomeStatement(from?: string, to?: string): Promise<ApiResponse> {
+    const params = new URLSearchParams();
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    return this.authenticatedRequest(`/api/ledger/reports/income-statement${queryString}`);
+  }
+
+  async getCashFlow(from?: string, to?: string): Promise<ApiResponse> {
+    const params = new URLSearchParams();
+    if (from) params.append('from', from);
+    if (to) params.append('to', to);
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    return this.authenticatedRequest(`/api/ledger/reports/cash-flow${queryString}`);
   }
 
   // Debug helper - generates curl command with proper auth headers

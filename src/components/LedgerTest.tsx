@@ -212,14 +212,14 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
         <div className="flex items-center justify-between mb-4">
           {steps.map((label, idx) => (
             <div key={label} className={`flex flex-col items-center relative z-10 transition-all duration-300 ${
-              idx <= currentStep ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
+              idx <= currentStep ? 'text-[#68BA7F]' : 'text-slate-500'
             }`}>
               <div className={`rounded-2xl h-12 w-12 flex items-center justify-center font-bold border-2 transition-all duration-300 ${
                 idx < currentStep 
-                  ? 'bg-gradient-to-br from-green-500 to-green-600 border-green-500 text-white shadow-lg scale-110' 
+                  ? 'bg-gradient-to-br from-brand-500 to-brand-400 border-brand-500 text-white shadow-lg scale-110' 
                   : idx === currentStep
-                  ? 'bg-gradient-to-br from-blue-500 to-blue-600 border-blue-500 text-white shadow-lg scale-110'
-                  : 'border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-400'
+                  ? 'bg-gradient-to-br from-[#2E6F40] to-[#68BA7F] border-blue-500 text-white shadow-lg scale-110'
+                  : 'border-gray-300 border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] text-gray-400'
               }`}>
                 {idx < currentStep ? (
                   <CheckCircle className="h-6 w-6" />
@@ -232,9 +232,9 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
           ))}
         </div>
         {/* Animated Progress Line */}
-        <div className="absolute top-6 left-6 right-6 h-1 bg-gray-200 dark:bg-slate-600 rounded-full">
+        <div className="absolute top-6 left-6 right-6 h-1 bg-[rgba(255,255,255,0.06)] rounded-full">
           <div 
-            className="h-full bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 rounded-full transition-all duration-700 ease-out"
+            className="h-full bg-gradient-to-r from-[#2E6F40] via-[#68BA7F] to-[#CFFFDC] rounded-full transition-all duration-700 ease-out"
             style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
           ></div>
         </div>
@@ -244,10 +244,10 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
       {step === 1 && (
         <div className="space-y-6">
           <div className="text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl mx-auto mb-4 flex items-center justify-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-[#2E6F40] to-[#68BA7F] rounded-3xl mx-auto mb-4 flex items-center justify-center">
               <Globe className="h-10 w-10 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Where are you located?</h3>
+            <h3 className="text-2xl font-bold text-white mb-2">Where are you located?</h3>
             <p className="text-gray-600 dark:text-gray-400">Select your country to see available banking partners</p>
           </div>
           
@@ -256,9 +256,9 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
               <button
                 key={country}
                 onClick={() => handleCountrySelect(country)}
-                className="group flex flex-col items-center p-6 bg-white dark:bg-slate-700 rounded-2xl border-2 border-gray-200 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-200 hover:shadow-lg hover:scale-105"
+                className="group flex flex-col items-center p-6 bg-[rgba(255,255,255,0.04)] rounded-2xl border-2 border-gray-200 border-[rgba(255,255,255,0.08)] hover:border-[#68BA7F] transition-all duration-200 hover:shadow-lg hover:scale-105"
               >
-                <div className="w-12 h-12 bg-gray-100 dark:bg-slate-600 rounded-xl mb-3 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
+                <div className="w-12 h-12 bg-[rgba(255,255,255,0.05)] rounded-xl mb-3 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-[rgba(46,111,64,0.12)] transition-colors">
                   <span className="text-2xl">
                     {country === 'USA' && '🇺🇸'}
                     {country === 'UK' && '🇬🇧'}
@@ -267,7 +267,7 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
                     {country === 'Germany' && '🇩🇪'}
                   </span>
                 </div>
-                <span className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <span className="font-semibold text-white group-hover:text-[#68BA7F] dark:group-hover:text-[#68BA7F] transition-colors">
                   {country}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -283,10 +283,10 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
       {step === 2 && selectedCountry && (
         <div className="space-y-6">
           <div className="text-center">
-            <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-3xl mx-auto mb-4 flex items-center justify-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-[#2E6F40] to-[#68BA7F] rounded-3xl mx-auto mb-4 flex items-center justify-center">
               <CreditCard className="h-10 w-10 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Choose your bank</h3>
+            <h3 className="text-2xl font-bold text-white mb-2">Choose your bank</h3>
             <p className="text-gray-600 dark:text-gray-400">Connect securely with your banking provider in {selectedCountry}</p>
           </div>
 
@@ -297,13 +297,13 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
                 onClick={() => handleProviderSelect(provider.id)}
                 className={`group flex items-center gap-4 p-6 border-2 rounded-2xl w-full transition-all duration-200 focus:outline-none ${
                   selectedProvider === provider.id 
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg' 
-                    : 'border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md hover:scale-[1.02]'
+                    ? 'border-blue-500 bg-[rgba(46,111,64,0.08)] shadow-lg' 
+                    : 'border-gray-200 border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] hover:border-[rgba(104,186,127,0.40)] hover:shadow-md hover:scale-[1.02]'
                 }`}
               >
                 <div className="flex-shrink-0">
                   {provider.logo ? (
-                    <div className="w-14 h-14 rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-200 dark:border-slate-600 flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-2xl overflow-hidden bg-white shadow-sm border border-gray-200 border-[rgba(255,255,255,0.08)] flex items-center justify-center">
                       <img src={provider.logo} alt={provider.name} className="h-10 w-10 object-contain" />
                     </div>
                   ) : (
@@ -313,7 +313,7 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
                   )}
                 </div>
                 <div className="flex-1 text-left">
-                  <div className="font-bold text-gray-900 dark:text-white text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <div className="font-bold text-white text-lg group-hover:text-[#68BA7F] dark:group-hover:text-[#68BA7F] transition-colors">
                     {provider.name}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -321,15 +321,15 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
                   </div>
                   {provider.id !== 'manual' && (
                     <div className="flex items-center gap-1 mt-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                      <span className="text-xs text-green-600 dark:text-green-400 font-medium">OAuth Supported</span>
+                      <div className="w-2 h-2 bg-brand-300 rounded-full"></div>
+                      <span className="text-xs text-brand-400 dark:text-brand-300 font-medium">OAuth Supported</span>
                     </div>
                   )}
                 </div>
                 <ArrowRight className={`h-5 w-5 transition-colors ${
                   selectedProvider === provider.id 
-                    ? 'text-blue-500' 
-                    : 'text-gray-400 group-hover:text-blue-500'
+                    ? 'text-[#68BA7F]' 
+                    : 'text-gray-400 group-hover:text-[#68BA7F]'
                 }`} />
               </button>
             ))}
@@ -339,7 +339,7 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
             <button
               type="button"
               onClick={() => { setStep(1); setSelectedCountry(''); setSelectedProvider(''); setOAuthSuccess(false); }}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-all"
             >
               <ArrowRight className="h-4 w-4 rotate-180" />
               Back
@@ -351,16 +351,16 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
       {/* Simulated OAuth Modal */}
       {showOAuth && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8 max-w-sm w-full relative">
+          <div className="bg-[rgba(255,255,255,0.04)] rounded-lg shadow-lg p-8 max-w-sm w-full relative">
             <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => setShowOAuth(false)}>&times;</button>
             <div className="flex flex-col items-center">
               <img src={COUNTRY_PROVIDERS[selectedCountry]?.find(p => p.id === selectedProvider)?.logo} alt="Provider" className="h-12 w-12 mb-2" />
-              <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Connect to {COUNTRY_PROVIDERS[selectedCountry]?.find(p => p.id === selectedProvider)?.name}</h3>
+              <h3 className="text-lg font-semibold mb-2 text-white">Connect to {COUNTRY_PROVIDERS[selectedCountry]?.find(p => p.id === selectedProvider)?.name}</h3>
               <p className="text-sm text-gray-500 mb-4">Simulated OAuth flow. Click below to authorize.</p>
               <button
                 onClick={handleOAuthConnect}
                 disabled={loading}
-                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="bg-[#2E6F40] text-white px-6 py-2 rounded-md hover:bg-[#253D2C] disabled:opacity-50 transition-colors"
               >
                 {loading ? 'Connecting...' : 'Authorize'}
               </button>
@@ -373,31 +373,31 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
       {(step === 3 && (selectedProvider === 'manual' || oauthSuccess)) && (
         <form className="space-y-4" onSubmit={e => { e.preventDefault(); setStep(4); }}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Account Name</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Account Name</label>
             <input
               type="text"
               value={accountDetails.name}
               onChange={e => handleDetailsChange('name', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-white"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Description</label>
             <textarea
               value={accountDetails.description}
               onChange={e => handleDetailsChange('description', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-white"
               rows={2}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Currency</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Currency</label>
               <select
                 value={accountDetails.currency}
                 onChange={e => handleDetailsChange('currency', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-white"
               >
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
@@ -405,11 +405,11 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Account Type</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Account Type</label>
               <select
                 value={accountDetails.type}
                 onChange={e => handleDetailsChange('type', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-white"
               >
                 <option value="bank">Bank</option>
                 <option value="cash">Cash</option>
@@ -422,12 +422,12 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Account Number</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Account Number</label>
             <input
               type="text"
               value={accountDetails.account_number}
               onChange={e => handleDetailsChange('account_number', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
+              className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-white"
               required
             />
           </div>
@@ -441,11 +441,11 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
                   setStep(2); setOAuthSuccess(false);
                 }
               }}
-              className="px-4 py-2 rounded-md border border-gray-300 dark:border-slate-600 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
+              className="px-4 py-2 rounded-md border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.04)] text-slate-300 hover:bg-[rgba(255,255,255,0.08)]"
             >Back</button>
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              className="bg-[#2E6F40] text-white px-6 py-2 rounded-md hover:bg-[#253D2C] transition-colors"
             >Next</button>
           </div>
         </form>
@@ -454,8 +454,8 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
       {/* Step 4: Confirm */}
       {step === 4 && (
         <div>
-          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Review & Confirm</h3>
-          <div className="bg-gray-50 dark:bg-slate-700 rounded-lg p-4 mb-4 border border-gray-200 dark:border-slate-600">
+          <h3 className="text-lg font-semibold mb-4 text-white">Review & Confirm</h3>
+          <div className="bg-[rgba(255,255,255,0.03)] rounded-lg p-4 mb-4 border border-gray-200 border-[rgba(255,255,255,0.08)]">
             <div className="mb-2"><span className="font-medium">Country:</span> {selectedCountry}</div>
             <div className="mb-2"><span className="font-medium">Provider:</span> {selectedProvider === 'manual' ? 'Manual Entry' : COUNTRY_PROVIDERS[selectedCountry]?.find(p => p.id === selectedProvider)?.name}</div>
             <div className="mb-2"><span className="font-medium">Account Name:</span> {accountDetails.name}</div>
@@ -469,13 +469,13 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="px-4 py-2 rounded-md border border-gray-300 dark:border-slate-600 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600"
+              className="px-4 py-2 rounded-md border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.04)] text-slate-300 hover:bg-[rgba(255,255,255,0.08)]"
             >Back</button>
             <button
               type="button"
               onClick={handleConfirm}
               disabled={loading}
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              className="bg-[#2E6F40] text-white px-6 py-2 rounded-md hover:bg-[#253D2C] disabled:opacity-50 transition-colors"
             >{loading ? 'Connecting...' : 'Connect Account'}</button>
           </div>
         </div>
@@ -484,8 +484,8 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
       {/* Step 5: Success */}
       {step === 5 && (
         <div className="flex flex-col items-center justify-center py-8">
-          <CheckCircle className="h-12 w-12 text-green-500 mb-2" />
-          <h3 className="text-xl font-semibold text-green-700 dark:text-green-400 mb-2">Account Connected!</h3>
+          <CheckCircle className="h-12 w-12 text-brand-400 mb-2" />
+          <h3 className="text-xl font-semibold text-brand-400 dark:text-brand-300 mb-2">Account Connected!</h3>
           <p className="text-gray-600 dark:text-gray-300 mb-4">Your account has been successfully connected and is now available.</p>
         </div>
       )}
@@ -520,7 +520,7 @@ const LedgerTest: React.FC = () => {
   const [response, setResponse] = useState<string>('');
   const [accountBalance, setAccountBalance] = useState<null | { balance: number, currency: string }>(null);
   const [activeForm, setActiveForm] = useState<'account' | 'transfer' | 'deposit' | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'accounts' | 'transactions' | 'analytics'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'accounts' | 'transactions' | 'journal' | 'reports' | 'analytics'>('overview');
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
 
   // Form states
@@ -538,7 +538,7 @@ const LedgerTest: React.FC = () => {
     amount: 100.00,
     currency: 'USD',
     description: 'Test transfer',
-    reference: 'TRX-001'
+    reference: ''
   });
 
   const [depositForm, setDepositForm] = useState({
@@ -546,8 +546,22 @@ const LedgerTest: React.FC = () => {
     amount: 500.00,
     currency: 'USD',
     description: 'Initial deposit',
-    reference: 'DEP-001'
+    reference: ''
   });
+
+  // New state for advanced ledger features
+  const [chartOfAccounts, setChartOfAccounts] = useState<any[]>([]);
+  const [balanceSheet, setBalanceSheet] = useState<any>(null);
+  const [incomeStatement, setIncomeStatement] = useState<any>(null);
+  const [cashFlow, setCashFlow] = useState<any>(null);
+  const [trialBalanceData, setTrialBalanceData] = useState<any>(null);
+  const [activeReport, setActiveReport] = useState<'balance-sheet' | 'income-statement' | 'cash-flow' | 'trial-balance'>('balance-sheet');
+  const [journalLines, setJournalLines] = useState<{ account_id: string; type: 'debit' | 'credit'; amount: number }[]>([
+    { account_id: '', type: 'debit', amount: 0 },
+    { account_id: '', type: 'credit', amount: 0 },
+  ]);
+  const [journalDesc, setJournalDesc] = useState('');
+  const [journalRef, setJournalRef] = useState('');
 
   const [balanceForm, setBalanceForm] = useState({
     account_id: ''
@@ -855,10 +869,10 @@ const LedgerTest: React.FC = () => {
 
     try {
       const response = await apiClient.createTestBalance(depositForm);
-      // The response is the test balance object directly, not wrapped in a data field
-      setResponse(JSON.stringify(response, null, 2));
-      setTransactions([...transactions, response as any]);
-      // Refresh available accounts after test balance
+      const data = (response as any);
+      const txn = data.data || data;
+      setResponse(JSON.stringify(txn, null, 2));
+      setTransactions(prev => [txn, ...prev]);
       await loadAvailableAccounts();
       toast.success('Test balance created successfully!');
     } catch (error) {
@@ -952,13 +966,111 @@ const LedgerTest: React.FC = () => {
     }
   };
 
+  // ── New handlers for advanced ledger features ──────────────────────────────
+
+  const handleGetChartOfAccounts = async () => {
+    try {
+      const res = await apiClient.getChartOfAccounts();
+      const data = (res as any);
+      setChartOfAccounts(data.data || data);
+      toast.success('Chart of accounts loaded');
+    } catch (e) {
+      toast.error('Failed to load chart of accounts');
+    }
+  };
+
+  const handleGetBalanceSheet = async () => {
+    try {
+      const res = await apiClient.getBalanceSheet();
+      setBalanceSheet((res as any).data || res);
+      toast.success('Balance sheet loaded');
+    } catch (e) {
+      toast.error('Failed to load balance sheet');
+    }
+  };
+
+  const handleGetIncomeStatement = async () => {
+    try {
+      const res = await apiClient.getIncomeStatement();
+      setIncomeStatement((res as any).data || res);
+      toast.success('Income statement loaded');
+    } catch (e) {
+      toast.error('Failed to load income statement');
+    }
+  };
+
+  const handleGetCashFlow = async () => {
+    try {
+      const res = await apiClient.getCashFlow();
+      setCashFlow(res as any);
+      toast.success('Cash flow loaded');
+    } catch (e) {
+      toast.error('Failed to load cash flow');
+    }
+  };
+
+  const handleGetTrialBalanceData = async () => {
+    try {
+      const res = await apiClient.getTrialBalance();
+      setTrialBalanceData((res as any).data !== undefined ? res : null);
+      toast.success('Trial balance loaded');
+    } catch (e) {
+      toast.error('Failed to load trial balance');
+    }
+  };
+
+  const handleReverseTransaction = async (txnId: string) => {
+    if (!confirm('Reverse this transaction? This cannot be undone.')) return;
+    try {
+      await apiClient.reverseTransaction(txnId);
+      toast.success('Transaction reversed');
+      // Refresh transaction list
+      if (selectedAccount) {
+        const res = await apiClient.getAccountTransactions(selectedAccount.id);
+        const d = (res as any);
+        setTransactions(d.data || d);
+      }
+    } catch (e: any) {
+      toast.error(`Reversal failed: ${e.message}`);
+    }
+  };
+
+  const handleCreateJournalEntry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await apiClient.createJournalEntry({
+        description: journalDesc,
+        reference: journalRef,
+        currency: 'USD',
+        lines: journalLines.filter(l => l.account_id && l.amount > 0),
+      });
+      setResponse(JSON.stringify(res, null, 2));
+      toast.success('Journal entry created and posted');
+      setJournalLines([
+        { account_id: '', type: 'debit', amount: 0 },
+        { account_id: '', type: 'credit', amount: 0 },
+      ]);
+      setJournalDesc('');
+      setJournalRef('');
+      loadAvailableAccounts();
+    } catch (e: any) {
+      toast.error(`Journal entry failed: ${e.message}`);
+      setResponse(`Error: ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ────────────────────────────────────────────────────────────────────────────
+
   // Calculate total balance
   const totalBalance = availableAccounts.reduce((total, account) => total + (account.balance || 0), 0);
 
   // Debug helper function
   const generateAuthenticatedCurl = (endpoint: string, method: string = 'GET', body?: any) => {
     const token = localStorage.getItem('authToken');
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:47291';
     
     let curlCommand = `curl -X ${method} '${baseUrl}${endpoint}' \\\n`;
     curlCommand += `  -H 'Content-Type: application/json' \\\n`;
@@ -983,1143 +1095,987 @@ const LedgerTest: React.FC = () => {
   };
 
   return (
-      <div className="min-h-screen">
-        {/* Header Section */}
-      <div className="relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-700/50">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
-                  <BookOpen className="h-6 w-6 text-white" />
-                </div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Hello {getUserFirstName()}, Welcome to the Ledger!
-                </h1>
-              </div>
+    <div className="flex h-screen bg-surface-base overflow-hidden" style={{fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"}}>
 
-
-              <p className="text-lg text-gray-600 dark:text-gray-400">
-                Enterprise-grade accounting system with real-time operations
-              </p>
-            </div>
-            <div className="hidden lg:flex items-center gap-3">
-              {/* Authentication Status Indicator */}
-              {user ? (
-                <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full">
-                  <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                    Authenticated as {user.firstName}
-                  </span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-900/30 rounded-full">
-                  <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
-                  <span className="text-sm font-medium text-red-700 dark:text-red-300">Not Authenticated</span>
-                </div>
-              )}
-              <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full">
-                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <span className="text-sm font-medium text-green-700 dark:text-green-300">System Online</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                <Activity className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Live</span>
-              </div>
-            </div>
+      {/* ─── Sidebar ─────────────────────────────────────────────────────── */}
+      <aside className="w-60 flex-shrink-0 flex flex-col bg-surface-sidebar border-r border-white/[0.06] z-20">
+        {/* Logo */}
+        <div className="h-16 flex items-center gap-3 px-5 border-b border-white/[0.06]">
+          <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center shadow-lg shadow-brand-950/40">
+            <BookOpen className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <p className="text-white font-semibold text-sm leading-none">Ledger</p>
+            <p className="text-brand-300/70 text-[10px] mt-0.5 font-medium tracking-wider uppercase">Enterprise</p>
           </div>
         </div>
-      </div>
 
-      {/* Modern Navigation Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-slate-700/50 p-6 mb-6">
-          <div className="flex flex-wrap gap-2">
-            {[
-              { id: 'overview', label: 'Overview', icon: Database },
-              { id: 'accounts', label: 'Accounts', icon: CreditCard },
-              { id: 'transactions', label: 'Transactions', icon: ArrowRight },
-              { id: 'analytics', label: 'Analytics', icon: TrendingUp }
-            ].map((tab) => (
+        {/* Nav */}
+        <nav className="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto">
+          {[
+            { id: 'overview',      label: 'Overview',       icon: Database,       desc: 'Dashboard' },
+            { id: 'accounts',      label: 'Accounts',       icon: CreditCard,     desc: 'Manage accounts' },
+            { id: 'transactions',  label: 'Transactions',   icon: ArrowRightLeft, desc: 'Transaction history' },
+            { id: 'journal',       label: 'Journal Entry',  icon: BookOpen,       desc: 'Manual entries' },
+            { id: 'reports',       label: 'Reports',        icon: TrendingUp,     desc: 'Financial reports' },
+            { id: 'analytics',     label: 'Analytics',      icon: Activity,       desc: 'Insights' },
+          ].map(tab => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
               <button
                 key={tab.id}
-                onClick={() => { 
-                  setActiveTab(tab.id as any); 
+                onClick={() => {
+                  setActiveTab(tab.id as any);
                   setActiveForm(null);
+                  if (tab.id === 'journal') loadAvailableAccounts();
                 }}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25'
-                    : 'bg-white/50 dark:bg-slate-700/50 text-gray-700 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-slate-700/80'
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150 group ${
+                  isActive
+                    ? 'bg-brand-500/10 text-brand-300'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
                 }`}
               >
-                <tab.icon className="h-4 w-4" />
-                {tab.label}
+                <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-brand-300' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                <span className="text-sm font-medium">{tab.label}</span>
+                {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-300" />}
               </button>
-            ))}
-          </div>
-        </div>
-      </div>
+            );
+          })}
+        </nav>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Quick Actions for Overview */}
-          {activeTab === 'overview' && !activeForm && (
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button
-                  onClick={() => setActiveForm('account')}
-                  className="group p-6 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-2xl text-white transition-all duration-200 transform hover:scale-105 hover:shadow-xl"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white/20 rounded-xl">
-                      <Plus className="h-6 w-6" />
-                    </div>
-                    <div className="text-left">
-                      <h4 className="font-semibold">Connect Account</h4>
-                      <p className="text-blue-100 text-sm">Link new bank accounts</p>
-                    </div>
-                  </div>
-                </button>
-                <button
-                  onClick={() => setActiveForm('transfer')}
-                  className="group p-6 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-2xl text-white transition-all duration-200 transform hover:scale-105 hover:shadow-xl"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white/20 rounded-xl">
-                      <ArrowRight className="h-6 w-6" />
-                    </div>
-                    <div className="text-left">
-                      <h4 className="font-semibold">Transfer Funds</h4>
-                      <p className="text-green-100 text-sm">Move money between accounts</p>
-                    </div>
-                  </div>
-                </button>
-                <button
-                  onClick={() => setActiveForm('deposit')}
-                  className="group p-6 bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 rounded-2xl text-white transition-all duration-200 transform hover:scale-105 hover:shadow-xl"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white/20 rounded-xl">
-                      <DollarSign className="h-6 w-6" />
-                    </div>
-                    <div className="text-left">
-                      <h4 className="font-semibold">Make Deposit</h4>
-                      <p className="text-purple-100 text-sm">Add funds and see balance update</p>
-                    </div>
-                  </div>
-                </button>
+        {/* Bottom section */}
+        <div className="p-3 border-t border-white/[0.06] space-y-1">
+          <button
+            onClick={() => setActiveForm('account')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] transition-all group"
+          >
+            <Plus className="w-4 h-4 text-slate-500 group-hover:text-brand-300 transition-colors" />
+            <span className="text-sm font-medium">New Account</span>
+          </button>
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.03]">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-xs font-bold text-white">
+              {getUserFirstName().charAt(0)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-white truncate">{getUserFirstName()}</p>
+              <div className="flex items-center gap-1 mt-0.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-300" />
+                <p className="text-[10px] text-slate-500">Active session</p>
               </div>
             </div>
-          )}
+          </div>
+        </div>
+      </aside>
 
-          {/* Overview Tab */}
+      {/* ─── Main area ───────────────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col min-w-0">
+
+        {/* Top bar */}
+        <header className="h-16 flex items-center justify-between px-6 border-b border-white/[0.06] bg-surface-sidebar/60 backdrop-blur-xl flex-shrink-0">
+          <div>
+            <h1 className="text-white font-semibold text-base">
+              {activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('-', ' ')}
+            </h1>
+            <p className="text-slate-500 text-xs mt-0.5">
+              {activeTab === 'overview' && 'Your financial overview'}
+              {activeTab === 'accounts' && `${availableAccounts.length} accounts connected`}
+              {activeTab === 'transactions' && `${transactions.length} transactions`}
+              {activeTab === 'journal' && 'Double-entry bookkeeping'}
+              {activeTab === 'reports' && 'Financial statements'}
+              {activeTab === 'analytics' && 'Performance insights'}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {/* Live indicator */}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-500/10 border border-brand-500/20">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-300 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+              </span>
+              <span className="text-xs font-medium text-brand-300">Live</span>
+            </div>
+            {/* Quick actions */}
+            <button
+              onClick={() => setActiveForm('transfer')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-xs font-medium transition-all"
+            >
+              <ArrowRightLeft className="w-3.5 h-3.5" />
+              Transfer
+            </button>
+            <button
+              onClick={() => setActiveForm('deposit')}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-400 text-white text-xs font-semibold transition-all shadow-lg shadow-brand-950/30"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Deposit
+            </button>
+          </div>
+        </header>
+
+        {/* Scrollable content */}
+        <main className="flex-1 overflow-y-auto p-6 space-y-6">
+
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/* OVERVIEW TAB                                                    */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
           {activeTab === 'overview' && !activeForm && (
             <>
-              {/* Enhanced Stats Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="group relative bg-gradient-to-br from-blue-500/10 to-blue-600/20 dark:from-blue-500/20 dark:to-blue-600/30 backdrop-blur-xl rounded-2xl p-6 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
-                  <div className="absolute top-4 right-4 p-2 bg-blue-500/20 rounded-xl group-hover:scale-110 transition-transform">
-                    <Database className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Accounts</p>
-                    <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{availableAccounts.length}</p>
-                    <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
-                      <TrendingUp className="h-3 w-3" />
-                      <span>Active connections</span>
+              {/* KPI row */}
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                {[
+                  {
+                    label: 'Total Balance',
+                    value: `$${availableAccounts.reduce((t, a) => t + (a.balance || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+                    sub: `${availableAccounts.length} account${availableAccounts.length !== 1 ? 's' : ''}`,
+                    icon: Wallet,
+                    color: 'brand',
+                    big: true,
+                  },
+                  {
+                    label: 'Transactions',
+                    value: transactions.length.toString(),
+                    sub: 'All time',
+                    icon: Activity,
+                    color: 'blue',
+                  },
+                  {
+                    label: 'Pending',
+                    value: transactions.filter(t => t.status === 'draft' || t.status === 'pending').length.toString(),
+                    sub: 'Awaiting post',
+                    icon: Clock,
+                    color: 'amber',
+                  },
+                  {
+                    label: 'Volume',
+                    value: `$${transactions.reduce((t, tx) => t + (tx.amount || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+                    sub: 'Total processed',
+                    icon: TrendingUp,
+                    color: 'purple',
+                  },
+                ].map((kpi) => {
+                  const Icon = kpi.icon;
+                  const colorMap: Record<string, string> = {
+                    brand: 'bg-brand-500/10 text-brand-300 border-brand-500/20',
+                    blue:    'bg-blue-500/10 text-blue-400 border-blue-500/20',
+                    amber:   'bg-amber-500/10 text-amber-400 border-amber-500/20',
+                    purple:  'bg-purple-500/10 text-purple-400 border-purple-500/20',
+                  };
+                  const iconColor: Record<string, string> = {
+                    brand: 'text-brand-300', blue: 'text-blue-400', amber: 'text-amber-400', purple: 'text-purple-400',
+                  };
+                  return (
+                    <div key={kpi.label} className="bg-surface-raised rounded-2xl p-5 border border-white/[0.06] hover:border-white/[0.10] transition-all group">
+                      <div className="flex items-start justify-between mb-4">
+                        <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{kpi.label}</p>
+                        <div className={`p-2 rounded-lg border ${colorMap[kpi.color]}`}>
+                          <Icon className={`w-3.5 h-3.5 ${iconColor[kpi.color]}`} />
+                        </div>
+                      </div>
+                      <p className={`font-bold text-white mb-1 ${kpi.big ? 'text-2xl' : 'text-2xl'}`}>{kpi.value}</p>
+                      <p className="text-xs text-slate-500">{kpi.sub}</p>
                     </div>
-                  </div>
-                </div>
-
-                <div className="group relative bg-gradient-to-br from-green-500/10 to-green-600/20 dark:from-green-500/20 dark:to-green-600/30 backdrop-blur-xl rounded-2xl p-6 border border-green-200/50 dark:border-green-700/50 hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300">
-                  <div className="absolute top-4 right-4 p-2 bg-green-500/20 rounded-xl group-hover:scale-110 transition-transform">
-                    <Activity className="h-6 w-6 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-green-700 dark:text-green-300">Total Transactions</p>
-                    <p className="text-3xl font-bold text-green-900 dark:text-green-100">{transactions.length}</p>
-                    <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                      <CheckCircle className="h-3 w-3" />
-                      <span>All time</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group relative bg-gradient-to-br from-purple-500/10 to-purple-600/20 dark:from-purple-500/20 dark:to-purple-600/30 backdrop-blur-xl rounded-2xl p-6 border border-purple-200/50 dark:border-purple-700/50 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300">
-                  <div className="absolute top-4 right-4 p-2 bg-purple-500/20 rounded-xl group-hover:scale-110 transition-transform">
-                    <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Pending Transactions</p>
-                    <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">
-                      {transactions.filter(t => t.status === 'draft').length}
-                    </p>
-                    <div className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400">
-                      <AlertTriangle className="h-3 w-3" />
-                      <span>Awaiting approval</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group relative bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 dark:from-emerald-500/20 dark:to-emerald-600/30 backdrop-blur-xl rounded-2xl p-6 border border-emerald-200/50 dark:border-emerald-700/50 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300">
-                  <div className="absolute top-4 right-4 p-2 bg-emerald-500/20 rounded-xl group-hover:scale-110 transition-transform">
-                    <DollarSign className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Total Volume</p>
-                    <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">
-                      ${transactions.reduce((total, tx) => total + tx.amount, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </p>
-                    <div className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
-                      <TrendingUp className="h-3 w-3" />
-                      <span>Transaction value</span>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
 
-              {/* Enhanced Total Balance Card */}
-              <div className="relative bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900 dark:from-slate-800 dark:via-blue-800 dark:to-purple-800 rounded-3xl p-8 mb-8 overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/10 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-500/20 to-transparent rounded-full translate-y-12 -translate-x-12"></div>
-                
-                <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-white/20 rounded-xl backdrop-blur">
-                        <CreditCard className="h-6 w-6 text-white" />
-                      </div>
-                      <h2 className="text-xl font-semibold text-white">Portfolio Balance</h2>
+              {/* Main 2-col grid */}
+              <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
+                {/* Recent transactions — wider */}
+                <div className="xl:col-span-3 bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                    <div>
+                      <p className="text-sm font-semibold text-white">Recent Transactions</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Latest activity</p>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1 bg-green-500/20 rounded-full">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-xs text-green-200 font-medium">Live</span>
-                    </div>
-                  </div>
-                  
-                  <div className="text-center space-y-4">
-                    <div className="space-y-2">
-                      <div className="text-5xl font-bold text-white tracking-tight">
-                        ${availableAccounts.reduce((total, account) => total + (account.balance || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </div>
-                      <div className="text-white/70 text-lg">USD</div>
-                    </div>
-                    
-                    <div className="flex items-center justify-center gap-6 text-sm">
-                      <div className="flex items-center gap-2 text-white/80">
-                        <Database className="h-4 w-4" />
-                        <span>{availableAccounts.length} accounts connected</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-green-300">
-                        <TrendingUp className="h-4 w-4" />
-                        <span>Real-time sync</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recent Activity Summary */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Activity</h3>
-                    <button 
-                      onClick={() => setActiveTab('transactions')}
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
-                    >
+                    <button onClick={() => setActiveTab('transactions')} className="text-xs text-brand-300 hover:text-brand-200 font-medium transition-colors">
                       View all →
                     </button>
                   </div>
-                  <div className="space-y-3">
-                    {transactions.slice(0, 3).map((transaction) => (
-                      transaction && typeof transaction.amount === 'number' ? (
-                        <div key={transaction.id} className="flex items-center gap-3 p-3 bg-white/50 dark:bg-slate-700/50 rounded-xl">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                            transaction.type === 'transfer' ? 'bg-green-500' : 'bg-purple-500'
+                  <div className="divide-y divide-white/[0.04]">
+                    {transactions.length === 0 ? (
+                      <div className="py-12 text-center">
+                        <Activity className="w-8 h-8 text-slate-600 mx-auto mb-3" />
+                        <p className="text-sm text-slate-500">No transactions yet</p>
+                        <p className="text-xs text-slate-600 mt-1">Create a deposit to get started</p>
+                      </div>
+                    ) : transactions.slice(0, 5).map(tx => (
+                      tx && typeof tx.amount === 'number' ? (
+                        <div key={tx.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/[0.02] transition-colors">
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                            tx.type === 'deposit' ? 'bg-brand-500/15 text-brand-300' :
+                            tx.type === 'withdrawal' ? 'bg-red-500/15 text-red-400' :
+                            tx.type === 'transfer' ? 'bg-blue-500/15 text-blue-400' :
+                            'bg-slate-500/15 text-slate-400'
                           }`}>
-                            {transaction.type === 'transfer' ? (
-                              <ArrowRight className="h-4 w-4 text-white" />
-                            ) : (
-                              <DollarSign className="h-4 w-4 text-white" />
-                            )}
+                            {tx.type === 'transfer' ? <ArrowRightLeft className="w-4 h-4" /> :
+                             tx.type === 'deposit' ? <Plus className="w-4 h-4" /> :
+                             <DollarSign className="w-4 h-4" />}
                           </div>
-                          <div className="flex-1">
-                            <p className="font-medium text-gray-900 dark:text-white capitalize">{transaction.type}</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.description}</p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-white capitalize">{tx.type}</p>
+                            <p className="text-xs text-slate-500 truncate mt-0.5">{tx.description || tx.reference || '—'}</p>
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-gray-900 dark:text-white">
-                              ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          <div className="text-right flex-shrink-0">
+                            <p className={`text-sm font-semibold ${tx.type === 'withdrawal' ? 'text-red-400' : 'text-white'}`}>
+                              {tx.type === 'withdrawal' ? '-' : '+'}${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </p>
+                            <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded-md mt-1 font-medium ${
+                              tx.status === 'posted' ? 'bg-brand-500/10 text-brand-300' :
+                              tx.status === 'reversed' ? 'bg-red-500/10 text-red-400' :
+                              'bg-amber-500/10 text-amber-400'
+                            }`}>
+                              {tx.status}
+                            </span>
                           </div>
                         </div>
                       ) : null
                     ))}
-                    {transactions.length === 0 && (
-                      <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                        No recent activity
-                      </div>
-                    )}
                   </div>
                 </div>
 
-                <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Account Summary</h3>
-                  <div className="space-y-4">
-                    {availableAccounts.slice(0, 3).map((account) => (
-                      account && typeof account.balance === 'number' ? (
-                        <div key={account.id} className="flex items-center justify-between p-3 bg-white/50 dark:bg-slate-700/50 rounded-xl">
-                          <div>
-                            <p className="font-medium text-gray-900 dark:text-white">{account.name}</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{account.type}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-gray-900 dark:text-white">
-                              ${(account.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </p>
-                          </div>
-                        </div>
-                      ) : null
-                    ))}
-                    {availableAccounts.length === 0 && (
-                      <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                        No accounts connected
+                {/* Account summary — narrower */}
+                <div className="xl:col-span-2 bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                    <div>
+                      <p className="text-sm font-semibold text-white">Accounts</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{availableAccounts.length} connected</p>
+                    </div>
+                    <button
+                      onClick={() => setActiveForm('account')}
+                      className="w-7 h-7 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-300 hover:bg-brand-500/20 transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="divide-y divide-white/[0.04]">
+                    {availableAccounts.length === 0 ? (
+                      <div className="py-12 text-center">
+                        <CreditCard className="w-8 h-8 text-slate-600 mx-auto mb-3" />
+                        <p className="text-sm text-slate-500">No accounts</p>
+                        <button onClick={() => setActiveForm('account')} className="text-xs text-brand-300 mt-2 hover:text-brand-200">Connect one →</button>
                       </div>
-                    )}
+                    ) : availableAccounts.map(acc => (
+                      <div key={acc.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => { setSelectedAccount(acc); setActiveTab('accounts'); }}>
+                        <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xs font-bold text-slate-400">{acc.name.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">{acc.name}</p>
+                          <p className="text-xs text-slate-500 mt-0.5 capitalize">{acc.type} · {acc.currency}</p>
+                        </div>
+                        <p className="text-sm font-semibold text-white flex-shrink-0">
+                          ${(acc.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             </>
           )}
 
-          {/* Accounts Tab */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/* ACCOUNTS TAB                                                    */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
           {activeTab === 'accounts' && !activeForm && (
             <>
-              {/* Accounts Header */}
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Account Management</h2>
-                  <p className="text-gray-600 dark:text-gray-400">Manage your connected accounts and view balances</p>
-                </div>
-                <button
-                  onClick={() => setActiveForm('account')}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
-                >
-                  <Plus className="h-5 w-5" />
-                  Connect New Account
-                </button>
+              {/* Summary KPIs */}
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { label: 'Total Accounts', value: availableAccounts.length, icon: Database, color: 'brand' },
+                  { label: 'Total Balance', value: `$${availableAccounts.reduce((t, a) => t + (a.balance || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`, icon: DollarSign, color: 'blue' },
+                  { label: 'Active', value: availableAccounts.length, icon: CheckCircle, color: 'brand' },
+                ].map(kpi => {
+                  const Icon = kpi.icon;
+                  return (
+                    <div key={kpi.label} className="bg-surface-raised rounded-2xl p-5 border border-white/[0.06]">
+                      <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">{kpi.label}</p>
+                      <p className="text-2xl font-bold text-white">{kpi.value}</p>
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Account Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/20 dark:from-blue-500/20 dark:to-blue-600/30 backdrop-blur-xl rounded-2xl p-6 border border-blue-200/50 dark:border-blue-700/50">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-blue-500/20 rounded-xl">
-                      <Database className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Accounts</p>
-                      <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{availableAccounts.length}</p>
-                    </div>
-                  </div>
+              {/* Accounts table */}
+              <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                  <p className="text-sm font-semibold text-white">All Accounts</p>
+                  <button
+                    onClick={() => setActiveForm('account')}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-400 text-white text-xs font-semibold transition-all"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> New Account
+                  </button>
                 </div>
-
-                <div className="bg-gradient-to-br from-green-500/10 to-green-600/20 dark:from-green-500/20 dark:to-green-600/30 backdrop-blur-xl rounded-2xl p-6 border border-green-200/50 dark:border-green-700/50">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-green-500/20 rounded-xl">
-                      <DollarSign className="h-6 w-6 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-green-700 dark:text-green-300">Total Balance</p>
-                      <p className="text-2xl font-bold text-green-900 dark:text-green-100">
-                        ${availableAccounts.reduce((total, account) => total + (account.balance || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/20 dark:from-purple-500/20 dark:to-purple-600/30 backdrop-blur-xl rounded-2xl p-6 border border-purple-200/50 dark:border-purple-700/50">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-purple-500/20 rounded-xl">
-                      <CheckCircle className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Active Accounts</p>
-                      <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{availableAccounts.length}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Connected Accounts - List-Detail View */}
-              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-slate-700/50 shadow-xl">
-                <div className="p-6 border-b border-gray-200/50 dark:border-slate-700/50">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Connected Accounts</h3>
-                    <div className="flex items-center gap-4">
-                      <button className="flex items-center gap-2 px-4 py-2 text-sm bg-white/50 dark:bg-slate-700/50 rounded-lg hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all">
-                        <TrendingUp className="h-4 w-4" />
-                        Sync All
-                      </button>
-                      <button className="flex items-center gap-2 px-4 py-2 text-sm bg-white/50 dark:bg-slate-700/50 rounded-lg hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all">
-                        Export
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
                 {availableAccounts.length === 0 ? (
-                  <div className="text-center py-16">
-                    <div className="relative mb-8">
-                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-3xl mx-auto flex items-center justify-center">
-                        <Database className="h-10 w-10 text-blue-500 dark:text-blue-400" />
-                      </div>
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">No accounts connected</h3>
-                    <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                      Connect your bank accounts to start managing your finances with our ledger system
-                    </p>
-                    <button
-                      onClick={() => setActiveForm('account')}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
-                    >
-                      <Plus className="h-5 w-5" />
-                      Connect Your First Account
+                  <div className="py-16 text-center">
+                    <CreditCard className="w-10 h-10 text-slate-700 mx-auto mb-4" />
+                    <p className="text-slate-400 font-medium">No accounts connected</p>
+                    <p className="text-slate-600 text-sm mt-1">Connect your first bank account to get started</p>
+                    <button onClick={() => setActiveForm('account')} className="mt-4 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-400 text-white text-sm font-medium transition-all">
+                      Connect Account
                     </button>
                   </div>
                 ) : (
-                  <div className="flex h-[600px]">
-                    {/* Accounts List - Left Side */}
-                    <div className="w-1/3 border-r border-gray-200/50 dark:border-slate-700/50 overflow-y-auto">
-                      <div className="p-4 space-y-2">
-                        {availableAccounts.map((account) => (
-                          account && typeof account.balance === 'number' ? (
-                            <button
-                              key={account.id}
-                              onClick={() => setSelectedAccount(account)}
-                              className={`w-full text-left p-4 rounded-xl transition-all duration-200 ${
-                                selectedAccount?.id === account.id
-                                  ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 border border-blue-300/50 dark:border-blue-600/50'
-                                  : 'bg-white/30 dark:bg-slate-700/30 hover:bg-white/50 dark:hover:bg-slate-700/50 border border-transparent'
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                  selectedAccount?.id === account.id
-                                    ? 'bg-gradient-to-br from-blue-500 to-purple-600'
-                                    : 'bg-gradient-to-br from-gray-400 to-gray-500'
-                                }`}>
-                                  <CreditCard className="h-5 w-5 text-white" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h4 className={`font-semibold truncate ${
-                                    selectedAccount?.id === account.id
-                                      ? 'text-blue-900 dark:text-blue-100'
-                                      : 'text-gray-900 dark:text-white'
-                                  }`}>
-                                    {account.name}
-                                  </h4>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                                    #{account.account_number}
-                                  </p>
-                                  {account.balance !== undefined && typeof account.balance === 'number' && (
-                                    <p className="text-sm font-medium text-green-600 dark:text-green-400">
-                                      ${account.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </p>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                                </div>
-                              </div>
-                            </button>
-                          ) : null
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/[0.06]">
+                        {['Name', 'Account #', 'Type', 'Currency', 'Balance', 'Status', ''].map(h => (
+                          <th key={h} className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-5 py-3">{h}</th>
                         ))}
-                      </div>
-                    </div>
-
-                    {/* Account Details - Right Side */}
-                    <div className="flex-1 p-6">
-                      {selectedAccount ? (
-                        <div className="h-full">
-                          {/* Account Header */}
-                          <div className="flex items-start justify-between mb-8">
-                            <div className="flex items-center gap-4">
-                              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                                <CreditCard className="h-8 w-8 text-white" />
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.04]">
+                      {availableAccounts.map(acc => (
+                        <tr key={acc.id} className={`hover:bg-white/[0.02] transition-colors cursor-pointer ${selectedAccount?.id === acc.id ? 'bg-brand-500/[0.04]' : ''}`}
+                            onClick={() => setSelectedAccount(acc === selectedAccount ? null : acc)}>
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0">
+                                <span className="text-xs font-bold text-slate-400">{acc.name.charAt(0)}</span>
                               </div>
-                              <div>
-                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedAccount.name}</h2>
-                                <p className="text-gray-500 dark:text-gray-400">Account #{selectedAccount.account_number}</p>
-                                <div className="flex items-center gap-2 mt-2">
-                                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                                  <span className="text-sm text-green-600 dark:text-green-400 font-medium">Active</span>
-                                </div>
-                              </div>
+                              <p className="text-sm font-medium text-white">{acc.name}</p>
                             </div>
+                          </td>
+                          <td className="px-5 py-3.5 text-sm font-mono text-slate-400">{acc.account_number}</td>
+                          <td className="px-5 py-3.5">
+                            <span className="text-xs px-2 py-1 rounded-md bg-slate-800 text-slate-300 capitalize font-medium">{acc.type}</span>
+                          </td>
+                          <td className="px-5 py-3.5 text-sm text-slate-400">{acc.currency}</td>
+                          <td className="px-5 py-3.5 text-sm font-semibold text-white">
+                            ${(acc.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td className="px-5 py-3.5">
+                            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-300">
+                              <span className="w-1.5 h-1.5 rounded-full bg-brand-300 inline-block" />
+                              Active
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5">
                             <div className="flex gap-2">
                               <button
-                                onClick={() => setActiveForm('transfer')}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all"
-                              >
-                                <ArrowRight className="h-4 w-4" />
-                                Transfer
-                              </button>
+                                onClick={e => { e.stopPropagation(); setDepositForm(f => ({ ...f, account_id: acc.id })); setActiveForm('deposit'); }}
+                                className="text-xs px-2.5 py-1 rounded-lg bg-brand-500/10 text-brand-300 hover:bg-brand-500/20 transition-colors font-medium"
+                              >Deposit</button>
                               <button
-                                onClick={() => setActiveForm('deposit')}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all"
-                              >
-                                <DollarSign className="h-4 w-4" />
-                                Deposit
-                              </button>
+                                onClick={e => { e.stopPropagation(); setTransferForm(f => ({ ...f, from_account_id: acc.id })); setActiveForm('transfer'); }}
+                                className="text-xs px-2.5 py-1 rounded-lg bg-white/[0.05] text-slate-300 hover:bg-white/[0.1] transition-colors font-medium"
+                              >Transfer</button>
                             </div>
-                          </div>
-
-                          {/* Account Balance */}
-                          {selectedAccount.balance !== undefined && typeof selectedAccount.balance === 'number' && (
-                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-800 mb-8">
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <p className="text-sm font-medium text-green-700 dark:text-green-300 mb-2">Available Balance</p>
-                                  <p className="text-4xl font-bold text-green-900 dark:text-green-100">
-                                    ${selectedAccount.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                  </p>
-                                  <p className="text-sm text-green-600 dark:text-green-400 mt-1">{selectedAccount.currency}</p>
-                                </div>
-                                <div className="text-green-600 dark:text-green-400">
-                                  <TrendingUp className="h-12 w-12" />
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Account Details */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                            <div className="bg-white/50 dark:bg-slate-700/50 rounded-xl p-6 border border-white/20 dark:border-slate-600/50">
-                              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Account Information</h3>
-                              <div className="space-y-3">
-                                <div>
-                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Account Type</label>
-                                  <div className="mt-1">
-                                    <span className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium capitalize">
-                                      {selectedAccount.type}
-                                    </span>
-                                  </div>
-                                </div>
-                                <div>
-                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Currency</label>
-                                  <div className="mt-1">
-                                    <span className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-slate-600 text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium">
-                                      {selectedAccount.currency}
-                                    </span>
-                                  </div>
-                                </div>
-                                <div>
-                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                                  <p className="mt-1 text-gray-600 dark:text-gray-400">{selectedAccount.description}</p>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="bg-white/50 dark:bg-slate-700/50 rounded-xl p-6 border border-white/20 dark:border-slate-600/50">
-                              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
-                              <div className="space-y-3">
-                                <button
-                                  onClick={() => {
-                                    setBalanceForm({account_id: selectedAccount.id});
-                                    handleGetBalance(new Event('submit') as any);
-                                  }}
-                                  className="w-full flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg hover:from-blue-100 hover:to-blue-200 dark:hover:from-blue-800/30 dark:hover:to-blue-700/30 transition-all"
-                                >
-                                  <Database className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                                  <span className="text-blue-700 dark:text-blue-300 font-medium">Refresh Balance</span>
-                                </button>
-                                <button className="w-full flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg hover:from-purple-100 hover:to-purple-200 dark:hover:from-purple-800/30 dark:hover:to-purple-700/30 transition-all">
-                                  <Activity className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                                  <span className="text-purple-700 dark:text-purple-300 font-medium">View Transactions</span>
-                                </button>
-                                <button className="w-full flex items-center gap-3 p-3 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg hover:from-green-100 hover:to-green-200 dark:hover:from-green-800/30 dark:hover:to-green-700/30 transition-all">
-                                  <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
-                                  <span className="text-green-700 dark:text-green-300 font-medium">Export Statement</span>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="h-full flex items-center justify-center">
-                          <div className="text-center">
-                            <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl mx-auto flex items-center justify-center mb-4">
-                              <CreditCard className="h-8 w-8 text-gray-400" />
-                            </div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Select an Account</h3>
-                            <p className="text-gray-500 dark:text-gray-400">
-                              Choose an account from the list to view its details and manage transactions
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 )}
               </div>
             </>
           )}
 
-          {/* Transactions Tab */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/* TRANSACTIONS TAB                                                */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
           {activeTab === 'transactions' && !activeForm && (
             <>
-              {/* Transactions Header */}
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Transaction History</h2>
-                  <p className="text-gray-600 dark:text-gray-400">View and manage all your financial transactions</p>
+              {/* Filters row */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 relative">
+                  <Eye className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="Search transactions..."
+                    className="w-full pl-9 pr-4 py-2.5 bg-surface-raised border border-white/[0.06] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500/40"
+                  />
                 </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setActiveForm('deposit')}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
-                  >
-                    <DollarSign className="h-5 w-5" />
-                    Deposit
+                {['all', 'deposit', 'transfer', 'withdrawal', 'adjustment'].map(f => (
+                  <button key={f} className="px-3 py-2 rounded-lg bg-surface-raised border border-white/[0.06] text-xs font-medium text-slate-400 hover:text-white hover:border-white/[0.12] capitalize transition-all">
+                    {f}
                   </button>
-                  <button
-                    onClick={() => setActiveForm('transfer')}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl"
-                  >
-                    <ArrowRight className="h-5 w-5" />
-                    Transfer
-                  </button>
-                </div>
+                ))}
               </div>
 
-              {/* Transaction Analytics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div className="bg-gradient-to-br from-green-500/10 to-green-600/20 dark:from-green-500/20 dark:to-green-600/30 backdrop-blur-xl rounded-2xl p-6 border border-green-200/50 dark:border-green-700/50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-500/20 rounded-xl">
-                      <Activity className="h-6 w-6 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-green-700 dark:text-green-300">Total Transactions</p>
-                      <p className="text-2xl font-bold text-green-900 dark:text-green-100">{transactions.length}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/20 dark:from-blue-500/20 dark:to-blue-600/30 backdrop-blur-xl rounded-2xl p-6 border border-blue-200/50 dark:border-blue-700/50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-500/20 rounded-xl">
-                      <CheckCircle className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Posted</p>
-                      <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                        {transactions.filter(t => t.status === 'posted').length}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/20 dark:from-yellow-500/20 dark:to-yellow-600/30 backdrop-blur-xl rounded-2xl p-6 border border-yellow-200/50 dark:border-yellow-700/50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-yellow-500/20 rounded-xl">
-                      <Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Pending</p>
-                      <p className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
-                        {transactions.filter(t => t.status === 'draft').length}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/20 dark:from-emerald-500/20 dark:to-emerald-600/30 backdrop-blur-xl rounded-2xl p-6 border border-emerald-200/50 dark:border-emerald-700/50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-emerald-500/20 rounded-xl">
-                      <DollarSign className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Total Volume</p>
-                      <p className="text-xl font-bold text-emerald-900 dark:text-emerald-100">
-                        ${transactions.reduce((total, tx) => total + tx.amount, 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Transaction Filters and Search */}
-              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-xl mb-8">
-                <div className="flex flex-col lg:flex-row gap-4">
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      placeholder="Search transactions..."
-                      className="w-full px-4 py-3 bg-white/50 dark:bg-slate-700/50 border border-white/20 dark:border-slate-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                    />
-                  </div>
-                  <div className="flex gap-3">
-                    <select className="px-4 py-3 bg-white/50 dark:bg-slate-700/50 border border-white/20 dark:border-slate-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white">
-                      <option>All Types</option>
-                      <option>Transfer</option>
-                      <option>Deposit</option>
-                    </select>
-                    <select className="px-4 py-3 bg-white/50 dark:bg-slate-700/50 border border-white/20 dark:border-slate-600/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white">
-                      <option>All Status</option>
-                      <option>Posted</option>
-                      <option>Draft</option>
-                    </select>
-                    <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all">
-                      Export
+              {/* Transaction table */}
+              <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                  <p className="text-sm font-semibold text-white">{transactions.length} Transactions</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setActiveForm('deposit')}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-400 text-white text-xs font-semibold transition-all"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> New Deposit
                     </button>
                   </div>
                 </div>
-              </div>
-
-              {/* Transactions List */}
-              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-slate-700/50 shadow-xl">
-                <div className="p-6">
-                  {transactions.length === 0 ? (
-                    <div className="text-center py-16">
-                      <div className="relative mb-8">
-                        <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30 rounded-3xl mx-auto flex items-center justify-center">
-                          <Activity className="h-10 w-10 text-green-500 dark:text-green-400" />
-                        </div>
-                      </div>
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">No transactions yet</h3>
-                      <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                        Start by creating your first transaction to see your financial activity here
-                      </p>
-                      <div className="flex gap-4 justify-center">
-                        <button
-                          onClick={() => setActiveForm('transfer')}
-                          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl"
-                        >
-                          <ArrowRight className="h-5 w-5" />
-                          Create Transfer
-                        </button>
-                        <button
-                          onClick={() => setActiveForm('deposit')}
-                          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
-                        >
-                          <DollarSign className="h-5 w-5" />
-                          Make Deposit
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {transactions.map((transaction) => (
-                        transaction && typeof transaction.amount === 'number' ? (
-                          <div key={transaction.id} className="group bg-white/50 dark:bg-slate-700/50 backdrop-blur border border-white/20 dark:border-slate-600/50 rounded-2xl p-6 hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all duration-200 hover:shadow-lg">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-4">
-                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                                  transaction.type === 'transfer' 
-                                    ? 'bg-gradient-to-br from-green-500 to-green-600'
-                                    : 'bg-gradient-to-br from-purple-500 to-purple-600'
-                                }`}>
-                                  {transaction.type === 'transfer' ? (
-                                    <ArrowRight className="h-6 w-6 text-white" />
-                                  ) : (
-                                    <DollarSign className="h-6 w-6 text-white" />
-                                  )}
-                                </div>
-                                <div>
-                                  <h3 className="font-bold text-gray-900 dark:text-white text-lg capitalize">{transaction.type}</h3>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.reference}</p>
-                                  <p className="text-gray-600 dark:text-gray-300">{transaction.description}</p>
-                                </div>
+                {transactions.length === 0 ? (
+                  <div className="py-16 text-center">
+                    <Activity className="w-10 h-10 text-slate-700 mx-auto mb-4" />
+                    <p className="text-slate-400 font-medium">No transactions yet</p>
+                    <p className="text-slate-600 text-sm mt-1">Create a deposit to see transactions here</p>
+                  </div>
+                ) : (
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-white/[0.06]">
+                        {['Type', 'Description', 'Reference', 'Amount', 'Status', 'Entries', 'Actions'].map(h => (
+                          <th key={h} className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-5 py-3">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.04]">
+                      {transactions.filter(tx => tx && typeof tx.amount === 'number').map(tx => (
+                        <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-2.5">
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                tx.type === 'deposit' ? 'bg-brand-500/15 text-brand-300' :
+                                tx.type === 'withdrawal' ? 'bg-red-500/15 text-red-400' :
+                                tx.type === 'transfer' ? 'bg-blue-500/15 text-blue-400' :
+                                'bg-slate-500/15 text-slate-400'
+                              }`}>
+                                {tx.type === 'transfer' ? <ArrowRightLeft className="w-3.5 h-3.5" /> :
+                                 tx.type === 'deposit' ? <Plus className="w-3.5 h-3.5" /> :
+                                 <DollarSign className="w-3.5 h-3.5" />}
                               </div>
-
-                              <div className="flex items-center gap-6">
-                                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
-                                  transaction.status === 'posted' 
-                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
-                                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800'
-                                }`}>
-                                  {transaction.status === 'posted' ? (
-                                    <>
-                                      <CheckCircle className="h-4 w-4" />
-                                      Posted
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Clock className="h-4 w-4" />
-                                      Draft
-                                    </>
-                                  )}
-                                </div>
-
-                                <div className="text-right">
-                                  <div className="text-xl font-bold text-gray-900 dark:text-white">
-                                    ${transaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                  </div>
-                                  <div className="text-sm text-gray-500 dark:text-gray-400">{transaction.currency}</div>
-                                </div>
-
-                                {transaction.status === 'draft' && (
-                                  <button
-                                    onClick={() => handlePostTransaction(transaction.id)}
-                                    disabled={loading}
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 transition-all"
-                                  >
-                                    <CheckCircle className="h-4 w-4" />
-                                    {loading ? 'Posting...' : 'Post'}
-                                  </button>
-                                )}
-                              </div>
+                              <span className="text-sm font-medium text-white capitalize">{tx.type}</span>
                             </div>
-                          </div>
-                        ) : null
+                          </td>
+                          <td className="px-5 py-3.5 text-sm text-slate-400 max-w-[160px] truncate">{tx.description || '—'}</td>
+                          <td className="px-5 py-3.5 text-xs font-mono text-slate-500">{tx.reference || '—'}</td>
+                          <td className="px-5 py-3.5 text-sm font-semibold text-white">${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                          <td className="px-5 py-3.5">
+                            <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-md ${
+                              tx.status === 'posted' ? 'bg-brand-500/10 text-brand-300' :
+                              tx.status === 'reversed' ? 'bg-red-500/10 text-red-400' :
+                              tx.status === 'cancelled' ? 'bg-slate-500/10 text-slate-400' :
+                              'bg-amber-500/10 text-amber-400'
+                            }`}>
+                              {tx.status === 'posted' && <CheckCircle className="w-3 h-3" />}
+                              {tx.status === 'reversed' && <AlertTriangle className="w-3 h-3" />}
+                              {(tx.status === 'draft' || tx.status === 'pending') && <Clock className="w-3 h-3" />}
+                              {tx.status}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5 text-xs text-slate-500">{tx.entries?.length ?? 0} entries</td>
+                          <td className="px-5 py-3.5">
+                            <div className="flex gap-2">
+                              {(tx.status === 'draft' || tx.status === 'pending') && (
+                                <button
+                                  onClick={() => handlePostTransaction(tx.id)}
+                                  disabled={loading}
+                                  className="text-xs px-2.5 py-1 rounded-lg bg-brand-500/10 text-brand-300 hover:bg-brand-500/20 transition-colors font-medium disabled:opacity-50"
+                                >Post</button>
+                              )}
+                              {tx.status === 'posted' && (
+                                <button
+                                  onClick={() => handleReverseTransaction(tx.id)}
+                                  disabled={loading}
+                                  className="text-xs px-2.5 py-1 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors font-medium disabled:opacity-50"
+                                >Reverse</button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
                       ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Analytics Tab */}
-          {activeTab === 'analytics' && !activeForm && (
-            <>
-              <div className="text-center py-16">
-                <div className="relative mb-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 rounded-3xl mx-auto flex items-center justify-center">
-                    <TrendingUp className="h-10 w-10 text-purple-500 dark:text-purple-400" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Analytics Dashboard</h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                  Advanced financial analytics and insights will be available here soon
-                </p>
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">
-                  <Clock className="h-4 w-4" />
-                  Coming Soon
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Enhanced Account Connection Form */}
-          {activeForm === 'account' && (
-            <div className="max-w-4xl mx-auto">
-              {/* Modern Header with Progress */}
-              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-8 border border-white/20 dark:border-slate-700/50 shadow-2xl mb-8">
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                    <Database className="h-8 w-8 text-white" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Connect Your Account</h2>
-                  <p className="text-gray-600 dark:text-gray-400 text-lg">Securely link your bank account to get started</p>
-                </div>
-
-                {/* Trust Indicators */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                  <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
-                    <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                      <Shield className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-green-700 dark:text-green-300 text-sm">Bank-Level Security</p>
-                      <p className="text-xs text-green-600 dark:text-green-400">256-bit encryption</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                    <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                      <CheckCircle className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-blue-700 dark:text-blue-300 text-sm">Instant Connection</p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400">Real-time verification</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
-                    <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
-                      <Eye className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-purple-700 dark:text-purple-300 text-sm">Read-Only Access</p>
-                      <p className="text-xs text-purple-600 dark:text-purple-400">We never store passwords</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Enhanced Multi-Step Connect Account Flow */}
-                <ConnectAccountFlow onAccountConnected={() => { loadAvailableAccounts(); setActiveForm(null); }} />
-              </div>
-            </div>
-          )}
-
-          {/* Enhanced Transfer Form */}
-          {activeForm === 'transfer' && (
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-8 border border-white/20 dark:border-slate-700/50 shadow-2xl">
-                {/* Header */}
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                    <ArrowRight className="h-8 w-8 text-white" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Create Transfer</h2>
-                  <p className="text-gray-600 dark:text-gray-400 text-lg">Move money between your accounts instantly</p>
-                </div>
-
-                {/* Success Toast Notification */}
-                {showTransferSuccess && (
-                  <div className="flex items-center gap-4 mb-6 p-4 rounded-2xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 animate-fade-in">
-                    <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
-                      <CheckCircle className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-green-800 dark:text-green-200">Transfer created successfully!</p>
-                      <p className="text-sm text-green-600 dark:text-green-400">Your transaction has been processed</p>
-                    </div>
-                  </div>
+                    </tbody>
+                  </table>
                 )}
-
-                <form onSubmit={handleCreateTransfer} className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    From Account
-                  </label>
-                  <select
-                    value={transferForm.from_account_id}
-                    onChange={(e) => setTransferForm({...transferForm, from_account_id: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                    required
-                  >
-                    <option value="">Select source account</option>
-                    {availableAccounts.map(account => (
-                      <option key={account.id} value={account.id}>
-                        {account.name} ({account.account_number})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    To Account
-                  </label>
-                  <select
-                    value={transferForm.to_account_id}
-                    onChange={(e) => setTransferForm({...transferForm, to_account_id: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                    required
-                  >
-                    <option value="">Select destination account</option>
-                    {availableAccounts.map(account => (
-                      <option key={account.id} value={account.id}>
-                        {account.name} ({account.account_number})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Amount
-                    </label>
-                    <input
-                      type="number"
-                      value={transferForm.amount}
-                      onChange={(e) => setTransferForm({...transferForm, amount: parseFloat(e.target.value)})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                      step="0.01"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Currency
-                    </label>
-                    <select
-                      value={transferForm.currency}
-                      onChange={(e) => setTransferForm({...transferForm, currency: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                    >
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="GBP">GBP</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Description
-                  </label>
-                  <input
-                    type="text"
-                    value={transferForm.description}
-                    onChange={(e) => setTransferForm({...transferForm, description: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Reference
-                  </label>
-                  <input
-                    type="text"
-                    value={transferForm.reference}
-                    onChange={(e) => setTransferForm({...transferForm, reference: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
-                >
-                  {loading ? 'Creating...' : 'Create Transfer'}
-                </button>
-              </form>
-              {/* Display rail info after transfer */}
-              {lastTransferRailInfo && (
-                <div className="mt-6 p-6 rounded-xl bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 dark:from-blue-900/40 dark:via-blue-900/60 dark:to-blue-900/30 border border-blue-300 dark:border-blue-700 shadow-md">
-                  <div className="flex items-center gap-3 mb-3">
-                    <CheckCircle className="h-6 w-6 text-blue-600 dark:text-blue-300" />
-                    <h3 className="font-semibold text-blue-800 dark:text-blue-100 text-lg">Payment Rail Details</h3>
-                    <span className={`ml-2 px-3 py-1 rounded-full text-xs font-bold bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 border border-blue-400 dark:border-blue-700`}>{lastTransferRailInfo.rail}</span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">Fee</span>
-                      <span className="font-bold text-blue-700 dark:text-blue-200 text-lg">{lastTransferRailInfo.fee}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">FX Rate</span>
-                      <span className="font-bold text-blue-700 dark:text-blue-200 text-lg">{lastTransferRailInfo.fx_rate}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">Estimated Settlement</span>
-                      <span className="font-bold text-blue-700 dark:text-blue-200 text-lg">{lastTransferRailInfo.latency}</span>
-                    </div>
-                  </div>
-                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    Transaction ID: <span className="font-mono">{lastTransferRailInfo.transaction.id}</span>
-                  </div>
-                </div>
-              )}
               </div>
-            </div>
+            </>
           )}
 
-          {activeForm === 'deposit' && (
-            <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-6 border border-gray-200 dark:border-slate-700">
-              <div className="flex items-center gap-2 mb-6">
-                <DollarSign className="h-5 w-5 text-purple-500" />
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Create Deposit</h2>
-              </div>
-              <form onSubmit={handleCreateDeposit} className="space-y-4 max-w-2xl">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Account
-                  </label>
-                  <select
-                    value={depositForm.account_id}
-                    onChange={(e) => setDepositForm({...depositForm, account_id: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                    required
-                  >
-                    <option value="">Select account</option>
-                    {availableAccounts.map(account => (
-                      <option key={account.id} value={account.id}>
-                        {account.name} ({account.account_number})
-                      </option>
-                    ))}
-                  </select>
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/* JOURNAL ENTRY TAB                                               */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {activeTab === 'journal' && !activeForm && (
+            <div className="max-w-3xl space-y-5">
+              <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
+                <div className="px-6 py-5 border-b border-white/[0.06]">
+                  <h3 className="text-sm font-semibold text-white">New Journal Entry</h3>
+                  <p className="text-xs text-slate-500 mt-1">Debits must equal credits to post the entry</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Amount
-                    </label>
-                    <input
-                      type="number"
-                      value={depositForm.amount}
-                      onChange={(e) => setDepositForm({...depositForm, amount: parseFloat(e.target.value)})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                      step="0.01"
-                      required
-                    />
+                <form onSubmit={handleCreateJournalEntry} className="p-6 space-y-5">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1.5">Description *</label>
+                      <input
+                        type="text"
+                        value={journalDesc}
+                        onChange={e => setJournalDesc(e.target.value)}
+                        required
+                        placeholder="e.g. Accrue monthly interest"
+                        className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500/40 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-400 mb-1.5">Reference</label>
+                      <input
+                        type="text"
+                        value={journalRef}
+                        onChange={e => setJournalRef(e.target.value)}
+                        placeholder="Auto-generated if empty"
+                        className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500/40 transition-colors"
+                      />
+                    </div>
                   </div>
+
+                  {/* Lines table */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Currency
-                    </label>
-                    <select
-                      value={depositForm.currency}
-                      onChange={(e) => setDepositForm({...depositForm, currency: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                    >
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                      <option value="GBP">GBP</option>
-                    </select>
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Journal Lines</label>
+                      <div className="flex gap-2">
+                        <button type="button" onClick={() => setJournalLines(p => [...p, { account_id: '', type: 'debit', amount: 0 }])}
+                          className="text-xs px-2.5 py-1 rounded-lg bg-brand-500/10 text-brand-300 hover:bg-brand-500/20 transition-colors font-medium">
+                          + Debit
+                        </button>
+                        <button type="button" onClick={() => setJournalLines(p => [...p, { account_id: '', type: 'credit', amount: 0 }])}
+                          className="text-xs px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors font-medium">
+                          + Credit
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-surface-base rounded-xl border border-white/[0.06] overflow-hidden">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-white/[0.06]">
+                            <th className="text-left text-xs text-slate-500 font-medium px-4 py-2.5">Account</th>
+                            <th className="text-left text-xs text-slate-500 font-medium px-4 py-2.5 w-28">Type</th>
+                            <th className="text-right text-xs text-slate-500 font-medium px-4 py-2.5 w-32">Amount</th>
+                            <th className="w-10 px-2 py-2.5" />
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/[0.04]">
+                          {journalLines.map((line, idx) => (
+                            <tr key={idx}>
+                              <td className="px-4 py-2">
+                                <select
+                                  value={line.account_id}
+                                  onChange={e => setJournalLines(p => p.map((l, i) => i === idx ? { ...l, account_id: e.target.value } : l))}
+                                  className="w-full bg-transparent text-sm text-white focus:outline-none"
+                                >
+                                  <option value="" className="bg-surface-raised">Select account…</option>
+                                  {availableAccounts.map(acc => (
+                                    <option key={acc.id} value={acc.id} className="bg-surface-raised">{acc.name} ({acc.account_number})</option>
+                                  ))}
+                                </select>
+                              </td>
+                              <td className="px-4 py-2">
+                                <select
+                                  value={line.type}
+                                  onChange={e => setJournalLines(p => p.map((l, i) => i === idx ? { ...l, type: e.target.value as 'debit' | 'credit' } : l))}
+                                  className={`bg-transparent text-xs font-semibold focus:outline-none ${line.type === 'debit' ? 'text-brand-300' : 'text-blue-400'}`}
+                                >
+                                  <option value="debit" className="bg-surface-raised text-brand-300">DR Debit</option>
+                                  <option value="credit" className="bg-surface-raised text-blue-400">CR Credit</option>
+                                </select>
+                              </td>
+                              <td className="px-4 py-2">
+                                <input
+                                  type="number" min="0" step="0.01"
+                                  value={line.amount || ''}
+                                  onChange={e => setJournalLines(p => p.map((l, i) => i === idx ? { ...l, amount: parseFloat(e.target.value) || 0 } : l))}
+                                  className="w-full text-right bg-transparent text-sm text-white focus:outline-none"
+                                  placeholder="0.00"
+                                />
+                              </td>
+                              <td className="px-2 py-2 text-center">
+                                {journalLines.length > 2 && (
+                                  <button type="button" onClick={() => setJournalLines(p => p.filter((_, i) => i !== idx))} className="text-slate-600 hover:text-red-400 transition-colors text-base">×</button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Balance indicator */}
+                    {(() => {
+                      const dr = journalLines.filter(l => l.type === 'debit').reduce((s, l) => s + (l.amount || 0), 0);
+                      const cr = journalLines.filter(l => l.type === 'credit').reduce((s, l) => s + (l.amount || 0), 0);
+                      const ok = Math.abs(dr - cr) < 0.001 && dr > 0;
+                      return (
+                        <div className={`mt-3 flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-medium ${ok ? 'bg-brand-500/10 border border-brand-500/20 text-brand-300' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
+                          <span>DR {dr.toFixed(2)} · CR {cr.toFixed(2)}</span>
+                          <span>{ok ? '✓ Balanced' : `Difference: ${Math.abs(dr - cr).toFixed(2)}`}</span>
+                        </div>
+                      );
+                    })()}
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Description
-                  </label>
-                  <input
-                    type="text"
-                    value={depositForm.description}
-                    onChange={(e) => setDepositForm({...depositForm, description: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Reference
-                  </label>
-                  <input
-                    type="text"
-                    value={depositForm.reference}
-                    onChange={(e) => setDepositForm({...depositForm, reference: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white"
-                  />
-                </div>
-                <div className="flex gap-4">
+
                   <button
                     type="submit"
                     disabled={loading}
-                    className="bg-purple-600 text-white py-2 px-6 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 transition-colors flex-1"
+                    className="w-full py-3 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-all"
                   >
-                    {loading ? 'Creating...' : 'Create Deposit'}
+                    {loading ? 'Posting…' : 'Post Journal Entry'}
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleCreateTestBalance}
-                    disabled={loading}
-                    className="bg-orange-600 text-white py-2 px-6 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 transition-colors flex-1"
-                  >
-                    {loading ? 'Creating...' : 'Get Test Balance'}
-                  </button>
+                </form>
+              </div>
+
+              {response && (
+                <div className="bg-surface-raised rounded-xl border border-white/[0.06] p-4">
+                  <p className="text-xs text-slate-500 mb-2 font-medium uppercase tracking-wider">Response</p>
+                  <pre className="text-xs text-brand-300 overflow-auto max-h-40">{response}</pre>
                 </div>
-              </form>
+              )}
             </div>
           )}
 
-          {/* Response Display */}
-          {response && (
-            <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 text-gray-900 dark:text-white px-6 py-4 rounded-2xl mt-6">
-              <pre className="text-sm whitespace-pre-wrap">{response}</pre>
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/* REPORTS TAB                                                     */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {activeTab === 'reports' && !activeForm && (
+            <div className="space-y-5">
+              {/* Report selector */}
+              <div className="flex gap-2">
+                {[
+                  { id: 'balance-sheet', label: 'Balance Sheet', action: handleGetBalanceSheet },
+                  { id: 'income-statement', label: 'Income Statement', action: handleGetIncomeStatement },
+                  { id: 'cash-flow', label: 'Cash Flow', action: handleGetCashFlow },
+                  { id: 'trial-balance', label: 'Trial Balance', action: handleGetTrialBalanceData },
+                ].map(r => (
+                  <button
+                    key={r.id}
+                    onClick={() => { setActiveReport(r.id as any); r.action(); }}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                      activeReport === r.id
+                        ? 'bg-brand-500 text-white'
+                        : 'bg-surface-raised text-slate-400 hover:text-white border border-white/[0.06] hover:border-white/[0.12]'
+                    }`}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Balance Sheet */}
+              {activeReport === 'balance-sheet' && balanceSheet && (
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Assets */}
+                  <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                      <span className="text-xs font-semibold text-brand-300 uppercase tracking-wider">Assets</span>
+                      <span className="text-sm font-bold text-white">${(balanceSheet.total_assets || 0).toFixed(2)}</span>
+                    </div>
+                    <div className="divide-y divide-white/[0.04]">
+                      {(balanceSheet.assets || []).flatMap((g: any) => (g.accounts || []).map((a: any) => (
+                        <div key={a.id} className="flex items-center justify-between px-5 py-3">
+                          <div>
+                            <p className="text-sm text-white">{a.name}</p>
+                            <p className="text-xs text-slate-500 mt-0.5 capitalize">{a.type}</p>
+                          </div>
+                          <span className="text-sm font-semibold text-brand-300">${(a.balance || 0).toFixed(2)}</span>
+                        </div>
+                      )))}
+                    </div>
+                    <div className={`px-5 py-3 border-t-2 ${balanceSheet.is_balanced ? 'border-brand-500/30 bg-brand-500/[0.04]' : 'border-red-500/30 bg-red-500/[0.04]'}`}>
+                      <div className="flex justify-between">
+                        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Assets</span>
+                        <span className={`text-sm font-bold ${balanceSheet.is_balanced ? 'text-brand-300' : 'text-red-400'}`}>${(balanceSheet.total_assets || 0).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Liabilities + Equity */}
+                  <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                      <span className="text-xs font-semibold text-blue-400 uppercase tracking-wider">Liabilities & Equity</span>
+                      <span className="text-sm font-bold text-white">${(balanceSheet.total_liabilities_equity || 0).toFixed(2)}</span>
+                    </div>
+                    <div className="divide-y divide-white/[0.04]">
+                      {[...(balanceSheet.liabilities || []), ...(balanceSheet.equity || [])].flatMap((g: any) => (g.accounts || []).map((a: any) => (
+                        <div key={a.id} className="flex items-center justify-between px-5 py-3">
+                          <div>
+                            <p className="text-sm text-white">{a.name}</p>
+                            <p className="text-xs text-slate-500 mt-0.5 capitalize">{a.type}</p>
+                          </div>
+                          <span className="text-sm font-semibold text-blue-400">${(a.balance || 0).toFixed(2)}</span>
+                        </div>
+                      )))}
+                    </div>
+                    <div className={`px-5 py-3 border-t-2 ${balanceSheet.is_balanced ? 'border-blue-500/30 bg-blue-500/[0.04]' : 'border-red-500/30 bg-red-500/[0.04]'}`}>
+                      <div className="flex justify-between">
+                        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Liab + Equity</span>
+                        <span className={`text-sm font-bold ${balanceSheet.is_balanced ? 'text-blue-400' : 'text-red-400'}`}>${(balanceSheet.total_liabilities_equity || 0).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Accounting equation banner */}
+                  <div className={`col-span-2 flex items-center justify-center gap-4 py-3 px-5 rounded-xl text-sm font-medium ${balanceSheet.is_balanced ? 'bg-brand-500/10 border border-brand-500/20 text-brand-300' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
+                    <span>Assets ${(balanceSheet.total_assets || 0).toFixed(2)}</span>
+                    <span className="text-slate-500">=</span>
+                    <span>Liabilities + Equity ${(balanceSheet.total_liabilities_equity || 0).toFixed(2)}</span>
+                    <span className="ml-2">{balanceSheet.is_balanced ? '✓ Balanced' : '✗ Unbalanced'}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Income Statement */}
+              {activeReport === 'income-statement' && incomeStatement && (
+                <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden max-w-2xl">
+                  <div className="px-5 py-4 border-b border-white/[0.06]">
+                    <p className="text-sm font-semibold text-white">Income Statement</p>
+                  </div>
+                  <div className="p-5 space-y-5">
+                    <div>
+                      <p className="text-xs font-semibold text-brand-300 uppercase tracking-wider mb-3">Revenue</p>
+                      <div className="space-y-2">
+                        {(incomeStatement.revenue || []).flatMap((g: any) => (g.accounts || []).map((a: any) => (
+                          <div key={a.id} className="flex justify-between">
+                            <span className="text-sm text-slate-300">{a.name}</span>
+                            <span className="text-sm font-medium text-brand-300">${(a.balance || 0).toFixed(2)}</span>
+                          </div>
+                        )))}
+                        <div className="flex justify-between border-t border-white/[0.06] pt-2 mt-2">
+                          <span className="text-sm font-semibold text-white">Total Revenue</span>
+                          <span className="text-sm font-bold text-brand-300">${(incomeStatement.total_revenue || 0).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-red-400 uppercase tracking-wider mb-3">Expenses</p>
+                      <div className="space-y-2">
+                        {(incomeStatement.expenses || []).flatMap((g: any) => (g.accounts || []).map((a: any) => (
+                          <div key={a.id} className="flex justify-between">
+                            <span className="text-sm text-slate-300">{a.name}</span>
+                            <span className="text-sm font-medium text-red-400">${(a.balance || 0).toFixed(2)}</span>
+                          </div>
+                        )))}
+                        <div className="flex justify-between border-t border-white/[0.06] pt-2 mt-2">
+                          <span className="text-sm font-semibold text-white">Total Expenses</span>
+                          <span className="text-sm font-bold text-red-400">${(incomeStatement.total_expenses || 0).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className={`flex justify-between px-4 py-3 rounded-xl font-bold text-base ${(incomeStatement.net_income || 0) >= 0 ? 'bg-brand-500/10 border border-brand-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
+                      <span className="text-white">Net Income</span>
+                      <span className={(incomeStatement.net_income || 0) >= 0 ? 'text-brand-300' : 'text-red-400'}>${(incomeStatement.net_income || 0).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Cash Flow */}
+              {activeReport === 'cash-flow' && cashFlow && (
+                <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                    <p className="text-sm font-semibold text-white">Cash Flow</p>
+                    <span className={`text-sm font-bold ${(cashFlow.net_cash || 0) >= 0 ? 'text-brand-300' : 'text-red-400'}`}>Net ${(cashFlow.net_cash || 0).toFixed(2)}</span>
+                  </div>
+                  {(cashFlow.data || []).length === 0 ? (
+                    <div className="py-12 text-center text-slate-500 text-sm">No cash transactions in this period</div>
+                  ) : (
+                    <table className="w-full">
+                      <thead><tr className="border-b border-white/[0.06]">{['Date','Description','Type','Amount','Running Total'].map(h=><th key={h} className="text-left text-xs text-slate-500 font-medium px-5 py-3">{h}</th>)}</tr></thead>
+                      <tbody className="divide-y divide-white/[0.04]">
+                        {(cashFlow.data || []).map((e: any, i: number) => (
+                          <tr key={i} className="hover:bg-white/[0.02]">
+                            <td className="px-5 py-3 text-xs text-slate-500">{new Date(e.timestamp).toLocaleDateString()}</td>
+                            <td className="px-5 py-3 text-sm text-white">{e.description}</td>
+                            <td className="px-5 py-3"><span className={`text-xs px-2 py-0.5 rounded-md font-medium ${e.type === 'deposit' ? 'bg-brand-500/10 text-brand-300' : 'bg-red-500/10 text-red-400'}`}>{e.type}</span></td>
+                            <td className={`px-5 py-3 text-sm font-semibold ${e.amount >= 0 ? 'text-brand-300' : 'text-red-400'}`}>{e.amount >= 0 ? '+' : ''}{e.amount.toFixed(2)}</td>
+                            <td className="px-5 py-3 text-sm text-slate-400">{e.running_total.toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )}
+
+              {/* Trial Balance */}
+              {activeReport === 'trial-balance' && trialBalanceData && (
+                <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                    <p className="text-sm font-semibold text-white">Trial Balance</p>
+                    <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${(trialBalanceData as any).is_balanced ? 'bg-brand-500/10 text-brand-300' : 'bg-red-500/10 text-red-400'}`}>
+                      {(trialBalanceData as any).is_balanced ? '✓ Balanced' : '✗ Unbalanced'}
+                    </span>
+                  </div>
+                  <table className="w-full">
+                    <thead><tr className="border-b border-white/[0.06]">{['Account #','Name','Type','Debit','Credit'].map(h=><th key={h} className="text-left text-xs text-slate-500 font-medium px-5 py-3">{h}</th>)}</tr></thead>
+                    <tbody className="divide-y divide-white/[0.04]">
+                      {((trialBalanceData as any).data || []).map((e: any) => (
+                        <tr key={e.id} className="hover:bg-white/[0.02]">
+                          <td className="px-5 py-3 text-xs font-mono text-slate-500">{e.account_number}</td>
+                          <td className="px-5 py-3 text-sm text-white">{e.name}</td>
+                          <td className="px-5 py-3"><span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 capitalize">{e.type}</span></td>
+                          <td className="px-5 py-3 text-sm font-medium text-brand-300">{e.balance > 0 ? `$${e.balance.toFixed(2)}` : '—'}</td>
+                          <td className="px-5 py-3 text-sm font-medium text-blue-400">{e.balance < 0 ? `$${Math.abs(e.balance).toFixed(2)}` : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="border-t-2 border-white/[0.10]">
+                        <td colSpan={3} className="px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Totals</td>
+                        <td className="px-5 py-3 text-sm font-bold text-brand-300">${((trialBalanceData as any).total_debits || 0).toFixed(2)}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-blue-400">${((trialBalanceData as any).total_credits || 0).toFixed(2)}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              )}
+
+              {/* Empty prompt */}
+              {!balanceSheet && !incomeStatement && !cashFlow && !trialBalanceData && (
+                <div className="bg-surface-raised rounded-2xl border border-white/[0.06] py-16 text-center">
+                  <TrendingUp className="w-10 h-10 text-slate-700 mx-auto mb-4" />
+                  <p className="text-slate-400 font-medium">Select a report above to get started</p>
+                  <p className="text-slate-600 text-sm mt-1">Balance Sheet, Income Statement, Cash Flow, Trial Balance</p>
+                </div>
+              )}
             </div>
           )}
 
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/* ANALYTICS TAB                                                   */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {activeTab === 'analytics' && !activeForm && (
+            <div className="bg-surface-raised rounded-2xl border border-white/[0.06] py-20 text-center">
+              <TrendingUp className="w-12 h-12 text-slate-700 mx-auto mb-4" />
+              <p className="text-white font-semibold text-lg">Analytics Coming Soon</p>
+              <p className="text-slate-500 text-sm mt-2 max-w-sm mx-auto">Advanced charts, trend analysis, and AI-powered insights will appear here</p>
+              <div className="inline-flex items-center gap-2 mt-6 px-4 py-2 bg-brand-500/10 border border-brand-500/20 rounded-lg text-brand-300 text-xs font-medium">
+                <Clock className="w-3.5 h-3.5" /> In development
+              </div>
+            </div>
+          )}
 
-        </div>
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {/* MODAL FORMS (overlaid on any tab)                              */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+          {activeForm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={e => { if (e.target === e.currentTarget) setActiveForm(null); }}>
+              <div className="w-full max-w-lg bg-surface-raised rounded-2xl border border-white/[0.08] shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+
+                {/* Form header */}
+                <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06]">
+                  <div>
+                    <h3 className="text-base font-semibold text-white">
+                      {activeForm === 'account' ? 'Connect New Account' : activeForm === 'transfer' ? 'Transfer Funds' : 'Fund Account'}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {activeForm === 'account' ? 'Add a ledger account to your workspace' :
+                       activeForm === 'transfer' ? 'Move funds between accounts' :
+                       'Add funds and update balance instantly'}
+                    </p>
+                  </div>
+                  <button onClick={() => setActiveForm(null)} className="w-8 h-8 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white flex items-center justify-center transition-all text-lg">×</button>
+                </div>
+
+                <div className="p-6">
+                  {/* ── Account Form ─────────────────────────────────────── */}
+                  {activeForm === 'account' && (
+                    <ConnectAccountFlow onAccountConnected={() => { loadAvailableAccounts(); setActiveForm(null); }} />
+                  )}
+
+                  {/* ── Transfer Form ────────────────────────────────────── */}
+                  {activeForm === 'transfer' && (
+                    <form onSubmit={handleCreateTransfer} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium text-slate-400 mb-1.5">From Account</label>
+                          <select value={transferForm.from_account_id} onChange={e => setTransferForm(f => ({...f, from_account_id: e.target.value}))} required
+                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40">
+                            <option value="" className="bg-surface-raised">Select account…</option>
+                            {availableAccounts.map(a => <option key={a.id} value={a.id} className="bg-surface-raised">{a.name} (${(a.balance||0).toFixed(2)})</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-slate-400 mb-1.5">To Account</label>
+                          <select value={transferForm.to_account_id} onChange={e => setTransferForm(f => ({...f, to_account_id: e.target.value}))} required
+                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40">
+                            <option value="" className="bg-surface-raised">Select account…</option>
+                            {availableAccounts.filter(a => a.id !== transferForm.from_account_id).map(a => <option key={a.id} value={a.id} className="bg-surface-raised">{a.name}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium text-slate-400 mb-1.5">Amount</label>
+                          <input type="number" min="0.01" step="0.01" value={transferForm.amount} onChange={e => setTransferForm(f => ({...f, amount: parseFloat(e.target.value)}))} required
+                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-slate-400 mb-1.5">Currency</label>
+                          <select value={transferForm.currency} onChange={e => setTransferForm(f => ({...f, currency: e.target.value}))}
+                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40">
+                            {['USD','EUR','GBP','BRL','INR'].map(c => <option key={c} className="bg-surface-raised">{c}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1.5">Description</label>
+                        <input type="text" value={transferForm.description} onChange={e => setTransferForm(f => ({...f, description: e.target.value}))}
+                          className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40" />
+                      </div>
+                      <button type="submit" disabled={loading} className="w-full py-3 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-all">
+                        {loading ? 'Processing…' : 'Execute Transfer'}
+                      </button>
+                    </form>
+                  )}
+
+                  {/* ── Deposit Form ─────────────────────────────────────── */}
+                  {activeForm === 'deposit' && (
+                    <form className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1.5">Account</label>
+                        <select value={depositForm.account_id} onChange={e => setDepositForm(f => ({...f, account_id: e.target.value}))} required
+                          className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40">
+                          <option value="" className="bg-surface-raised">Select account…</option>
+                          {availableAccounts.map(a => <option key={a.id} value={a.id} className="bg-surface-raised">{a.name} (${(a.balance||0).toFixed(2)})</option>)}
+                        </select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium text-slate-400 mb-1.5">Amount</label>
+                          <input type="number" min="0.01" step="0.01" value={depositForm.amount} onChange={e => setDepositForm(f => ({...f, amount: parseFloat(e.target.value)}))}
+                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-slate-400 mb-1.5">Currency</label>
+                          <select value={depositForm.currency} onChange={e => setDepositForm(f => ({...f, currency: e.target.value}))}
+                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40">
+                            {['USD','EUR','GBP','BRL','INR'].map(c => <option key={c} className="bg-surface-raised">{c}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1.5">Description</label>
+                        <input type="text" value={depositForm.description} onChange={e => setDepositForm(f => ({...f, description: e.target.value}))}
+                          className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button type="button" onClick={handleCreateDeposit} disabled={loading}
+                          className="py-3 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-all">
+                          {loading ? 'Processing…' : 'Real Deposit'}
+                        </button>
+                        <button type="button" onClick={handleCreateTestBalance} disabled={loading}
+                          className="py-3 bg-surface-base border border-brand-500/30 text-brand-300 hover:bg-brand-500/10 disabled:opacity-50 text-sm font-semibold rounded-xl transition-all">
+                          {loading ? 'Processing…' : 'Test Balance'}
+                        </button>
+                      </div>
+                      <p className="text-xs text-slate-600 text-center">Test Balance adds funds instantly without validation</p>
+                    </form>
+                  )}
+                </div>
+
+                {/* Response */}
+                {response && (
+                  <div className="mx-6 mb-6 p-3 bg-surface-base rounded-xl border border-white/[0.06]">
+                    <pre className="text-xs text-brand-300 overflow-auto max-h-32">{response}</pre>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+        </main>
+      </div>
     </div>
   );
 };
 
-export default LedgerTest; 
+export default LedgerTest;

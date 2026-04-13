@@ -257,10 +257,10 @@ const KYCDashboard: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'verified': return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
+      case 'verified': return 'text-brand-300 bg-brand-500/10 border-brand-500/20';
       case 'rejected': return 'text-red-400 bg-red-500/10 border-red-500/20';
       case 'under_review': return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
-      case 'pending': return 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+      case 'pending': return 'text-brand-300 bg-brand-500/10 border-brand-500/20';
       default: return 'text-gray-400 bg-gray-500/10 border-gray-500/20';
     }
   };
@@ -276,7 +276,7 @@ const KYCDashboard: React.FC = () => {
   };
 
   const getRiskLevel = (score: number) => {
-    if (score < 30) return { level: 'Low', color: 'text-green-400', bgColor: 'bg-green-500/10' };
+    if (score < 30) return { level: 'Low', color: 'text-brand-300', bgColor: 'bg-brand-500/10' };
     if (score < 60) return { level: 'Medium', color: 'text-yellow-400', bgColor: 'bg-yellow-500/10' };
     return { level: 'High', color: 'text-red-400', bgColor: 'bg-red-500/10' };
   };
@@ -285,7 +285,7 @@ const KYCDashboard: React.FC = () => {
     switch (priority) {
       case 'high': return 'bg-red-500/20 text-red-400 border-red-500/30';
       case 'medium': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'low': return 'bg-green-500/20 text-green-400 border-green-500/30';
+      case 'low': return 'bg-brand-500/15 text-brand-300 border-brand-500/25';
       default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
     }
   };
@@ -328,12 +328,12 @@ const KYCDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br [#0B0C0E] flex items-center justify-center">
         <motion.div className="text-center space-y-4">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full mx-auto"
+            className="w-16 h-16 border-4 border-[rgba(46,111,64,0.30)] border-t-[#68BA7F] rounded-full mx-auto"
           />
           <motion.div
             initial={{ opacity: 0 }}
@@ -352,22 +352,22 @@ const KYCDashboard: React.FC = () => {
     <div className="min-h-screen relative overflow-hidden">
       {/* Enhanced background effects */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-600/15 via-transparent to-purple-600/15" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-emerald-600/10 via-transparent to-cyan-600/10" />
+        <div className="absolute inset-0 bg-[rgba(46,111,64,0.04)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-brand-500/10 via-transparent to-brand-300/5" />
         
         {/* Animated gradient orbs */}
         <motion.div 
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl"
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-[rgba(46,111,64,0.06)] rounded-full blur-3xl"
           variants={floatingVariants}
           animate="animate"
         />
         <motion.div 
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-full blur-3xl"
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[rgba(37,61,44,0.08)] rounded-full blur-3xl"
           variants={pulseVariants}
           animate="animate"
         />
         <motion.div 
-          className="absolute top-3/4 left-1/2 w-64 h-64 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-full blur-2xl"
+          className="absolute top-3/4 left-1/2 w-64 h-64 bg-gradient-to-r from-brand-500/10 to-brand-300/5 rounded-full blur-2xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -394,13 +394,13 @@ const KYCDashboard: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-3">
                 <motion.div 
-                  className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25"
+                  className="w-12 h-12 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-xl flex items-center justify-center shadow-lg shadow-[rgba(46,111,64,0.25)]"
                   whileHover={{ scale: 1.05, rotate: 5 }}
                 >
                   <BarChart3 className="h-6 w-6 text-white" />
                 </motion.div>
                 <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-[#CFFFDC] bg-clip-text text-transparent">
                     KYC Management
                   </h1>
                   <p className="text-white/60">Monitor and manage customer verification processes</p>
@@ -428,7 +428,7 @@ const KYCDashboard: React.FC = () => {
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value)}
-                className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-blue-400 backdrop-blur-sm"
+                className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-[#68BA7F] backdrop-blur-sm"
               >
                 <option value="24h" className="bg-slate-800">Last 24 hours</option>
                 <option value="7d" className="bg-slate-800">Last 7 days</option>
@@ -451,7 +451,7 @@ const KYCDashboard: React.FC = () => {
               label: 'Total Submissions', 
               value: stats?.totalSubmissions || 0, 
               icon: Users, 
-              color: 'from-blue-500 to-cyan-500',
+              color: 'from-[#2E6F40] to-[#68BA7F]',
               change: '+12.3%',
               trend: 'up'
             },
@@ -459,7 +459,7 @@ const KYCDashboard: React.FC = () => {
               label: 'Verified', 
               value: stats?.verified || 0, 
               icon: CheckCircle2, 
-              color: 'from-emerald-500 to-green-500',
+              color: 'from-brand-500 to-brand-300',
               change: '+8.7%',
               trend: 'up'
             },
@@ -475,7 +475,7 @@ const KYCDashboard: React.FC = () => {
               label: 'Success Rate', 
               value: `${stats?.successRate || 0}%`, 
               icon: Target, 
-              color: 'from-purple-500 to-pink-500',
+              color: 'from-[#253D2C] to-[#2E6F40]',
               change: '+2.1%',
               trend: 'up'
             }
@@ -496,7 +496,7 @@ const KYCDashboard: React.FC = () => {
                   </div>
                   <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
                     ${stat.trend === 'up' 
-                      ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20' 
+                      ? 'text-brand-300 bg-brand-500/10 border border-brand-500/20' 
                       : 'text-red-400 bg-red-500/10 border border-red-500/20'
                     }`}>
                     {stat.trend === 'up' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
@@ -528,7 +528,7 @@ const KYCDashboard: React.FC = () => {
                   placeholder="Search customers, email, or location..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-white/5 border border-white/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-300"
+                  className="w-full bg-white/5 border border-white/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-[#68BA7F] focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] transition-all duration-300"
                 />
                 {searchTerm && (
                   <motion.button
@@ -545,7 +545,7 @@ const KYCDashboard: React.FC = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-400 min-w-[140px]"
+                className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#68BA7F] min-w-[140px]"
               >
                 <option value="all" className="bg-slate-800">All Status</option>
                 <option value="pending" className="bg-slate-800">Pending</option>
@@ -570,7 +570,7 @@ const KYCDashboard: React.FC = () => {
                   onClick={() => setViewMode('list')}
                   className={`px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
                     viewMode === 'list' 
-                      ? 'bg-blue-500 text-white shadow-lg' 
+                      ? 'bg-[#2E6F40] text-white shadow-lg' 
                       : 'text-white/70 hover:text-white hover:bg-white/5'
                   }`}
                   whileTap={{ scale: 0.95 }}
@@ -581,7 +581,7 @@ const KYCDashboard: React.FC = () => {
                   onClick={() => setViewMode('grid')}
                   className={`px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
                     viewMode === 'grid' 
-                      ? 'bg-blue-500 text-white shadow-lg' 
+                      ? 'bg-[#2E6F40] text-white shadow-lg' 
                       : 'text-white/70 hover:text-white hover:bg-white/5'
                   }`}
                   whileTap={{ scale: 0.95 }}
@@ -631,11 +631,11 @@ const KYCDashboard: React.FC = () => {
                         >
                           <td className="p-6">
                             <div className="flex items-center space-x-4">
-                              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold shadow-lg">
+                              <div className="w-12 h-12 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-full flex items-center justify-center text-white font-semibold shadow-lg">
                                 {submission.name.split(' ').map(n => n[0]).join('')}
                               </div>
                               <div>
-                                <p className="text-white font-medium group-hover:text-blue-300 transition-colors">
+                                <p className="text-white font-medium group-hover:text-brand-300 transition-colors">
                                   {submission.name}
                                 </p>
                                 <p className="text-white/60 text-sm">{submission.email}</p>
@@ -688,7 +688,7 @@ const KYCDashboard: React.FC = () => {
                           <td className="p-6">
                             <div className="flex items-center space-x-2">
                               <motion.button 
-                                className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors duration-300"
+                                className="p-2 bg-[rgba(46,111,64,0.15)] hover:bg-[rgba(46,111,64,0.25)] text-brand-300 rounded-lg transition-colors duration-300"
                                 onClick={() => setSelectedSubmission(submission)}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
@@ -696,7 +696,7 @@ const KYCDashboard: React.FC = () => {
                                 <Eye className="h-4 w-4" />
                               </motion.button>
                               <motion.button 
-                                className="p-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-colors duration-300"
+                                className="p-2 bg-[rgba(37,61,44,0.30)] hover:bg-[rgba(37,61,44,0.45)] text-[#CFFFDC] rounded-lg transition-colors duration-300"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                               >
@@ -739,7 +739,7 @@ const KYCDashboard: React.FC = () => {
                       whileHover={{ scale: 1.02, y: -2 }}
                     >
                       <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold shadow-lg">
+                        <div className="w-12 h-12 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-full flex items-center justify-center text-white font-semibold shadow-lg">
                           {submission.name.split(' ').map(n => n[0]).join('')}
                         </div>
                         <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(submission.status)}`}>
@@ -749,7 +749,7 @@ const KYCDashboard: React.FC = () => {
                       </div>
                       
                       <div className="space-y-2 mb-4">
-                        <h3 className="text-white font-medium group-hover:text-blue-300 transition-colors">
+                        <h3 className="text-white font-medium group-hover:text-brand-300 transition-colors">
                           {submission.name}
                         </h3>
                         <p className="text-white/60 text-sm">{submission.email}</p>
@@ -801,7 +801,7 @@ const KYCDashboard: React.FC = () => {
         >
           <div className="flex items-center gap-4">
             <motion.button 
-              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-3 shadow-lg shadow-blue-500/25"
+              className="bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] hover:from-[#253D2C] hover:to-[#2E6F40] text-white px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-3 shadow-lg shadow-[rgba(46,111,64,0.25)]"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -822,7 +822,7 @@ const KYCDashboard: React.FC = () => {
             <span>Showing {filteredSubmissions.length} of {submissions.length} submissions</span>
             <div className="flex items-center gap-2">
               <span>Avg. processing time:</span>
-              <span className="text-blue-400 font-medium">{stats?.averageProcessingTime}</span>
+              <span className="text-brand-300 font-medium">{stats?.averageProcessingTime}</span>
             </div>
           </div>
         </motion.div>
@@ -848,7 +848,7 @@ const KYCDashboard: React.FC = () => {
               {/* Modal header */}
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
                     {selectedSubmission.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
@@ -883,7 +883,7 @@ const KYCDashboard: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <h4 className="text-white font-semibold flex items-center gap-2">
-                      <User className="h-5 w-5 text-blue-400" />
+                      <User className="h-5 w-5 text-brand-300" />
                       Customer Information
                     </h4>
                     <div className="space-y-3 bg-white/5 rounded-xl p-4">
@@ -908,7 +908,7 @@ const KYCDashboard: React.FC = () => {
 
                   <div className="space-y-4">
                     <h4 className="text-white font-semibold flex items-center gap-2">
-                      <BarChart3 className="h-5 w-5 text-purple-400" />
+                      <BarChart3 className="h-5 w-5 text-[#CFFFDC]" />
                       Risk Assessment
                     </h4>
                     <div className="space-y-3 bg-white/5 rounded-xl p-4">
@@ -948,7 +948,7 @@ const KYCDashboard: React.FC = () => {
                 {/* Documents section */}
                 <div className="space-y-4">
                   <h4 className="text-white font-semibold flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-green-400" />
+                    <FileText className="h-5 w-5 text-brand-300" />
                     Documents ({selectedSubmission.documents.length})
                   </h4>
                   <div className="space-y-3">
@@ -961,7 +961,7 @@ const KYCDashboard: React.FC = () => {
                         transition={{ delay: index * 0.1 }}
                       >
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 bg-gradient-to-r from-brand-500 to-brand-300 rounded-lg flex items-center justify-center">
                             <FileText className="h-5 w-5 text-white" />
                           </div>
                           <div>
@@ -999,7 +999,7 @@ const KYCDashboard: React.FC = () => {
                       handleStatusUpdate(selectedSubmission.id, 'verified');
                       setSelectedSubmission(null);
                     }}
-                    className="flex-1 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/25"
+                    className="flex-1 bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 text-white py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-brand-500/25"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >

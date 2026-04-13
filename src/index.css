@@ -2,12 +2,349 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer utilities {
-  .scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+/* ─── Design Tokens ──────────────────────────────────────────────────── */
+:root {
+  /* Brand palette — Electric Indigo Blue */
+  --color-brand-50:  #C7DEFF;
+  --color-brand-100: #7EB8FF;
+  --color-brand-400: #7EB8FF;
+  --color-brand-500: #3B6EFF;
+  --color-brand-600: #2855D8;
+  --color-brand-900: #050810;
+
+  --color-accent-400: #7EB8FF;
+  --color-accent-500: #3B6EFF;
+  --color-accent-600: #2855D8;
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger:  #ef4444;
+
+  /* ── Page surfaces (neutral near-black, no blue tint) ── */
+  --surface-base:    #0B0C0E;   /* page root — matches landing */
+  --surface-sidebar: #0F1012;   /* sidebar / nav panel */
+  --surface-raised:  #111315;   /* cards, panels */
+  --surface-hover:   #161819;   /* hover on raised */
+  --surface-overlay: rgba(11,12,14,0.92); /* modals */
+
+  /* Glass helpers */
+  --surface-glass:        rgba(255, 255, 255, 0.04);
+  --surface-glass-border: rgba(255, 255, 255, 0.08);
+  --surface-glass-hover:  rgba(255, 255, 255, 0.10);
+
+  /* Typography scale */
+  --text-fluid-xs:   clamp(0.70rem, 0.65rem + 0.25vw, 0.80rem);
+  --text-fluid-sm:   clamp(0.80rem, 0.75rem + 0.25vw, 0.95rem);
+  --text-fluid-base: clamp(0.95rem, 0.90rem + 0.25vw, 1.05rem);
+  --text-fluid-lg:   clamp(1.10rem, 1.00rem + 0.50vw, 1.25rem);
+  --text-fluid-xl:   clamp(1.20rem, 1.05rem + 0.75vw, 1.50rem);
+  --text-fluid-2xl:  clamp(1.50rem, 1.20rem + 1.50vw, 2.00rem);
+  --text-fluid-3xl:  clamp(1.80rem, 1.40rem + 2.00vw, 2.50rem);
+  --text-fluid-4xl:  clamp(2.20rem, 1.60rem + 3.00vw, 3.50rem);
+
+  /* Motion */
+  --ease-spring:      cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-out-expo:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-circ: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  --duration-fast:    150ms;
+  --duration-base:    250ms;
+  --duration-slow:    400ms;
+
+  /* Spacing rhythm */
+  --space-section: clamp(4rem, 8vw, 8rem);
+}
+
+/* ─── Base reset & globals ───────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari and Opera */
+
+  body {
+    background-color: #0B0C0E;
+    @apply text-slate-100;
+    font-size: var(--text-fluid-base);
+    overflow-x: hidden;
+  }
+
+  /* Focus visible — keyboard-only, no mouse outlines */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  :focus:not(:focus-visible) { outline: none; }
+
+  /* Selection */
+  ::selection {
+    background: rgba(46, 111, 64, 0.45);
+    color: #CFFFDC;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.25);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.45);
+  }
+  * { scrollbar-width: thin; scrollbar-color: rgba(148,163,184,.25) transparent; }
+}
+
+/* ─── Component layer ────────────────────────────────────────────────── */
+@layer components {
+
+  /* Glass card */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+  }
+
+  /* Light glass (for modals on dark bg) */
+  .glass-modal {
+    background: rgba(14, 15, 18, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+  }
+
+  /* Brand gradient text */
+  .gradient-text {
+    background: linear-gradient(to right, #68BA7F, #CFFFDC, #68BA7F);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glow effects */
+  .glow-blue  { box-shadow: 0 0 24px rgba(46, 111, 64, 0.40); }
+  .glow-purple{ box-shadow: 0 0 24px rgba(104, 186, 127, 0.35); }
+  .glow-green { box-shadow: 0 0 24px rgba(46, 111, 64, 0.45); }
+
+  /* Input field — shared style */
+  .input-field {
+    @apply w-full border rounded-xl
+           px-4 py-3 text-white placeholder-slate-500
+           focus:outline-none
+           transition-all duration-200;
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.10);
+  }
+  .input-field:focus {
+    box-shadow: 0 0 0 2px rgba(46, 111, 64, 0.35);
+    border-color: rgba(104, 186, 127, 0.45);
+  }
+
+  .input-field-light {
+    @apply w-full bg-slate-50 border border-slate-200 rounded-xl
+           px-4 py-3 text-slate-900 placeholder-slate-400
+           focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500
+           transition-all duration-200;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           font-semibold rounded-xl px-6 py-3
+           transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none;
+    background: linear-gradient(135deg, #2E6F40, #68BA7F);
+    color: #CFFFDC;
+    box-shadow: 0 0 24px rgba(46, 111, 64, 0.35);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #265c35, #4ea368);
+    box-shadow: 0 0 36px rgba(46, 111, 64, 0.55);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-white/5 hover:bg-white/10
+           border border-white/10 hover:border-white/20
+           text-white font-medium rounded-xl px-6 py-3
+           transition-all duration-200;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           text-slate-400 hover:text-white
+           hover:bg-white/5 rounded-lg px-3 py-2
+           transition-all duration-150;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full
+           px-3 py-1 text-xs font-semibold tracking-wide;
+  }
+  .badge-blue   { @apply badge border; background: rgba(46,111,64,0.15); color: #68BA7F; border-color: rgba(104,186,127,0.25); }
+  .badge-green  { @apply badge border; background: rgba(46,111,64,0.15); color: #CFFFDC; border-color: rgba(207,255,220,0.25); }
+  .badge-purple { @apply badge border; background: rgba(104,186,127,0.12); color: #68BA7F; border-color: rgba(104,186,127,0.25); }
+  .badge-amber  { @apply badge bg-amber-500/15 text-amber-300 border border-amber-500/25; }
+  .badge-red    { @apply badge bg-red-500/15 text-red-300 border border-red-500/25; }
+
+  /* Status dot */
+  .status-dot          { @apply w-2 h-2 rounded-full; }
+  .status-dot-online   { @apply status-dot bg-brand-300; animation: pulse-green 2s infinite; }
+  .status-dot-offline  { @apply status-dot bg-red-400; }
+  .status-dot-warning  { @apply status-dot bg-amber-400; animation: pulse-amber 2s infinite; }
+
+  /* Skeleton loader */
+  .skeleton {
+    @apply rounded-lg bg-white/5;
+    animation: skeleton-shimmer 1.8s ease-in-out infinite;
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0.04) 0%,
+      rgba(255,255,255,0.09) 50%,
+      rgba(255,255,255,0.04) 100%
+    );
+    background-size: 200% 100%;
   }
 }
+
+/* ─── Utility layer ──────────────────────────────────────────────────── */
+@layer utilities {
+  /* Scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  /* Fluid text helpers */
+  .text-fluid-xs   { font-size: var(--text-fluid-xs); }
+  .text-fluid-sm   { font-size: var(--text-fluid-sm); }
+  .text-fluid-base { font-size: var(--text-fluid-base); }
+  .text-fluid-lg   { font-size: var(--text-fluid-lg); }
+  .text-fluid-xl   { font-size: var(--text-fluid-xl); }
+  .text-fluid-2xl  { font-size: var(--text-fluid-2xl); }
+  .text-fluid-3xl  { font-size: var(--text-fluid-3xl); }
+  .text-fluid-4xl  { font-size: var(--text-fluid-4xl); }
+
+  /* Gradient borders */
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(46,111,64,0.6), rgba(104,186,127,0.5));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Noise texture overlay */
+  .noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* Section spacing */
+  .section-pad { padding-top: var(--space-section); padding-bottom: var(--space-section); }
+
+  /* Animated underline link */
+  .link-underline {
+    background-image: linear-gradient(var(--color-brand-500), var(--color-brand-500));
+    background-size: 0 1.5px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size var(--duration-base) var(--ease-out-expo);
+  }
+  .link-underline:hover { background-size: 100% 1.5px; }
+
+  /* Safe area insets for mobile */
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  .safe-top    { padding-top: env(safe-area-inset-top); }
+}
+
+/* ─── Keyframes ──────────────────────────────────────────────────────── */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(46, 111, 64, 0.5); }
+  50%       { box-shadow: 0 0 0 6px rgba(46, 111, 64, 0); }
+}
+
+@keyframes pulse-amber {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  50%       { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-down {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes zoom-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  from { background-position: 200% center; }
+  to   { background-position: -200% center; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+/* Animation helper classes */
+.animate-fade-in       { animation: fade-in       var(--duration-slow) var(--ease-out-expo) both; }
+.animate-slide-in-up   { animation: slide-in-up   var(--duration-slow) var(--ease-out-expo) both; }
+.animate-slide-in-down { animation: slide-in-down var(--duration-slow) var(--ease-out-expo) both; }
+.animate-zoom-in       { animation: zoom-in       var(--duration-slow) var(--ease-spring)   both; }
+.animate-float         { animation: float 4s ease-in-out infinite; }
+.animate-spin-slow     { animation: spin-slow 8s linear infinite; }
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+}
+
+/* Staggered children */
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 60ms; }
+.stagger > *:nth-child(3) { animation-delay: 120ms; }
+.stagger > *:nth-child(4) { animation-delay: 180ms; }
+.stagger > *:nth-child(5) { animation-delay: 240ms; }
+.stagger > *:nth-child(6) { animation-delay: 300ms; }

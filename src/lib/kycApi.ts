@@ -50,19 +50,22 @@ export interface KYCStartRequest {
 const BASE_URL = '/api/kyc';
 
 export class KYCApi {
-  // Fetch available countries and their requirements
+  // Fetch available countries (public endpoint — no auth required)
   static async getCountries(searchQuery?: string): Promise<Country[]> {
     try {
-      const url = searchQuery 
+      const url = searchQuery
         ? `${BASE_URL}/countries?search=${encodeURIComponent(searchQuery)}`
         : `${BASE_URL}/countries`;
-      
-      const data = await apiClient.authenticatedRequest(url);
-      
+
+      // Use public fetch — this endpoint does not require authentication
+      const apiBase = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8080';
+      const response = await fetch(`${apiBase}${url}`);
+      const data = await response.json();
+
       if (!data.success) {
         throw new Error(data.error || 'Failed to fetch countries');
       }
-      
+
       return data.countries || [];
     } catch (error) {
       console.error('Error fetching countries:', error);
@@ -239,7 +242,7 @@ export class KYCApi {
     if (riskScore < 30) {
       return {
         level: 'Low',
-        color: 'text-green-400',
+        color: 'text-brand-300',
         description: 'Low risk customer with standard verification requirements'
       };
     }
@@ -273,14 +276,9 @@ export class KYCApi {
       if (filters?.country) queryParams.append('country', filters.country);
       if (filters?.priority) queryParams.append('priority', filters.priority);
 
-      const response = await apiClient.authenticatedRequest(`${BASE_URL}/dashboard?${queryParams.toString()}`);
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch dashboard submissions');
-      }
-      
-      return data.data;
+      // authenticatedRequest already parses JSON and throws on non-2xx responses
+      const data = await apiClient.authenticatedRequest(`${BASE_URL}/dashboard?${queryParams.toString()}`);
+      return data.data ?? [];
     } catch (error) {
       console.error('Error fetching dashboard submissions:', error);
       throw error;
@@ -290,13 +288,7 @@ export class KYCApi {
   // Get dashboard statistics
   static async getDashboardStats(): Promise<KYCStats> {
     try {
-      const response = await apiClient.authenticatedRequest(`${BASE_URL}/dashboard/stats`);
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch dashboard stats');
-      }
-      
+      const data = await apiClient.authenticatedRequest(`${BASE_URL}/dashboard/stats`);
       return data.data;
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
@@ -311,20 +303,10 @@ export class KYCApi {
     notes?: string
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await apiClient.authenticatedRequest(`${BASE_URL}/submissions/${submissionId}`, {
+      const data = await apiClient.authenticatedRequest(`${BASE_URL}/submissions/${submissionId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ status, notes }),
       });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update submission status');
-      }
-      
       return data;
     } catch (error) {
       console.error('Error updating submission status:', error);
@@ -338,20 +320,10 @@ export class KYCApi {
     status: string
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await apiClient.authenticatedRequest(`${BASE_URL}/submissions/bulk-update`, {
+      const data = await apiClient.authenticatedRequest(`${BASE_URL}/submissions/bulk-update`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ ids: submissionIds, status }),
       });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to bulk update submissions');
-      }
-      
       return data;
     } catch (error) {
       console.error('Error bulk updating submissions:', error);

@@ -8,22 +8,20 @@ import {
   MotionValue,
 } from "framer-motion";
 import { Link } from "react-router-dom";
+import { ArrowRight, Shield, Zap, Globe, Code, Layers } from "lucide-react";
+
+/* ─── HeroParallax ────────────────────────────────────────────────────────── */
 
 export const HeroParallax = ({
   products,
 }: {
-  products: {
-    title: string;
-    link: string;
-    thumbnail: string;
-  }[];
+  products: { title: string; link: string; thumbnail: string }[];
 }) => {
-  const firstRow = products.slice(0, 5);
+  const firstRow  = products.slice(0, 5);
   const secondRow = products.slice(5, 10);
-  const thirdRow = products.slice(10, 15);
+  const thirdRow  = products.slice(10, 15);
   const ref = React.useRef(null);
-  
-  // Use more reasonable scroll tracking
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -31,290 +29,339 @@ export const HeroParallax = ({
 
   const springConfig = { stiffness: 300, damping: 30, bounce: 100 };
 
-  // More responsive translate values that work better across screen sizes
-  const translateX = useSpring(
-    useTransform(scrollYProgress, [0, 1], [0, 150]),
-    springConfig
-  );
-  const translateXReverse = useSpring(
-    useTransform(scrollYProgress, [0, 1], [0, -150]),
-    springConfig
-  );
-  const rotateX = useSpring(
-    useTransform(scrollYProgress, [0, 0.3], [15, 0]),
-    springConfig
-  );
-  const opacity = useSpring(
-    useTransform(scrollYProgress, [0, 0.3], [0.2, 1]),
-    springConfig
-  );
-  const rotateZ = useSpring(
-    useTransform(scrollYProgress, [0, 0.3], [20, 0]),
-    springConfig
-  );
-  const translateY = useSpring(
-    useTransform(scrollYProgress, [0, 0.3], [-500, 50]),
-    springConfig
-  );
-  
-  // Track if user has scrolled past 40px
-  const [tilesActive, setTilesActive] = React.useState(false);
-  React.useEffect(() => {
-    const onScroll = () => {
-      if (window.scrollY > 40) {
-        setTilesActive(true);
-      } else {
-        setTilesActive(false);
-      }
-    };
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const translateX        = useSpring(useTransform(scrollYProgress, [0, 1], [0, 150]),  springConfig);
+  const translateXReverse = useSpring(useTransform(scrollYProgress, [0, 1], [0, -150]), springConfig);
+  const rotateX   = useSpring(useTransform(scrollYProgress, [0, 0.25], [15, 0]),        springConfig);
+  const rotateZ   = useSpring(useTransform(scrollYProgress, [0, 0.25], [20, 0]),        springConfig);
+  const opacity   = useSpring(useTransform(scrollYProgress, [0, 0.25], [0.2, 1]),       springConfig);
+  const translateY = useSpring(useTransform(scrollYProgress, [0, 0.25], [-500, 0]),     springConfig);
 
   return (
-    <div
-      ref={ref}
-      className="min-h-screen max-h-[200vh] pt-8 pb-16 sm:pt-12 sm:pb-20 lg:pt-16 lg:pb-24 overflow-hidden antialiased relative flex flex-col justify-between dark:bg-[#000008]"
-    >
-      <div className="relative z-50 flex-shrink-0">
-        <Header />
-      </div>
-      
-      <motion.div
-        style={{
-          rotateX,
-          rotateZ,
-          translateY,
-          opacity,
-        }}
-        className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-screen-2xl mx-auto w-full flex-grow flex flex-col justify-center py-8 lg:py-12"
+    <div ref={ref} className="relative overflow-hidden antialiased" style={{ minHeight: "220vh" }}>
+      <div className="relative z-50"><Header /></div>
+
+      {/* Sticky "Complete Platform" heading */}
+      <div
+        id="platform"
+        className="sticky top-24 z-30 text-center px-4 py-10 pointer-events-none"
       >
-        {/* First Row */}
-        <motion.div 
-          className="flex flex-row-reverse space-x-reverse justify-center mb-4 sm:mb-6 lg:mb-8"
-          style={{ gap: 'clamp(1rem, 3vw, 4rem)' }}
+        <div
+          className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-5 text-[11px] font-semibold tracking-widest uppercase pointer-events-auto"
+          style={{
+            background: 'rgba(59,110,255,0.10)',
+            border: '1px solid rgba(59,110,255,0.28)',
+            color: '#7EB8FF',
+          }}
         >
-          {firstRow.map((product) => (
-            <ProductCard
-              product={product}
-              translate={translateX}
-              key={product.title}
-              tilesActive={tilesActive}
-            />
-          ))}
-        </motion.div>
-        
-        {/* Second Row */}
-        <motion.div 
-          className="flex flex-row justify-center mb-4 sm:mb-6 lg:mb-8"
-          style={{ gap: 'clamp(1rem, 3vw, 4rem)' }}
+          <Layers className="h-3 w-3" />
+          14 Production Modules
+        </div>
+
+        <h2
+          className="font-extrabold leading-tight tracking-tight mb-3 text-white"
+          style={{ fontSize: 'clamp(2rem,5vw,3.25rem)', letterSpacing: '-0.02em' }}
         >
-          {secondRow.map((product) => (
-            <ProductCard
-              product={product}
-              translate={translateXReverse}
-              key={product.title}
-              tilesActive={tilesActive}
-            />
-          ))}
-        </motion.div>
-        
-        {/* Third Row */}
-        <motion.div 
-          className="flex flex-row-reverse space-x-reverse justify-center"
-          style={{ gap: 'clamp(1rem, 3vw, 4rem)' }}
-        >
-          {thirdRow.map((product) => (
-            <ProductCard
-              product={product}
-              translate={translateX}
-              key={product.title}
-              tilesActive={tilesActive}
-            />
-          ))}
-        </motion.div>
-      </motion.div>
-      
-      {/* Scroll indicator */}
-      <div className="relative z-50 flex justify-center pb-8">
-        <motion.div 
-          className="w-1 h-8 bg-gradient-to-b from-slate-600 to-transparent dark:from-white/50 rounded-full"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
+          The Complete Platform,
+          <span
+            className="block"
+            style={{
+              background: 'linear-gradient(90deg, #7EB8FF 0%, #C7DEFF 55%, #7EB8FF 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            Shipped as One
+          </span>
+        </h2>
+
+        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.3)' }}>
+          Scroll to explore — click any tile to try it live.
+        </p>
       </div>
+
+      {/* Moving tiles */}
+      <motion.div style={{ rotateX, rotateZ, translateY, opacity }} className="relative z-10">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-screen-2xl mx-auto pb-40">
+          <motion.div className="flex flex-row-reverse space-x-reverse justify-center mb-5" style={{ gap: "clamp(0.6rem,1.8vw,2rem)" }}>
+            {firstRow.map(p => <ProductCard key={p.title} product={p} translate={translateX} />)}
+          </motion.div>
+          <motion.div className="flex flex-row justify-center mb-5" style={{ gap: "clamp(0.6rem,1.8vw,2rem)" }}>
+            {secondRow.map(p => <ProductCard key={p.title} product={p} translate={translateXReverse} />)}
+          </motion.div>
+          <motion.div className="flex flex-row-reverse space-x-reverse justify-center" style={{ gap: "clamp(0.6rem,1.8vw,2rem)" }}>
+            {thirdRow.map(p => <ProductCard key={p.title} product={p} translate={translateX} />)}
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Bottom fade */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-52 pointer-events-none z-20"
+        style={{ background: 'linear-gradient(to top, #04060F, transparent)' }}
+      />
     </div>
   );
 };
+
+/* ─── Header ──────────────────────────────────────────────────────────────── */
+
+const STATS = [
+  { value: "50K+",   label: "Transactions / sec" },
+  { value: "99.99%", label: "Uptime SLA"          },
+  { value: "180+",   label: "Countries"           },
+  { value: "2.4B",   label: "API calls / day"     },
+];
+
+const PILLS = [
+  { icon: Shield, text: "SOC 2 Type II"  },
+  { icon: Zap,    text: "50K+ TPS"       },
+  { icon: Globe,  text: "Multi-currency" },
+  { icon: Code,   text: "gRPC + REST"    },
+];
+
+const MARQUEE = ["Stripe","PayPal","Square","Coinbase","Robinhood","Wise","Plaid","Adyen","Brex","Mercury"];
 
 export const Header = () => {
-  
-  const handleStartBuilding = () => {
-    console.log('Start Building button clicked!');
-    // Scroll to the Features section
-    const featuresSection = document.querySelector('#features');
-    if (featuresSection) {
-      featuresSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      console.log('Features section not found');
-    }
-  };
+  const scrollTo = (id: string) =>
+    document.querySelector(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  const handleViewDocumentation = () => {
-    console.log('View Documentation button clicked!');
-    // Scroll to the Gallery section which shows the demos
-    const gallerySection = document.querySelector('#gallery');
-    if (gallerySection) {
-      gallerySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      console.log('Gallery section not found');
-    }
-  };
-  
   return (
-    <div className="max-w-screen-2xl relative mx-auto py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 w-full">
-      <div className="grid lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 xl:gap-16 items-center">
-        <div className="lg:col-span-8 xl:col-span-7">
-          <motion.h1 
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4 lg:mb-6 leading-tight"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            The Ultimate <br /> 
-            <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-purple-600 dark:from-blue-400 dark:via-cyan-400 dark:to-purple-400 bg-clip-text text-transparent">
-            Fintech Platform
-            </span>
-          </motion.h1>
-          <motion.p 
-            className="max-w-2xl text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-slate-700 dark:text-white/80 leading-relaxed mb-4 sm:mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            Build production-ready fintech applications with enterprise-grade security and compliance.
-            From core ledger systems to payment orchestration.
-            <br />
-            Everything you need in one platform.
-          </motion.p>
-          
-          {/* Action Buttons */}
-          <motion.div 
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4 relative z-60 mb-4 sm:mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            <motion.button 
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer pointer-events-auto shadow-2xl hover:shadow-blue-500/25"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleStartBuilding}
-              style={{ position: 'relative', zIndex: 100 }}
-            >
-              Start Building
-            </motion.button>
-            
-            <motion.button 
-              className="bg-slate-100/80 dark:bg-white/10 backdrop-blur-md hover:bg-slate-200/80 dark:hover:bg-white/20 text-slate-900 dark:text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 rounded-xl text-sm sm:text-base lg:text-lg font-semibold transition-all duration-300 border border-slate-200/50 dark:border-white/20 hover:border-slate-300/50 dark:hover:border-white/30 cursor-pointer pointer-events-auto"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleViewDocumentation}
-              style={{ position: 'relative', zIndex: 100 }}
-            >
-              View Documentation
-            </motion.button>
-          </motion.div>
-        </div>
-        
-        <div className="lg:col-span-4 xl:col-span-5">
-          {/* Animated hero image for larger screens */}
-          <motion.div 
-            className="hidden lg:flex items-center justify-center w-full h-full"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: [30, 0, 10, 0] }}
-            transition={{ duration: 1.2, delay: 0.3, repeat: Infinity, repeatType: 'reverse', repeatDelay: 2 }}
-            style={{ minHeight: '320px' }}
-          >
-            <motion.img
-              src="/images/hero-images/hero back.png"
-              alt="MudraCore OS Hero Background"
-              className="w-[130%] h-auto max-w-none rounded-2xl shadow-xl lg:w-[130%] lg:h-auto lg:max-w-none border-r-4 border-blue-500"
-              initial={{ scale: 0.98, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1.2, delay: 0.5 }}
-            />
-          </motion.div>
-        </div>
-      </div>
+    <div className="relative max-w-screen-xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 pb-16 text-center">
 
-      {/* Feature Highlights - Made more compact */}
-      <motion.div 
-        className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mt-6 sm:mt-8 max-w-4xl"
-        initial={{ opacity: 0, y: 20 }}
+      {/* Atmospheric glow */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          top: 0, left: '50%', transform: 'translateX(-50%)',
+          width: '720px', height: '420px',
+          background: 'radial-gradient(ellipse at 50% 40%, rgba(59,110,255,0.16) 0%, transparent 68%)',
+          filter: 'blur(12px)',
+        }}
+      />
+
+
+      {/* Main headline */}
+      <motion.h1
+        initial={{ opacity: 0, y: 22 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.6 }}
+        transition={{ duration: 0.65, delay: 0.07 }}
+        className="font-extrabold leading-[1.04] tracking-tight text-white mb-7"
+        style={{ fontSize: 'clamp(3rem,8.5vw,6rem)', letterSpacing: '-0.025em' }}
       >
+        The Infrastructure
+        <br />
+        <span
+          style={{
+            background: 'linear-gradient(110deg, #C7DEFF 10%, #7EB8FF 50%, #3B6EFF 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          for Modern Finance
+        </span>
+      </motion.h1>
+
+      {/* Sub-copy */}
+      <motion.p
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.55, delay: 0.15 }}
+        className="max-w-lg mx-auto mb-10 leading-relaxed"
+        style={{ fontSize: 'clamp(0.95rem,2vw,1.1rem)', color: 'rgba(255,255,255,0.42)' }}
+      >
+        Build production-ready fintech applications with enterprise-grade security.
+        Core ledger, payment orchestration, KYC compliance — shipped as one platform.
+      </motion.p>
+
+      {/* Feature pills */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, delay: 0.20 }}
+        className="flex flex-wrap justify-center gap-2 mb-10"
+      >
+        {PILLS.map(({ icon: Icon, text }) => (
+          <span
+            key={text}
+            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium"
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.09)',
+              color: 'rgba(255,255,255,0.55)',
+            }}
+          >
+            <Icon className="h-3 w-3 flex-shrink-0" style={{ color: '#7EB8FF' }} />
+            {text}
+          </span>
+        ))}
+      </motion.div>
+
+      {/* CTA row */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, delay: 0.26 }}
+        className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16"
+      >
+        {/* Primary — forest green, strong glow */}
+        <motion.button
+          whileHover={{ scale: 1.03, y: -1 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => scrollTo("#platform")}
+          className="group relative inline-flex items-center gap-2.5 rounded-xl font-semibold text-sm overflow-hidden"
+          style={{
+            padding: '13px 28px',
+            background: 'linear-gradient(135deg, #1D4ED8 0%, #3B6EFF 50%, #7EB8FF 100%)',
+            color: '#C7DEFF',
+            boxShadow: '0 0 0 1px rgba(59,110,255,0.30), 0 4px 24px rgba(59,110,255,0.45), 0 1px 4px rgba(0,0,0,0.4)',
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {/* Shimmer on hover */}
+          <span
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400"
+            style={{ background: 'linear-gradient(105deg, transparent 25%, rgba(207,255,220,0.14) 50%, transparent 75%)' }}
+          />
+          <span className="relative">Explore Platform</span>
+          <ArrowRight className="relative h-4 w-4 group-hover:translate-x-0.5 transition-transform duration-200" />
+        </motion.button>
+
+        {/* Secondary — ghost */}
+        <motion.button
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => scrollTo("#features")}
+          className="inline-flex items-center gap-2 rounded-xl font-medium text-sm"
+          style={{
+            padding: '13px 26px',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.11)',
+            color: 'rgba(255,255,255,0.60)',
+          }}
+        >
+          View Documentation
+        </motion.button>
+      </motion.div>
+
+      {/* Stats */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, delay: 0.34 }}
+        className="flex flex-wrap justify-center gap-x-12 gap-y-5 mb-14"
+      >
+        {STATS.map(({ value, label }, i) => (
+          <div key={i} className="text-center">
+            <div
+              className="font-extrabold leading-none mb-1.5 text-white"
+              style={{ fontSize: 'clamp(1.6rem,2.8vw,2rem)' }}
+            >
+              {value}
+            </div>
+            <div
+              className="text-[11px] uppercase tracking-[0.1em] font-medium"
+              style={{ color: 'rgba(255,255,255,0.28)' }}
+            >
+              {label}
+            </div>
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Hairline divider */}
+      <div
+        className="mx-auto mb-6"
+        style={{
+          width: '200px', height: '1px',
+          background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent)',
+        }}
+      />
+
+      {/* Marquee */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.7, delay: 0.5 }}
+      >
+        <p className="text-[10px] uppercase tracking-[0.18em] font-medium mb-4" style={{ color: 'rgba(255,255,255,0.18)' }}>
+          Trusted by teams at
+        </p>
+        <div className="relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
+          <motion.div
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ duration: 32, repeat: Infinity, ease: "linear" }}
+            className="flex gap-12 items-center whitespace-nowrap"
+          >
+            {[...MARQUEE, ...MARQUEE].map((name, i) => (
+              <span key={i} className="text-sm font-semibold select-none" style={{ color: 'rgba(255,255,255,0.14)' }}>
+                {name}
+              </span>
+            ))}
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Scroll cue */}
+      <motion.div
+        className="absolute bottom-4 left-1/2 -translate-x-1/2"
+        animate={{ y: [0, 6, 0] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <div
+          className="w-px rounded-full"
+          style={{ height: '32px', background: 'linear-gradient(to bottom, rgba(59,110,255,0.45), transparent)' }}
+        />
       </motion.div>
     </div>
   );
 };
+
+/* ─── Product Card ────────────────────────────────────────────────────────── */
 
 export const ProductCard = ({
   product,
   translate,
-  tilesActive,
 }: {
-  product: {
-    title: string;
-    link: string;
-    thumbnail: string;
-  };
+  product: { title: string; link: string; thumbnail: string };
   translate: MotionValue<number>;
-  tilesActive: boolean;
-}) => {
-  return (
-    <motion.div
-      style={{
-        x: translate,
-        width: 'clamp(120px, 16vw, 360px)',
-        height: 'clamp(120px, 16vw, 360px)',
-        aspectRatio: '1/1'
-      }}
-      whileHover={tilesActive ? { y: -10, scale: 1.05 } : {}}
-      key={product.title}
-      className={`group/product relative shrink-0 ${!tilesActive ? 'pointer-events-none opacity-40' : 'pointer-events-auto'}`}
+}) => (
+  <motion.div
+    style={{ x: translate, width: "clamp(140px,16vw,300px)", aspectRatio: "16/10" }}
+    whileHover={{ y: -8, scale: 1.04, transition: { duration: 0.2 } }}
+    className="group/product relative shrink-0 rounded-2xl overflow-hidden"
+  >
+    <Link to={product.link} className="block h-full w-full">
+      <img
+        src={product.thumbnail}
+        height="400" width="640"
+        className="object-cover object-center absolute h-full w-full inset-0 transition-transform duration-500 group-hover/product:scale-110"
+        alt={product.title}
+      />
+    </Link>
+
+    {/* Vignette */}
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{ background: 'linear-gradient(to top, rgba(11,12,14,0.88) 0%, rgba(11,12,14,0.15) 55%, transparent 100%)' }}
+    />
+    {/* Neutral border → green glow on hover */}
+    <div
+      className="absolute inset-0 rounded-2xl pointer-events-none transition-all duration-300"
+      style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+    />
+    <div
+      className="absolute inset-0 rounded-2xl pointer-events-none opacity-0 group-hover/product:opacity-100 transition-opacity duration-300"
+      style={{ border: '1px solid rgba(59,110,255,0.55)', boxShadow: 'inset 0 0 0 1px rgba(59,110,255,0.10), 0 0 28px rgba(59,110,255,0.22)' }}
+    />
+
+    {/* Title */}
+    <p
+      className="absolute bottom-2.5 left-3 right-3 font-semibold text-[10px] sm:text-xs leading-snug drop-shadow-lg pointer-events-none"
+      style={{ color: 'rgba(255,255,255,0.85)' }}
     >
-      {tilesActive ? (
-        <Link
-          to={product.link}
-          className="block group-hover/product:shadow-2xl"
-        >
-          <img
-            src={product.thumbnail}
-            height="600"
-            width="600"
-            className="object-cover object-center absolute h-full w-full inset-0 rounded-lg sm:rounded-xl border border-slate-200/50 dark:border-white/10"
-            alt={product.title}
-          />
-        </Link>
-      ) : (
-        <div className="block">
-          <img
-            src={product.thumbnail}
-            height="600"
-            width="600"
-            className="object-cover object-center absolute h-full w-full inset-0 rounded-lg sm:rounded-xl border border-slate-200/50 dark:border-white/10"
-            alt={product.title}
-          />
-        </div>
-      )}
-      {/* Enhanced background overlay for text readability */}
-      <div className="absolute inset-0 h-full w-full bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent dark:from-black/80 dark:via-black/30 pointer-events-none rounded-lg sm:rounded-xl"></div>
-      {/* Permanently visible title with better positioning */}
-      <h2 className="absolute bottom-1 left-1 sm:bottom-2 sm:left-2 lg:bottom-3 lg:left-3 text-white font-semibold text-[10px] sm:text-xs lg:text-sm xl:text-base drop-shadow-lg leading-tight">
-        {product.title}
-      </h2>
-    </motion.div>
-  );
-};
+      {product.title}
+    </p>
+  </motion.div>
+);

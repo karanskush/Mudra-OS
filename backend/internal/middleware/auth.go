@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -15,8 +16,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// JWT Secret - In production, this should be an environment variable
-var jwtSecret = []byte("your-secret-key-change-this-in-production")
+// jwtSecret is loaded from JWT_SECRET env var at startup; falls back to a dev-only default.
+var jwtSecret = func() []byte {
+	if s := os.Getenv("JWT_SECRET"); s != "" {
+		return []byte(s)
+	}
+	return []byte("dev-only-secret-set-JWT_SECRET-in-production")
+}()
 
 // UserContext represents the authenticated user context
 type UserContext struct {
