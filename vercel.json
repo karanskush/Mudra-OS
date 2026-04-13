@@ -1,4 +1,14 @@
 {
+  "experimentalServices": {
+    "web": {
+      "routePrefix": "/",
+      "framework": "vite"
+    },
+    "backend": {
+      "entrypoint": "backend",
+      "routePrefix": "/_/backend"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
@@ -16,4 +26,4 @@
       ]
     }
   ]
-} 
+}
