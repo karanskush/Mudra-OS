@@ -112,7 +112,7 @@ class GrpcWebClient {
   private baseUrl: string;
   private headers: Record<string, string>;
 
-  constructor(baseUrl: string = 'http://localhost:8080') {
+  constructor(baseUrl: string = 'http://localhost:47291') {
     this.baseUrl = baseUrl;
     this.headers = {
       'Content-Type': 'application/json',

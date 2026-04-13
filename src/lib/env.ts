@@ -43,7 +43,7 @@ export const getDiditConfig = (): {
  * Get API base URL from environment
  */
 export const getApiUrl = (): string => {
-  return getEnvVar('VITE_API_URL') || getEnvVar('REACT_APP_API_URL') || 'http://localhost:8080';
+  return getEnvVar('VITE_API_URL') || getEnvVar('REACT_APP_API_URL') || 'http://localhost:47291';
 };
 
 /**

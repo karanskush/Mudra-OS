@@ -212,8 +212,8 @@ if __name__ == '__main__':
         return (
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">gRPC Overview</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900  mb-4">gRPC Overview</h2>
+              <p className="text-lg text-gray-600  mb-6">
                 Our gRPC implementation provides high-performance, real-time APIs for financial operations. 
                 Built on Protocol Buffers, it offers type safety, efficient serialization, and advanced 
                 streaming capabilities.
@@ -221,9 +221,9 @@ if __name__ == '__main__':
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
-                <h3 className="text-xl font-semibold text-blue-900 dark:text-blue-300 mb-3">Key Features</h3>
-                <ul className="space-y-2 text-blue-800 dark:text-blue-300">
+              <div className="bg-blue-50  p-6 rounded-xl border border-blue-200 ">
+                <h3 className="text-xl font-semibold text-blue-900  mb-3">Key Features</h3>
+                <ul className="space-y-2 text-blue-800 ">
                   <li className="flex items-center gap-2">
                     <CheckCircleIcon className="h-5 w-5" />
                     Bidirectional streaming APIs
@@ -243,9 +243,9 @@ if __name__ == '__main__':
                 </ul>
               </div>
 
-              <div className="bg-brand-500 dark:bg-brand-500/15 p-6 rounded-xl border border-green-200 dark:border-green-800">
-                <h3 className="text-xl font-semibold text-brand-300 dark:text-brand-300 mb-3">Benefits</h3>
-                <ul className="space-y-2 text-brand-300 dark:text-brand-300">
+              <div className="bg-brand-500  p-6 rounded-xl border border-green-200 ">
+                <h3 className="text-xl font-semibold text-secondary  mb-3">Benefits</h3>
+                <ul className="space-y-2 text-secondary ">
                   <li className="flex items-center gap-2">
                     <CheckCircleIcon className="h-5 w-5" />
                     10x faster than REST APIs
@@ -266,7 +266,7 @@ if __name__ == '__main__':
               </div>
             </div>
 
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-8 rounded-xl">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-primary p-8 rounded-xl">
               <h3 className="text-2xl font-bold mb-4">Connection Details</h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -290,8 +290,8 @@ if __name__ == '__main__':
         return (
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Quick Start Guide</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900  mb-4">Quick Start Guide</h2>
+              <p className="text-lg text-gray-600  mb-6">
                 Get up and running with our gRPC APIs in minutes.
               </p>
             </div>
@@ -336,16 +336,16 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
                   language: "bash"
                 }
               ].map((item) => (
-                <div key={item.step} className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                <div key={item.step} className="bg-white  rounded-xl p-6 border border-gray-200 ">
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+                    <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-primary rounded-full flex items-center justify-center font-bold">
                       {item.step}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      <h3 className="text-xl font-semibold text-gray-900  mb-2">
                         {item.title}
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      <p className="text-gray-600  mb-4">
                         {item.description}
                       </p>
                       <div className="relative">
@@ -353,13 +353,13 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
                           onClick={() => handleCopy(item.code, `step-${item.step}`)}
                           className="absolute top-2 right-2 p-2 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors"
                         >
-                          <ClipboardDocumentIcon className="h-4 w-4 text-white" />
+                          <ClipboardDocumentIcon className="h-4 w-4 text-primary" />
                         </button>
                         <pre className="bg-gray-900 text-gray-300 p-4 rounded-lg overflow-x-auto">
                           <code>{item.code}</code>
                         </pre>
                         {copiedText === `step-${item.step}` && (
-                          <div className="absolute top-2 right-12 bg-brand-500 text-white px-2 py-1 rounded text-sm">
+                          <div className="absolute top-2 right-12 bg-brand-500 text-primary px-2 py-1 rounded text-sm">
                             Copied!
                           </div>
                         )}
@@ -376,8 +376,8 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
         return (
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Streaming APIs</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900  mb-4">Streaming APIs</h2>
+              <p className="text-lg text-gray-600  mb-6">
                 Our bidirectional streaming APIs enable real-time, interactive workflows for financial operations.
               </p>
             </div>
@@ -389,20 +389,20 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700"
+                  className="bg-white  rounded-xl p-6 border border-gray-200 "
                 >
                   <div className="flex items-start gap-4 mb-6">
-                    <div className="flex-shrink-0 w-12 h-12 bg-purple-600 text-white rounded-lg flex items-center justify-center">
+                    <div className="flex-shrink-0 w-12 h-12 bg-purple-600 text-primary rounded-lg flex items-center justify-center">
                       <BoltIcon className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      <h3 className="text-xl font-semibold text-gray-900  mb-2">
                         {api.name}
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-300 mb-2">
+                      <p className="text-gray-600  mb-2">
                         {api.description}
                       </p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-4 text-sm text-gray-500 ">
                         <span>Service: {api.service}</span>
                         <span>Method: {api.method}</span>
                       </div>
@@ -410,8 +410,8 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
                   </div>
 
                   <div className="mb-4">
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Use Cases</h4>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                    <h4 className="font-semibold text-gray-900  mb-2">Use Cases</h4>
+                    <p className="text-gray-600  text-sm">
                       {api.useCase}
                     </p>
                   </div>
@@ -421,13 +421,13 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
                       onClick={() => handleCopy(api.example, api.name)}
                       className="absolute top-2 right-2 p-2 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors z-10"
                     >
-                      <ClipboardDocumentIcon className="h-4 w-4 text-white" />
+                      <ClipboardDocumentIcon className="h-4 w-4 text-primary" />
                     </button>
                     <pre className="bg-gray-900 text-gray-300 p-4 rounded-lg overflow-x-auto">
                       <code>{api.example}</code>
                     </pre>
                     {copiedText === api.name && (
-                      <div className="absolute top-2 right-12 bg-brand-500 text-white px-2 py-1 rounded text-sm">
+                      <div className="absolute top-2 right-12 bg-brand-500 text-primary px-2 py-1 rounded text-sm">
                         Copied!
                       </div>
                     )}
@@ -442,31 +442,31 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
         return (
           <div className="space-y-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Code Examples</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900  mb-4">Code Examples</h2>
+              <p className="text-lg text-gray-600  mb-6">
                 Complete examples in multiple programming languages.
               </p>
             </div>
 
             <div className="space-y-8">
               {Object.entries(codeExamples).map(([language, code]) => (
-                <div key={language} className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+                <div key={language} className="bg-white  rounded-xl p-6 border border-gray-200 ">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white capitalize">
+                    <h3 className="text-xl font-semibold text-gray-900  capitalize">
                       {language === 'javascript' ? 'Node.js' : language}
                     </h3>
                     <button
                       onClick={() => handleCopy(code, language)}
                       className="p-2 bg-gray-600 hover:bg-gray-500 rounded-md transition-colors"
                     >
-                      <ClipboardDocumentIcon className="h-4 w-4 text-white" />
+                      <ClipboardDocumentIcon className="h-4 w-4 text-primary" />
                     </button>
                   </div>
                   <pre className="bg-gray-900 text-gray-300 p-4 rounded-lg overflow-x-auto">
                     <code>{code}</code>
                   </pre>
                   {copiedText === language && (
-                    <div className="mt-2 text-brand-300 text-sm">
+                    <div className="mt-2 text-secondary text-sm">
                       ✓ Code copied to clipboard
                     </div>
                   )}
@@ -479,7 +479,7 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
       default:
         return (
           <div className="text-center py-12">
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-gray-600 ">
               Select a section from the sidebar to view content.
             </p>
           </div>
@@ -488,14 +488,14 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50   ">
       <div className="pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid lg:grid-cols-4 gap-8">
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 sticky top-8">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <div className="bg-white  rounded-xl p-6 border border-gray-200  sticky top-8">
+                <h3 className="text-lg font-semibold text-gray-900  mb-4 flex items-center gap-2">
                   <BoltIcon className="h-5 w-5" />
                   gRPC Guide
                 </h3>
@@ -506,8 +506,8 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
                       onClick={() => setActiveSection(section.id)}
                       className={`w-full text-left p-3 rounded-lg transition-colors flex items-center gap-3 ${
                         activeSection === section.id
-                          ? 'bg-blue-600 text-white'
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                          ? 'bg-blue-600 text-primary'
+                          : 'text-gray-700  hover:bg-gray-100 :bg-gray-700'
                       }`}
                     >
                       <section.icon className="h-5 w-5" />
@@ -520,7 +520,7 @@ grpcurl -plaintext localhost:50051 fintech.payment.v1.PaymentService/GetPayment`
 
             {/* Main Content */}
             <div className="lg:col-span-3">
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700">
+              <div className="bg-white  rounded-xl p-8 border border-gray-200 ">
                 {renderContent()}
               </div>
             </div>

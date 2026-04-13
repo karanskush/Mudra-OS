@@ -328,7 +328,7 @@ const KYCDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br [#0B0C0E] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <motion.div className="text-center space-y-4">
           <motion.div
             animate={{ rotate: 360 }}
@@ -340,8 +340,8 @@ const KYCDashboard: React.FC = () => {
             animate={{ opacity: 1 }}
             className="space-y-2"
           >
-            <h3 className="text-white font-medium">Loading Dashboard</h3>
-            <p className="text-white/60 text-sm">Preparing your KYC analytics...</p>
+            <h3 className="text-primary font-medium">Loading Dashboard</h3>
+            <p className="text-slate-500 text-sm">Preparing your KYC analytics...</p>
           </motion.div>
         </motion.div>
       </div>
@@ -352,22 +352,22 @@ const KYCDashboard: React.FC = () => {
     <div className="min-h-screen relative overflow-hidden">
       {/* Enhanced background effects */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[rgba(46,111,64,0.04)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-brand-500/10 via-transparent to-brand-300/5" />
+        <div className="absolute inset-0 bg-accent/[0.03]" />
+        <div className="absolute inset-0 bg-transparent" />
         
         {/* Animated gradient orbs */}
         <motion.div 
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-[rgba(46,111,64,0.06)] rounded-full blur-3xl"
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl"
           variants={floatingVariants}
           animate="animate"
         />
         <motion.div 
-          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[rgba(37,61,44,0.08)] rounded-full blur-3xl"
+          className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/5 rounded-full blur-3xl"
           variants={pulseVariants}
           animate="animate"
         />
         <motion.div 
-          className="absolute top-3/4 left-1/2 w-64 h-64 bg-gradient-to-r from-brand-500/10 to-brand-300/5 rounded-full blur-2xl"
+          className="absolute top-3/4 left-1/2 w-64 h-64 bg-accent/5 rounded-full blur-2xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -397,13 +397,13 @@ const KYCDashboard: React.FC = () => {
                   className="w-12 h-12 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-xl flex items-center justify-center shadow-lg shadow-[rgba(46,111,64,0.25)]"
                   whileHover={{ scale: 1.05, rotate: 5 }}
                 >
-                  <BarChart3 className="h-6 w-6 text-white" />
+                  <BarChart3 className="h-6 w-6 text-primary" />
                 </motion.div>
                 <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-[#CFFFDC] bg-clip-text text-transparent">
+                  <h1 className="text-3xl font-bold bg-gradient-to-r text-primary">
                     KYC Management
                   </h1>
-                  <p className="text-white/60">Monitor and manage customer verification processes</p>
+                  <p className="text-slate-500">Monitor and manage customer verification processes</p>
                 </div>
               </div>
             </div>
@@ -412,7 +412,7 @@ const KYCDashboard: React.FC = () => {
               <motion.button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/15 border border-white/20 text-white rounded-xl transition-all duration-300 backdrop-blur-sm"
+                className="flex items-center gap-2 px-4 py-2 bg-surface hover:bg-surface border border-outline-variant text-primary rounded-xl transition-all duration-300"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -428,12 +428,12 @@ const KYCDashboard: React.FC = () => {
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value)}
-                className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-[#68BA7F] backdrop-blur-sm"
+                className="bg-surface border border-outline-variant rounded-xl px-4 py-2 text-primary text-sm focus:outline-none focus:border-accent/40"
               >
-                <option value="24h" className="bg-slate-800">Last 24 hours</option>
-                <option value="7d" className="bg-slate-800">Last 7 days</option>
-                <option value="30d" className="bg-slate-800">Last 30 days</option>
-                <option value="90d" className="bg-slate-800">Last 90 days</option>
+                <option value="24h">Last 24 hours</option>
+                <option value="7d">Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="90d">Last 90 days</option>
               </select>
             </div>
           </motion.div>
@@ -484,7 +484,7 @@ const KYCDashboard: React.FC = () => {
               key={stat.label}
               variants={cardVariants}
               whileHover="hover"
-              className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 relative overflow-hidden group"
+              className="bg-white border border-outline-variant rounded-2xl p-6 relative overflow-hidden group shadow-premium"
             >
               {/* Gradient overlay */}
               <div className={`absolute inset-0 bg-gradient-to-r ${stat.color} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
@@ -492,20 +492,20 @@ const KYCDashboard: React.FC = () => {
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center shadow-lg`}>
-                    <stat.icon className="h-6 w-6 text-white" />
+                    <stat.icon className="h-6 w-6 text-primary" />
                   </div>
                   <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
                     ${stat.trend === 'up' 
-                      ? 'text-brand-300 bg-brand-500/10 border border-brand-500/20' 
-                      : 'text-red-400 bg-red-500/10 border border-red-500/20'
+                      ? 'text-secondary bg-accent/10 border border-accent/20' 
+                      : 'text-red-600 bg-red-50 border border-red-200'
                     }`}>
                     {stat.trend === 'up' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
                     <span>{stat.change}</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-white/70 text-sm mb-1">{stat.label}</p>
-                  <p className="text-3xl font-bold text-white">{stat.value}</p>
+                  <p className="text-slate-500 text-sm mb-1">{stat.label}</p>
+                  <p className="text-3xl font-bold text-primary">{stat.value}</p>
                 </div>
               </div>
             </motion.div>
@@ -514,7 +514,7 @@ const KYCDashboard: React.FC = () => {
 
         {/* Enhanced Controls */}
         <motion.div 
-          className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8"
+          className="bg-surface border border-outline-variant rounded-2xl p-6 mb-8"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -522,20 +522,20 @@ const KYCDashboard: React.FC = () => {
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Search customers, email, or location..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-white/5 border border-white/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-[#68BA7F] focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] transition-all duration-300"
+                  className="w-full bg-surface border border-outline-variant rounded-xl pl-12 pr-4 py-3 text-primary placeholder:text-slate-400 focus:outline-none focus:border-accent/40 transition-all duration-300"
                 />
                 {searchTerm && (
                   <motion.button
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-primary"
                   >
                     <X className="h-4 w-4" />
                   </motion.button>
@@ -545,19 +545,19 @@ const KYCDashboard: React.FC = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#68BA7F] min-w-[140px]"
+                className="bg-surface border border-outline-variant rounded-xl px-4 py-3 text-primary focus:outline-none focus:border-accent/40 min-w-[140px]"
               >
-                <option value="all" className="bg-slate-800">All Status</option>
-                <option value="pending" className="bg-slate-800">Pending</option>
-                <option value="under_review" className="bg-slate-800">Under Review</option>
-                <option value="verified" className="bg-slate-800">Verified</option>
-                <option value="rejected" className="bg-slate-800">Rejected</option>
+                <option value="all" className="bg-white">All Status</option>
+                <option value="pending" className="bg-white">Pending</option>
+                <option value="under_review" className="bg-white">Under Review</option>
+                <option value="verified" className="bg-white">Verified</option>
+                <option value="rejected" className="bg-white">Rejected</option>
               </select>
             </div>
             
             <div className="flex items-center gap-3">
               <motion.button 
-                className="bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl px-4 py-3 text-white transition-all duration-300 flex items-center gap-2"
+                className="bg-surface hover:bg-white border border-outline-variant rounded-xl px-4 py-3 text-primary transition-all duration-300 flex items-center gap-2"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -565,13 +565,13 @@ const KYCDashboard: React.FC = () => {
                 <span className="text-sm">Filter</span>
               </motion.button>
               
-              <div className="flex bg-white/5 border border-white/20 rounded-xl p-1">
+              <div className="flex bg-surface border border-outline-variant rounded-xl p-1">
                 <motion.button
                   onClick={() => setViewMode('list')}
                   className={`px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
                     viewMode === 'list' 
-                      ? 'bg-[#2E6F40] text-white shadow-lg' 
-                      : 'text-white/70 hover:text-white hover:bg-white/5'
+                      ? 'bg-primary text-primary shadow-lg' 
+                      : 'text-slate-500 hover:text-primary hover:bg-surface'
                   }`}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -581,8 +581,8 @@ const KYCDashboard: React.FC = () => {
                   onClick={() => setViewMode('grid')}
                   className={`px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
                     viewMode === 'grid' 
-                      ? 'bg-[#2E6F40] text-white shadow-lg' 
-                      : 'text-white/70 hover:text-white hover:bg-white/5'
+                      ? 'bg-primary text-primary shadow-lg' 
+                      : 'text-slate-500 hover:text-primary hover:bg-surface'
                   }`}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -595,7 +595,7 @@ const KYCDashboard: React.FC = () => {
 
         {/* Enhanced Submissions Table/Grid */}
         <motion.div 
-          className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden"
+          className="bg-surface border border-outline-variant rounded-2xl overflow-hidden"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -604,15 +604,15 @@ const KYCDashboard: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/5">
-                    <th className="text-left text-white/80 font-semibold p-6">Customer</th>
-                    <th className="text-left text-white/80 font-semibold p-6">Location</th>
-                    <th className="text-left text-white/80 font-semibold p-6">Status</th>
-                    <th className="text-left text-white/80 font-semibold p-6">Risk Score</th>
-                    <th className="text-left text-white/80 font-semibold p-6">Amount</th>
-                    <th className="text-left text-white/80 font-semibold p-6">Priority</th>
-                    <th className="text-left text-white/80 font-semibold p-6">Submitted</th>
-                    <th className="text-left text-white/80 font-semibold p-6">Actions</th>
+                  <tr className="border-b border-outline-variant bg-surface">
+                    <th className="text-left text-slate-600 font-semibold p-6">Customer</th>
+                    <th className="text-left text-slate-600 font-semibold p-6">Location</th>
+                    <th className="text-left text-slate-600 font-semibold p-6">Status</th>
+                    <th className="text-left text-slate-600 font-semibold p-6">Risk Score</th>
+                    <th className="text-left text-slate-600 font-semibold p-6">Amount</th>
+                    <th className="text-left text-slate-600 font-semibold p-6">Priority</th>
+                    <th className="text-left text-slate-700 font-semibold p-6">Submitted</th>
+                    <th className="text-left text-slate-700 font-semibold p-6">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -622,7 +622,7 @@ const KYCDashboard: React.FC = () => {
                       return (
                         <motion.tr
                           key={submission.id}
-                          className="border-b border-white/5 hover:bg-white/5 transition-colors duration-300 group"
+                          className="border-b border-outline-variant hover:bg-surface transition-colors duration-300 group"
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: -20 }}
@@ -631,22 +631,22 @@ const KYCDashboard: React.FC = () => {
                         >
                           <td className="p-6">
                             <div className="flex items-center space-x-4">
-                              <div className="w-12 h-12 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-full flex items-center justify-center text-white font-semibold shadow-lg">
+                              <div className="w-12 h-12 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-full flex items-center justify-center text-primary font-semibold shadow-lg">
                                 {submission.name.split(' ').map(n => n[0]).join('')}
                               </div>
                               <div>
-                                <p className="text-white font-medium group-hover:text-brand-300 transition-colors">
+                                <p className="text-primary font-medium group-hover:text-brand-300 transition-colors">
                                   {submission.name}
                                 </p>
-                                <p className="text-white/60 text-sm">{submission.email}</p>
-                                <p className="text-white/50 text-xs">{submission.phone}</p>
+                                <p className="text-slate-500 text-sm">{submission.email}</p>
+                                <p className="text-slate-400 text-xs">{submission.phone}</p>
                               </div>
                             </div>
                           </td>
                           <td className="p-6">
                             <div className="flex items-center space-x-2">
-                              <MapPin className="h-4 w-4 text-white/60" />
-                              <span className="text-white/80 text-sm">{submission.location}</span>
+                              <MapPin className="h-4 w-4 text-slate-500" />
+                              <span className="text-slate-700 text-sm">{submission.location}</span>
                             </div>
                           </td>
                           <td className="p-6">
@@ -662,12 +662,12 @@ const KYCDashboard: React.FC = () => {
                               </div>
                               <div>
                                 <span className={`font-medium ${risk.color} text-sm`}>{risk.level}</span>
-                                <p className="text-white/50 text-xs">Risk Score</p>
+                                <p className="text-slate-400 text-xs">Risk Score</p>
                               </div>
                             </div>
                           </td>
                           <td className="p-6">
-                            <div className="text-white font-medium">
+                            <div className="text-primary font-medium">
                               {submission.amount ? formatCurrency(submission.amount) : 'N/A'}
                             </div>
                           </td>
@@ -678,10 +678,10 @@ const KYCDashboard: React.FC = () => {
                           </td>
                           <td className="p-6">
                             <div className="flex items-center space-x-2">
-                              <Calendar className="h-4 w-4 text-white/60" />
-                              <div className="text-white/80 text-sm">
+                              <Calendar className="h-4 w-4 text-slate-500" />
+                              <div className="text-slate-700 text-sm">
                                 <div>{new Date(submission.submitted_at).toLocaleDateString()}</div>
-                                <div className="text-white/50 text-xs">{formatTimeAgo(submission.submitted_at)}</div>
+                                <div className="text-slate-400 text-xs">{formatTimeAgo(submission.submitted_at)}</div>
                               </div>
                             </div>
                           </td>
@@ -704,7 +704,7 @@ const KYCDashboard: React.FC = () => {
                               </motion.button>
                               <div className="relative">
                                 <motion.button 
-                                  className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors duration-300"
+                                  className="p-2 bg-surface hover:bg-white text-primary rounded-lg transition-colors duration-300"
                                   whileHover={{ scale: 1.05 }}
                                   whileTap={{ scale: 0.95 }}
                                 >
@@ -729,7 +729,7 @@ const KYCDashboard: React.FC = () => {
                   return (
                     <motion.div
                       key={submission.id}
-                      className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group cursor-pointer"
+                      className="bg-surface border border-outline-variant rounded-xl p-6 hover:bg-surface transition-all duration-300 group cursor-pointer"
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
@@ -739,7 +739,7 @@ const KYCDashboard: React.FC = () => {
                       whileHover={{ scale: 1.02, y: -2 }}
                     >
                       <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-full flex items-center justify-center text-white font-semibold shadow-lg">
+                        <div className="w-12 h-12 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-full flex items-center justify-center text-primary font-semibold shadow-lg">
                           {submission.name.split(' ').map(n => n[0]).join('')}
                         </div>
                         <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(submission.status)}`}>
@@ -749,13 +749,13 @@ const KYCDashboard: React.FC = () => {
                       </div>
                       
                       <div className="space-y-2 mb-4">
-                        <h3 className="text-white font-medium group-hover:text-brand-300 transition-colors">
+                        <h3 className="text-primary font-medium group-hover:text-brand-300 transition-colors">
                           {submission.name}
                         </h3>
-                        <p className="text-white/60 text-sm">{submission.email}</p>
+                        <p className="text-slate-500 text-sm">{submission.email}</p>
                         <div className="flex items-center space-x-2">
-                          <MapPin className="h-3 w-3 text-white/50" />
-                          <span className="text-white/50 text-xs">{submission.location}</span>
+                          <MapPin className="h-3 w-3 text-slate-400" />
+                          <span className="text-slate-400 text-xs">{submission.location}</span>
                         </div>
                       </div>
                       
@@ -766,7 +766,7 @@ const KYCDashboard: React.FC = () => {
                           </div>
                           <span className={`text-xs ${risk.color}`}>{risk.level}</span>
                         </div>
-                        <span className="text-white/80 text-sm font-medium">
+                        <span className="text-slate-700 text-sm font-medium">
                           {submission.amount ? formatCurrency(submission.amount) : 'N/A'}
                         </span>
                       </div>
@@ -783,11 +783,11 @@ const KYCDashboard: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Users className="h-10 w-10 text-white/30" />
+              <div className="w-20 h-20 bg-surface rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="h-10 w-10 text-slate-300" />
               </div>
-              <h3 className="text-white/80 text-lg font-medium mb-2">No submissions found</h3>
-              <p className="text-white/60">Try adjusting your search or filter criteria</p>
+              <h3 className="text-slate-700 text-lg font-medium mb-2">No submissions found</h3>
+              <p className="text-slate-500">Try adjusting your search or filter criteria</p>
             </motion.div>
           )}
         </motion.div>
@@ -801,7 +801,7 @@ const KYCDashboard: React.FC = () => {
         >
           <div className="flex items-center gap-4">
             <motion.button 
-              className="bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] hover:from-[#253D2C] hover:to-[#2E6F40] text-white px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-3 shadow-lg shadow-[rgba(46,111,64,0.25)]"
+              className="bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] hover:from-[#253D2C] hover:to-[#2E6F40] text-primary px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-3 shadow-lg shadow-[rgba(46,111,64,0.25)]"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -809,7 +809,7 @@ const KYCDashboard: React.FC = () => {
               <span>Export Report</span>
             </motion.button>
             <motion.button 
-              className="bg-white/10 hover:bg-white/15 border border-white/20 text-white px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-3 backdrop-blur-sm"
+              className="bg-surface hover:bg-surface/80 border border-outline-variant text-primary px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-3 "
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -818,7 +818,7 @@ const KYCDashboard: React.FC = () => {
             </motion.button>
           </div>
           
-          <div className="flex items-center gap-4 text-white/60 text-sm">
+          <div className="flex items-center gap-4 text-slate-500 text-sm">
             <span>Showing {filteredSubmissions.length} of {submissions.length} submissions</span>
             <div className="flex items-center gap-2">
               <span>Avg. processing time:</span>
@@ -832,14 +832,14 @@ const KYCDashboard: React.FC = () => {
       <AnimatePresence>
         {selectedSubmission && (
           <motion.div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/60  z-50 flex items-center justify-center p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedSubmission(null)}
           >
             <motion.div 
-              className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto relative"
+              className="bg-surface border border-outline-variant rounded-2xl p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto relative"
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -848,17 +848,17 @@ const KYCDashboard: React.FC = () => {
               {/* Modal header */}
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                  <div className="w-16 h-16 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-xl flex items-center justify-center text-primary font-bold text-lg shadow-lg">
                     {selectedSubmission.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white">{selectedSubmission.name}</h3>
-                    <p className="text-white/70">KYC Submission Details</p>
+                    <h3 className="text-2xl font-bold text-primary">{selectedSubmission.name}</h3>
+                    <p className="text-slate-500">KYC Submission Details</p>
                   </div>
                 </div>
                 <motion.button 
                   onClick={() => setSelectedSubmission(null)}
-                  className="text-white/60 hover:text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  className="text-slate-500 hover:text-primary p-2 hover:bg-surface rounded-lg transition-colors"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -882,61 +882,61 @@ const KYCDashboard: React.FC = () => {
                 {/* Customer details grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h4 className="text-white font-semibold flex items-center gap-2">
+                    <h4 className="text-primary font-semibold flex items-center gap-2">
                       <User className="h-5 w-5 text-brand-300" />
                       Customer Information
                     </h4>
-                    <div className="space-y-3 bg-white/5 rounded-xl p-4">
+                    <div className="space-y-3 bg-surface rounded-xl p-4">
                       <div className="flex justify-between">
-                        <span className="text-white/60">Email:</span>
-                        <span className="text-white font-medium">{selectedSubmission.email}</span>
+                        <span className="text-slate-500">Email:</span>
+                        <span className="text-primary font-medium">{selectedSubmission.email}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/60">Phone:</span>
-                        <span className="text-white font-medium">{selectedSubmission.phone}</span>
+                        <span className="text-slate-500">Phone:</span>
+                        <span className="text-primary font-medium">{selectedSubmission.phone}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/60">Location:</span>
-                        <span className="text-white font-medium">{selectedSubmission.location}</span>
+                        <span className="text-slate-500">Location:</span>
+                        <span className="text-primary font-medium">{selectedSubmission.location}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/60">Country:</span>
-                        <span className="text-white font-medium">{selectedSubmission.country}</span>
+                        <span className="text-slate-500">Country:</span>
+                        <span className="text-primary font-medium">{selectedSubmission.country}</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="text-white font-semibold flex items-center gap-2">
+                    <h4 className="text-primary font-semibold flex items-center gap-2">
                       <BarChart3 className="h-5 w-5 text-[#CFFFDC]" />
                       Risk Assessment
                     </h4>
-                    <div className="space-y-3 bg-white/5 rounded-xl p-4">
+                    <div className="space-y-3 bg-surface rounded-xl p-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-white/60">Risk Score:</span>
+                        <span className="text-slate-500">Risk Score:</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-white font-bold text-lg">{selectedSubmission.risk_score}</span>
+                          <span className="text-primary font-bold text-lg">{selectedSubmission.risk_score}</span>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskLevel(selectedSubmission.risk_score).color} ${getRiskLevel(selectedSubmission.risk_score).bgColor}`}>
                             {getRiskLevel(selectedSubmission.risk_score).level}
                           </span>
                         </div>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/60">Amount:</span>
-                        <span className="text-white font-medium">
+                        <span className="text-slate-500">Amount:</span>
+                        <span className="text-primary font-medium">
                           {selectedSubmission.amount ? formatCurrency(selectedSubmission.amount) : 'N/A'}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/60">Submitted:</span>
-                        <span className="text-white font-medium">
+                        <span className="text-slate-500">Submitted:</span>
+                        <span className="text-primary font-medium">
                           {new Date(selectedSubmission.submitted_at).toLocaleDateString()}
                         </span>
                       </div>
                       {selectedSubmission.verified_at && (
                         <div className="flex justify-between">
-                          <span className="text-white/60">Verified:</span>
-                          <span className="text-white font-medium">
+                          <span className="text-slate-500">Verified:</span>
+                          <span className="text-primary font-medium">
                             {new Date(selectedSubmission.verified_at).toLocaleDateString()}
                           </span>
                         </div>
@@ -947,7 +947,7 @@ const KYCDashboard: React.FC = () => {
 
                 {/* Documents section */}
                 <div className="space-y-4">
-                  <h4 className="text-white font-semibold flex items-center gap-2">
+                  <h4 className="text-primary font-semibold flex items-center gap-2">
                     <FileText className="h-5 w-5 text-brand-300" />
                     Documents ({selectedSubmission.documents.length})
                   </h4>
@@ -955,18 +955,18 @@ const KYCDashboard: React.FC = () => {
                     {selectedSubmission.documents.map((doc, index) => (
                       <motion.div 
                         key={index} 
-                        className="flex items-center justify-between bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-colors duration-300"
+                        className="flex items-center justify-between bg-surface rounded-xl p-4 hover:bg-surface transition-colors duration-300"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
                       >
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 bg-gradient-to-r from-brand-500 to-brand-300 rounded-lg flex items-center justify-center">
-                            <FileText className="h-5 w-5 text-white" />
+                            <FileText className="h-5 w-5 text-primary" />
                           </div>
                           <div>
-                            <span className="text-white font-medium capitalize">{doc.type}</span>
-                            <p className="text-white/60 text-sm">
+                            <span className="text-primary font-medium capitalize">{doc.type}</span>
+                            <p className="text-slate-500 text-sm">
                               Uploaded {new Date(doc.uploaded_at).toLocaleDateString()}
                             </p>
                           </div>
@@ -982,24 +982,24 @@ const KYCDashboard: React.FC = () => {
                 {/* Notes section */}
                 {selectedSubmission.notes && (
                   <div className="space-y-4">
-                    <h4 className="text-white font-semibold flex items-center gap-2">
+                    <h4 className="text-primary font-semibold flex items-center gap-2">
                       <FileText className="h-5 w-5 text-yellow-400" />
                       Notes
                     </h4>
-                    <div className="bg-white/5 rounded-xl p-4">
-                      <p className="text-white/80">{selectedSubmission.notes}</p>
+                    <div className="bg-surface rounded-xl p-4">
+                      <p className="text-slate-700">{selectedSubmission.notes}</p>
                     </div>
                   </div>
                 )}
 
                 {/* Action buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-white/10">
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-outline-variant">
                   <motion.button 
                     onClick={() => {
                       handleStatusUpdate(selectedSubmission.id, 'verified');
                       setSelectedSubmission(null);
                     }}
-                    className="flex-1 bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 text-white py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-brand-500/25"
+                    className="flex-1 bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 text-primary py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-brand-500/25"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -1011,7 +1011,7 @@ const KYCDashboard: React.FC = () => {
                       handleStatusUpdate(selectedSubmission.id, 'rejected');
                       setSelectedSubmission(null);
                     }}
-                    className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-red-500/25"
+                    className="flex-1 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-primary py-3 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg shadow-red-500/25"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -1019,7 +1019,7 @@ const KYCDashboard: React.FC = () => {
                     <span>Reject</span>
                   </motion.button>
                   <motion.button 
-                    className="px-6 bg-white/10 hover:bg-white/15 border border-white/20 text-white py-3 rounded-xl transition-all duration-300 backdrop-blur-sm"
+                    className="px-6 bg-surface hover:bg-surface/80 border border-outline-variant text-primary py-3 rounded-xl transition-all duration-300 "
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >

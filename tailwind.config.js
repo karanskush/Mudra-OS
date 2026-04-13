@@ -22,13 +22,13 @@ export default {
           950: '#0D1F13',
         },
 
-        // ── Surface backgrounds ───────────────────────────────────────────
-        // Neutral near-black — no blue tint.  Matches landing page.
+        // ── Surface backgrounds (light theme) ────────────────────────────
         surface: {
-          base:    '#0B0C0E',   // page root background
-          sidebar: '#0F1012',   // sidebar / nav panel
-          raised:  '#111315',   // cards, panels
-          hover:   '#161819',   // hover state on raised
+          DEFAULT: '#F8FAFC',   // page root / subtle bg
+          base:    '#F8FAFC',   // page root background
+          sidebar: '#FFFFFF',   // sidebar / nav panel
+          raised:  '#FFFFFF',   // cards, panels
+          hover:   '#F1F5F9',   // hover state on raised
         },
 
         // ── Legacy aliases (keep for backwards-compat) ────────────────────
@@ -45,18 +45,37 @@ export default {
           900: '#1a2d1f',
           950: '#0D1F13',
         },
+        // ── Stitch landing page tokens ────────────────────────────────────
+        // DEFAULT makes `bg-primary` / `text-primary` use the flat value;
+        // numbered shades (bg-primary-500 etc.) still work for inner pages.
         primary: {
+          DEFAULT: '#0A1128',
           50: '#CFFFDC', 100: '#b8f5c8', 200: '#96e8ac',
           300: '#68BA7F', 400: '#4ea368', 500: '#2E6F40',
           600: '#265c35', 700: '#1f4a2a', 800: '#253D2C',
           900: '#1a2d1f', 950: '#0D1F13',
         },
         secondary: {
+          DEFAULT: '#006d43',
           50: '#CFFFDC', 100: '#b8f5c8', 200: '#96e8ac',
           300: '#68BA7F', 400: '#4ea368', 500: '#2E6F40',
           600: '#265c35', 700: '#1f4a2a', 800: '#253D2C',
           900: '#1a2d1f', 950: '#0D1F13',
         },
+        accent: '#00FF94',
+        'surface-dark': '#050914',
+        'on-surface': '#0F172A',
+        'outline-variant': '#E2E8F0',
+      },
+
+      boxShadow: {
+        premium: '0 10px 30px -10px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.02)',
+        glow: '0 0 20px rgba(0, 255, 148, 0.2)',
+      },
+
+      fontFamily: {
+        headline: ['Inter', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
       },
 
       animation: {

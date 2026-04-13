@@ -201,7 +201,7 @@ const RealTimePayments: React.FC = () => {
   const getAccountName = (id: string) => accounts.find(a => a.id === id)?.name || id.slice(0, 8);
 
   const statusColor = (s: string) => ({
-    posted: 'text-brand-300',
+    posted: 'text-secondary',
     pending: 'text-amber-400',
     failed: 'text-red-400',
   }[s] || 'text-[#68BA7F]');
@@ -209,7 +209,7 @@ const RealTimePayments: React.FC = () => {
   const cryptoChange = (change?: number) => {
     if (change == null) return null;
     return (
-      <span className={`text-xs flex items-center gap-0.5 ${change >= 0 ? 'text-brand-300' : 'text-red-400'}`}>
+      <span className={`text-xs flex items-center gap-0.5 ${change >= 0 ? 'text-secondary' : 'text-red-400'}`}>
         {change >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
         {Math.abs(change).toFixed(2)}%
       </span>
@@ -221,7 +221,7 @@ const RealTimePayments: React.FC = () => {
   // ------------ render -------------------------------------------
 
   return (
-    <div className="min-h-screen p-4 md:p-6" style={{ background: '#0B0C0E' }}>
+    <div className="min-h-screen p-4 md:p-6 bg-surface">
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* Header */}
@@ -233,7 +233,7 @@ const RealTimePayments: React.FC = () => {
             <Send className="h-3 w-3" />
             Payment Orchestration
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
             Multi-Rail{' '}
             <span style={{
               background: 'linear-gradient(95deg, #ffffff 0%, #CFFFDC 45%, #68BA7F 100%)',
@@ -254,20 +254,20 @@ const RealTimePayments: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm"
+              className="bg-surface border border-outline-variant rounded-2xl p-5 "
             >
               <div className="flex items-center gap-2 mb-4">
                 <Send className="w-5 h-5" style={{ color: '#68BA7F' }} />
-                <h2 className="text-lg font-semibold text-white">Send Money</h2>
+                <h2 className="text-lg font-semibold text-primary">Send Money</h2>
               </div>
 
               {/* From Account */}
               <div className="mb-3">
-                <label className="text-xs text-white/50 mb-1 block">From Account</label>
+                <label className="text-xs text-slate-400 mb-1 block">From Account</label>
                 <select
                   value={fromAccount}
                   onChange={e => setFromAccount(e.target.value)}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#68BA7F]"
+                  className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 text-primary text-sm focus:outline-none focus:border-[#68BA7F]"
                 >
                   <option value="">Select account…</option>
                   {accounts.map(a => (
@@ -280,11 +280,11 @@ const RealTimePayments: React.FC = () => {
 
               {/* To Account */}
               <div className="mb-3">
-                <label className="text-xs text-white/50 mb-1 block">To Account</label>
+                <label className="text-xs text-slate-400 mb-1 block">To Account</label>
                 <select
                   value={toAccount}
                   onChange={e => setToAccount(e.target.value)}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#68BA7F]"
+                  className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 text-primary text-sm focus:outline-none focus:border-[#68BA7F]"
                 >
                   <option value="">Select account…</option>
                   {accounts.map(a => (
@@ -298,21 +298,21 @@ const RealTimePayments: React.FC = () => {
               {/* Amount + Currency */}
               <div className="mb-3 flex gap-2">
                 <div className="flex-1">
-                  <label className="text-xs text-white/50 mb-1 block">Amount</label>
+                  <label className="text-xs text-slate-400 mb-1 block">Amount</label>
                   <input
                     type="number"
                     value={amount}
                     onChange={e => setAmount(e.target.value)}
                     placeholder="0.00"
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#68BA7F]"
+                    className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 text-primary text-sm focus:outline-none focus:border-[#68BA7F]"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-white/50 mb-1 block">Currency</label>
+                  <label className="text-xs text-slate-400 mb-1 block">Currency</label>
                   <select
                     value={currency}
                     onChange={e => setCurrency(e.target.value)}
-                    className="bg-white/10 border border-white/20 rounded-lg px-2 py-2 text-white text-sm focus:outline-none focus:border-[#68BA7F]"
+                    className="bg-surface border border-outline-variant rounded-lg px-2 py-2 text-primary text-sm focus:outline-none focus:border-[#68BA7F]"
                   >
                     {commonCurrencies.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -329,13 +329,13 @@ const RealTimePayments: React.FC = () => {
 
               {/* Description */}
               <div className="mb-4">
-                <label className="text-xs text-white/50 mb-1 block">Description (optional)</label>
+                <label className="text-xs text-slate-400 mb-1 block">Description (optional)</label>
                 <input
                   type="text"
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   placeholder="Payment memo…"
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#68BA7F]"
+                  className="w-full bg-surface border border-outline-variant rounded-lg px-3 py-2 text-primary text-sm focus:outline-none focus:border-[#68BA7F]"
                 />
               </div>
 
@@ -348,7 +348,7 @@ const RealTimePayments: React.FC = () => {
                     exit={{ opacity: 0, height: 0 }}
                     className={`mb-3 text-xs rounded-lg px-3 py-2 flex items-center gap-2 ${
                       message.type === 'success'
-                        ? 'bg-brand-500/15 border border-brand-500/25 text-brand-300'
+                        ? 'bg-brand-500/15 border border-brand-500/25 text-secondary'
                         : 'bg-red-500/10 border border-red-500/30 text-red-300'
                     }`}
                   >
@@ -379,31 +379,31 @@ const RealTimePayments: React.FC = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm"
+              className="bg-surface border border-outline-variant rounded-2xl p-5 "
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Wallet className="w-4 h-4 text-[#68BA7F]" />
-                  <h2 className="text-sm font-semibold text-white">Your Accounts</h2>
+                  <h2 className="text-sm font-semibold text-primary">Your Accounts</h2>
                 </div>
-                <button onClick={fetchAccounts} className="text-white/30 hover:text-white/60 transition-colors">
+                <button onClick={fetchAccounts} className="text-primary/30 hover:text-slate-500 transition-colors">
                   <RefreshCw className="w-3.5 h-3.5" />
                 </button>
               </div>
               <div className="space-y-2">
                 {accounts.length === 0 && (
-                  <p className="text-white/30 text-xs text-center py-4">No accounts found. Create one first.</p>
+                  <p className="text-primary/30 text-xs text-center py-4">No accounts found. Create one first.</p>
                 )}
                 {accounts.map(acc => (
-                  <div key={acc.id} className="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2.5">
+                  <div key={acc.id} className="flex items-center justify-between bg-surface rounded-xl px-3 py-2.5">
                     <div className="flex items-center gap-2.5">
                       {acc.type === 'bank' ? <Building2 className="w-3.5 h-3.5 text-[#68BA7F]" /> : <CreditCard className="w-3.5 h-3.5 text-[#CFFFDC]" />}
                       <div>
-                        <p className="text-white text-xs font-medium">{acc.name}</p>
-                        <p className="text-white/40 text-[10px]">···{acc.account_number.slice(-4)}</p>
+                        <p className="text-primary text-xs font-medium">{acc.name}</p>
+                        <p className="text-slate-400 text-[10px]">···{acc.account_number.slice(-4)}</p>
                       </div>
                     </div>
-                    <p className="text-white font-semibold text-sm">${acc.balance.toLocaleString()}</p>
+                    <p className="text-primary font-semibold text-sm">${acc.balance.toLocaleString()}</p>
                   </div>
                 ))}
               </div>
@@ -416,20 +416,20 @@ const RealTimePayments: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm h-full"
+              className="bg-surface border border-outline-variant rounded-2xl p-5  h-full"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-[#68BA7F]" />
-                  <h2 className="text-sm font-semibold text-white">Transaction History</h2>
+                  <h2 className="text-sm font-semibold text-primary">Transaction History</h2>
                 </div>
-                <button onClick={fetchPayments} className="text-white/30 hover:text-white/60 transition-colors">
+                <button onClick={fetchPayments} className="text-primary/30 hover:text-slate-500 transition-colors">
                   <RefreshCw className="w-3.5 h-3.5" />
                 </button>
               </div>
               <div className="space-y-2 overflow-y-auto max-h-[520px]">
                 {payments.length === 0 && (
-                  <p className="text-white/30 text-xs text-center py-8">No transactions yet.</p>
+                  <p className="text-primary/30 text-xs text-center py-8">No transactions yet.</p>
                 )}
                 <AnimatePresence>
                   {payments.map((txn, i) => (
@@ -438,22 +438,22 @@ const RealTimePayments: React.FC = () => {
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.05 }}
-                      className="bg-white/5 hover:bg-white/8 rounded-xl px-3 py-3 transition-colors border border-white/5"
+                      className="bg-surface hover:bg-white rounded-xl px-3 py-3 transition-colors border border-outline-variant"
                     >
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
                           <div className={`w-1.5 h-1.5 rounded-full ${txn.status === 'posted' ? 'bg-brand-500' : 'bg-yellow-400'}`} />
-                          <span className="text-white text-xs font-medium capitalize">{txn.type}</span>
+                          <span className="text-primary text-xs font-medium capitalize">{txn.type}</span>
                         </div>
-                        <span className="text-white font-semibold text-sm">
+                        <span className="text-primary font-semibold text-sm">
                           ${txn.total_amount?.toLocaleString() || '—'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-white/40 text-[10px]">{txn.description || '—'}</span>
+                        <span className="text-slate-400 text-[10px]">{txn.description || '—'}</span>
                         <span className={`text-[10px] ${statusColor(txn.status)}`}>{txn.status}</span>
                       </div>
-                      <p className="text-white/20 text-[10px] mt-0.5">
+                      <p className="text-primary/20 text-[10px] mt-0.5">
                         {txn.timestamp ? new Date(txn.timestamp).toLocaleString() : ''}
                       </p>
                     </motion.div>
@@ -471,19 +471,19 @@ const RealTimePayments: React.FC = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm"
+              className="bg-surface border border-outline-variant rounded-2xl p-5 "
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Globe className="w-4 h-4 text-[#68BA7F]" />
-                  <h2 className="text-sm font-semibold text-white">Live FX Rates</h2>
+                  <h2 className="text-sm font-semibold text-primary">Live FX Rates</h2>
                 </div>
                 <div className="flex items-center gap-2">
                   {isFetchingMarket && <RefreshCw className="w-3 h-3 text-[#68BA7F] animate-spin" />}
                   <select
                     value={currency}
                     onChange={e => setCurrency(e.target.value)}
-                    className="text-xs bg-white/10 border border-white/20 rounded px-1.5 py-0.5 text-white"
+                    className="text-xs bg-surface border border-outline-variant rounded px-1.5 py-0.5 text-primary"
                   >
                     {commonCurrencies.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -494,17 +494,17 @@ const RealTimePayments: React.FC = () => {
                   .filter(([code]) => code !== currency)
                   .slice(0, 10)
                   .map(([code, rate]) => (
-                    <div key={code} className="bg-white/5 rounded-lg px-2.5 py-1.5 flex justify-between items-center">
-                      <span className="text-white/60 text-xs font-medium">{code}</span>
-                      <span className="text-white text-xs">{rate < 1 ? rate.toFixed(4) : rate.toFixed(2)}</span>
+                    <div key={code} className="bg-surface rounded-lg px-2.5 py-1.5 flex justify-between items-center">
+                      <span className="text-slate-500 text-xs font-medium">{code}</span>
+                      <span className="text-primary text-xs">{rate < 1 ? rate.toFixed(4) : rate.toFixed(2)}</span>
                     </div>
                   ))}
                 {!fxRates && (
-                  <div className="col-span-2 text-center text-white/30 text-xs py-4">Loading rates…</div>
+                  <div className="col-span-2 text-center text-primary/30 text-xs py-4">Loading rates…</div>
                 )}
               </div>
               {fxRates && (
-                <p className="text-white/20 text-[10px] mt-2 text-right">
+                <p className="text-primary/20 text-[10px] mt-2 text-right">
                   Updated: {new Date(fxRates.fetched_at).toLocaleTimeString()}
                 </p>
               )}
@@ -515,34 +515,34 @@ const RealTimePayments: React.FC = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.25 }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm"
+              className="bg-surface border border-outline-variant rounded-2xl p-5 "
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Bitcoin className="w-4 h-4 text-orange-400" />
-                  <h2 className="text-sm font-semibold text-white">Crypto Prices</h2>
+                  <h2 className="text-sm font-semibold text-primary">Crypto Prices</h2>
                 </div>
-                <button onClick={fetchCrypto} className="text-white/30 hover:text-white/60">
+                <button onClick={fetchCrypto} className="text-primary/30 hover:text-slate-500">
                   <RefreshCw className="w-3.5 h-3.5" />
                 </button>
               </div>
               <div className="space-y-2">
                 {Object.entries(cryptoPrices).map(([symbol, data]) => (
-                  <div key={symbol} className="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2.5">
+                  <div key={symbol} className="flex items-center justify-between bg-surface rounded-xl px-3 py-2.5">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 bg-white/10 rounded-full flex items-center justify-center">
-                        <span className="text-[10px] font-bold text-white">{symbol.slice(0, 2)}</span>
+                      <div className="w-7 h-7 bg-surface rounded-full flex items-center justify-center">
+                        <span className="text-[10px] font-bold text-primary">{symbol.slice(0, 2)}</span>
                       </div>
-                      <span className="text-white text-xs font-medium">{symbol}</span>
+                      <span className="text-primary text-xs font-medium">{symbol}</span>
                     </div>
                     <div className="text-right">
-                      <p className="text-white text-xs font-semibold">${data?.usd?.toLocaleString()}</p>
+                      <p className="text-primary text-xs font-semibold">${data?.usd?.toLocaleString()}</p>
                       {cryptoChange(data?.usd_24h_change)}
                     </div>
                   </div>
                 ))}
                 {Object.keys(cryptoPrices).length === 0 && (
-                  <p className="text-white/30 text-xs text-center py-3">Loading…</p>
+                  <p className="text-primary/30 text-xs text-center py-3">Loading…</p>
                 )}
               </div>
             </motion.div>
@@ -552,32 +552,32 @@ const RealTimePayments: React.FC = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-sm"
+              className="bg-surface border border-outline-variant rounded-2xl p-5 "
             >
               <div className="flex items-center gap-2 mb-3">
                 <Zap className="w-4 h-4 text-yellow-400" />
-                <h2 className="text-sm font-semibold text-white">Payment Rails</h2>
+                <h2 className="text-sm font-semibold text-primary">Payment Rails</h2>
               </div>
               <div className="space-y-2 text-xs">
                 {[
-                  { rail: 'UPI', fee: '$5 flat', latency: '~1s', color: 'text-brand-300', desc: 'Unified Payments Interface' },
+                  { rail: 'UPI', fee: '$5 flat', latency: '~1s', color: 'text-secondary', desc: 'Unified Payments Interface' },
                   { rail: 'SEPA', fee: '0.5% + $1', latency: '~30s', color: 'text-[#68BA7F]', desc: 'Single Euro Payments Area' },
                   { rail: 'Crypto', fee: '0.1% + gas', latency: '~5s', color: 'text-[#CFFFDC]', desc: 'On-chain settlement' },
                   { rail: 'SWIFT', fee: '$2 flat', latency: '~60s', color: 'text-yellow-400', desc: 'International wire' },
                 ].map(r => (
-                  <div key={r.rail} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
+                  <div key={r.rail} className="flex items-center justify-between bg-surface rounded-lg px-3 py-2">
                     <div>
                       <span className={`font-semibold ${r.color}`}>{r.rail}</span>
-                      <span className="text-white/40 ml-1.5 text-[10px]">{r.desc}</span>
+                      <span className="text-slate-400 ml-1.5 text-[10px]">{r.desc}</span>
                     </div>
                     <div className="text-right">
-                      <p className="text-white/70">{r.fee}</p>
-                      <p className="text-white/40 text-[10px]">{r.latency}</p>
+                      <p className="text-slate-500">{r.fee}</p>
+                      <p className="text-slate-400 text-[10px]">{r.latency}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="mt-3 flex items-center gap-1.5 text-[10px] text-white/30">
+              <div className="mt-3 flex items-center gap-1.5 text-[10px] text-primary/30">
                 <Shield className="w-3 h-3" />
                 Rail auto-selected based on amount, currency, and geography
               </div>

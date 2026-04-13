@@ -7,9 +7,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './components/ui/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
-import { HeroParallax } from './components/ui/hero-parallax';
 import { ConsistentBackground } from './components/ui/ConsistentBackground';
-import Analytics from './components/Analytics';
 import Footer from './components/Footer';
 import StatusPage from './components/StatusPage';
 import LedgerTest from './components/LedgerTest';
@@ -23,87 +21,6 @@ import GRPCTest from './components/GRPCTest';
 import RouterTest from './components/RouterTest';
 import RealTimePayments from './components/RealTimePayments';
 
-// Enhanced fintech-focused products with more relevant imagery
-const fintechProducts = [
-  {
-    title: "Core Ledger",
-    link: "/ledger",
-    thumbnail: "/images/hero-images/Core Ledger.png",
-  },
-  {
-    title: "Payment Orchestration",
-    link: "/payments",
-    thumbnail: "/images/hero-images/Payment Orchestration.png",
-  },
-  {
-    title: "Smart Routing Optimiser",
-    link: "/routing",
-    thumbnail: "/images/hero-images/Smart Routing Optimiser.png",
-  },
-  {
-    title: "KYC & Risk Stub",
-    link: "/kyc",
-    thumbnail: "/images/hero-images/KYC & Risk Stub.png",
-  },
-  {
-    title: "Automated Reconciliation Engine",
-    link: "/reconciliation",
-    thumbnail: "/images/hero-images/Automated Reconciliation Engine.png",
-  },
-  {
-    title: "Compliance Report Generator",
-    link: "/compliance",
-    thumbnail: "/images/hero-images/Compliance Report Generator.png",
-  },
-  {
-    title: "Treasury / FX Mock",
-    link: "/treasury",
-    thumbnail: "/images/hero-images/Treasury : FX Mock.png",
-  },
-  {
-    title: "Self-Serve Webhooks & SDKs",
-    link: "/webhooks",
-    thumbnail: "/images/hero-images/Self-Serve Webhooks & SDKs.png",
-  },
-  {
-    title: "Dual API Surface",
-    link: "/api",
-    thumbnail: "/images/hero-images/Dual API Surface.png",
-  },
-  {
-    title: "Ops Console (HTMX + Tailwind)",
-    link: "/ops",
-    thumbnail: "/images/hero-images/Ops Console.png",
-  },
-  {
-    title: "Observability",
-    link: "/monitoring",
-    thumbnail: "/images/hero-images/Observability.png",
-  },
-  {
-    title: "Security Basics",
-    link: "/security",
-    thumbnail: "/images/hero-images/Security Basics.png",
-  },
-  {
-    title: "One-Command Experience",
-    link: "/dev-tools",
-    thumbnail: "/images/hero-images/One-Command Experience.png",
-  },
-  {
-    title: "Clean Code & Docs",
-    link: "/analytics",
-    thumbnail: "/images/hero-images/Clean Code & Docs.png",
-  },
-];
-
-// Home page component
-const HomePage: React.FC = () => (
-  <>
-    <HeroParallax products={fintechProducts} />
-    <LandingPage hideHero />
-  </>
-);
 
 // Layout component that includes Navbar and Footer
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -113,16 +30,6 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
       {children}
     </main>
     <Footer />
-  </ConsistentBackground>
-);
-
-// Layout without Footer for Landing Page
-const LandingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <ConsistentBackground>
-    <Navbar />
-    <main className="pt-20">
-      {children}
-    </main>
   </ConsistentBackground>
 );
 
@@ -139,8 +46,7 @@ function App() {
         <HealthProvider>
           <ToastProvider>
             <Routes>
-              <Route path="/" element={<Layout><HomePage /></Layout>} />
-              <Route path="/landing" element={<LandingLayout><LandingPage /></LandingLayout>} />
+              <Route path="/" element={<LandingPage />} />
               <Route path="/status" element={<ProtectedRoute><Layout><StatusPage /></Layout></ProtectedRoute>} />
               <Route path="/ledger" element={<ProtectedRoute><Layout><LedgerTest /></Layout></ProtectedRoute>} />
               <Route path="/kyc" element={<ProtectedRoute><Layout><KYCFlow /></Layout></ProtectedRoute>} />

@@ -1,936 +1,666 @@
-import React, { useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
-import {
-  Zap, Shield, TrendingUp, CreditCard, Database, Globe,
-  CheckCircle, ArrowRight, Lock, Activity, Layers, GitBranch,
-  Terminal, ChevronRight,
-} from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Database, CreditCard, Shield, TrendingUp, Zap, Code, Building, Sparkles, Activity, ChevronDown } from 'lucide-react';
+import LoginForm from './LoginForm';
+import RegistrationForm from './RegistrationForm';
 
-/* ─── design tokens ──────────────────────────────────────────────────── */
-const C = {
-  bg:        '#04060F',
-  surface:   '#070A16',
-  border:    'rgba(255,255,255,0.07)',
-  blue:      '#3B6EFF',
-  blueHover: '#4A7AFF',
-  blueLight: '#7EB8FF',
-  blueIce:   '#C7DEFF',
-  blueDim:   'rgba(59,110,255,0.10)',
-  blueMid:   'rgba(59,110,255,0.20)',
-  blueGlow:  'rgba(59,110,255,0.35)',
-  blueBorder:'rgba(59,110,255,0.22)',
-  text:      '#EEF2FF',
-  muted:     'rgba(238,242,255,0.44)',
-  subtle:    'rgba(238,242,255,0.24)',
+const MARQUEE_NAMES = ['VeloCapital', 'NexoPay', 'Horizon Bank', 'Stark Systems', 'EtherFlow', 'GlobalLedger'];
+
+const PLATFORM_ITEMS = [
+  { name: 'Core Ledger',          href: '/ledger',    icon: Database,    description: 'Double-entry accounting system',           badge: 'Core'     },
+  { name: 'Payment Rails',        href: '/payments',  icon: CreditCard,  description: 'Smart payment routing & processing',       badge: 'Popular'  },
+  { name: 'KYC & Compliance',     href: '/kyc',       icon: Shield,      description: 'Identity verification & compliance',       badge: 'Enhanced' },
+  { name: 'Analytics & Insights', href: '/status',    icon: TrendingUp,  description: 'Real-time business intelligence',          badge: 'Pro'      },
+  { name: 'gRPC Streaming Demo',  href: '/grpc-demo', icon: Zap,         description: 'Real-time bidirectional streaming APIs',   badge: 'New'      },
+];
+
+const DEVELOPER_ITEMS = [
+  { name: 'Explore API',      href: '/developers/api-explorer', icon: Code,     description: 'Interactive API testing & exploration', badge: 'Interactive' },
+  { name: 'Documentation',    href: '/developers',              icon: Database, description: 'Comprehensive API docs',                badge: 'Complete'    },
+  { name: 'gRPC Demo',        href: '/grpc-demo',               icon: Zap,      description: 'Bidirectional streaming APIs',          badge: 'New'         },
+  { name: 'Quick Start',      href: '/developers',              icon: Sparkles, description: 'Get started in minutes',                badge: 'Guide'       },
+  { name: 'SDKs & Libraries', href: '/developers',              icon: Building, description: 'Client libraries for Python, Go, Node', badge: 'Multi-Lang'  },
+];
+
+const BADGE_COLORS: Record<string, string> = {
+  Core:        'bg-blue-50 text-blue-600',
+  Popular:     'bg-purple-50 text-purple-600',
+  Enhanced:    'bg-emerald-50 text-emerald-600',
+  Pro:         'bg-amber-50 text-amber-700',
+  New:         'bg-accent/10 text-secondary',
+  Interactive: 'bg-cyan-50 text-cyan-700',
+  Complete:    'bg-slate-100 text-slate-600',
+  Guide:       'bg-orange-50 text-orange-600',
+  'Multi-Lang':'bg-pink-50 text-pink-600',
 };
 
-/* ─── helpers ────────────────────────────────────────────────────────── */
-const fadeUp = (delay = 0) => ({
-  initial:    { opacity: 0, y: 20 },
-  animate:    { opacity: 1, y: 0 },
-  transition: { duration: 0.54, delay, ease: [0.16, 1, 0.3, 1] },
-});
+const LandingPage: React.FC = () => {
+  const [activeDropdown, setActiveDropdown]   = useState<string | null>(null);
+  const [loginOpen, setLoginOpen]             = useState(false);
+  const [registerOpen, setRegisterOpen]       = useState(false);
+  const navRef   = useRef<HTMLElement>(null);
+  const navigate = useNavigate();
 
-const Reveal: React.FC<{ children: React.ReactNode; delay?: number; className?: string }> = ({
-  children, delay = 0, className,
-}) => {
-  const ref    = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-60px' });
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const toggle = (name: string) =>
+    setActiveDropdown(prev => (prev === name ? null : name));
+
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 22 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.54, delay, ease: [0.16, 1, 0.3, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-};
+    <div className="bg-surface text-on-surface font-body antialiased selection:bg-accent/30">
 
-/* ─── data ───────────────────────────────────────────────────────────── */
-const STATS = [
-  { value: '50K+',   label: 'Transactions / sec' },
-  { value: '99.99%', label: 'Platform uptime' },
-  { value: '180+',   label: 'Countries supported' },
-  { value: '2.4B',   label: 'API calls / day' },
-];
-
-const FEATURES = [
-  { icon: Shield,    title: 'Bank-Grade Security',    description: 'End-to-end encryption, SOC 2 Type II certified, and real-time threat monitoring built in by default.' },
-  { icon: Zap,       title: 'High-Throughput Ledger', description: 'Double-entry accounting engine at 50 000+ TPS with full ACID guarantees and immutable audit trails.' },
-  { icon: Globe,     title: 'Multi-Rail Payments',    description: 'ACH, SWIFT, SEPA, and card rails unified behind a single API with automatic failover.' },
-  { icon: Activity,  title: 'Real-Time Analytics',    description: 'Sub-second dashboards, custom alert thresholds, and exportable reporting across all entities.' },
-  { icon: Layers,    title: 'KYC & Compliance',       description: 'Automated identity verification, AML screening, and jurisdiction-aware compliance workflows.' },
-  { icon: GitBranch, title: 'Developer-First APIs',   description: 'gRPC and REST, OpenAPI 3.1 spec, interactive explorer, and SDKs for Go, Python, and Node.' },
-];
-
-const BENEFITS = [
-  'Cut operational costs by up to 60%',
-  'Launch new products 10× faster',
-  '99.99% uptime SLA',
-  '24/7 engineering support',
-  'Global regulatory compliance',
-  'Horizontally scalable infrastructure',
-];
-
-const TRANSACTIONS = [
-  { type: 'Payment',  amount: '$2,450.00', status: 'Completed',  color: C.blue },
-  { type: 'Transfer', amount: '$890.50',   status: 'Processing', color: '#F59E0B' },
-  { type: 'Payout',   amount: '$5,230.00', status: 'Completed',  color: C.blue },
-  { type: 'Refund',   amount: '$120.00',   status: 'Completed',  color: C.blue },
-];
-
-/* ─── component ──────────────────────────────────────────────────────── */
-const LandingPage: React.FC<{ hideHero?: boolean }> = ({ hideHero = false }) => (
-  <div style={{ background: C.bg, minHeight: '100vh' }}>
-
-    {/* ════════════ HERO ════════════ */}
-    {!hideHero && <section className="relative overflow-hidden" style={{ paddingTop: '7rem', paddingBottom: '5rem' }}>
-
-      {/* Grid background */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(59,110,255,0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(59,110,255,0.04) 1px, transparent 1px)
-          `,
-          backgroundSize: '64px 64px',
-          maskImage: 'radial-gradient(ellipse 75% 70% at 50% 0%, black 30%, transparent 100%)',
-        }}
-      />
-
-      {/* Blue radial spotlight */}
-      <div
-        className="pointer-events-none absolute"
-        style={{
-          top: -200,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 1000,
-          height: 700,
-          background: 'radial-gradient(ellipse at 50% 0%, rgba(59,110,255,0.15) 0%, transparent 65%)',
-        }}
-      />
-
-      <div className="relative max-w-6xl mx-auto px-6 lg:px-8 text-center">
-
-        {/* Headline */}
-        <motion.h1
-          {...fadeUp(0.04)}
-          className="font-bold leading-tight mb-6"
-          style={{
-            fontSize: 'clamp(2.4rem, 5vw, 4.4rem)',
-            letterSpacing: '-0.03em',
-            color: C.text,
-          }}
-        >
-          The Infrastructure
-          <br />
-          <span
-            style={{
-              background: `linear-gradient(110deg, ${C.blueIce} 10%, ${C.blueLight} 50%, ${C.blue} 100%)`,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            for Modern Finance
-          </span>
-        </motion.h1>
-
-        {/* Sub-headline */}
-        <motion.p
-          {...fadeUp(0.10)}
-          className="mx-auto mb-9 max-w-2xl"
-          style={{ color: C.muted, fontSize: '1.05rem', lineHeight: 1.7 }}
-        >
-          Build production-ready fintech applications with enterprise-grade security.
-          Core ledger, payment orchestration, KYC compliance — shipped as one platform.
-        </motion.p>
-
-        {/* Feature pills */}
-        <motion.div {...fadeUp(0.15)} className="flex flex-wrap justify-center gap-2.5 mb-9">
-          {[
-            { icon: Shield,   label: 'SOC 2 Type II' },
-            { icon: Zap,      label: '50K+ TPS' },
-            { icon: Database, label: 'Multi-currency' },
-            { icon: Terminal, label: 'gRPC + REST' },
-          ].map(({ icon: Icon, label }) => (
-            <span
-              key={label}
-              className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium"
-              style={{
-                background: 'rgba(238,242,255,0.04)',
-                border: '1px solid rgba(238,242,255,0.09)',
-                color: C.subtle,
-              }}
-            >
-              <Icon style={{ width: 11, height: 11, color: C.blueLight }} />
-              {label}
-            </span>
-          ))}
-        </motion.div>
-
-        {/* CTAs */}
-        <motion.div {...fadeUp(0.19)} className="flex flex-wrap gap-3 justify-center mb-16">
-          <Link
-            to="/ledger"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm text-white transition-all duration-200"
-            style={{
-              background: C.blue,
-              boxShadow: `0 0 0 1px ${C.blueBorder}, 0 4px 22px ${C.blueGlow}`,
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.background = C.blueHover;
-              (e.currentTarget as HTMLElement).style.boxShadow = `0 0 0 1px rgba(59,110,255,0.5), 0 6px 30px rgba(59,110,255,0.50)`;
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.background = C.blue;
-              (e.currentTarget as HTMLElement).style.boxShadow = `0 0 0 1px ${C.blueBorder}, 0 4px 22px ${C.blueGlow}`;
-            }}
-          >
-            Explore Platform
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <button
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200"
-            style={{ background: 'rgba(238,242,255,0.04)', border: `1px solid ${C.border}`, color: C.muted }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.background = 'rgba(238,242,255,0.07)';
-              (e.currentTarget as HTMLElement).style.borderColor = 'rgba(59,110,255,0.30)';
-              (e.currentTarget as HTMLElement).style.color = C.text;
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.background = 'rgba(238,242,255,0.04)';
-              (e.currentTarget as HTMLElement).style.borderColor = C.border;
-              (e.currentTarget as HTMLElement).style.color = C.muted;
-            }}
-          >
-            View Documentation
-          </button>
-        </motion.div>
-
-        {/* ── Dashboard preview card ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 44 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.70, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-3xl mx-auto rounded-2xl overflow-hidden"
-          style={{
-            background: C.surface,
-            border: `1px solid rgba(59,110,255,0.16)`,
-            boxShadow: `0 40px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(59,110,255,0.06), inset 0 1px 0 rgba(255,255,255,0.04)`,
-          }}
-        >
-          {/* Window chrome */}
-          <div
-            className="flex items-center gap-2 px-4 py-3 border-b"
-            style={{ borderColor: 'rgba(59,110,255,0.10)', background: 'rgba(59,110,255,0.04)' }}
-          >
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#FF5F57' }} />
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#FEBC2E' }} />
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#28C840' }} />
-            <span className="ml-2 text-xs font-medium font-mono" style={{ color: C.subtle }}>
-              MudraCore OS — Live Dashboard
-            </span>
+      {/* ── Top Navigation Bar ─────────────────────────────────────────── */}
+      <header ref={navRef} className="w-full sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant/50">
+        <div className="flex justify-between items-center h-16 px-8 max-w-[1440px] mx-auto">
+          {/* Logo */}
+          <div className="text-xl font-black tracking-tighter text-primary font-headline uppercase flex items-center gap-2">
+            <span className="w-6 h-6 bg-accent rounded-sm inline-block" />
+            MudraCore OS
           </div>
 
-          {/* Stat tiles */}
-          <div className="p-5 grid grid-cols-2 sm:grid-cols-4 gap-3 border-b" style={{ borderColor: 'rgba(59,110,255,0.10)' }}>
-            {STATS.map(({ value, label }) => (
-              <div
-                key={label}
-                className="rounded-xl px-4 py-3 text-center"
-                style={{ background: C.blueDim, border: `1px solid rgba(59,110,255,0.14)` }}
+          {/* Nav */}
+          <nav className="hidden md:flex items-center gap-1">
+            {/* Platform dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => toggle('platform')}
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[0.875rem] font-semibold transition-colors ${
+                  activeDropdown === 'platform'
+                    ? 'bg-surface text-primary'
+                    : 'text-primary/70 hover:text-primary hover:bg-surface'
+                }`}
               >
-                <div
-                  className="text-xl font-bold mb-0.5 tabular-nums"
-                  style={{ color: C.blueIce, letterSpacing: '-0.02em' }}
-                >
-                  {value}
+                Platform
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${activeDropdown === 'platform' ? 'rotate-180' : ''}`} />
+              </button>
+              {activeDropdown === 'platform' && (
+                <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-outline-variant rounded-2xl shadow-premium overflow-hidden z-50">
+                  <div className="p-2">
+                    {PLATFORM_ITEMS.map(item => (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        onClick={() => setActiveDropdown(null)}
+                        className="flex items-start gap-3 px-4 py-3 rounded-xl hover:bg-surface transition-colors group"
+                      >
+                        <div className="w-9 h-9 bg-surface rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-white transition-colors mt-0.5">
+                          <item.icon className="h-4 w-4 text-secondary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-[0.875rem] font-bold text-primary truncate">{item.name}</span>
+                            <span className={`text-[0.65rem] font-black px-1.5 py-0.5 rounded-md flex-shrink-0 ${BADGE_COLORS[item.badge] ?? 'bg-slate-100 text-slate-600'}`}>
+                              {item.badge}
+                            </span>
+                          </div>
+                          <p className="text-[0.75rem] text-slate-500 leading-snug">{item.description}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="px-4 py-3 border-t border-outline-variant/50 bg-surface">
+                    <Link to="/status" onClick={() => setActiveDropdown(null)} className="inline-flex items-center gap-1.5 text-[0.75rem] font-bold text-secondary hover:text-primary transition-colors">
+                      <Activity className="h-3.5 w-3.5" /> View system status
+                    </Link>
+                  </div>
                 </div>
-                <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: C.muted }}>
-                  {label}
+              )}
+            </div>
+
+            {/* Developers dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => toggle('developers')}
+                className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[0.875rem] font-semibold transition-colors ${
+                  activeDropdown === 'developers'
+                    ? 'bg-surface text-primary'
+                    : 'text-primary/70 hover:text-primary hover:bg-surface'
+                }`}
+              >
+                Developers
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${activeDropdown === 'developers' ? 'rotate-180' : ''}`} />
+              </button>
+              {activeDropdown === 'developers' && (
+                <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-outline-variant rounded-2xl shadow-premium overflow-hidden z-50">
+                  <div className="p-2">
+                    {DEVELOPER_ITEMS.map(item => (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        onClick={() => setActiveDropdown(null)}
+                        className="flex items-start gap-3 px-4 py-3 rounded-xl hover:bg-surface transition-colors group"
+                      >
+                        <div className="w-9 h-9 bg-surface rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-white transition-colors mt-0.5">
+                          <item.icon className="h-4 w-4 text-secondary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-[0.875rem] font-bold text-primary truncate">{item.name}</span>
+                            <span className={`text-[0.65rem] font-black px-1.5 py-0.5 rounded-md flex-shrink-0 ${BADGE_COLORS[item.badge] ?? 'bg-slate-100 text-slate-600'}`}>
+                              {item.badge}
+                            </span>
+                          </div>
+                          <p className="text-[0.75rem] text-slate-500 leading-snug">{item.description}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Status — direct link */}
+            <Link
+              to="/status"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[0.875rem] font-medium text-primary/70 hover:text-primary hover:bg-surface transition-colors"
+            >
+              <Activity className="h-3.5 w-3.5" /> Status
+            </Link>
+          </nav>
+
+          {/* Right side */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setLoginOpen(true)}
+              className="text-[0.875rem] font-medium text-primary/70 hover:text-primary transition-colors"
+            >
+              Login
+            </button>
+            <Link
+              to="/ledger"
+              className="bg-primary text-white px-5 py-2.5 rounded-lg text-[0.875rem] font-semibold active:scale-95 transition-all hover:shadow-lg hover:shadow-primary/20"
+            >
+              Get Started
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* ── Auth Modals ─────────────────────────────────────────────────── */}
+      <LoginForm
+        isOpen={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        onSuccess={() => { setLoginOpen(false); navigate('/ledger'); }}
+        onRegisterClick={() => { setLoginOpen(false); setRegisterOpen(true); }}
+      />
+      <RegistrationForm
+        isOpen={registerOpen}
+        onClose={() => setRegisterOpen(false)}
+        onSuccess={() => { setRegisterOpen(false); navigate('/ledger'); }}
+        onLoginClick={() => { setRegisterOpen(false); setLoginOpen(true); }}
+      />
+
+      <main>
+        {/* ── Hero Section ───────────────────────────────────────────────── */}
+        <section className="relative bg-surface px-8 pt-20 pb-16 max-w-[1440px] mx-auto overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            {/* Left */}
+            <div className="lg:col-span-6 z-10">
+              <div className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 bg-accent/10 border border-accent/20 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                <span className="text-[0.75rem] font-bold tracking-wider uppercase text-secondary">System Nominal • V4.2 Live</span>
+              </div>
+              <h1 className="text-6xl md:text-7xl font-black tracking-tight text-primary mb-8 leading-[0.95] font-headline">
+                The Engine of{' '}
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary to-accent">
+                  Modern Finance.
+                </span>
+              </h1>
+              <p className="text-xl text-slate-600 mb-12 max-w-xl leading-relaxed">
+                Scale your financial operations on a secure, compliant, and hyper-scalable infrastructure.
+                Engineered for institutional precision, built for startup speed.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  to="/ledger"
+                  className="bg-primary text-white px-10 py-4 rounded-xl font-bold text-base active:scale-95 transition-all hover:shadow-xl hover:shadow-primary/25"
+                >
+                  Deploy Core Now
+                </Link>
+                <Link
+                  to="/developers"
+                  className="bg-white border border-outline-variant text-primary px-10 py-4 rounded-xl font-bold text-base active:scale-95 transition-all hover:bg-slate-50"
+                >
+                  View Documentation
+                </Link>
+              </div>
+            </div>
+
+            {/* Right — Data Viz Card */}
+            <div className="lg:col-span-6 relative">
+              <div className="bg-white p-8 rounded-3xl border border-outline-variant/50 shadow-premium relative group overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+                <div className="flex justify-between items-start mb-12">
+                  <div>
+                    <span className="text-[0.75rem] font-bold uppercase text-slate-400 tracking-widest block mb-2">Network Throughput</span>
+                    <span className="text-4xl font-black text-primary tracking-tighter">$14,289,402.00</span>
+                  </div>
+                  <div className="bg-accent/10 text-secondary px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
+                    +12.4%{' '}
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>trending_up</span>
+                  </div>
+                </div>
+                {/* Pulse SVG */}
+                <div className="h-56 relative">
+                  <svg
+                    className="w-full h-full drop-shadow-[0_0_8px_rgba(0,255,148,0.4)]"
+                    preserveAspectRatio="none"
+                    viewBox="0 0 400 150"
+                  >
+                    <path
+                      className="pulse-line"
+                      d="M0,120 Q50,110 80,130 T150,80 T220,100 T300,40 T400,60"
+                      fill="none"
+                      stroke="#00FF94"
+                      strokeWidth="4"
+                    />
+                    <path
+                      d="M0,120 Q50,110 80,130 T150,80 T220,100 T300,40 T400,60 V150 H0 Z"
+                      fill="url(#gradientPulse)"
+                      opacity="0.1"
+                    />
+                    <defs>
+                      <linearGradient id="gradientPulse" x1="0%" x2="0%" y1="0%" y2="100%">
+                        <stop offset="0%" stopColor="#00FF94" />
+                        <stop offset="100%" stopColor="#00FF94" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+                <div className="mt-8 pt-8 border-t border-slate-100 grid grid-cols-3 gap-8">
+                  <div>
+                    <span className="block text-[0.75rem] text-slate-400 font-bold uppercase mb-2">API Latency</span>
+                    <span className="text-lg font-black text-primary">14.2ms</span>
+                  </div>
+                  <div>
+                    <span className="block text-[0.75rem] text-slate-400 font-bold uppercase mb-2">Settlement</span>
+                    <span className="text-lg font-black text-accent">INSTANT</span>
+                  </div>
+                  <div>
+                    <span className="block text-[0.75rem] text-slate-400 font-bold uppercase mb-2">Uptime</span>
+                    <span className="text-lg font-black text-primary">100%</span>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Transaction rows */}
-          <div className="p-5">
-            <div className="flex items-center justify-between mb-3 text-xs font-medium" style={{ color: C.subtle }}>
-              <span>Recent Transactions</span>
-              <span className="flex items-center gap-1.5" style={{ color: C.blueLight }}>
-                <span
-                  className="w-1.5 h-1.5 rounded-full"
-                  style={{ background: C.blue, boxShadow: `0 0 6px ${C.blue}` }}
-                />
-                Live
-              </span>
             </div>
-            <div className="space-y-2">
-              {TRANSACTIONS.map((tx, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + i * 0.1 }}
-                  className="flex items-center justify-between rounded-lg px-3.5 py-2.5"
-                  style={{ background: 'rgba(238,242,255,0.025)' }}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: tx.color }} />
-                    <span className="text-sm font-medium" style={{ color: C.text }}>{tx.type}</span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-semibold tabular-nums" style={{ color: C.text }}>{tx.amount}</span>
-                    <span
-                      className="text-xs font-medium px-2 py-0.5 rounded-full"
-                      style={
-                        tx.status === 'Completed'
-                          ? { background: C.blueDim, color: C.blueLight }
-                          : { background: 'rgba(245,158,11,0.12)', color: '#F59E0B' }
-                      }
-                    >
-                      {tx.status}
-                    </span>
-                  </div>
-                </motion.div>
+          </div>
+        </section>
+
+        {/* ── Trusted By Marquee ─────────────────────────────────────────── */}
+        <section className="py-12 border-y border-outline-variant/30 bg-surface">
+          <div className="marquee">
+            <div className="marquee-content">
+              {MARQUEE_NAMES.map(name => (
+                <span key={name} className="text-xl font-black text-primary/20 tracking-tighter uppercase">{name}</span>
+              ))}
+            </div>
+            <div aria-hidden className="marquee-content">
+              {MARQUEE_NAMES.map(name => (
+                <span key={`${name}-dup`} className="text-xl font-black text-primary/20 tracking-tighter uppercase">{name}</span>
               ))}
             </div>
           </div>
-        </motion.div>
-      </div>
-    </section>}
+        </section>
 
-    {/* ════════════ STATS BAR ════════════ */}
-    <div style={{ borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-      <div className="max-w-6xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4">
-          {STATS.map(({ value, label }, i) => (
-            <Reveal
-              key={label}
-              delay={i * 0.07}
-              className="py-10 text-center"
-              style={i < STATS.length - 1 ? { borderRight: `1px solid ${C.border}` } as any : undefined}
-            >
-              <div
-                className="font-bold mb-1.5 tabular-nums"
-                style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', color: C.blueIce, letterSpacing: '-0.03em' }}
-              >
-                {value}
-              </div>
-              <div className="text-xs font-medium uppercase tracking-widest" style={{ color: C.muted }}>
-                {label}
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </div>
-
-    {/* ════════════ FEATURES ════════════ */}
-    <section style={{ padding: 'clamp(5rem, 9vw, 8rem) 0' }}>
-      <div className="max-w-6xl mx-auto px-6 lg:px-8">
-
-        <Reveal className="text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-5">
-            <div style={{ width: 20, height: 1, background: C.blue }} />
-            <span className="text-xs font-mono font-medium uppercase tracking-widest" style={{ color: C.blueLight }}>
-              Platform Capabilities
-            </span>
-            <div style={{ width: 20, height: 1, background: C.blue }} />
-          </div>
-          <h2
-            className="font-bold tracking-tight mb-4"
-            style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', color: C.text, letterSpacing: '-0.025em', lineHeight: 1.14 }}
-          >
-            Everything you need to build
-            <span
-              className="block"
-              style={{
-                background: `linear-gradient(110deg, ${C.blueIce} 10%, ${C.blueLight} 60%, ${C.blue} 100%)`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              financial infrastructure
-            </span>
-          </h2>
-          <p className="max-w-xl mx-auto text-sm" style={{ color: C.muted, lineHeight: 1.7 }}>
-            Production-hardened modules that integrate seamlessly — no stitching together multiple vendors.
-          </p>
-        </Reveal>
-
-        {/* Bento grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-          {/* ── 01 Security — wide ── */}
-          <Reveal delay={0} className="md:col-span-2">
-            <motion.div
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.18 }}
-              className="relative rounded-2xl overflow-hidden p-7 h-full cursor-default"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = C.blueBorder}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = C.border}
-            >
-              {/* Top accent bar */}
-              <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${C.blue}, ${C.blueLight}, transparent)` }} />
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: C.blueDim, border: `1px solid rgba(59,110,255,0.25)` }}>
-                    <Shield style={{ width: 20, height: 20, color: C.blueLight }} />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-mono uppercase tracking-widest mb-0.5" style={{ color: C.muted }}>01 · Security</div>
-                    <h3 className="text-base font-bold" style={{ color: C.text }}>Bank-Grade Security</h3>
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-1 rounded-full" style={{ background: 'rgba(16,185,129,0.12)', color: '#34D399' }}>SOC 2 ✓</span>
-              </div>
-              <p className="text-sm mb-6" style={{ color: C.muted, lineHeight: 1.7 }}>
-                End-to-end encryption, SOC 2 Type II certified, and real-time threat monitoring built in by default.
+        {/* ── Core Modules Bento Grid ────────────────────────────────────── */}
+        <section className="bg-white py-32 px-8">
+          <div className="max-w-[1440px] mx-auto">
+            <div className="mb-20 text-center">
+              <span className="text-[0.75rem] font-black text-accent uppercase tracking-[0.3em] block mb-4">The Infrastructure</span>
+              <h2 className="text-5xl font-black tracking-tight text-primary mb-6">Built for Modular Scale</h2>
+              <p className="text-slate-500 max-w-2xl mx-auto text-lg">
+                Six independent, interoperable pillars designed to handle the most complex financial logic with zero friction.
               </p>
-              {/* Mini visual — compliance badges */}
-              <div className="flex flex-wrap gap-2">
-                {['AES-256', 'TLS 1.3', 'ISO 27001', 'PCI DSS', 'SOC 2 Type II'].map(b => (
-                  <span key={b} className="text-[10px] font-mono px-2.5 py-1 rounded-md" style={{ background: 'rgba(59,110,255,0.10)', border: `1px solid rgba(59,110,255,0.18)`, color: C.blueLight }}>
-                    {b}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          </Reveal>
-
-          {/* ── 02 Ledger ── */}
-          <Reveal delay={0.06}>
-            <motion.div
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.18 }}
-              className="relative rounded-2xl overflow-hidden p-7 h-full cursor-default"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = C.blueBorder}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = C.border}
-            >
-              <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${C.blue}, transparent)` }} />
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: C.blueDim, border: `1px solid rgba(59,110,255,0.25)` }}>
-                  <Zap style={{ width: 20, height: 20, color: C.blueLight }} />
-                </div>
-                <div>
-                  <div className="text-[10px] font-mono uppercase tracking-widest mb-0.5" style={{ color: C.muted }}>02 · Ledger</div>
-                  <h3 className="text-base font-bold" style={{ color: C.text }}>High-Throughput</h3>
-                </div>
-              </div>
-              <p className="text-sm mb-5" style={{ color: C.muted, lineHeight: 1.7 }}>Double-entry engine at 50 000+ TPS with ACID guarantees and immutable audit trails.</p>
-              {/* Mini TPS bar chart */}
-              <div className="flex items-end gap-1 h-10">
-                {[40, 55, 48, 70, 62, 85, 78, 95, 88, 100].map((h, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 rounded-sm"
-                    style={{ height: `${h}%`, background: i === 9 ? C.blue : `rgba(59,110,255,${0.15 + i * 0.07})` }}
-                  />
-                ))}
-              </div>
-              <div className="text-[10px] font-mono mt-2" style={{ color: C.muted }}>50K+ TPS · live throughput</div>
-            </motion.div>
-          </Reveal>
-
-          {/* ── 03 Payments ── */}
-          <Reveal delay={0.08}>
-            <motion.div
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.18 }}
-              className="relative rounded-2xl overflow-hidden p-7 h-full cursor-default"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = C.blueBorder}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = C.border}
-            >
-              <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${C.blue}, transparent)` }} />
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: C.blueDim, border: `1px solid rgba(59,110,255,0.25)` }}>
-                  <Globe style={{ width: 20, height: 20, color: C.blueLight }} />
-                </div>
-                <div>
-                  <div className="text-[10px] font-mono uppercase tracking-widest mb-0.5" style={{ color: C.muted }}>03 · Payments</div>
-                  <h3 className="text-base font-bold" style={{ color: C.text }}>Multi-Rail</h3>
-                </div>
-              </div>
-              <p className="text-sm mb-5" style={{ color: C.muted, lineHeight: 1.7 }}>ACH, SWIFT, SEPA, and card rails unified behind a single API with automatic failover.</p>
-              {/* Rail status */}
-              <div className="space-y-2">
-                {[['ACH', '99.99%'], ['SWIFT', '99.97%'], ['SEPA', '99.98%'], ['Card', '99.99%']].map(([rail, uptime]) => (
-                  <div key={rail} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#34D399' }} />
-                      <span className="text-xs font-mono" style={{ color: C.subtle }}>{rail}</span>
-                    </div>
-                    <span className="text-[10px] font-mono" style={{ color: '#34D399' }}>{uptime}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </Reveal>
-
-          {/* ── 04 Analytics ── */}
-          <Reveal delay={0.10}>
-            <motion.div
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.18 }}
-              className="relative rounded-2xl overflow-hidden p-7 h-full cursor-default"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = C.blueBorder}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = C.border}
-            >
-              <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${C.blue}, transparent)` }} />
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: C.blueDim, border: `1px solid rgba(59,110,255,0.25)` }}>
-                  <Activity style={{ width: 20, height: 20, color: C.blueLight }} />
-                </div>
-                <div>
-                  <div className="text-[10px] font-mono uppercase tracking-widest mb-0.5" style={{ color: C.muted }}>04 · Analytics</div>
-                  <h3 className="text-base font-bold" style={{ color: C.text }}>Real-Time Insights</h3>
-                </div>
-              </div>
-              <p className="text-sm mb-5" style={{ color: C.muted, lineHeight: 1.7 }}>Sub-second dashboards, custom alert thresholds, and exportable reporting across all entities.</p>
-              {/* Sparkline */}
-              <svg viewBox="0 0 120 36" className="w-full" style={{ height: 36 }}>
-                <polyline
-                  points="0,28 12,22 24,26 36,16 48,20 60,10 72,14 84,8 96,12 108,4 120,6"
-                  fill="none"
-                  stroke={C.blue}
-                  strokeWidth="2"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                />
-                <polyline
-                  points="0,28 12,22 24,26 36,16 48,20 60,10 72,14 84,8 96,12 108,4 120,6 120,36 0,36"
-                  fill="url(#sparkGrad)"
-                />
-                <defs>
-                  <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={C.blue} stopOpacity="0.25" />
-                    <stop offset="100%" stopColor={C.blue} stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="text-[10px] font-mono mt-1" style={{ color: C.muted }}>Transaction volume · 7d</div>
-            </motion.div>
-          </Reveal>
-
-          {/* ── 05 KYC ── */}
-          <Reveal delay={0.12}>
-            <motion.div
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.18 }}
-              className="relative rounded-2xl overflow-hidden p-7 h-full cursor-default"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = C.blueBorder}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = C.border}
-            >
-              <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${C.blue}, transparent)` }} />
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: C.blueDim, border: `1px solid rgba(59,110,255,0.25)` }}>
-                  <Layers style={{ width: 20, height: 20, color: C.blueLight }} />
-                </div>
-                <div>
-                  <div className="text-[10px] font-mono uppercase tracking-widest mb-0.5" style={{ color: C.muted }}>05 · Compliance</div>
-                  <h3 className="text-base font-bold" style={{ color: C.text }}>KYC & AML</h3>
-                </div>
-              </div>
-              <p className="text-sm mb-5" style={{ color: C.muted, lineHeight: 1.7 }}>Automated identity verification, AML screening, and jurisdiction-aware compliance workflows.</p>
-              {/* Verification steps */}
-              <div className="space-y-2">
-                {[
-                  { step: 'Identity Check', done: true },
-                  { step: 'AML Screening', done: true },
-                  { step: 'Risk Scoring', done: true },
-                  { step: 'Jurisdiction Review', done: false },
-                ].map(({ step, done }) => (
-                  <div key={step} className="flex items-center gap-2.5">
-                    <div
-                      className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ background: done ? 'rgba(16,185,129,0.15)' : 'rgba(238,242,255,0.06)', border: `1px solid ${done ? 'rgba(52,211,153,0.4)' : 'rgba(238,242,255,0.12)'}` }}
-                    >
-                      {done && <CheckCircle style={{ width: 10, height: 10, color: '#34D399' }} />}
-                    </div>
-                    <span className="text-[11px] font-mono" style={{ color: done ? 'rgba(238,242,255,0.65)' : C.muted }}>{step}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </Reveal>
-
-          {/* ── 06 Developer APIs — wide ── */}
-          <Reveal delay={0.14} className="md:col-span-1">
-            <motion.div
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.18 }}
-              className="relative rounded-2xl overflow-hidden p-7 h-full cursor-default"
-              style={{ background: C.surface, border: `1px solid ${C.border}` }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = C.blueBorder}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = C.border}
-            >
-              <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${C.blue}, transparent)` }} />
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: C.blueDim, border: `1px solid rgba(59,110,255,0.25)` }}>
-                  <GitBranch style={{ width: 20, height: 20, color: C.blueLight }} />
-                </div>
-                <div>
-                  <div className="text-[10px] font-mono uppercase tracking-widest mb-0.5" style={{ color: C.muted }}>06 · APIs</div>
-                  <h3 className="text-base font-bold" style={{ color: C.text }}>Developer-First</h3>
-                </div>
-              </div>
-              <p className="text-sm mb-5" style={{ color: C.muted, lineHeight: 1.7 }}>gRPC and REST, OpenAPI 3.1 spec, interactive explorer, and SDKs for Go, Python, and Node.</p>
-              {/* Mini code line */}
-              <div
-                className="rounded-lg px-4 py-3 font-mono text-[11px]"
-                style={{ background: '#020409', border: `1px solid rgba(59,110,255,0.14)` }}
-              >
-                <span style={{ color: C.blue }}>POST</span>
-                <span style={{ color: C.blueIce }}> /v1/payments</span>
-                <span className="ml-3 px-1.5 py-0.5 rounded text-[9px]" style={{ background: 'rgba(16,185,129,0.14)', color: '#34D399' }}>201 · 44ms</span>
-              </div>
-            </motion.div>
-          </Reveal>
-
-        </div>
-      </div>
-    </section>
-
-    {/* ════════════ CODE SNIPPET ════════════ */}
-    <section style={{ padding: 'clamp(4rem, 8vw, 7rem) 0', borderTop: `1px solid ${C.border}` }}>
-      <div className="max-w-6xl mx-auto px-6 lg:px-8">
-        <Reveal className="text-center mb-14">
-          <div className="flex items-center justify-center gap-3 mb-5">
-            <div style={{ width: 20, height: 1, background: C.blue }} />
-            <span className="text-xs font-mono font-medium uppercase tracking-widest" style={{ color: C.blueLight }}>
-              Developer-First
-            </span>
-            <div style={{ width: 20, height: 1, background: C.blue }} />
-          </div>
-          <h2
-            className="font-bold tracking-tight mb-4"
-            style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)', color: C.text, letterSpacing: '-0.025em', lineHeight: 1.14 }}
-          >
-            Ship in minutes,
-            <span
-              className="block"
-              style={{
-                background: `linear-gradient(110deg, ${C.blueIce} 10%, ${C.blueLight} 60%, ${C.blue} 100%)`,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              not months
-            </span>
-          </h2>
-          <p className="max-w-xl mx-auto text-sm" style={{ color: C.muted, lineHeight: 1.7 }}>
-            Idiomatic SDKs and an interactive API explorer. Go from zero to live transactions in a single afternoon.
-          </p>
-        </Reveal>
-
-        {/* Feature pills row */}
-        <Reveal className="flex flex-wrap justify-center gap-3 mb-12">
-          {[
-            { label: 'OpenAPI 3.1', sub: 'Live playground' },
-            { label: 'gRPC Streaming', sub: 'Real-time events' },
-            { label: 'Webhooks', sub: 'Auto retry & signing' },
-            { label: 'SDKs', sub: 'Go · Python · Node' },
-          ].map(({ label, sub }) => (
-            <div
-              key={label}
-              className="flex items-center gap-3 rounded-xl px-4 py-3"
-              style={{ background: C.blueDim, border: `1px solid rgba(59,110,255,0.20)` }}
-            >
-              <CheckCircle style={{ width: 15, height: 15, color: C.blue, flexShrink: 0 }} />
-              <div>
-                <div className="text-xs font-semibold" style={{ color: C.text }}>{label}</div>
-                <div className="text-[10px]" style={{ color: C.muted }}>{sub}</div>
-              </div>
             </div>
-          ))}
-        </Reveal>
-
-        {/* Main code card */}
-        <Reveal>
-          <div
-            className="relative rounded-2xl overflow-hidden"
-            style={{
-              background: '#03050E',
-              border: `1px solid rgba(59,110,255,0.22)`,
-              boxShadow: `0 0 80px rgba(59,110,255,0.10), 0 40px 60px rgba(0,0,0,0.5)`,
-            }}
-          >
-            {/* Blue ambient glow top */}
-            <div
-              className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
-              style={{
-                width: 600,
-                height: 180,
-                background: 'radial-gradient(ellipse at 50% 0%, rgba(59,110,255,0.18) 0%, transparent 70%)',
-              }}
-            />
-
-            <div className="relative grid lg:grid-cols-2">
-              {/* ── Left: copy ── */}
-              <div className="p-8 lg:p-12 flex flex-col justify-center border-b lg:border-b-0 lg:border-r" style={{ borderColor: 'rgba(59,110,255,0.12)' }}>
-                <div
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-8 w-fit text-[10px] font-mono font-semibold uppercase tracking-widest"
-                  style={{ background: 'rgba(59,110,255,0.12)', border: `1px solid rgba(59,110,255,0.28)`, color: C.blueLight }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: C.blue, boxShadow: `0 0 6px ${C.blue}` }} />
-                  REST · gRPC · Webhooks
+            <div className="bento-grid">
+              {/* Ledger */}
+              <div className="col-span-12 md:col-span-4 bg-surface p-10 border border-outline-variant/50 rounded-3xl hover:shadow-premium transition-all group hover:-translate-y-1">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-8 group-hover:bg-primary transition-colors">
+                  <span className="material-symbols-outlined text-accent" style={{ fontSize: '28px' }}>account_balance_wallet</span>
                 </div>
+                <h3 className="text-2xl font-black mb-4 text-primary">Immutable Ledger</h3>
+                <p className="text-slate-600 leading-relaxed">Double-entry accounting engine with cryptographic verification for every transaction entry.</p>
+              </div>
 
-                <div className="space-y-6 mb-10">
+              {/* Compliance — wide dark card */}
+              <div className="col-span-12 md:col-span-8 bg-primary p-10 rounded-3xl hover:shadow-2xl transition-all group overflow-hidden relative border border-white/10">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full -mr-32 -mt-32 blur-3xl opacity-50" />
+                <div className="flex h-full gap-12 relative z-10">
+                  <div className="flex-1">
+                    <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-8">
+                      <span className="material-symbols-outlined text-accent" style={{ fontSize: '28px' }}>verified_user</span>
+                    </div>
+                    <h3 className="text-2xl font-black mb-4 text-white">Global Compliance</h3>
+                    <p className="text-slate-300 leading-relaxed mb-8">
+                      Real-time KYC/AML screening with automated reporting across 140+ jurisdictions. Pre-configured for speed.
+                    </p>
+                    <div className="flex gap-3">
+                      <span className="px-3 py-1 bg-white/5 border border-white/10 text-[0.75rem] font-bold text-accent rounded-lg">SOC2 TYPE II</span>
+                      <span className="px-3 py-1 bg-white/5 border border-white/10 text-[0.75rem] font-bold text-accent rounded-lg">GDPR</span>
+                      <span className="px-3 py-1 bg-white/5 border border-white/10 text-[0.75rem] font-bold text-accent rounded-lg">PCI-DSS L1</span>
+                    </div>
+                  </div>
+                  <div className="hidden lg:block w-64 -mr-10 -mb-10 opacity-40 group-hover:opacity-80 transition-opacity">
+                    <img
+                      alt="Security Circuit"
+                      className="w-full h-full object-cover rounded-tl-3xl grayscale brightness-200"
+                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdXcayzUpx8hMN9bYaHrZjxgay7mguKtmOvt4DwfX3-HJ8Tm_UZ9V1iirNGVYYqURiCAWVp7DbGBc74we9XGsCzTCqYgCXA0rhp_OGzQTu1qCLS1cMjDd9gt6wMk3gkQPOYekiOSrNB8VtcnQI0AhqgwlEFunqe3nLJAUnK3-9Vd1hE5Dl03fL2pm6-n6eqU4NJWV6reg0R9aNdEvGKFrL2sEFwrLR5yCo8fPlIW6zw3xtHKnhfGf43D_4u5DQfzALECQFNCcW4g"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Smart Payment Engine */}
+              <div className="col-span-12 md:col-span-4 bg-surface p-10 border border-outline-variant/50 rounded-3xl hover:shadow-premium transition-all group hover:-translate-y-1">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-8 group-hover:bg-primary transition-colors">
+                  <span className="material-symbols-outlined text-accent" style={{ fontSize: '28px' }}>alt_route</span>
+                </div>
+                <h3 className="text-2xl font-black mb-4 text-primary">Smart Payment Engine</h3>
+                <p className="text-slate-600 leading-relaxed mb-6">
+                  Adaptive rail selection scores every transfer in real time against cost, speed, and availability — automatically choosing ACH, RTP, SEPA, SWIFT, or on-chain.
+                </p>
+                {/* Rail mini-widget */}
+                <div className="bg-white rounded-2xl border border-outline-variant/60 overflow-hidden">
                   {[
-                    { method: 'POST', path: '/v1/payments', ms: '44ms', status: 201 },
-                    { method: 'GET',  path: '/v1/ledger/entries', ms: '12ms', status: 200 },
-                    { method: 'POST', path: '/v1/kyc/verify', ms: '230ms', status: 202 },
-                  ].map(({ method, path, ms, status }) => (
-                    <div key={path} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span
-                          className="text-[10px] font-bold font-mono px-2 py-0.5 rounded"
-                          style={{
-                            background: method === 'GET' ? 'rgba(16,185,129,0.14)' : 'rgba(59,110,255,0.14)',
-                            color: method === 'GET' ? '#34D399' : C.blueLight,
-                          }}
-                        >
-                          {method}
-                        </span>
-                        <span className="text-sm font-mono" style={{ color: C.blueIce }}>{path}</span>
+                    { rail: 'RTP',   speed: 'Instant', bar: 100, best: true  },
+                    { rail: 'SEPA',  speed: '2 hrs',   bar: 75,  best: false },
+                    { rail: 'ACH',   speed: '1 day',   bar: 55,  best: false },
+                    { rail: 'SWIFT', speed: 'T+2',     bar: 18,  best: false },
+                  ].map(r => (
+                    <div key={r.rail} className={`px-4 py-2.5 flex items-center gap-3 ${r.best ? 'bg-accent/5' : ''}`}>
+                      <span className={`text-[0.7rem] font-black w-10 flex-shrink-0 ${r.best ? 'text-secondary' : 'text-slate-500'}`}>{r.rail}</span>
+                      <div className="flex-1 h-1.5 rounded-full bg-outline-variant overflow-hidden">
+                        <div className="h-full rounded-full" style={{ width: `${r.bar}%`, background: r.best ? '#00FF94' : '#CBD5E1' }} />
                       </div>
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-[10px] font-mono" style={{ color: C.muted }}>{ms}</span>
-                        <span
-                          className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded"
-                          style={{ background: 'rgba(16,185,129,0.12)', color: '#34D399' }}
-                        >
-                          {status}
-                        </span>
-                      </div>
+                      <span className={`text-[0.65rem] font-bold flex-shrink-0 ${r.best ? 'text-secondary' : 'text-slate-400'}`}>{r.speed}</span>
+                      {r.best && <span className="material-symbols-outlined text-accent flex-shrink-0" style={{ fontSize: '14px' }}>check_circle</span>}
                     </div>
                   ))}
                 </div>
-
-                <Link
-                  to="/developers"
-                  className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold w-fit transition-all duration-200"
-                  style={{
-                    background: C.blue,
-                    color: '#fff',
-                    boxShadow: `0 0 0 1px ${C.blueBorder}, 0 4px 16px ${C.blueGlow}`,
-                  }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.blueHover; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.blue; }}
-                >
-                  Explore API docs
-                  <ChevronRight style={{ width: 15, height: 15 }} className="group-hover:translate-x-0.5 transition-transform duration-150" />
-                </Link>
               </div>
 
-              {/* ── Right: terminal ── */}
-              <div className="flex flex-col">
-                {/* Tab bar */}
-                <div
-                  className="flex items-center gap-0 border-b px-4"
-                  style={{ borderColor: 'rgba(59,110,255,0.12)', background: 'rgba(59,110,255,0.04)' }}
-                >
-                  {['Request', 'Response'].map((tab, i) => (
-                    <div
-                      key={tab}
-                      className="px-4 py-3 text-xs font-mono font-medium cursor-default border-b-2 -mb-px"
-                      style={
-                        i === 0
-                          ? { color: C.blueLight, borderColor: C.blue }
-                          : { color: C.muted, borderColor: 'transparent' }
-                      }
-                    >
-                      {tab}
+              {/* Payment Orchestration */}
+              <div className="col-span-12 md:col-span-4 bg-surface p-10 border border-outline-variant/50 rounded-3xl hover:shadow-premium transition-all group hover:-translate-y-1">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-8 group-hover:bg-primary transition-colors">
+                  <span className="material-symbols-outlined text-accent" style={{ fontSize: '28px' }}>account_balance</span>
+                </div>
+                <h3 className="text-2xl font-black mb-4 text-primary">Payment Orchestration</h3>
+                <p className="text-slate-600 leading-relaxed mb-6">
+                  Connect any bank account and initiate transfers to any destination worldwide. One unified API abstracts every bank, network, and currency behind a single integration.
+                </p>
+                {/* Bank connection mini-widget */}
+                <div className="bg-white rounded-2xl border border-outline-variant/60 overflow-hidden">
+                  <div className="px-4 py-2.5 border-b border-outline-variant/40 flex items-center justify-between">
+                    <span className="text-[0.65rem] font-black uppercase tracking-widest text-slate-400">Connected Banks</span>
+                    <span className="text-[0.65rem] font-black text-secondary">10,000+</span>
+                  </div>
+                  {[
+                    { name: 'Chase',       flag: '🇺🇸', status: 'live'    },
+                    { name: 'Barclays',    flag: '🇬🇧', status: 'live'    },
+                    { name: 'DBS Bank',    flag: '🇸🇬', status: 'live'    },
+                    { name: 'Your Bank →', flag: '＋',  status: 'connect' },
+                  ].map(b => (
+                    <div key={b.name} className="px-4 py-2.5 flex items-center gap-3">
+                      <span className="text-base w-6 text-center flex-shrink-0">{b.flag}</span>
+                      <span className={`text-[0.8rem] font-bold flex-1 ${b.status === 'connect' ? 'text-secondary' : 'text-primary'}`}>{b.name}</span>
+                      {b.status === 'live' ? (
+                        <span className="w-2 h-2 rounded-full bg-accent flex-shrink-0" />
+                      ) : (
+                        <span className="text-[0.65rem] font-black text-secondary border border-accent/30 px-2 py-0.5 rounded-full">Add</span>
+                      )}
                     </div>
                   ))}
-                  <div className="ml-auto flex items-center gap-1.5 py-3">
-                    <div className="w-2 h-2 rounded-full" style={{ background: '#FF5F57' }} />
-                    <div className="w-2 h-2 rounded-full" style={{ background: '#FEBC2E' }} />
-                    <div className="w-2 h-2 rounded-full" style={{ background: '#28C840' }} />
-                  </div>
                 </div>
+              </div>
 
-                {/* Code body */}
-                <div
-                  className="p-6 font-mono text-[13px] leading-[1.8] overflow-auto flex-1"
-                  style={{ color: 'rgba(238,242,255,0.55)', minHeight: 280 }}
-                >
-                  {/* Line numbers + code */}
-                  <div className="flex gap-5">
-                    {/* Line nums */}
-                    <div className="select-none text-right shrink-0" style={{ color: 'rgba(59,110,255,0.30)', lineHeight: '1.8' }}>
-                      {Array.from({ length: 11 }, (_, i) => (
-                        <div key={i}>{i + 1}</div>
-                      ))}
-                    </div>
-                    {/* Code */}
-                    <div>
-                      <div style={{ color: 'rgba(238,242,255,0.22)' }}>{'// POST /v1/payments'}</div>
-                      <div><span style={{ color: '#C792EA' }}>{'fetch'}</span><span style={{ color: C.blueIce }}>{'("https://api.mudracore.io/v1/payments", {'}</span></div>
-                      <div className="ml-4"><span style={{ color: C.blueLight }}>{'method'}</span>{': '}<span style={{ color: '#C3E88D' }}>{'"POST"'}</span>{','}</div>
-                      <div className="ml-4"><span style={{ color: C.blueLight }}>{'headers'}</span>{': {'}</div>
-                      <div className="ml-8"><span style={{ color: C.blueLight }}>{'Authorization'}</span>{': '}<span style={{ color: '#C3E88D' }}>{'"Bearer sk_live_..."'}</span>{','}</div>
-                      <div className="ml-4">{'  },'}</div>
-                      <div className="ml-4"><span style={{ color: C.blueLight }}>{'body'}</span>{': '}<span style={{ color: '#C792EA' }}>{'JSON.stringify'}</span>{'({'}</div>
-                      <div className="ml-8"><span style={{ color: C.blueLight }}>{'amount'}</span>{': '}<span style={{ color: '#F78C6C' }}>{'250000'}</span>{', '}<span style={{ color: C.blueLight }}>{'currency'}</span>{': '}<span style={{ color: '#C3E88D' }}>{'"USD"'}</span>{','}</div>
-                      <div className="ml-8"><span style={{ color: C.blueLight }}>{'rail'}</span>{': '}<span style={{ color: '#C3E88D' }}>{'"ACH"'}</span>{', '}<span style={{ color: C.blueLight }}>{'destination'}</span>{': '}<span style={{ color: '#C3E88D' }}>{'"acc_9xKz..."'}</span></div>
-                      <div className="ml-4">{'  })'}</div>
-                      <div>{'});'}</div>
-                    </div>
+              {/* Auto-Reconcile + Observability stacked */}
+              <div className="col-span-12 md:col-span-4 flex flex-col gap-6">
+                <div className="bg-surface p-10 border border-outline-variant/50 rounded-3xl hover:shadow-premium transition-all group hover:-translate-y-1 flex-1">
+                  <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 group-hover:bg-primary transition-colors">
+                    <span className="material-symbols-outlined text-accent" style={{ fontSize: '28px' }}>task_alt</span>
                   </div>
-
-                  {/* Response badge */}
-                  <div
-                    className="mt-6 pt-5 flex items-center gap-2"
-                    style={{ borderTop: '1px solid rgba(59,110,255,0.10)' }}
-                  >
-                    <span
-                      className="text-[10px] font-mono font-bold px-2 py-0.5 rounded"
-                      style={{ background: 'rgba(16,185,129,0.14)', color: '#34D399' }}
-                    >
-                      201 Created
-                    </span>
-                    <span className="text-[10px] font-mono" style={{ color: C.muted }}>44ms · application/json</span>
+                  <h3 className="text-2xl font-black mb-3 text-primary">Auto-Reconcile</h3>
+                  <p className="text-slate-600 leading-relaxed">AI-driven matching logic eliminates manual back-office tasks and reduces error rates to &lt;1%.</p>
+                </div>
+                <div className="bg-surface p-10 border border-outline-variant/50 rounded-3xl hover:shadow-premium transition-all group hover:-translate-y-1 flex-1">
+                  <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 group-hover:bg-primary transition-colors">
+                    <span className="material-symbols-outlined text-accent" style={{ fontSize: '28px' }}>monitor_heart</span>
                   </div>
-                  <div className="mt-3 flex gap-5">
-                    <div className="select-none text-right shrink-0" style={{ color: 'rgba(59,110,255,0.30)', lineHeight: '1.8' }}>
-                      {Array.from({ length: 6 }, (_, i) => <div key={i}>{i + 1}</div>)}
-                    </div>
-                    <div>
-                      <div>{'{'}</div>
-                      {[
-                        ['"id"', '"pay_01HY9xKz..."'],
-                        ['"status"', '"processing"'],
-                        ['"ledger_entry"', '"le_03AB..."'],
-                        ['"amount"', '250000'],
-                        ['"estimated_settlement"', '"2026-04-14"'],
-                      ].map(([k, v]) => (
-                        <div key={k} className="ml-4">
-                          <span style={{ color: C.blueLight }}>{k}</span>
-                          {': '}
-                          <span style={{ color: k === '"amount"' ? '#F78C6C' : '#C3E88D' }}>{v}</span>
-                          {','}
-                        </div>
-                      ))}
-                      <div>{'}'}</div>
-                    </div>
-                  </div>
+                  <h3 className="text-2xl font-black mb-3 text-primary">Observability</h3>
+                  <p className="text-slate-600 leading-relaxed">End-to-end tracing, structured logs, and real-time metrics across every transaction, API call, and service boundary.</p>
                 </div>
               </div>
             </div>
           </div>
-        </Reveal>
-      </div>
-    </section>
+        </section>
 
-    {/* ════════════ CTA ════════════ */}
-    <section style={{ padding: 'clamp(5rem, 9vw, 7rem) 0', borderTop: `1px solid ${C.border}` }}>
-      <div className="max-w-6xl mx-auto px-6 lg:px-8">
-        <Reveal>
+        {/* ── Platform Capabilities ──────────────────────────────────────── */}
+        <section className="py-32 px-8 bg-surface-dark text-white relative overflow-hidden">
           <div
-            className="relative rounded-2xl overflow-hidden px-8 py-16 text-center"
-            style={{
-              background: C.surface,
-              border: `1px solid rgba(59,110,255,0.20)`,
-              boxShadow: `inset 0 0 100px rgba(59,110,255,0.06)`,
-            }}
-          >
-            {/* Grid inside CTA */}
+            className="absolute top-0 left-0 w-full h-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle at 30% 20%, rgba(0,255,148,0.05) 0%, transparent 50%)' }}
+          />
+          <div className="max-w-[1440px] mx-auto relative z-10">
+            <div className="grid md:grid-cols-2 gap-24 items-start">
+              <div>
+                <span className="text-[0.75rem] font-black text-accent uppercase tracking-[0.3em] block mb-6">Optimization</span>
+                <h2 className="text-5xl md:text-6xl font-black tracking-tighter mb-12">
+                  Engineered for<br />Absolute Peak.
+                </h2>
+                <div className="space-y-12">
+                  <div className="flex gap-8 group">
+                    <div className="bg-accent/10 w-16 h-16 flex items-center justify-center rounded-2xl flex-shrink-0 border border-accent/20 transition-all group-hover:bg-accent group-hover:text-primary text-accent">
+                      <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>security</span>
+                    </div>
+                    <div>
+                      <h4 className="font-black text-2xl mb-3">Bank-Grade Hardening</h4>
+                      <p className="text-slate-400 leading-relaxed">
+                        Hardware Security Modules (HSM) and multi-party computation (MPC) protect all key material and sensitive data at rest and in transit.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-8 group">
+                    <div className="bg-accent/10 w-16 h-16 flex items-center justify-center rounded-2xl flex-shrink-0 border border-accent/20 transition-all group-hover:bg-accent group-hover:text-primary text-accent">
+                      <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>insights</span>
+                    </div>
+                    <div>
+                      <h4 className="font-black text-2xl mb-3">Sub-Second Intelligence</h4>
+                      <p className="text-slate-400 leading-relaxed">
+                        Stream transaction data directly to your BI tools with sub-second latency via dedicated real-time webhooks and gRPC streams.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Benchmarks Table */}
+              <div className="bg-primary border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                <div className="p-8 border-b border-white/10 flex justify-between items-center bg-white/5">
+                  <h5 className="text-[0.75rem] font-black uppercase tracking-widest text-accent">Operational Benchmarks</h5>
+                  <div className="flex gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-white/20" />
+                    <div className="w-2 h-2 rounded-full bg-white/20" />
+                    <div className="w-2 h-2 rounded-full bg-white/20" />
+                  </div>
+                </div>
+                <div className="p-2">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr>
+                        <th className="px-8 py-5 text-[0.75rem] font-black uppercase tracking-wider text-slate-500">Metric</th>
+                        <th className="px-8 py-5 text-[0.75rem] font-black uppercase tracking-wider text-accent">MudraCore</th>
+                        <th className="px-8 py-5 text-[0.75rem] font-black uppercase tracking-wider text-slate-500">Legacy</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-base">
+                      {[
+                        { metric: 'Throughput',  ours: '50k+ TPS', legacy: '~800 TPS' },
+                        { metric: 'Settlement',  ours: 'INSTANT',  legacy: 'T+2 Days'  },
+                        { metric: 'Availability',ours: '99.999%',  legacy: '99.9%'     },
+                        { metric: 'API Latency', ours: '< 15ms',   legacy: '~200ms'    },
+                      ].map((row, i, arr) => (
+                        <tr
+                          key={row.metric}
+                          className={`hover:bg-white/5 transition-colors ${i < arr.length - 1 ? 'border-b border-white/5' : ''}`}
+                        >
+                          <td className="px-8 py-6 font-bold">{row.metric}</td>
+                          <td className="px-8 py-6 text-accent font-black">{row.ours}</td>
+                          <td className="px-8 py-6 text-slate-500">{row.legacy}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Developer Terminal ─────────────────────────────────────────── */}
+        <section className="py-32 bg-white">
+          <div className="max-w-[1440px] mx-auto px-8 grid md:grid-cols-2 gap-24 items-center">
+            {/* Terminal */}
+            <div className="order-2 md:order-1">
+              <div className="bg-[#020617] rounded-2xl border border-slate-800 overflow-hidden font-mono text-[14px] shadow-2xl relative">
+                <div className="absolute inset-0 bg-gradient-to-tr from-accent/5 to-transparent pointer-events-none" />
+                <div className="flex items-center justify-between px-5 py-3.5 bg-[#0F172A] border-b border-slate-800">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
+                    <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
+                    <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
+                  </div>
+                  <span className="text-slate-500 text-xs font-semibold">mudracore-ledger-api — zsh</span>
+                </div>
+                <pre className="p-8 overflow-x-auto leading-relaxed text-slate-300 text-sm m-0 bg-transparent">
+{''}<span className="text-accent">curl</span>{` -X POST https://api.mudracore.os/v1/ledger \\
+  -H `}<span className="text-cyan-400">{'"Authorization: Bearer $MC_API_KEY"'}</span>{` \\
+  -d `}<span className="text-cyan-400">{"'{\n    \"account_id\": \"acc_78x92\",\n    \"amount\": \"15000.00\",\n    \"currency\": \"USD\",\n    \"metadata\": {\n      \"reference\": \"tx_2209\",\n      \"origin\": \"web_portal\"\n    }\n  }'"}</span>{'\n\n'}<span className="text-slate-500 italic"># Response 201 Created</span>{`
+{
+  `}<span className="text-accent">"id"</span>{`: `}<span className="text-cyan-400">"ent_882j91"</span>{`,
+  `}<span className="text-accent">"status"</span>{`: `}<span className="text-cyan-400">"committed"</span>{`,
+  `}<span className="text-accent">"balance_snapshot"</span>{`: `}<span className="text-cyan-400">"125900.00"</span>{`
+}`}
+                </pre>
+              </div>
+            </div>
+
+            {/* Copy */}
+            <div className="order-1 md:order-2">
+              <span className="text-[0.75rem] font-black text-secondary uppercase tracking-[0.3em] block mb-6">Developer First</span>
+              <h2 className="text-5xl font-black tracking-tight text-primary mb-8 leading-[1.1]">
+                Build on a platform<br />that speaks code.
+              </h2>
+              <p className="text-slate-600 mb-12 text-lg leading-relaxed">
+                Our API is designed for clarity and robustness. With comprehensive SDKs for Python, Node.js, and Go,
+                move from local sandbox to institutional scale in minutes.
+              </p>
+              <ul className="space-y-6">
+                {[
+                  { icon: 'code_blocks', label: 'Type-safe SDKs & Real-time Docs'           },
+                  { icon: 'webhook',     label: 'Zero-loss Webhooks & Event Streams'         },
+                  { icon: 'terminal',    label: 'Sandbox Environments for Every Module'      },
+                ].map(({ icon, label }) => (
+                  <li key={icon} className="flex items-center gap-4 group">
+                    <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center group-hover:bg-accent transition-colors">
+                      <span className="material-symbols-outlined text-secondary group-hover:text-primary" style={{ fontSize: '20px' }}>{icon}</span>
+                    </div>
+                    <span className="font-bold text-primary">{label}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Newsletter CTA ─────────────────────────────────────────────── */}
+        <section className="py-32 px-8 bg-surface">
+          <div className="max-w-[1440px] mx-auto bg-primary border border-white/10 rounded-[3rem] p-16 md:p-24 text-center relative overflow-hidden shadow-2xl">
             <div
               className="absolute inset-0 pointer-events-none"
-              style={{
-                backgroundImage: `
-                  linear-gradient(rgba(59,110,255,0.05) 1px, transparent 1px),
-                  linear-gradient(90deg, rgba(59,110,255,0.05) 1px, transparent 1px)
-                `,
-                backgroundSize: '48px 48px',
-                maskImage: 'radial-gradient(ellipse 70% 100% at 50% 50%, black 30%, transparent 100%)',
-              }}
+              style={{ background: 'radial-gradient(circle at center, rgba(0,255,148,0.1) 0%, transparent 70%)' }}
             />
-            {/* Blue glow at bottom */}
-            <div
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none"
-              style={{
-                width: 700,
-                height: 220,
-                background: `radial-gradient(ellipse at 50% 100%, rgba(59,110,255,0.16) 0%, transparent 70%)`,
-              }}
-            />
-
-            <div className="relative">
-              <h2
-                className="font-bold tracking-tight mb-4"
-                style={{ fontSize: 'clamp(1.7rem, 4vw, 3rem)', color: C.text, letterSpacing: '-0.03em', lineHeight: 1.13 }}
-              >
-                Ready to modernize your
-                <span
-                  className="block"
-                  style={{
-                    background: `linear-gradient(110deg, ${C.blueIce} 10%, ${C.blueLight} 50%, ${C.blue} 100%)`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
-                  financial stack?
-                </span>
-              </h2>
-              <p className="text-sm mb-10 max-w-md mx-auto" style={{ color: C.muted, lineHeight: 1.7 }}>
-                Join hundreds of financial institutions already using MudraCore OS to build
-                the next generation of financial products.
+            <div className="relative z-10">
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6 text-white">Scale your vision today.</h2>
+              <p className="text-slate-400 mb-12 max-w-xl mx-auto text-lg">
+                Join 500+ institutional partners receiving our monthly intelligence report on fintech infrastructure.
               </p>
-              <div className="flex flex-wrap gap-3 justify-center">
-                <Link
-                  to="/ledger"
-                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm text-white transition-all duration-200"
-                  style={{
-                    background: C.blue,
-                    boxShadow: `0 0 0 1px ${C.blueBorder}, 0 4px 22px ${C.blueGlow}`,
-                  }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.blueHover; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.blue; }}
-                >
-                  Start Building Now
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <button
-                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200"
-                  style={{ background: 'transparent', border: `1px solid ${C.border}`, color: C.muted }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(59,110,255,0.35)';
-                    (e.currentTarget as HTMLElement).style.color = C.text;
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor = C.border;
-                    (e.currentTarget as HTMLElement).style.color = C.muted;
-                  }}
-                >
-                  Schedule a Demo
+              <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto bg-white/5 p-2 rounded-2xl border border-white/10">
+                <input
+                  className="flex-grow bg-transparent border-none rounded-xl px-6 py-4 text-white focus:ring-0 outline-none text-base placeholder:text-slate-500"
+                  placeholder="work@company.com"
+                  type="email"
+                />
+                <button className="bg-accent text-primary px-10 py-4 rounded-xl font-black text-base hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-accent/20">
+                  Subscribe Now
                 </button>
               </div>
             </div>
           </div>
-        </Reveal>
-      </div>
-    </section>
+        </section>
+      </main>
 
-  </div>
-);
+      {/* ── Footer ─────────────────────────────────────────────────────── */}
+      <footer className="w-full pt-24 pb-12 bg-surface text-primary border-t border-outline-variant/30">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-12 px-8 max-w-[1440px] mx-auto">
+          <div className="col-span-2">
+            <div className="text-2xl font-black tracking-tighter uppercase mb-6 flex items-center gap-2">
+              <span className="w-6 h-6 bg-accent rounded-sm inline-block" />
+              MudraCore OS
+            </div>
+            <p className="text-slate-500 max-w-xs leading-relaxed text-base font-medium">
+              The bedrock of modern financial services. Providing institutional-grade ledgering, payments, and compliance modules globally.
+            </p>
+          </div>
+          <div>
+            <h5 className="text-[0.75rem] uppercase tracking-widest font-black text-slate-400 mb-8">Product</h5>
+            <ul className="space-y-4 font-bold text-[0.875rem]">
+              <li><a className="text-primary hover:text-accent transition-colors" href="#">Ledger Engine</a></li>
+              <li><a className="text-primary hover:text-accent transition-colors" href="#">Compliance OS</a></li>
+              <li><a className="text-primary hover:text-accent transition-colors" href="#">Wallets API</a></li>
+              <li><a className="text-primary hover:text-accent transition-colors" href="#">Global Payments</a></li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-[0.75rem] uppercase tracking-widest font-black text-slate-400 mb-8">Resources</h5>
+            <ul className="space-y-4 font-bold text-[0.875rem]">
+              <li><a className="text-primary hover:text-accent transition-colors" href="#">API Reference</a></li>
+              <li><a className="text-primary hover:text-accent transition-colors" href="#">Whitepapers</a></li>
+              <li><a className="text-primary hover:text-accent transition-colors" href="#">Security Posture</a></li>
+              <li><a className="text-primary hover:text-accent transition-colors" href="#">Network Status</a></li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-[0.75rem] uppercase tracking-widest font-black text-slate-400 mb-8">Legal</h5>
+            <ul className="space-y-4 font-bold text-[0.875rem]">
+              <li><a className="text-primary hover:text-accent transition-colors" href="#">Privacy</a></li>
+              <li><a className="text-primary hover:text-accent transition-colors" href="#">Terms</a></li>
+              <li><a className="text-primary hover:text-accent transition-colors" href="#">Cookies</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-24 pt-8 border-t border-outline-variant/30 px-8 max-w-[1440px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="text-[0.75rem] font-bold text-slate-400 uppercase tracking-widest">
+            © 2025 MudraCore OS. Built for the future of finance.
+          </div>
+          <div className="flex gap-8">
+            <span className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-accent transition-colors" style={{ fontSize: '24px' }}>public</span>
+            <span className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-accent transition-colors" style={{ fontSize: '24px' }}>terminal</span>
+            <span className="material-symbols-outlined text-slate-400 cursor-pointer hover:text-accent transition-colors" style={{ fontSize: '24px' }}>podcasts</span>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  );
+};
 
 export default LandingPage;

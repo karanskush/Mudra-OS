@@ -216,9 +216,9 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
             }`}>
               <div className={`rounded-2xl h-12 w-12 flex items-center justify-center font-bold border-2 transition-all duration-300 ${
                 idx < currentStep 
-                  ? 'bg-gradient-to-br from-brand-500 to-brand-400 border-brand-500 text-white shadow-lg scale-110' 
+                  ? 'bg-gradient-to-br from-brand-500 to-brand-400 border-brand-500 text-primary shadow-lg scale-110' 
                   : idx === currentStep
-                  ? 'bg-gradient-to-br from-[#2E6F40] to-[#68BA7F] border-blue-500 text-white shadow-lg scale-110'
+                  ? 'bg-gradient-to-br from-[#2E6F40] to-[#68BA7F] border-blue-500 text-primary shadow-lg scale-110'
                   : 'border-gray-300 border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] text-gray-400'
               }`}>
                 {idx < currentStep ? (
@@ -245,10 +245,10 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
         <div className="space-y-6">
           <div className="text-center">
             <div className="w-20 h-20 bg-gradient-to-br from-[#2E6F40] to-[#68BA7F] rounded-3xl mx-auto mb-4 flex items-center justify-center">
-              <Globe className="h-10 w-10 text-white" />
+              <Globe className="h-10 w-10 text-primary" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">Where are you located?</h3>
-            <p className="text-gray-600 dark:text-gray-400">Select your country to see available banking partners</p>
+            <h3 className="text-2xl font-bold text-primary mb-2">Where are you located?</h3>
+            <p className="text-gray-600 ">Select your country to see available banking partners</p>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -258,7 +258,7 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
                 onClick={() => handleCountrySelect(country)}
                 className="group flex flex-col items-center p-6 bg-[rgba(255,255,255,0.04)] rounded-2xl border-2 border-gray-200 border-[rgba(255,255,255,0.08)] hover:border-[#68BA7F] transition-all duration-200 hover:shadow-lg hover:scale-105"
               >
-                <div className="w-12 h-12 bg-[rgba(255,255,255,0.05)] rounded-xl mb-3 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-[rgba(46,111,64,0.12)] transition-colors">
+                <div className="w-12 h-12 bg-[rgba(255,255,255,0.05)] rounded-xl mb-3 flex items-center justify-center group-hover:bg-blue-100 :bg-[rgba(46,111,64,0.12)] transition-colors">
                   <span className="text-2xl">
                     {country === 'USA' && '🇺🇸'}
                     {country === 'UK' && '🇬🇧'}
@@ -267,10 +267,10 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
                     {country === 'Germany' && '🇩🇪'}
                   </span>
                 </div>
-                <span className="font-semibold text-white group-hover:text-[#68BA7F] dark:group-hover:text-[#68BA7F] transition-colors">
+                <span className="font-semibold text-primary group-hover:text-[#68BA7F] :text-[#68BA7F] transition-colors">
                   {country}
                 </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <span className="text-xs text-gray-500  mt-1">
                   {COUNTRY_PROVIDERS[country]?.length - 1} providers
                 </span>
               </button>
@@ -284,10 +284,10 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
         <div className="space-y-6">
           <div className="text-center">
             <div className="w-20 h-20 bg-gradient-to-br from-[#2E6F40] to-[#68BA7F] rounded-3xl mx-auto mb-4 flex items-center justify-center">
-              <CreditCard className="h-10 w-10 text-white" />
+              <CreditCard className="h-10 w-10 text-primary" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">Choose your bank</h3>
-            <p className="text-gray-600 dark:text-gray-400">Connect securely with your banking provider in {selectedCountry}</p>
+            <h3 className="text-2xl font-bold text-primary mb-2">Choose your bank</h3>
+            <p className="text-gray-600 ">Connect securely with your banking provider in {selectedCountry}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -308,21 +308,21 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
                     </div>
                   ) : (
                     <div className="w-14 h-14 bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl flex items-center justify-center">
-                      <Database className="h-8 w-8 text-white" />
+                      <Database className="h-8 w-8 text-primary" />
                     </div>
                   )}
                 </div>
                 <div className="flex-1 text-left">
-                  <div className="font-bold text-white text-lg group-hover:text-[#68BA7F] dark:group-hover:text-[#68BA7F] transition-colors">
+                  <div className="font-bold text-primary text-lg group-hover:text-[#68BA7F] :text-[#68BA7F] transition-colors">
                     {provider.name}
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  <div className="text-sm text-gray-500  mt-1">
                     {provider.id === 'manual' ? 'Enter details manually' : 'Instant secure connection'}
                   </div>
                   {provider.id !== 'manual' && (
                     <div className="flex items-center gap-1 mt-2">
                       <div className="w-2 h-2 bg-brand-300 rounded-full"></div>
-                      <span className="text-xs text-brand-400 dark:text-brand-300 font-medium">OAuth Supported</span>
+                      <span className="text-xs text-secondary  font-medium">OAuth Supported</span>
                     </div>
                   )}
                 </div>
@@ -339,7 +339,7 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
             <button
               type="button"
               onClick={() => { setStep(1); setSelectedCountry(''); setSelectedProvider(''); setOAuthSuccess(false); }}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-600 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.04)] text-slate-500 hover:bg-gray-50 :bg-slate-600 transition-all"
             >
               <ArrowRight className="h-4 w-4 rotate-180" />
               Back
@@ -355,12 +355,12 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
             <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => setShowOAuth(false)}>&times;</button>
             <div className="flex flex-col items-center">
               <img src={COUNTRY_PROVIDERS[selectedCountry]?.find(p => p.id === selectedProvider)?.logo} alt="Provider" className="h-12 w-12 mb-2" />
-              <h3 className="text-lg font-semibold mb-2 text-white">Connect to {COUNTRY_PROVIDERS[selectedCountry]?.find(p => p.id === selectedProvider)?.name}</h3>
+              <h3 className="text-lg font-semibold mb-2 text-primary">Connect to {COUNTRY_PROVIDERS[selectedCountry]?.find(p => p.id === selectedProvider)?.name}</h3>
               <p className="text-sm text-gray-500 mb-4">Simulated OAuth flow. Click below to authorize.</p>
               <button
                 onClick={handleOAuthConnect}
                 disabled={loading}
-                className="bg-[#2E6F40] text-white px-6 py-2 rounded-md hover:bg-[#253D2C] disabled:opacity-50 transition-colors"
+                className="bg-primary text-white px-6 py-2 rounded-xl hover:bg-primary/90 disabled:opacity-50 transition-colors"
               >
                 {loading ? 'Connecting...' : 'Authorize'}
               </button>
@@ -373,31 +373,31 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
       {(step === 3 && (selectedProvider === 'manual' || oauthSuccess)) && (
         <form className="space-y-4" onSubmit={e => { e.preventDefault(); setStep(4); }}>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Account Name</label>
+            <label className="block text-sm font-medium text-slate-500 mb-2">Account Name</label>
             <input
               type="text"
               value={accountDetails.name}
               onChange={e => handleDetailsChange('name', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-white"
+              className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-primary"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Description</label>
+            <label className="block text-sm font-medium text-slate-500 mb-2">Description</label>
             <textarea
               value={accountDetails.description}
               onChange={e => handleDetailsChange('description', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-white"
+              className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-primary"
               rows={2}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Currency</label>
+              <label className="block text-sm font-medium text-slate-500 mb-2">Currency</label>
               <select
                 value={accountDetails.currency}
                 onChange={e => handleDetailsChange('currency', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-white"
+                className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-primary"
               >
                 <option value="USD">USD</option>
                 <option value="EUR">EUR</option>
@@ -405,11 +405,11 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Account Type</label>
+              <label className="block text-sm font-medium text-slate-500 mb-2">Account Type</label>
               <select
                 value={accountDetails.type}
                 onChange={e => handleDetailsChange('type', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-white"
+                className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-primary"
               >
                 <option value="bank">Bank</option>
                 <option value="cash">Cash</option>
@@ -422,12 +422,12 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Account Number</label>
+            <label className="block text-sm font-medium text-slate-500 mb-2">Account Number</label>
             <input
               type="text"
               value={accountDetails.account_number}
               onChange={e => handleDetailsChange('account_number', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-white"
+              className="w-full px-3 py-2 border border-gray-300 border-[rgba(255,255,255,0.08)] rounded-md focus:outline-none focus:ring-2 focus:ring-[rgba(46,111,64,0.35)] bg-[rgba(255,255,255,0.05)] text-primary"
               required
             />
           </div>
@@ -441,11 +441,11 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
                   setStep(2); setOAuthSuccess(false);
                 }
               }}
-              className="px-4 py-2 rounded-md border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.04)] text-slate-300 hover:bg-[rgba(255,255,255,0.08)]"
+              className="px-4 py-2 rounded-md border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.04)] text-slate-500 hover:bg-[rgba(255,255,255,0.08)]"
             >Back</button>
             <button
               type="submit"
-              className="bg-[#2E6F40] text-white px-6 py-2 rounded-md hover:bg-[#253D2C] transition-colors"
+              className="bg-primary text-white px-6 py-2 rounded-xl hover:bg-primary/90 transition-colors"
             >Next</button>
           </div>
         </form>
@@ -454,7 +454,7 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
       {/* Step 4: Confirm */}
       {step === 4 && (
         <div>
-          <h3 className="text-lg font-semibold mb-4 text-white">Review & Confirm</h3>
+          <h3 className="text-lg font-semibold mb-4 text-primary">Review & Confirm</h3>
           <div className="bg-[rgba(255,255,255,0.03)] rounded-lg p-4 mb-4 border border-gray-200 border-[rgba(255,255,255,0.08)]">
             <div className="mb-2"><span className="font-medium">Country:</span> {selectedCountry}</div>
             <div className="mb-2"><span className="font-medium">Provider:</span> {selectedProvider === 'manual' ? 'Manual Entry' : COUNTRY_PROVIDERS[selectedCountry]?.find(p => p.id === selectedProvider)?.name}</div>
@@ -469,13 +469,13 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="px-4 py-2 rounded-md border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.04)] text-slate-300 hover:bg-[rgba(255,255,255,0.08)]"
+              className="px-4 py-2 rounded-md border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.04)] text-slate-500 hover:bg-[rgba(255,255,255,0.08)]"
             >Back</button>
             <button
               type="button"
               onClick={handleConfirm}
               disabled={loading}
-              className="bg-[#2E6F40] text-white px-6 py-2 rounded-md hover:bg-[#253D2C] disabled:opacity-50 transition-colors"
+              className="bg-primary text-white px-6 py-2 rounded-xl hover:bg-primary/90 disabled:opacity-50 transition-colors"
             >{loading ? 'Connecting...' : 'Connect Account'}</button>
           </div>
         </div>
@@ -484,9 +484,9 @@ const ConnectAccountFlow: React.FC<ConnectAccountFlowProps> = ({ onAccountConnec
       {/* Step 5: Success */}
       {step === 5 && (
         <div className="flex flex-col items-center justify-center py-8">
-          <CheckCircle className="h-12 w-12 text-brand-400 mb-2" />
-          <h3 className="text-xl font-semibold text-brand-400 dark:text-brand-300 mb-2">Account Connected!</h3>
-          <p className="text-gray-600 dark:text-gray-300 mb-4">Your account has been successfully connected and is now available.</p>
+          <CheckCircle className="h-12 w-12 text-secondary mb-2" />
+          <h3 className="text-xl font-semibold text-secondary  mb-2">Account Connected!</h3>
+          <p className="text-gray-600  mb-4">Your account has been successfully connected and is now available.</p>
         </div>
       )}
     </div>
@@ -1095,18 +1095,18 @@ const LedgerTest: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-surface-base overflow-hidden" style={{fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"}}>
+    <div className="flex h-screen bg-surface overflow-hidden" style={{fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"}}>
 
       {/* ─── Sidebar ─────────────────────────────────────────────────────── */}
-      <aside className="w-60 flex-shrink-0 flex flex-col bg-surface-sidebar border-r border-white/[0.06] z-20">
+      <aside className="w-60 flex-shrink-0 flex flex-col bg-white border-r border-outline-variant z-20">
         {/* Logo */}
-        <div className="h-16 flex items-center gap-3 px-5 border-b border-white/[0.06]">
+        <div className="h-16 flex items-center gap-3 px-5 border-b border-outline-variant">
           <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center shadow-lg shadow-brand-950/40">
-            <BookOpen className="w-4 h-4 text-white" />
+            <BookOpen className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <p className="text-white font-semibold text-sm leading-none">Ledger</p>
-            <p className="text-brand-300/70 text-[10px] mt-0.5 font-medium tracking-wider uppercase">Enterprise</p>
+            <p className="text-primary font-semibold text-sm leading-none">Ledger</p>
+            <p className="text-secondary/70 text-[10px] mt-0.5 font-medium tracking-wider uppercase">Enterprise</p>
           </div>
         </div>
 
@@ -1132,11 +1132,11 @@ const LedgerTest: React.FC = () => {
                 }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150 group ${
                   isActive
-                    ? 'bg-brand-500/10 text-brand-300'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                    ? 'bg-brand-500/10 text-secondary'
+                    : 'text-slate-400 hover:text-primary hover:bg-surface'
                 }`}
               >
-                <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-brand-300' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-secondary' : 'text-slate-500 group-hover:text-slate-500'}`} />
                 <span className="text-sm font-medium">{tab.label}</span>
                 {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-300" />}
               </button>
@@ -1145,20 +1145,20 @@ const LedgerTest: React.FC = () => {
         </nav>
 
         {/* Bottom section */}
-        <div className="p-3 border-t border-white/[0.06] space-y-1">
+        <div className="p-3 border-t border-outline-variant space-y-1">
           <button
             onClick={() => setActiveForm('account')}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] transition-all group"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-slate-400 hover:text-primary hover:bg-surface transition-all group"
           >
-            <Plus className="w-4 h-4 text-slate-500 group-hover:text-brand-300 transition-colors" />
+            <Plus className="w-4 h-4 text-slate-500 group-hover:text-secondary transition-colors" />
             <span className="text-sm font-medium">New Account</span>
           </button>
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.03]">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-xs font-bold text-white">
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-surface">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-xs font-bold text-primary">
               {getUserFirstName().charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-white truncate">{getUserFirstName()}</p>
+              <p className="text-xs font-semibold text-primary truncate">{getUserFirstName()}</p>
               <div className="flex items-center gap-1 mt-0.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-brand-300" />
                 <p className="text-[10px] text-slate-500">Active session</p>
@@ -1172,9 +1172,9 @@ const LedgerTest: React.FC = () => {
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* Top bar */}
-        <header className="h-16 flex items-center justify-between px-6 border-b border-white/[0.06] bg-surface-sidebar/60 backdrop-blur-xl flex-shrink-0">
+        <header className="h-16 flex items-center justify-between px-6 border-b border-outline-variant bg-white/60  flex-shrink-0">
           <div>
-            <h1 className="text-white font-semibold text-base">
+            <h1 className="text-primary font-semibold text-base">
               {activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('-', ' ')}
             </h1>
             <p className="text-slate-500 text-xs mt-0.5">
@@ -1193,19 +1193,19 @@ const LedgerTest: React.FC = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-300 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
               </span>
-              <span className="text-xs font-medium text-brand-300">Live</span>
+              <span className="text-xs font-medium text-secondary">Live</span>
             </div>
             {/* Quick actions */}
             <button
               onClick={() => setActiveForm('transfer')}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-xs font-medium transition-all"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface hover:bg-surface border border-outline-variant text-slate-500 hover:text-primary text-xs font-medium transition-all"
             >
               <ArrowRightLeft className="w-3.5 h-3.5" />
               Transfer
             </button>
             <button
               onClick={() => setActiveForm('deposit')}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-400 text-white text-xs font-semibold transition-all shadow-lg shadow-brand-950/30"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-400 text-primary text-xs font-semibold transition-all shadow-lg shadow-brand-950/30"
             >
               <Plus className="w-3.5 h-3.5" />
               Deposit
@@ -1256,23 +1256,23 @@ const LedgerTest: React.FC = () => {
                 ].map((kpi) => {
                   const Icon = kpi.icon;
                   const colorMap: Record<string, string> = {
-                    brand: 'bg-brand-500/10 text-brand-300 border-brand-500/20',
+                    brand: 'bg-brand-500/10 text-secondary border-brand-500/20',
                     blue:    'bg-blue-500/10 text-blue-400 border-blue-500/20',
                     amber:   'bg-amber-500/10 text-amber-400 border-amber-500/20',
                     purple:  'bg-purple-500/10 text-purple-400 border-purple-500/20',
                   };
                   const iconColor: Record<string, string> = {
-                    brand: 'text-brand-300', blue: 'text-blue-400', amber: 'text-amber-400', purple: 'text-purple-400',
+                    brand: 'text-secondary', blue: 'text-blue-400', amber: 'text-amber-400', purple: 'text-purple-400',
                   };
                   return (
-                    <div key={kpi.label} className="bg-surface-raised rounded-2xl p-5 border border-white/[0.06] hover:border-white/[0.10] transition-all group">
+                    <div key={kpi.label} className="bg-white rounded-2xl p-5 border border-outline-variant hover:border-outline-variant transition-all group">
                       <div className="flex items-start justify-between mb-4">
                         <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{kpi.label}</p>
                         <div className={`p-2 rounded-lg border ${colorMap[kpi.color]}`}>
                           <Icon className={`w-3.5 h-3.5 ${iconColor[kpi.color]}`} />
                         </div>
                       </div>
-                      <p className={`font-bold text-white mb-1 ${kpi.big ? 'text-2xl' : 'text-2xl'}`}>{kpi.value}</p>
+                      <p className={`font-bold text-primary mb-1 ${kpi.big ? 'text-2xl' : 'text-2xl'}`}>{kpi.value}</p>
                       <p className="text-xs text-slate-500">{kpi.sub}</p>
                     </div>
                   );
@@ -1282,13 +1282,13 @@ const LedgerTest: React.FC = () => {
               {/* Main 2-col grid */}
               <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
                 {/* Recent transactions — wider */}
-                <div className="xl:col-span-3 bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
-                  <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                <div className="xl:col-span-3 bg-white rounded-2xl border border-outline-variant overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
                     <div>
-                      <p className="text-sm font-semibold text-white">Recent Transactions</p>
+                      <p className="text-sm font-semibold text-primary">Recent Transactions</p>
                       <p className="text-xs text-slate-500 mt-0.5">Latest activity</p>
                     </div>
-                    <button onClick={() => setActiveTab('transactions')} className="text-xs text-brand-300 hover:text-brand-200 font-medium transition-colors">
+                    <button onClick={() => setActiveTab('transactions')} className="text-xs text-secondary hover:text-brand-200 font-medium transition-colors">
                       View all →
                     </button>
                   </div>
@@ -1301,9 +1301,9 @@ const LedgerTest: React.FC = () => {
                       </div>
                     ) : transactions.slice(0, 5).map(tx => (
                       tx && typeof tx.amount === 'number' ? (
-                        <div key={tx.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/[0.02] transition-colors">
+                        <div key={tx.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-surface transition-colors">
                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                            tx.type === 'deposit' ? 'bg-brand-500/15 text-brand-300' :
+                            tx.type === 'deposit' ? 'bg-brand-500/15 text-secondary' :
                             tx.type === 'withdrawal' ? 'bg-red-500/15 text-red-400' :
                             tx.type === 'transfer' ? 'bg-blue-500/15 text-blue-400' :
                             'bg-slate-500/15 text-slate-400'
@@ -1313,15 +1313,15 @@ const LedgerTest: React.FC = () => {
                              <DollarSign className="w-4 h-4" />}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-white capitalize">{tx.type}</p>
+                            <p className="text-sm font-medium text-primary capitalize">{tx.type}</p>
                             <p className="text-xs text-slate-500 truncate mt-0.5">{tx.description || tx.reference || '—'}</p>
                           </div>
                           <div className="text-right flex-shrink-0">
-                            <p className={`text-sm font-semibold ${tx.type === 'withdrawal' ? 'text-red-400' : 'text-white'}`}>
+                            <p className={`text-sm font-semibold ${tx.type === 'withdrawal' ? 'text-red-400' : 'text-primary'}`}>
                               {tx.type === 'withdrawal' ? '-' : '+'}${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </p>
                             <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded-md mt-1 font-medium ${
-                              tx.status === 'posted' ? 'bg-brand-500/10 text-brand-300' :
+                              tx.status === 'posted' ? 'bg-brand-500/10 text-secondary' :
                               tx.status === 'reversed' ? 'bg-red-500/10 text-red-400' :
                               'bg-amber-500/10 text-amber-400'
                             }`}>
@@ -1335,15 +1335,15 @@ const LedgerTest: React.FC = () => {
                 </div>
 
                 {/* Account summary — narrower */}
-                <div className="xl:col-span-2 bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
-                  <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                <div className="xl:col-span-2 bg-white rounded-2xl border border-outline-variant overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
                     <div>
-                      <p className="text-sm font-semibold text-white">Accounts</p>
+                      <p className="text-sm font-semibold text-primary">Accounts</p>
                       <p className="text-xs text-slate-500 mt-0.5">{availableAccounts.length} connected</p>
                     </div>
                     <button
                       onClick={() => setActiveForm('account')}
-                      className="w-7 h-7 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-300 hover:bg-brand-500/20 transition-colors"
+                      className="w-7 h-7 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-secondary hover:bg-brand-500/20 transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -1353,18 +1353,18 @@ const LedgerTest: React.FC = () => {
                       <div className="py-12 text-center">
                         <CreditCard className="w-8 h-8 text-slate-600 mx-auto mb-3" />
                         <p className="text-sm text-slate-500">No accounts</p>
-                        <button onClick={() => setActiveForm('account')} className="text-xs text-brand-300 mt-2 hover:text-brand-200">Connect one →</button>
+                        <button onClick={() => setActiveForm('account')} className="text-xs text-secondary mt-2 hover:text-brand-200">Connect one →</button>
                       </div>
                     ) : availableAccounts.map(acc => (
-                      <div key={acc.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => { setSelectedAccount(acc); setActiveTab('accounts'); }}>
+                      <div key={acc.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-surface transition-colors cursor-pointer" onClick={() => { setSelectedAccount(acc); setActiveTab('accounts'); }}>
                         <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0">
                           <span className="text-xs font-bold text-slate-400">{acc.name.charAt(0).toUpperCase()}</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white truncate">{acc.name}</p>
+                          <p className="text-sm font-medium text-primary truncate">{acc.name}</p>
                           <p className="text-xs text-slate-500 mt-0.5 capitalize">{acc.type} · {acc.currency}</p>
                         </div>
-                        <p className="text-sm font-semibold text-white flex-shrink-0">
+                        <p className="text-sm font-semibold text-primary flex-shrink-0">
                           ${(acc.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </p>
                       </div>
@@ -1389,21 +1389,21 @@ const LedgerTest: React.FC = () => {
                 ].map(kpi => {
                   const Icon = kpi.icon;
                   return (
-                    <div key={kpi.label} className="bg-surface-raised rounded-2xl p-5 border border-white/[0.06]">
+                    <div key={kpi.label} className="bg-white rounded-2xl p-5 border border-outline-variant">
                       <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">{kpi.label}</p>
-                      <p className="text-2xl font-bold text-white">{kpi.value}</p>
+                      <p className="text-2xl font-bold text-primary">{kpi.value}</p>
                     </div>
                   );
                 })}
               </div>
 
               {/* Accounts table */}
-              <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
-                  <p className="text-sm font-semibold text-white">All Accounts</p>
+              <div className="bg-white rounded-2xl border border-outline-variant overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
+                  <p className="text-sm font-semibold text-primary">All Accounts</p>
                   <button
                     onClick={() => setActiveForm('account')}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-400 text-white text-xs font-semibold transition-all"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-400 text-primary text-xs font-semibold transition-all"
                   >
                     <Plus className="w-3.5 h-3.5" /> New Account
                   </button>
@@ -1413,14 +1413,14 @@ const LedgerTest: React.FC = () => {
                     <CreditCard className="w-10 h-10 text-slate-700 mx-auto mb-4" />
                     <p className="text-slate-400 font-medium">No accounts connected</p>
                     <p className="text-slate-600 text-sm mt-1">Connect your first bank account to get started</p>
-                    <button onClick={() => setActiveForm('account')} className="mt-4 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-400 text-white text-sm font-medium transition-all">
+                    <button onClick={() => setActiveForm('account')} className="mt-4 px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-400 text-primary text-sm font-medium transition-all">
                       Connect Account
                     </button>
                   </div>
                 ) : (
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white/[0.06]">
+                      <tr className="border-b border-outline-variant">
                         {['Name', 'Account #', 'Type', 'Currency', 'Balance', 'Status', ''].map(h => (
                           <th key={h} className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-5 py-3">{h}</th>
                         ))}
@@ -1428,26 +1428,26 @@ const LedgerTest: React.FC = () => {
                     </thead>
                     <tbody className="divide-y divide-white/[0.04]">
                       {availableAccounts.map(acc => (
-                        <tr key={acc.id} className={`hover:bg-white/[0.02] transition-colors cursor-pointer ${selectedAccount?.id === acc.id ? 'bg-brand-500/[0.04]' : ''}`}
+                        <tr key={acc.id} className={`hover:bg-surface transition-colors cursor-pointer ${selectedAccount?.id === acc.id ? 'bg-accent/5' : ''}`}
                             onClick={() => setSelectedAccount(acc === selectedAccount ? null : acc)}>
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center flex-shrink-0">
                                 <span className="text-xs font-bold text-slate-400">{acc.name.charAt(0)}</span>
                               </div>
-                              <p className="text-sm font-medium text-white">{acc.name}</p>
+                              <p className="text-sm font-medium text-primary">{acc.name}</p>
                             </div>
                           </td>
                           <td className="px-5 py-3.5 text-sm font-mono text-slate-400">{acc.account_number}</td>
                           <td className="px-5 py-3.5">
-                            <span className="text-xs px-2 py-1 rounded-md bg-slate-800 text-slate-300 capitalize font-medium">{acc.type}</span>
+                            <span className="text-xs px-2 py-1 rounded-md bg-slate-800 text-slate-500 capitalize font-medium">{acc.type}</span>
                           </td>
                           <td className="px-5 py-3.5 text-sm text-slate-400">{acc.currency}</td>
-                          <td className="px-5 py-3.5 text-sm font-semibold text-white">
+                          <td className="px-5 py-3.5 text-sm font-semibold text-primary">
                             ${(acc.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </td>
                           <td className="px-5 py-3.5">
-                            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-300">
+                            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-secondary">
                               <span className="w-1.5 h-1.5 rounded-full bg-brand-300 inline-block" />
                               Active
                             </span>
@@ -1456,11 +1456,11 @@ const LedgerTest: React.FC = () => {
                             <div className="flex gap-2">
                               <button
                                 onClick={e => { e.stopPropagation(); setDepositForm(f => ({ ...f, account_id: acc.id })); setActiveForm('deposit'); }}
-                                className="text-xs px-2.5 py-1 rounded-lg bg-brand-500/10 text-brand-300 hover:bg-brand-500/20 transition-colors font-medium"
+                                className="text-xs px-2.5 py-1 rounded-lg bg-brand-500/10 text-secondary hover:bg-brand-500/20 transition-colors font-medium"
                               >Deposit</button>
                               <button
                                 onClick={e => { e.stopPropagation(); setTransferForm(f => ({ ...f, from_account_id: acc.id })); setActiveForm('transfer'); }}
-                                className="text-xs px-2.5 py-1 rounded-lg bg-white/[0.05] text-slate-300 hover:bg-white/[0.1] transition-colors font-medium"
+                                className="text-xs px-2.5 py-1 rounded-lg bg-surface text-slate-500 hover:bg-surface transition-colors font-medium"
                               >Transfer</button>
                             </div>
                           </td>
@@ -1485,24 +1485,24 @@ const LedgerTest: React.FC = () => {
                   <input
                     type="text"
                     placeholder="Search transactions..."
-                    className="w-full pl-9 pr-4 py-2.5 bg-surface-raised border border-white/[0.06] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500/40"
+                    className="w-full pl-9 pr-4 py-2.5 bg-white border border-outline-variant rounded-xl text-sm text-primary placeholder-slate-500 focus:outline-none focus:border-brand-500/40"
                   />
                 </div>
                 {['all', 'deposit', 'transfer', 'withdrawal', 'adjustment'].map(f => (
-                  <button key={f} className="px-3 py-2 rounded-lg bg-surface-raised border border-white/[0.06] text-xs font-medium text-slate-400 hover:text-white hover:border-white/[0.12] capitalize transition-all">
+                  <button key={f} className="px-3 py-2 rounded-lg bg-white border border-outline-variant text-xs font-medium text-slate-400 hover:text-primary hover:border-outline-variant capitalize transition-all">
                     {f}
                   </button>
                 ))}
               </div>
 
               {/* Transaction table */}
-              <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
-                  <p className="text-sm font-semibold text-white">{transactions.length} Transactions</p>
+              <div className="bg-white rounded-2xl border border-outline-variant overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
+                  <p className="text-sm font-semibold text-primary">{transactions.length} Transactions</p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setActiveForm('deposit')}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-400 text-white text-xs font-semibold transition-all"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-400 text-primary text-xs font-semibold transition-all"
                     >
                       <Plus className="w-3.5 h-3.5" /> New Deposit
                     </button>
@@ -1517,7 +1517,7 @@ const LedgerTest: React.FC = () => {
                 ) : (
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white/[0.06]">
+                      <tr className="border-b border-outline-variant">
                         {['Type', 'Description', 'Reference', 'Amount', 'Status', 'Entries', 'Actions'].map(h => (
                           <th key={h} className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-5 py-3">{h}</th>
                         ))}
@@ -1525,11 +1525,11 @@ const LedgerTest: React.FC = () => {
                     </thead>
                     <tbody className="divide-y divide-white/[0.04]">
                       {transactions.filter(tx => tx && typeof tx.amount === 'number').map(tx => (
-                        <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors">
+                        <tr key={tx.id} className="hover:bg-surface transition-colors">
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-2.5">
                               <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                tx.type === 'deposit' ? 'bg-brand-500/15 text-brand-300' :
+                                tx.type === 'deposit' ? 'bg-brand-500/15 text-secondary' :
                                 tx.type === 'withdrawal' ? 'bg-red-500/15 text-red-400' :
                                 tx.type === 'transfer' ? 'bg-blue-500/15 text-blue-400' :
                                 'bg-slate-500/15 text-slate-400'
@@ -1538,15 +1538,15 @@ const LedgerTest: React.FC = () => {
                                  tx.type === 'deposit' ? <Plus className="w-3.5 h-3.5" /> :
                                  <DollarSign className="w-3.5 h-3.5" />}
                               </div>
-                              <span className="text-sm font-medium text-white capitalize">{tx.type}</span>
+                              <span className="text-sm font-medium text-primary capitalize">{tx.type}</span>
                             </div>
                           </td>
                           <td className="px-5 py-3.5 text-sm text-slate-400 max-w-[160px] truncate">{tx.description || '—'}</td>
                           <td className="px-5 py-3.5 text-xs font-mono text-slate-500">{tx.reference || '—'}</td>
-                          <td className="px-5 py-3.5 text-sm font-semibold text-white">${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                          <td className="px-5 py-3.5 text-sm font-semibold text-primary">${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                           <td className="px-5 py-3.5">
                             <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-md ${
-                              tx.status === 'posted' ? 'bg-brand-500/10 text-brand-300' :
+                              tx.status === 'posted' ? 'bg-brand-500/10 text-secondary' :
                               tx.status === 'reversed' ? 'bg-red-500/10 text-red-400' :
                               tx.status === 'cancelled' ? 'bg-slate-500/10 text-slate-400' :
                               'bg-amber-500/10 text-amber-400'
@@ -1564,7 +1564,7 @@ const LedgerTest: React.FC = () => {
                                 <button
                                   onClick={() => handlePostTransaction(tx.id)}
                                   disabled={loading}
-                                  className="text-xs px-2.5 py-1 rounded-lg bg-brand-500/10 text-brand-300 hover:bg-brand-500/20 transition-colors font-medium disabled:opacity-50"
+                                  className="text-xs px-2.5 py-1 rounded-lg bg-brand-500/10 text-secondary hover:bg-brand-500/20 transition-colors font-medium disabled:opacity-50"
                                 >Post</button>
                               )}
                               {tx.status === 'posted' && (
@@ -1590,9 +1590,9 @@ const LedgerTest: React.FC = () => {
           {/* ═══════════════════════════════════════════════════════════════ */}
           {activeTab === 'journal' && !activeForm && (
             <div className="max-w-3xl space-y-5">
-              <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
-                <div className="px-6 py-5 border-b border-white/[0.06]">
-                  <h3 className="text-sm font-semibold text-white">New Journal Entry</h3>
+              <div className="bg-white rounded-2xl border border-outline-variant overflow-hidden">
+                <div className="px-6 py-5 border-b border-outline-variant">
+                  <h3 className="text-sm font-semibold text-primary">New Journal Entry</h3>
                   <p className="text-xs text-slate-500 mt-1">Debits must equal credits to post the entry</p>
                 </div>
                 <form onSubmit={handleCreateJournalEntry} className="p-6 space-y-5">
@@ -1605,7 +1605,7 @@ const LedgerTest: React.FC = () => {
                         onChange={e => setJournalDesc(e.target.value)}
                         required
                         placeholder="e.g. Accrue monthly interest"
-                        className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500/40 transition-colors"
+                        className="w-full px-3.5 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm text-primary placeholder:text-slate-400 focus:outline-none focus:border-brand-500/40 transition-colors"
                       />
                     </div>
                     <div>
@@ -1615,7 +1615,7 @@ const LedgerTest: React.FC = () => {
                         value={journalRef}
                         onChange={e => setJournalRef(e.target.value)}
                         placeholder="Auto-generated if empty"
-                        className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500/40 transition-colors"
+                        className="w-full px-3.5 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm text-primary placeholder:text-slate-400 focus:outline-none focus:border-brand-500/40 transition-colors"
                       />
                     </div>
                   </div>
@@ -1626,7 +1626,7 @@ const LedgerTest: React.FC = () => {
                       <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Journal Lines</label>
                       <div className="flex gap-2">
                         <button type="button" onClick={() => setJournalLines(p => [...p, { account_id: '', type: 'debit', amount: 0 }])}
-                          className="text-xs px-2.5 py-1 rounded-lg bg-brand-500/10 text-brand-300 hover:bg-brand-500/20 transition-colors font-medium">
+                          className="text-xs px-2.5 py-1 rounded-lg bg-brand-500/10 text-secondary hover:bg-brand-500/20 transition-colors font-medium">
                           + Debit
                         </button>
                         <button type="button" onClick={() => setJournalLines(p => [...p, { account_id: '', type: 'credit', amount: 0 }])}
@@ -1636,10 +1636,10 @@ const LedgerTest: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="bg-surface-base rounded-xl border border-white/[0.06] overflow-hidden">
+                    <div className="bg-surface rounded-xl border border-outline-variant overflow-hidden">
                       <table className="w-full">
                         <thead>
-                          <tr className="border-b border-white/[0.06]">
+                          <tr className="border-b border-outline-variant">
                             <th className="text-left text-xs text-slate-500 font-medium px-4 py-2.5">Account</th>
                             <th className="text-left text-xs text-slate-500 font-medium px-4 py-2.5 w-28">Type</th>
                             <th className="text-right text-xs text-slate-500 font-medium px-4 py-2.5 w-32">Amount</th>
@@ -1653,11 +1653,11 @@ const LedgerTest: React.FC = () => {
                                 <select
                                   value={line.account_id}
                                   onChange={e => setJournalLines(p => p.map((l, i) => i === idx ? { ...l, account_id: e.target.value } : l))}
-                                  className="w-full bg-transparent text-sm text-white focus:outline-none"
+                                  className="w-full bg-transparent text-sm text-primary focus:outline-none"
                                 >
-                                  <option value="" className="bg-surface-raised">Select account…</option>
+                                  <option value="" className="bg-white">Select account…</option>
                                   {availableAccounts.map(acc => (
-                                    <option key={acc.id} value={acc.id} className="bg-surface-raised">{acc.name} ({acc.account_number})</option>
+                                    <option key={acc.id} value={acc.id} className="bg-white">{acc.name} ({acc.account_number})</option>
                                   ))}
                                 </select>
                               </td>
@@ -1665,10 +1665,10 @@ const LedgerTest: React.FC = () => {
                                 <select
                                   value={line.type}
                                   onChange={e => setJournalLines(p => p.map((l, i) => i === idx ? { ...l, type: e.target.value as 'debit' | 'credit' } : l))}
-                                  className={`bg-transparent text-xs font-semibold focus:outline-none ${line.type === 'debit' ? 'text-brand-300' : 'text-blue-400'}`}
+                                  className={`bg-transparent text-xs font-semibold focus:outline-none ${line.type === 'debit' ? 'text-secondary' : 'text-blue-400'}`}
                                 >
-                                  <option value="debit" className="bg-surface-raised text-brand-300">DR Debit</option>
-                                  <option value="credit" className="bg-surface-raised text-blue-400">CR Credit</option>
+                                  <option value="debit" className="bg-white text-secondary">DR Debit</option>
+                                  <option value="credit" className="bg-white text-blue-400">CR Credit</option>
                                 </select>
                               </td>
                               <td className="px-4 py-2">
@@ -1676,7 +1676,7 @@ const LedgerTest: React.FC = () => {
                                   type="number" min="0" step="0.01"
                                   value={line.amount || ''}
                                   onChange={e => setJournalLines(p => p.map((l, i) => i === idx ? { ...l, amount: parseFloat(e.target.value) || 0 } : l))}
-                                  className="w-full text-right bg-transparent text-sm text-white focus:outline-none"
+                                  className="w-full text-right bg-transparent text-sm text-primary focus:outline-none"
                                   placeholder="0.00"
                                 />
                               </td>
@@ -1697,7 +1697,7 @@ const LedgerTest: React.FC = () => {
                       const cr = journalLines.filter(l => l.type === 'credit').reduce((s, l) => s + (l.amount || 0), 0);
                       const ok = Math.abs(dr - cr) < 0.001 && dr > 0;
                       return (
-                        <div className={`mt-3 flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-medium ${ok ? 'bg-brand-500/10 border border-brand-500/20 text-brand-300' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
+                        <div className={`mt-3 flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-medium ${ok ? 'bg-brand-500/10 border border-brand-500/20 text-secondary' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
                           <span>DR {dr.toFixed(2)} · CR {cr.toFixed(2)}</span>
                           <span>{ok ? '✓ Balanced' : `Difference: ${Math.abs(dr - cr).toFixed(2)}`}</span>
                         </div>
@@ -1708,7 +1708,7 @@ const LedgerTest: React.FC = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-all"
+                    className="w-full py-3 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-primary text-sm font-semibold rounded-xl transition-all"
                   >
                     {loading ? 'Posting…' : 'Post Journal Entry'}
                   </button>
@@ -1716,9 +1716,9 @@ const LedgerTest: React.FC = () => {
               </div>
 
               {response && (
-                <div className="bg-surface-raised rounded-xl border border-white/[0.06] p-4">
+                <div className="bg-white rounded-xl border border-outline-variant p-4">
                   <p className="text-xs text-slate-500 mb-2 font-medium uppercase tracking-wider">Response</p>
-                  <pre className="text-xs text-brand-300 overflow-auto max-h-40">{response}</pre>
+                  <pre className="text-xs text-secondary overflow-auto max-h-40">{response}</pre>
                 </div>
               )}
             </div>
@@ -1742,8 +1742,8 @@ const LedgerTest: React.FC = () => {
                     onClick={() => { setActiveReport(r.id as any); r.action(); }}
                     className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                       activeReport === r.id
-                        ? 'bg-brand-500 text-white'
-                        : 'bg-surface-raised text-slate-400 hover:text-white border border-white/[0.06] hover:border-white/[0.12]'
+                        ? 'bg-brand-500 text-primary'
+                        : 'bg-white text-slate-400 hover:text-primary border border-outline-variant hover:border-outline-variant'
                     }`}
                   >
                     {r.label}
@@ -1755,40 +1755,40 @@ const LedgerTest: React.FC = () => {
               {activeReport === 'balance-sheet' && balanceSheet && (
                 <div className="grid grid-cols-2 gap-4">
                   {/* Assets */}
-                  <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
-                    <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
-                      <span className="text-xs font-semibold text-brand-300 uppercase tracking-wider">Assets</span>
-                      <span className="text-sm font-bold text-white">${(balanceSheet.total_assets || 0).toFixed(2)}</span>
+                  <div className="bg-white rounded-2xl border border-outline-variant overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
+                      <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Assets</span>
+                      <span className="text-sm font-bold text-primary">${(balanceSheet.total_assets || 0).toFixed(2)}</span>
                     </div>
                     <div className="divide-y divide-white/[0.04]">
                       {(balanceSheet.assets || []).flatMap((g: any) => (g.accounts || []).map((a: any) => (
                         <div key={a.id} className="flex items-center justify-between px-5 py-3">
                           <div>
-                            <p className="text-sm text-white">{a.name}</p>
+                            <p className="text-sm text-primary">{a.name}</p>
                             <p className="text-xs text-slate-500 mt-0.5 capitalize">{a.type}</p>
                           </div>
-                          <span className="text-sm font-semibold text-brand-300">${(a.balance || 0).toFixed(2)}</span>
+                          <span className="text-sm font-semibold text-secondary">${(a.balance || 0).toFixed(2)}</span>
                         </div>
                       )))}
                     </div>
-                    <div className={`px-5 py-3 border-t-2 ${balanceSheet.is_balanced ? 'border-brand-500/30 bg-brand-500/[0.04]' : 'border-red-500/30 bg-red-500/[0.04]'}`}>
+                    <div className={`px-5 py-3 border-t-2 ${balanceSheet.is_balanced ? 'border-brand-500/30 bg-accent/5' : 'border-red-500/30 bg-red-500/[0.04]'}`}>
                       <div className="flex justify-between">
                         <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Assets</span>
-                        <span className={`text-sm font-bold ${balanceSheet.is_balanced ? 'text-brand-300' : 'text-red-400'}`}>${(balanceSheet.total_assets || 0).toFixed(2)}</span>
+                        <span className={`text-sm font-bold ${balanceSheet.is_balanced ? 'text-secondary' : 'text-red-400'}`}>${(balanceSheet.total_assets || 0).toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
                   {/* Liabilities + Equity */}
-                  <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
-                    <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                  <div className="bg-white rounded-2xl border border-outline-variant overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
                       <span className="text-xs font-semibold text-blue-400 uppercase tracking-wider">Liabilities & Equity</span>
-                      <span className="text-sm font-bold text-white">${(balanceSheet.total_liabilities_equity || 0).toFixed(2)}</span>
+                      <span className="text-sm font-bold text-primary">${(balanceSheet.total_liabilities_equity || 0).toFixed(2)}</span>
                     </div>
                     <div className="divide-y divide-white/[0.04]">
                       {[...(balanceSheet.liabilities || []), ...(balanceSheet.equity || [])].flatMap((g: any) => (g.accounts || []).map((a: any) => (
                         <div key={a.id} className="flex items-center justify-between px-5 py-3">
                           <div>
-                            <p className="text-sm text-white">{a.name}</p>
+                            <p className="text-sm text-primary">{a.name}</p>
                             <p className="text-xs text-slate-500 mt-0.5 capitalize">{a.type}</p>
                           </div>
                           <span className="text-sm font-semibold text-blue-400">${(a.balance || 0).toFixed(2)}</span>
@@ -1803,7 +1803,7 @@ const LedgerTest: React.FC = () => {
                     </div>
                   </div>
                   {/* Accounting equation banner */}
-                  <div className={`col-span-2 flex items-center justify-center gap-4 py-3 px-5 rounded-xl text-sm font-medium ${balanceSheet.is_balanced ? 'bg-brand-500/10 border border-brand-500/20 text-brand-300' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
+                  <div className={`col-span-2 flex items-center justify-center gap-4 py-3 px-5 rounded-xl text-sm font-medium ${balanceSheet.is_balanced ? 'bg-brand-500/10 border border-brand-500/20 text-secondary' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
                     <span>Assets ${(balanceSheet.total_assets || 0).toFixed(2)}</span>
                     <span className="text-slate-500">=</span>
                     <span>Liabilities + Equity ${(balanceSheet.total_liabilities_equity || 0).toFixed(2)}</span>
@@ -1814,23 +1814,23 @@ const LedgerTest: React.FC = () => {
 
               {/* Income Statement */}
               {activeReport === 'income-statement' && incomeStatement && (
-                <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden max-w-2xl">
-                  <div className="px-5 py-4 border-b border-white/[0.06]">
-                    <p className="text-sm font-semibold text-white">Income Statement</p>
+                <div className="bg-white rounded-2xl border border-outline-variant overflow-hidden max-w-2xl">
+                  <div className="px-5 py-4 border-b border-outline-variant">
+                    <p className="text-sm font-semibold text-primary">Income Statement</p>
                   </div>
                   <div className="p-5 space-y-5">
                     <div>
-                      <p className="text-xs font-semibold text-brand-300 uppercase tracking-wider mb-3">Revenue</p>
+                      <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-3">Revenue</p>
                       <div className="space-y-2">
                         {(incomeStatement.revenue || []).flatMap((g: any) => (g.accounts || []).map((a: any) => (
                           <div key={a.id} className="flex justify-between">
-                            <span className="text-sm text-slate-300">{a.name}</span>
-                            <span className="text-sm font-medium text-brand-300">${(a.balance || 0).toFixed(2)}</span>
+                            <span className="text-sm text-slate-500">{a.name}</span>
+                            <span className="text-sm font-medium text-secondary">${(a.balance || 0).toFixed(2)}</span>
                           </div>
                         )))}
-                        <div className="flex justify-between border-t border-white/[0.06] pt-2 mt-2">
-                          <span className="text-sm font-semibold text-white">Total Revenue</span>
-                          <span className="text-sm font-bold text-brand-300">${(incomeStatement.total_revenue || 0).toFixed(2)}</span>
+                        <div className="flex justify-between border-t border-outline-variant pt-2 mt-2">
+                          <span className="text-sm font-semibold text-primary">Total Revenue</span>
+                          <span className="text-sm font-bold text-secondary">${(incomeStatement.total_revenue || 0).toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
@@ -1839,19 +1839,19 @@ const LedgerTest: React.FC = () => {
                       <div className="space-y-2">
                         {(incomeStatement.expenses || []).flatMap((g: any) => (g.accounts || []).map((a: any) => (
                           <div key={a.id} className="flex justify-between">
-                            <span className="text-sm text-slate-300">{a.name}</span>
+                            <span className="text-sm text-slate-500">{a.name}</span>
                             <span className="text-sm font-medium text-red-400">${(a.balance || 0).toFixed(2)}</span>
                           </div>
                         )))}
-                        <div className="flex justify-between border-t border-white/[0.06] pt-2 mt-2">
-                          <span className="text-sm font-semibold text-white">Total Expenses</span>
+                        <div className="flex justify-between border-t border-outline-variant pt-2 mt-2">
+                          <span className="text-sm font-semibold text-primary">Total Expenses</span>
                           <span className="text-sm font-bold text-red-400">${(incomeStatement.total_expenses || 0).toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
                     <div className={`flex justify-between px-4 py-3 rounded-xl font-bold text-base ${(incomeStatement.net_income || 0) >= 0 ? 'bg-brand-500/10 border border-brand-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
-                      <span className="text-white">Net Income</span>
-                      <span className={(incomeStatement.net_income || 0) >= 0 ? 'text-brand-300' : 'text-red-400'}>${(incomeStatement.net_income || 0).toFixed(2)}</span>
+                      <span className="text-primary">Net Income</span>
+                      <span className={(incomeStatement.net_income || 0) >= 0 ? 'text-secondary' : 'text-red-400'}>${(incomeStatement.net_income || 0).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -1859,23 +1859,23 @@ const LedgerTest: React.FC = () => {
 
               {/* Cash Flow */}
               {activeReport === 'cash-flow' && cashFlow && (
-                <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
-                  <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
-                    <p className="text-sm font-semibold text-white">Cash Flow</p>
-                    <span className={`text-sm font-bold ${(cashFlow.net_cash || 0) >= 0 ? 'text-brand-300' : 'text-red-400'}`}>Net ${(cashFlow.net_cash || 0).toFixed(2)}</span>
+                <div className="bg-white rounded-2xl border border-outline-variant overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
+                    <p className="text-sm font-semibold text-primary">Cash Flow</p>
+                    <span className={`text-sm font-bold ${(cashFlow.net_cash || 0) >= 0 ? 'text-secondary' : 'text-red-400'}`}>Net ${(cashFlow.net_cash || 0).toFixed(2)}</span>
                   </div>
                   {(cashFlow.data || []).length === 0 ? (
                     <div className="py-12 text-center text-slate-500 text-sm">No cash transactions in this period</div>
                   ) : (
                     <table className="w-full">
-                      <thead><tr className="border-b border-white/[0.06]">{['Date','Description','Type','Amount','Running Total'].map(h=><th key={h} className="text-left text-xs text-slate-500 font-medium px-5 py-3">{h}</th>)}</tr></thead>
+                      <thead><tr className="border-b border-outline-variant">{['Date','Description','Type','Amount','Running Total'].map(h=><th key={h} className="text-left text-xs text-slate-500 font-medium px-5 py-3">{h}</th>)}</tr></thead>
                       <tbody className="divide-y divide-white/[0.04]">
                         {(cashFlow.data || []).map((e: any, i: number) => (
-                          <tr key={i} className="hover:bg-white/[0.02]">
+                          <tr key={i} className="hover:bg-surface">
                             <td className="px-5 py-3 text-xs text-slate-500">{new Date(e.timestamp).toLocaleDateString()}</td>
-                            <td className="px-5 py-3 text-sm text-white">{e.description}</td>
-                            <td className="px-5 py-3"><span className={`text-xs px-2 py-0.5 rounded-md font-medium ${e.type === 'deposit' ? 'bg-brand-500/10 text-brand-300' : 'bg-red-500/10 text-red-400'}`}>{e.type}</span></td>
-                            <td className={`px-5 py-3 text-sm font-semibold ${e.amount >= 0 ? 'text-brand-300' : 'text-red-400'}`}>{e.amount >= 0 ? '+' : ''}{e.amount.toFixed(2)}</td>
+                            <td className="px-5 py-3 text-sm text-primary">{e.description}</td>
+                            <td className="px-5 py-3"><span className={`text-xs px-2 py-0.5 rounded-md font-medium ${e.type === 'deposit' ? 'bg-brand-500/10 text-secondary' : 'bg-red-500/10 text-red-400'}`}>{e.type}</span></td>
+                            <td className={`px-5 py-3 text-sm font-semibold ${e.amount >= 0 ? 'text-secondary' : 'text-red-400'}`}>{e.amount >= 0 ? '+' : ''}{e.amount.toFixed(2)}</td>
                             <td className="px-5 py-3 text-sm text-slate-400">{e.running_total.toFixed(2)}</td>
                           </tr>
                         ))}
@@ -1887,30 +1887,30 @@ const LedgerTest: React.FC = () => {
 
               {/* Trial Balance */}
               {activeReport === 'trial-balance' && trialBalanceData && (
-                <div className="bg-surface-raised rounded-2xl border border-white/[0.06] overflow-hidden">
-                  <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
-                    <p className="text-sm font-semibold text-white">Trial Balance</p>
-                    <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${(trialBalanceData as any).is_balanced ? 'bg-brand-500/10 text-brand-300' : 'bg-red-500/10 text-red-400'}`}>
+                <div className="bg-white rounded-2xl border border-outline-variant overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant">
+                    <p className="text-sm font-semibold text-primary">Trial Balance</p>
+                    <span className={`text-xs px-2.5 py-1 rounded-lg font-medium ${(trialBalanceData as any).is_balanced ? 'bg-brand-500/10 text-secondary' : 'bg-red-500/10 text-red-400'}`}>
                       {(trialBalanceData as any).is_balanced ? '✓ Balanced' : '✗ Unbalanced'}
                     </span>
                   </div>
                   <table className="w-full">
-                    <thead><tr className="border-b border-white/[0.06]">{['Account #','Name','Type','Debit','Credit'].map(h=><th key={h} className="text-left text-xs text-slate-500 font-medium px-5 py-3">{h}</th>)}</tr></thead>
+                    <thead><tr className="border-b border-outline-variant">{['Account #','Name','Type','Debit','Credit'].map(h=><th key={h} className="text-left text-xs text-slate-500 font-medium px-5 py-3">{h}</th>)}</tr></thead>
                     <tbody className="divide-y divide-white/[0.04]">
                       {((trialBalanceData as any).data || []).map((e: any) => (
-                        <tr key={e.id} className="hover:bg-white/[0.02]">
+                        <tr key={e.id} className="hover:bg-surface">
                           <td className="px-5 py-3 text-xs font-mono text-slate-500">{e.account_number}</td>
-                          <td className="px-5 py-3 text-sm text-white">{e.name}</td>
+                          <td className="px-5 py-3 text-sm text-primary">{e.name}</td>
                           <td className="px-5 py-3"><span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 capitalize">{e.type}</span></td>
-                          <td className="px-5 py-3 text-sm font-medium text-brand-300">{e.balance > 0 ? `$${e.balance.toFixed(2)}` : '—'}</td>
+                          <td className="px-5 py-3 text-sm font-medium text-secondary">{e.balance > 0 ? `$${e.balance.toFixed(2)}` : '—'}</td>
                           <td className="px-5 py-3 text-sm font-medium text-blue-400">{e.balance < 0 ? `$${Math.abs(e.balance).toFixed(2)}` : '—'}</td>
                         </tr>
                       ))}
                     </tbody>
                     <tfoot>
-                      <tr className="border-t-2 border-white/[0.10]">
+                      <tr className="border-t-2 border-outline-variant">
                         <td colSpan={3} className="px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Totals</td>
-                        <td className="px-5 py-3 text-sm font-bold text-brand-300">${((trialBalanceData as any).total_debits || 0).toFixed(2)}</td>
+                        <td className="px-5 py-3 text-sm font-bold text-secondary">${((trialBalanceData as any).total_debits || 0).toFixed(2)}</td>
                         <td className="px-5 py-3 text-sm font-bold text-blue-400">${((trialBalanceData as any).total_credits || 0).toFixed(2)}</td>
                       </tr>
                     </tfoot>
@@ -1920,7 +1920,7 @@ const LedgerTest: React.FC = () => {
 
               {/* Empty prompt */}
               {!balanceSheet && !incomeStatement && !cashFlow && !trialBalanceData && (
-                <div className="bg-surface-raised rounded-2xl border border-white/[0.06] py-16 text-center">
+                <div className="bg-white rounded-2xl border border-outline-variant py-16 text-center">
                   <TrendingUp className="w-10 h-10 text-slate-700 mx-auto mb-4" />
                   <p className="text-slate-400 font-medium">Select a report above to get started</p>
                   <p className="text-slate-600 text-sm mt-1">Balance Sheet, Income Statement, Cash Flow, Trial Balance</p>
@@ -1933,11 +1933,11 @@ const LedgerTest: React.FC = () => {
           {/* ANALYTICS TAB                                                   */}
           {/* ═══════════════════════════════════════════════════════════════ */}
           {activeTab === 'analytics' && !activeForm && (
-            <div className="bg-surface-raised rounded-2xl border border-white/[0.06] py-20 text-center">
+            <div className="bg-white rounded-2xl border border-outline-variant py-20 text-center">
               <TrendingUp className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-              <p className="text-white font-semibold text-lg">Analytics Coming Soon</p>
+              <p className="text-primary font-semibold text-lg">Analytics Coming Soon</p>
               <p className="text-slate-500 text-sm mt-2 max-w-sm mx-auto">Advanced charts, trend analysis, and AI-powered insights will appear here</p>
-              <div className="inline-flex items-center gap-2 mt-6 px-4 py-2 bg-brand-500/10 border border-brand-500/20 rounded-lg text-brand-300 text-xs font-medium">
+              <div className="inline-flex items-center gap-2 mt-6 px-4 py-2 bg-brand-500/10 border border-brand-500/20 rounded-lg text-secondary text-xs font-medium">
                 <Clock className="w-3.5 h-3.5" /> In development
               </div>
             </div>
@@ -1947,13 +1947,13 @@ const LedgerTest: React.FC = () => {
           {/* MODAL FORMS (overlaid on any tab)                              */}
           {/* ═══════════════════════════════════════════════════════════════ */}
           {activeForm && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={e => { if (e.target === e.currentTarget) setActiveForm(null); }}>
-              <div className="w-full max-w-lg bg-surface-raised rounded-2xl border border-white/[0.08] shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60  p-4" onClick={e => { if (e.target === e.currentTarget) setActiveForm(null); }}>
+              <div className="w-full max-w-lg bg-white rounded-2xl border border-outline-variant shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
 
                 {/* Form header */}
-                <div className="flex items-center justify-between px-6 py-5 border-b border-white/[0.06]">
+                <div className="flex items-center justify-between px-6 py-5 border-b border-outline-variant">
                   <div>
-                    <h3 className="text-base font-semibold text-white">
+                    <h3 className="text-base font-semibold text-primary">
                       {activeForm === 'account' ? 'Connect New Account' : activeForm === 'transfer' ? 'Transfer Funds' : 'Fund Account'}
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">
@@ -1962,7 +1962,7 @@ const LedgerTest: React.FC = () => {
                        'Add funds and update balance instantly'}
                     </p>
                   </div>
-                  <button onClick={() => setActiveForm(null)} className="w-8 h-8 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-400 hover:text-white flex items-center justify-center transition-all text-lg">×</button>
+                  <button onClick={() => setActiveForm(null)} className="w-8 h-8 rounded-lg bg-surface hover:bg-surface text-slate-400 hover:text-primary flex items-center justify-center transition-all text-lg">×</button>
                 </div>
 
                 <div className="p-6">
@@ -1978,17 +1978,17 @@ const LedgerTest: React.FC = () => {
                         <div>
                           <label className="block text-xs font-medium text-slate-400 mb-1.5">From Account</label>
                           <select value={transferForm.from_account_id} onChange={e => setTransferForm(f => ({...f, from_account_id: e.target.value}))} required
-                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40">
-                            <option value="" className="bg-surface-raised">Select account…</option>
-                            {availableAccounts.map(a => <option key={a.id} value={a.id} className="bg-surface-raised">{a.name} (${(a.balance||0).toFixed(2)})</option>)}
+                            className="w-full px-3.5 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm text-primary focus:outline-none focus:border-brand-500/40">
+                            <option value="" className="bg-white">Select account…</option>
+                            {availableAccounts.map(a => <option key={a.id} value={a.id} className="bg-white">{a.name} (${(a.balance||0).toFixed(2)})</option>)}
                           </select>
                         </div>
                         <div>
                           <label className="block text-xs font-medium text-slate-400 mb-1.5">To Account</label>
                           <select value={transferForm.to_account_id} onChange={e => setTransferForm(f => ({...f, to_account_id: e.target.value}))} required
-                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40">
-                            <option value="" className="bg-surface-raised">Select account…</option>
-                            {availableAccounts.filter(a => a.id !== transferForm.from_account_id).map(a => <option key={a.id} value={a.id} className="bg-surface-raised">{a.name}</option>)}
+                            className="w-full px-3.5 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm text-primary focus:outline-none focus:border-brand-500/40">
+                            <option value="" className="bg-white">Select account…</option>
+                            {availableAccounts.filter(a => a.id !== transferForm.from_account_id).map(a => <option key={a.id} value={a.id} className="bg-white">{a.name}</option>)}
                           </select>
                         </div>
                       </div>
@@ -1996,22 +1996,22 @@ const LedgerTest: React.FC = () => {
                         <div>
                           <label className="block text-xs font-medium text-slate-400 mb-1.5">Amount</label>
                           <input type="number" min="0.01" step="0.01" value={transferForm.amount} onChange={e => setTransferForm(f => ({...f, amount: parseFloat(e.target.value)}))} required
-                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40" />
+                            className="w-full px-3.5 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm text-primary focus:outline-none focus:border-brand-500/40" />
                         </div>
                         <div>
                           <label className="block text-xs font-medium text-slate-400 mb-1.5">Currency</label>
                           <select value={transferForm.currency} onChange={e => setTransferForm(f => ({...f, currency: e.target.value}))}
-                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40">
-                            {['USD','EUR','GBP','BRL','INR'].map(c => <option key={c} className="bg-surface-raised">{c}</option>)}
+                            className="w-full px-3.5 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm text-primary focus:outline-none focus:border-brand-500/40">
+                            {['USD','EUR','GBP','BRL','INR'].map(c => <option key={c} className="bg-white">{c}</option>)}
                           </select>
                         </div>
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-slate-400 mb-1.5">Description</label>
                         <input type="text" value={transferForm.description} onChange={e => setTransferForm(f => ({...f, description: e.target.value}))}
-                          className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40" />
+                          className="w-full px-3.5 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm text-primary focus:outline-none focus:border-brand-500/40" />
                       </div>
-                      <button type="submit" disabled={loading} className="w-full py-3 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-all">
+                      <button type="submit" disabled={loading} className="w-full py-3 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-primary text-sm font-semibold rounded-xl transition-all">
                         {loading ? 'Processing…' : 'Execute Transfer'}
                       </button>
                     </form>
@@ -2023,37 +2023,37 @@ const LedgerTest: React.FC = () => {
                       <div>
                         <label className="block text-xs font-medium text-slate-400 mb-1.5">Account</label>
                         <select value={depositForm.account_id} onChange={e => setDepositForm(f => ({...f, account_id: e.target.value}))} required
-                          className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40">
-                          <option value="" className="bg-surface-raised">Select account…</option>
-                          {availableAccounts.map(a => <option key={a.id} value={a.id} className="bg-surface-raised">{a.name} (${(a.balance||0).toFixed(2)})</option>)}
+                          className="w-full px-3.5 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm text-primary focus:outline-none focus:border-brand-500/40">
+                          <option value="" className="bg-white">Select account…</option>
+                          {availableAccounts.map(a => <option key={a.id} value={a.id} className="bg-white">{a.name} (${(a.balance||0).toFixed(2)})</option>)}
                         </select>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-medium text-slate-400 mb-1.5">Amount</label>
                           <input type="number" min="0.01" step="0.01" value={depositForm.amount} onChange={e => setDepositForm(f => ({...f, amount: parseFloat(e.target.value)}))}
-                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40" />
+                            className="w-full px-3.5 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm text-primary focus:outline-none focus:border-brand-500/40" />
                         </div>
                         <div>
                           <label className="block text-xs font-medium text-slate-400 mb-1.5">Currency</label>
                           <select value={depositForm.currency} onChange={e => setDepositForm(f => ({...f, currency: e.target.value}))}
-                            className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40">
-                            {['USD','EUR','GBP','BRL','INR'].map(c => <option key={c} className="bg-surface-raised">{c}</option>)}
+                            className="w-full px-3.5 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm text-primary focus:outline-none focus:border-brand-500/40">
+                            {['USD','EUR','GBP','BRL','INR'].map(c => <option key={c} className="bg-white">{c}</option>)}
                           </select>
                         </div>
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-slate-400 mb-1.5">Description</label>
                         <input type="text" value={depositForm.description} onChange={e => setDepositForm(f => ({...f, description: e.target.value}))}
-                          className="w-full px-3.5 py-2.5 bg-surface-base border border-white/[0.08] rounded-xl text-sm text-white focus:outline-none focus:border-brand-500/40" />
+                          className="w-full px-3.5 py-2.5 bg-surface border border-outline-variant rounded-xl text-sm text-primary focus:outline-none focus:border-brand-500/40" />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <button type="button" onClick={handleCreateDeposit} disabled={loading}
-                          className="py-3 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-all">
+                          className="py-3 bg-brand-500 hover:bg-brand-400 disabled:opacity-50 text-primary text-sm font-semibold rounded-xl transition-all">
                           {loading ? 'Processing…' : 'Real Deposit'}
                         </button>
                         <button type="button" onClick={handleCreateTestBalance} disabled={loading}
-                          className="py-3 bg-surface-base border border-brand-500/30 text-brand-300 hover:bg-brand-500/10 disabled:opacity-50 text-sm font-semibold rounded-xl transition-all">
+                          className="py-3 bg-surface border border-brand-500/30 text-secondary hover:bg-brand-500/10 disabled:opacity-50 text-sm font-semibold rounded-xl transition-all">
                           {loading ? 'Processing…' : 'Test Balance'}
                         </button>
                       </div>
@@ -2064,8 +2064,8 @@ const LedgerTest: React.FC = () => {
 
                 {/* Response */}
                 {response && (
-                  <div className="mx-6 mb-6 p-3 bg-surface-base rounded-xl border border-white/[0.06]">
-                    <pre className="text-xs text-brand-300 overflow-auto max-h-32">{response}</pre>
+                  <div className="mx-6 mb-6 p-3 bg-surface rounded-xl border border-outline-variant">
+                    <pre className="text-xs text-secondary overflow-auto max-h-32">{response}</pre>
                   </div>
                 )}
               </div>

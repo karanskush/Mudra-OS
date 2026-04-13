@@ -75,7 +75,7 @@ const CHART_BARS = Array.from({ length: 24 }, (_, i) => ({
 }));
 
 const statusConfig = {
-  completed: { dot: 'bg-brand-300', text: 'text-brand-300' },
+  completed: { dot: 'bg-brand-300', text: 'text-secondary' },
   pending:   { dot: 'bg-amber-400',   text: 'text-amber-400'   },
   failed:    { dot: 'bg-red-400',     text: 'text-red-400'     },
 } as const;
@@ -86,7 +86,7 @@ const Analytics: React.FC = () => {
   const healthStatus = useMemo(() => {
     if (!health) return { icon: <AlertTriangle className="h-4 w-4 text-slate-400" />, text: 'Unknown', color: 'text-slate-400' };
     switch (health.status) {
-      case 'ok':       return { icon: <CheckCircle   className="h-4 w-4 text-brand-300" />, text: 'OK',       color: 'text-brand-300' };
+      case 'ok':       return { icon: <CheckCircle   className="h-4 w-4 text-secondary" />, text: 'OK',       color: 'text-secondary' };
       case 'degraded': return { icon: <AlertTriangle className="h-4 w-4 text-amber-400"   />, text: 'DEGRADED', color: 'text-amber-400'   };
       case 'error':    return { icon: <XCircle       className="h-4 w-4 text-red-400"     />, text: 'ERROR',    color: 'text-red-400'     };
       default:         return { icon: <AlertTriangle className="h-4 w-4 text-slate-400"   />, text: 'Unknown',  color: 'text-slate-400'   };
@@ -110,7 +110,7 @@ const Analytics: React.FC = () => {
             <TrendingUp className="h-3 w-3" />
             Real-Time Analytics
           </div>
-          <h2 className="text-fluid-3xl font-bold text-white mb-4">
+          <h2 className="text-fluid-3xl font-bold text-primary mb-4">
             Production-grade observability
             <span
               className="block"
@@ -136,12 +136,12 @@ const Analytics: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="glass-card rounded-3xl p-8"
+          className="bg-white border border-outline-variant shadow-premium rounded-3xl p-8"
         >
           {/* Dashboard header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-fluid-xl font-bold text-white mb-1">MudraCore OS Dashboard</h3>
+              <h3 className="text-fluid-xl font-bold text-primary mb-1">MudraCore OS Dashboard</h3>
               <p className="text-slate-400 text-sm">Real-time platform monitoring and analytics</p>
             </div>
             <div className="flex items-center gap-3">
@@ -160,7 +160,7 @@ const Analytics: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.07, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="glass-card rounded-2xl p-5 cursor-default"
+                className="bg-white border border-outline-variant shadow-premium rounded-2xl p-5 cursor-default"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className={`w-10 h-10 ${metric.colorClass.bg} border ${metric.colorClass.border} rounded-xl flex items-center justify-center`}>
@@ -168,13 +168,13 @@ const Analytics: React.FC = () => {
                   </div>
                   <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                     metric.trend === 'up'
-                      ? 'bg-brand-500/10 text-brand-300'
+                      ? 'bg-brand-500/10 text-secondary'
                       : 'bg-red-500/10 text-red-400'
                   }`}>
                     {metric.change}
                   </span>
                 </div>
-                <div className="text-2xl font-bold text-white mb-0.5">{metric.value}</div>
+                <div className="text-2xl font-bold text-primary mb-0.5">{metric.value}</div>
                 <div className="text-slate-400 text-sm">{metric.label}</div>
               </motion.div>
             ))}
@@ -183,8 +183,8 @@ const Analytics: React.FC = () => {
           {/* System health + recent txns */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             {/* System health */}
-            <div className="glass-card rounded-2xl p-6">
-              <h4 className="text-base font-semibold text-white flex items-center gap-2 mb-5">
+            <div className="bg-white border border-outline-variant shadow-premium rounded-2xl p-6">
+              <h4 className="text-base font-semibold text-primary flex items-center gap-2 mb-5">
                 <Database className="h-4 w-4 text-[#68BA7F]" />
                 System Health
               </h4>
@@ -201,9 +201,9 @@ const Analytics: React.FC = () => {
                   <span className="text-slate-300 text-sm">Database Connection</span>
                   <div className="flex items-center gap-1.5">
                     {databaseInfo?.connected
-                      ? <CheckCircle className="h-4 w-4 text-brand-300" />
+                      ? <CheckCircle className="h-4 w-4 text-secondary" />
                       : <XCircle    className="h-4 w-4 text-red-400"     />}
-                    <span className={`text-sm font-semibold ${databaseInfo?.connected ? 'text-brand-300' : 'text-red-400'}`}>
+                    <span className={`text-sm font-semibold ${databaseInfo?.connected ? 'text-secondary' : 'text-red-400'}`}>
                       {databaseInfo?.connected ? 'Connected' : 'Disconnected'}
                     </span>
                   </div>
@@ -218,7 +218,7 @@ const Analytics: React.FC = () => {
                   </div>
                 )}
 
-                <div className="border-t border-white/5 pt-3.5 space-y-3">
+                <div className="border-t border-outline-variant pt-3.5 space-y-3">
                   {systemMetrics.map((m, i) => (
                     <div key={i} className="flex items-center justify-between">
                       <span className="text-slate-300 text-sm">{m.label}</span>
@@ -230,8 +230,8 @@ const Analytics: React.FC = () => {
             </div>
 
             {/* Recent transactions */}
-            <div className="glass-card rounded-2xl p-6">
-              <h4 className="text-base font-semibold text-white flex items-center gap-2 mb-5">
+            <div className="bg-white border border-outline-variant shadow-premium rounded-2xl p-6">
+              <h4 className="text-base font-semibold text-primary flex items-center gap-2 mb-5">
                 <Eye className="h-4 w-4 text-[#68BA7F]" />
                 Recent Transactions
               </h4>
@@ -243,12 +243,12 @@ const Analytics: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.dot}`} />
                         <div>
-                          <div className="text-white text-sm font-medium">{txn.id}</div>
+                          <div className="text-primary text-sm font-medium">{txn.id}</div>
                           <div className="text-slate-500 text-xs">{txn.rail} · {txn.time}</div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-white font-semibold text-sm">{txn.amount}</div>
+                        <div className="text-primary font-semibold text-sm">{txn.amount}</div>
                         <div className={`text-xs capitalize ${cfg.text}`}>{txn.status}</div>
                       </div>
                     </div>
@@ -259,9 +259,9 @@ const Analytics: React.FC = () => {
           </div>
 
           {/* Chart */}
-          <div className="glass-card rounded-2xl p-6">
+          <div className="bg-white border border-outline-variant shadow-premium rounded-2xl p-6">
             <div className="flex items-center justify-between mb-6">
-              <h4 className="text-base font-semibold text-white">Transaction Volume (24h)</h4>
+              <h4 className="text-base font-semibold text-primary">Transaction Volume (24h)</h4>
               <div className="flex gap-1.5">
                 {['24H', '7D', '30D'].map((label, i) => (
                   <button
@@ -314,7 +314,7 @@ const Analytics: React.FC = () => {
               border: '1px solid rgba(255,255,255,0.08)',
             }}
           >
-            <h3 className="text-2xl font-bold text-white mb-3">Ready to see your data in action?</h3>
+            <h3 className="text-2xl font-bold text-primary mb-3">Ready to see your data in action?</h3>
             <p className="text-sm mb-7 max-w-lg mx-auto" style={{ color: 'rgba(255,255,255,0.38)' }}>
               Experience real-time analytics with our comprehensive monitoring suite.
               Track every transaction, monitor compliance, and optimize performance.

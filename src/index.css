@@ -20,17 +20,17 @@
   --color-warning: #f59e0b;
   --color-danger:  #ef4444;
 
-  /* ── Page surfaces (neutral near-black, no blue tint) ── */
-  --surface-base:    #0B0C0E;   /* page root — matches landing */
-  --surface-sidebar: #0F1012;   /* sidebar / nav panel */
-  --surface-raised:  #111315;   /* cards, panels */
-  --surface-hover:   #161819;   /* hover on raised */
-  --surface-overlay: rgba(11,12,14,0.92); /* modals */
+  /* ── Page surfaces (light theme) ── */
+  --surface-base:    #F8FAFC;   /* page root */
+  --surface-sidebar: #FFFFFF;   /* sidebar / nav panel */
+  --surface-raised:  #FFFFFF;   /* cards, panels */
+  --surface-hover:   #F1F5F9;   /* hover on raised */
+  --surface-overlay: rgba(10,17,40,0.80); /* modals */
 
   /* Glass helpers */
-  --surface-glass:        rgba(255, 255, 255, 0.04);
-  --surface-glass-border: rgba(255, 255, 255, 0.08);
-  --surface-glass-hover:  rgba(255, 255, 255, 0.10);
+  --surface-glass:        rgba(255, 255, 255, 0.90);
+  --surface-glass-border: #E2E8F0;
+  --surface-glass-hover:  rgba(248, 250, 252, 0.95);
 
   /* Typography scale */
   --text-fluid-xs:   clamp(0.70rem, 0.65rem + 0.25vw, 0.80rem);
@@ -66,8 +66,8 @@
   }
 
   body {
-    background-color: #0B0C0E;
-    @apply text-slate-100;
+    background-color: #F8FAFC;
+    @apply text-on-surface;
     font-size: var(--text-fluid-base);
     overflow-x: hidden;
   }
@@ -102,12 +102,11 @@
 /* ─── Component layer ────────────────────────────────────────────────── */
 @layer components {
 
-  /* Glass card */
+  /* Glass card — now light */
   .glass-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px) saturate(150%);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   }
 
   /* Light glass (for modals on dark bg) */
@@ -131,18 +130,18 @@
   .glow-purple{ box-shadow: 0 0 24px rgba(104, 186, 127, 0.35); }
   .glow-green { box-shadow: 0 0 24px rgba(46, 111, 64, 0.45); }
 
-  /* Input field — shared style */
+  /* Input field — light theme */
   .input-field {
     @apply w-full border rounded-xl
-           px-4 py-3 text-white placeholder-slate-500
+           px-4 py-3 text-on-surface placeholder:text-slate-400
            focus:outline-none
            transition-all duration-200;
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.10);
+    background: #F8FAFC;
+    border-color: #E2E8F0;
   }
   .input-field:focus {
-    box-shadow: 0 0 0 2px rgba(46, 111, 64, 0.35);
-    border-color: rgba(104, 186, 127, 0.45);
+    box-shadow: 0 0 0 2px rgba(0, 255, 148, 0.15);
+    border-color: rgba(0, 255, 148, 0.5);
   }
 
   .input-field-light {
@@ -169,16 +168,16 @@
 
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2
-           bg-white/5 hover:bg-white/10
-           border border-white/10 hover:border-white/20
-           text-white font-medium rounded-xl px-6 py-3
+           bg-surface hover:bg-white
+           border border-outline-variant hover:border-accent/30
+           text-primary font-medium rounded-xl px-6 py-3
            transition-all duration-200;
   }
 
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2
-           text-slate-400 hover:text-white
-           hover:bg-white/5 rounded-lg px-3 py-2
+           text-slate-500 hover:text-primary
+           hover:bg-surface rounded-lg px-3 py-2
            transition-all duration-150;
   }
 
@@ -187,11 +186,11 @@
     @apply inline-flex items-center gap-1.5 rounded-full
            px-3 py-1 text-xs font-semibold tracking-wide;
   }
-  .badge-blue   { @apply badge border; background: rgba(46,111,64,0.15); color: #68BA7F; border-color: rgba(104,186,127,0.25); }
-  .badge-green  { @apply badge border; background: rgba(46,111,64,0.15); color: #CFFFDC; border-color: rgba(207,255,220,0.25); }
-  .badge-purple { @apply badge border; background: rgba(104,186,127,0.12); color: #68BA7F; border-color: rgba(104,186,127,0.25); }
-  .badge-amber  { @apply badge bg-amber-500/15 text-amber-300 border border-amber-500/25; }
-  .badge-red    { @apply badge bg-red-500/15 text-red-300 border border-red-500/25; }
+  .badge-blue   { @apply badge border; background: rgba(0,255,148,0.08); color: #006d43; border-color: rgba(0,109,67,0.20); }
+  .badge-green  { @apply badge border; background: rgba(0,255,148,0.08); color: #006d43; border-color: rgba(0,255,148,0.25); }
+  .badge-purple { @apply badge border; background: rgba(0,255,148,0.06); color: #006d43; border-color: rgba(0,109,67,0.18); }
+  .badge-amber  { @apply badge bg-amber-50 text-amber-700 border border-amber-200; }
+  .badge-red    { @apply badge bg-red-50 text-red-600 border border-red-200; }
 
   /* Status dot */
   .status-dot          { @apply w-2 h-2 rounded-full; }
@@ -201,13 +200,13 @@
 
   /* Skeleton loader */
   .skeleton {
-    @apply rounded-lg bg-white/5;
+    @apply rounded-lg;
     animation: skeleton-shimmer 1.8s ease-in-out infinite;
     background: linear-gradient(
       90deg,
-      rgba(255,255,255,0.04) 0%,
-      rgba(255,255,255,0.09) 50%,
-      rgba(255,255,255,0.04) 100%
+      #E2E8F0 0%,
+      #F1F5F9 50%,
+      #E2E8F0 100%
     );
     background-size: 200% 100%;
   }

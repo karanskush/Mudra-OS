@@ -36,7 +36,7 @@ class ApiClient {
 
   constructor() {
     // Use environment variable or default to localhost
-    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:47291';
   }
 
   // Get authentication token from localStorage

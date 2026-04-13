@@ -4,7 +4,56 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MudraCore OS - Ultra-Lean Platform for Modern Finance</title>
+    <title>MudraCore OS | The Engine of Modern Finance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        font-family: 'Material Symbols Outlined';
+        font-style: normal;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+      }
+      .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 1.5rem;
+      }
+      .pulse-line {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        animation: dash 3s linear infinite;
+      }
+      @keyframes dash {
+        to { stroke-dashoffset: 0; }
+      }
+      .marquee {
+        display: flex;
+        overflow: hidden;
+        user-select: none;
+        gap: 4rem;
+      }
+      .marquee-content {
+        flex-shrink: 0;
+        display: flex;
+        justify-content: space-around;
+        min-width: 100%;
+        gap: 4rem;
+        animation: scroll 30s linear infinite;
+      }
+      @keyframes scroll {
+        from { transform: translateX(0); }
+        to { transform: translateX(calc(-100% - 4rem)); }
+      }
+    </style>
     <meta name="description" content="Build production-ready fintech applications with our comprehensive platform. Core ledger, payment orchestration, KYC automation, and compliance reporting in one place." />
     <meta name="keywords" content="fintech, payment processing, core banking, ledger system, KYC automation, compliance, API platform" />
     

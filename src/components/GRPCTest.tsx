@@ -147,7 +147,7 @@ const GRPCTest: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'text-brand-300';
+      case 'success': return 'text-secondary';
       case 'error': return 'text-red-600';
       case 'pending': return 'text-yellow-600';
       default: return 'text-gray-600';
@@ -156,7 +156,7 @@ const GRPCTest: React.FC = () => {
 
   const getConnectionColor = () => {
     switch (connectionStatus) {
-      case 'connected': return 'text-brand-300';
+      case 'connected': return 'text-secondary';
       case 'disconnected': return 'text-red-600';
       case 'checking': return 'text-yellow-600';
       default: return 'text-gray-600';
@@ -203,7 +203,7 @@ const GRPCTest: React.FC = () => {
           
           <button
             onClick={checkConnection}
-            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            className="px-3 py-1 text-sm bg-blue-500 text-primary rounded hover:bg-blue-600 transition-colors"
           >
             Refresh
           </button>
@@ -217,7 +217,7 @@ const GRPCTest: React.FC = () => {
           className={`px-6 py-3 rounded-lg font-medium transition-colors ${
             isRunning || connectionStatus === 'disconnected'
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-brand-500 text-white hover:bg-brand-500'
+              : 'bg-brand-500 text-primary hover:bg-brand-500'
           }`}
         >
           {isRunning ? 'Running Tests...' : 'Run All Tests'}

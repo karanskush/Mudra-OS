@@ -58,20 +58,17 @@ const GRPCPerformanceDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="glass-card rounded-3xl p-8">
+    <div className="bg-white border border-outline-variant rounded-3xl p-8 shadow-premium">
       <div className="flex items-center justify-between mb-8">
-        <h3 className="text-xl font-bold text-white flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #2E6F40, #68BA7F)' }}
-          >
-            <Zap className="h-5 w-5 text-white" />
+        <h3 className="text-xl font-bold text-primary flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary">
+            <Zap className="h-5 w-5 text-accent" />
           </div>
           Real-time Performance Intelligence
         </h3>
         <div className="flex items-center gap-2">
-          <span className="status-dot-online" />
-          <span className="text-xs" style={{ color: '#68BA7F' }}>Live</span>
+          <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+          <span className="text-xs font-medium text-secondary">Live</span>
         </div>
       </div>
 
@@ -82,17 +79,17 @@ const GRPCPerformanceDashboard: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: i * 0.07 }}
-            className="glass-card rounded-2xl p-4"
+            className="bg-surface border border-outline-variant rounded-2xl p-4"
           >
-            <div className="text-xs uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{metric.label}</div>
-            <div className="text-xl font-bold text-white mb-1.5">{metric.value}</div>
+            <div className="text-xs uppercase tracking-wider mb-1 text-slate-400">{metric.label}</div>
+            <div className="text-xl font-bold text-primary mb-1.5">{metric.value}</div>
             <div className={`text-xs flex items-center gap-1 ${
-              metric.trend === 'up'     ? 'text-brand-300' :
-              metric.trend === 'down'   ? 'text-red-400'     : 'text-slate-500'
+              metric.trend === 'up'   ? 'text-secondary' :
+              metric.trend === 'down' ? 'text-red-500'   : 'text-slate-400'
             }`}>
               <div className={`w-1.5 h-1.5 rounded-full ${
-                metric.trend === 'up'   ? 'bg-brand-300' :
-                metric.trend === 'down' ? 'bg-red-400'     : 'bg-slate-500'
+                metric.trend === 'up'   ? 'bg-secondary' :
+                metric.trend === 'down' ? 'bg-red-500'   : 'bg-slate-300'
               }`} />
               {metric.trend === 'up' ? '↗' : metric.trend === 'down' ? '↘' : '→'}
             </div>
@@ -100,9 +97,9 @@ const GRPCPerformanceDashboard: React.FC = () => {
         ))}
       </div>
 
-      <div className="glass-card rounded-2xl p-6">
-        <h4 className="text-sm font-semibold text-white flex items-center gap-2 mb-4">
-          <Sparkles className="h-4 w-4" style={{ color: '#68BA7F' }} />
+      <div className="bg-surface border border-outline-variant rounded-2xl p-6">
+        <h4 className="text-sm font-semibold text-primary flex items-center gap-2 mb-4">
+          <Sparkles className="h-4 w-4 text-secondary" />
           AI Performance Insights
         </h4>
         <div className="space-y-2.5">
@@ -112,11 +109,10 @@ const GRPCPerformanceDashboard: React.FC = () => {
               initial={{ opacity: 0, x: -16 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: i * 0.12 }}
-              className="flex items-center gap-3 p-3 rounded-xl transition-colors"
-              style={{ background: 'rgba(255,255,255,0.03)' }}
+              className="flex items-center gap-3 p-3 rounded-xl bg-white border border-outline-variant/50"
             >
-              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: '#68BA7F' }} />
-              <span className="text-sm" style={{ color: 'rgba(255,255,255,0.72)' }}>{insight}</span>
+              <div className="w-2 h-2 rounded-full flex-shrink-0 bg-accent" />
+              <span className="text-sm text-slate-600">{insight}</span>
             </motion.div>
           ))}
         </div>
@@ -130,16 +126,16 @@ const InteractiveStreamTopology: React.FC = () => {
   const [streamFlow, setStreamFlow] = useState(true);
 
   const nodes = [
-    { id: 'client',    label: 'Client Apps',           x: 100, y: 150, connections: ['gateway'] },
-    { id: 'gateway',   label: 'gRPC Gateway',          x: 250, y: 150, connections: ['lb'] },
-    { id: 'lb',        label: 'Load Balancer',         x: 400, y: 150, connections: ['payment', 'webhook', 'recon'] },
-    { id: 'payment',   label: 'Payment Stream',        x: 550, y: 100, connections: ['ml', 'db'] },
-    { id: 'webhook',   label: 'Webhook Stream',        x: 550, y: 150, connections: ['analytics', 'db'] },
-    { id: 'recon',     label: 'Reconciliation',        x: 550, y: 200, connections: ['ml', 'db'] },
-    { id: 'ml',        label: 'AI/ML Engine',          x: 700, y: 100, connections: ['insights'] },
-    { id: 'analytics', label: 'Analytics',             x: 700, y: 150, connections: ['insights'] },
-    { id: 'db',        label: 'Database',              x: 700, y: 200, connections: [] },
-    { id: 'insights',  label: 'Insights Dashboard',   x: 850, y: 125, connections: [] },
+    { id: 'client',    label: 'Client Apps',         x: 100, y: 150, connections: ['gateway'] },
+    { id: 'gateway',   label: 'gRPC Gateway',        x: 250, y: 150, connections: ['lb'] },
+    { id: 'lb',        label: 'Load Balancer',       x: 400, y: 150, connections: ['payment', 'webhook', 'recon'] },
+    { id: 'payment',   label: 'Payment Stream',      x: 550, y: 100, connections: ['ml', 'db'] },
+    { id: 'webhook',   label: 'Webhook Stream',      x: 550, y: 150, connections: ['analytics', 'db'] },
+    { id: 'recon',     label: 'Reconciliation',      x: 550, y: 200, connections: ['ml', 'db'] },
+    { id: 'ml',        label: 'AI/ML Engine',        x: 700, y: 100, connections: ['insights'] },
+    { id: 'analytics', label: 'Analytics',           x: 700, y: 150, connections: ['insights'] },
+    { id: 'db',        label: 'Database',            x: 700, y: 200, connections: [] },
+    { id: 'insights',  label: 'Insights Dashboard', x: 850, y: 125, connections: [] },
   ];
 
   const nodeDescriptions: Record<string, string> = {
@@ -156,29 +152,27 @@ const InteractiveStreamTopology: React.FC = () => {
   };
 
   return (
-    <div className="glass-card rounded-3xl p-8">
+    <div className="bg-white border border-outline-variant rounded-3xl p-8 shadow-premium">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-white flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #2E6F40, #68BA7F)' }}
-          >
-            <Map className="h-5 w-5 text-white" />
+        <h3 className="text-xl font-bold text-primary flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary">
+            <Map className="h-5 w-5 text-accent" />
           </div>
           Interactive Stream Topology
         </h3>
         <button
           onClick={() => setStreamFlow(v => !v)}
-          className="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-          style={streamFlow
-            ? { background: 'rgba(46,111,64,0.25)', color: '#CFFFDC', border: '1px solid rgba(104,186,127,0.3)' }
-            : { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
+            streamFlow
+              ? 'bg-accent/10 text-secondary border-accent/30'
+              : 'bg-surface text-slate-500 border-outline-variant'
+          }`}
         >
           {streamFlow ? 'Pause Flow' : 'Resume Flow'}
         </button>
       </div>
 
-      <div className="relative rounded-2xl p-4 h-80 overflow-hidden" style={{ background: 'rgba(0,0,0,0.25)' }}>
+      <div className="relative rounded-2xl p-4 h-80 overflow-hidden bg-surface border border-outline-variant">
         <svg className="w-full h-full" viewBox="0 0 1000 300">
           {nodes.map(node =>
             node.connections.map(targetId => {
@@ -189,11 +183,11 @@ const InteractiveStreamTopology: React.FC = () => {
                   <line
                     x1={node.x + 60} y1={node.y + 15}
                     x2={target.x}    y2={target.y + 15}
-                    stroke="rgba(104,186,127,0.20)" strokeWidth="1.5"
+                    stroke="rgba(0,109,67,0.20)" strokeWidth="1.5"
                   />
                   {streamFlow && (
                     <motion.circle
-                      r="3" fill="rgba(104,186,127,0.8)"
+                      r="3" fill="rgba(0,255,148,0.8)"
                       initial={{ cx: node.x + 60, cy: node.y + 15 }}
                       animate={{ cx: [node.x + 60, target.x], cy: [node.y + 15, target.y + 15] }}
                       transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
@@ -215,8 +209,12 @@ const InteractiveStreamTopology: React.FC = () => {
                 onMouseLeave={() => setSelectedNode(null)}
               >
                 <div
-                  className="w-full h-full rounded-lg flex items-center justify-center text-white text-xs font-medium"
-                  style={{ background: 'linear-gradient(135deg, rgba(46,111,64,0.7), rgba(104,186,127,0.5))', border: '1px solid rgba(104,186,127,0.35)' }}
+                  className="w-full h-full rounded-lg flex items-center justify-center text-xs font-medium"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(0,109,67,0.12), rgba(0,255,148,0.08))',
+                    border: '1px solid rgba(0,109,67,0.25)',
+                    color: '#006d43',
+                  }}
                 >
                   {node.label}
                 </div>
@@ -231,13 +229,12 @@ const InteractiveStreamTopology: React.FC = () => {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8 }}
-              className="absolute bottom-4 left-4 p-4 rounded-xl"
-              style={{ background: 'rgba(11,12,14,0.90)', border: '1px solid rgba(104,186,127,0.25)' }}
+              className="absolute bottom-4 left-4 p-4 rounded-xl bg-white border border-outline-variant shadow-lg"
             >
-              <div className="text-sm font-semibold text-white mb-1">
+              <div className="text-sm font-semibold text-primary mb-1">
                 {nodes.find(n => n.id === selectedNode)?.label}
               </div>
-              <div className="text-xs max-w-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              <div className="text-xs text-slate-500 max-w-xs">
                 {nodeDescriptions[selectedNode]}
               </div>
             </motion.div>
@@ -251,51 +248,48 @@ const InteractiveStreamTopology: React.FC = () => {
 const StatusPage: React.FC = () => {
   const { health, databaseInfo, lastUpdated } = useHealth();
 
-  const statusColor = health?.status === 'ok' ? 'text-brand-300' : health?.status === 'degraded' ? 'text-amber-400' : 'text-red-400';
+  const statusColor = health?.status === 'ok' ? 'text-secondary' : health?.status === 'degraded' ? 'text-amber-500' : 'text-red-500';
   const statusIcon  = health?.status === 'ok'
-    ? <CheckCircle className="h-7 w-7 text-brand-300" />
+    ? <CheckCircle className="h-7 w-7 text-secondary" />
     : health?.status === 'degraded'
-      ? <AlertTriangle className="h-7 w-7 text-amber-400" />
-      : <XCircle className="h-7 w-7 text-red-400" />;
+      ? <AlertTriangle className="h-7 w-7 text-amber-500" />
+      : <XCircle className="h-7 w-7 text-red-500" />;
 
   const summaryCards = [
     {
-      label: 'Overall Status',
-      value: health?.status?.toUpperCase() || 'UNKNOWN',
+      label:      'Overall Status',
+      value:      health?.status?.toUpperCase() || 'UNKNOWN',
       valueClass: statusColor,
-      icon: statusIcon,
+      icon:       statusIcon,
     },
     {
-      label: 'Uptime',
-      value: '99.99%',
-      valueClass: 'text-brand-300',
-      icon: <TrendingUp className="h-7 w-7 text-brand-300" />,
+      label:      'Uptime',
+      value:      '99.99%',
+      valueClass: 'text-secondary',
+      icon:       <TrendingUp className="h-7 w-7 text-secondary" />,
     },
     {
-      label: 'Response Time',
-      value: '45ms',
-      valueClass: 'text-[#68BA7F]',
-      icon: <Activity className="h-7 w-7" style={{ color: '#68BA7F' }} />,
+      label:      'Response Time',
+      value:      '45ms',
+      valueClass: 'text-secondary',
+      icon:       <Activity className="h-7 w-7 text-secondary" />,
     },
   ];
 
   return (
-    <div className="min-h-screen section-pad" style={{ background: '#0B0C0E' }}>
+    <div className="min-h-screen py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
         <div className="text-center mb-14">
-          <div
-            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-6 text-xs font-semibold tracking-widest uppercase"
-            style={{ background: 'rgba(46,111,64,0.10)', border: '1px solid rgba(104,186,127,0.18)', color: '#68BA7F' }}
-          >
+          <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-6 text-xs font-semibold tracking-widest uppercase bg-accent/10 border border-accent/20 text-secondary">
             <Radio className="h-3 w-3" />
             System Status
           </div>
-          <h1 className="text-4xl font-bold text-white mb-3">
-            Platform
-            <span className="ml-3" style={{
-              background: 'linear-gradient(95deg, #ffffff 0%, #CFFFDC 45%, #68BA7F 100%)',
+          <h1 className="text-4xl font-black text-primary mb-3 tracking-tight">
+            Platform{' '}
+            <span style={{
+              background: 'linear-gradient(95deg, #0A1128 0%, #006d43 45%, #00FF94 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
@@ -303,11 +297,11 @@ const StatusPage: React.FC = () => {
               Infrastructure
             </span>
           </h1>
-          <p className="text-base" style={{ color: 'rgba(255,255,255,0.40)' }}>
+          <p className="text-base text-slate-500">
             Real-time monitoring of our MudraCore platform
           </p>
           {lastUpdated && (
-            <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.25)' }}>
+            <p className="text-xs mt-2 text-slate-400">
               Last updated: {lastUpdated.toLocaleString()}
             </p>
           )}
@@ -321,10 +315,10 @@ const StatusPage: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07, duration: 0.5 }}
-              className="glass-card rounded-2xl p-6 flex items-center justify-between"
+              className="bg-white border border-outline-variant rounded-2xl shadow-premium p-6 flex items-center justify-between"
             >
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider mb-1.5" style={{ color: 'rgba(255,255,255,0.38)' }}>{card.label}</p>
+                <p className="text-xs font-medium uppercase tracking-wider mb-1.5 text-slate-400">{card.label}</p>
                 <p className={`text-2xl font-bold ${card.valueClass}`}>{card.value}</p>
               </div>
               {card.icon}
@@ -340,18 +334,18 @@ const StatusPage: React.FC = () => {
 
           <div className="space-y-5">
             {/* Backend Services */}
-            <div className="glass-card rounded-2xl p-6">
+            <div className="bg-white border border-outline-variant rounded-2xl shadow-premium p-6">
               <div className="flex items-center gap-2 mb-5">
-                <Server className="h-4 w-4" style={{ color: '#68BA7F' }} />
-                <h3 className="text-base font-semibold text-white">Backend Services</h3>
+                <Server className="h-4 w-4 text-secondary" />
+                <h3 className="text-base font-semibold text-primary">Backend Services</h3>
               </div>
               <div className="space-y-3">
                 {['API Gateway', 'Authentication', 'Payment Processing'].map(svc => (
                   <div key={svc} className="flex items-center justify-between">
-                    <span className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>{svc}</span>
+                    <span className="text-sm text-slate-500">{svc}</span>
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-brand-500 rounded-full" />
-                      <span className="text-sm font-medium text-brand-300">Operational</span>
+                      <div className="w-2 h-2 bg-accent rounded-full" />
+                      <span className="text-sm font-medium text-secondary">Operational</span>
                     </div>
                   </div>
                 ))}
@@ -359,10 +353,10 @@ const StatusPage: React.FC = () => {
             </div>
 
             {/* Database */}
-            <div className="glass-card rounded-2xl p-6">
+            <div className="bg-white border border-outline-variant rounded-2xl shadow-premium p-6">
               <div className="flex items-center gap-2 mb-5">
-                <Database className="h-4 w-4" style={{ color: '#68BA7F' }} />
-                <h3 className="text-base font-semibold text-white">Neon Database</h3>
+                <Database className="h-4 w-4 text-secondary" />
+                <h3 className="text-base font-semibold text-primary">Neon Database</h3>
               </div>
               {databaseInfo ? (
                 <div className="space-y-3">
@@ -373,26 +367,26 @@ const StatusPage: React.FC = () => {
                     { label: 'SSL/TLS',         value: 'Enabled', ok: true },
                   ].map(row => (
                     <div key={row.label} className="flex items-center justify-between">
-                      <span className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>{row.label}</span>
-                      <span className={`text-sm font-medium ${row.ok ? 'text-brand-300' : 'text-red-400'}`}>{row.value}</span>
+                      <span className="text-sm text-slate-500">{row.label}</span>
+                      <span className={`text-sm font-medium ${row.ok ? 'text-secondary' : 'text-red-500'}`}>{row.value}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>Database information unavailable</p>
+                <p className="text-sm text-slate-400">Database information unavailable</p>
               )}
             </div>
 
             {/* Recent Incidents */}
-            <div className="glass-card rounded-2xl p-6">
+            <div className="bg-white border border-outline-variant rounded-2xl shadow-premium p-6">
               <div className="flex items-center gap-2 mb-5">
-                <Clock className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.35)' }} />
-                <h3 className="text-base font-semibold text-white">Recent Incidents</h3>
+                <Clock className="h-4 w-4 text-slate-400" />
+                <h3 className="text-base font-semibold text-primary">Recent Incidents</h3>
               </div>
               <div className="text-center py-6">
-                <CheckCircle className="h-10 w-10 text-brand-400 mx-auto mb-3" />
-                <p className="text-sm text-white font-medium">No incidents reported</p>
-                <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>All systems operational</p>
+                <CheckCircle className="h-10 w-10 text-secondary mx-auto mb-3" />
+                <p className="text-sm text-primary font-medium">No incidents reported</p>
+                <p className="text-xs mt-1 text-slate-400">All systems operational</p>
               </div>
             </div>
           </div>
@@ -410,9 +404,9 @@ const StatusPage: React.FC = () => {
 
         {/* Footer note */}
         <div className="text-center">
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.30)' }}>
+          <p className="text-sm text-slate-400">
             For real-time updates, follow our{' '}
-            <a href="#status" style={{ color: '#68BA7F' }} className="hover:underline">
+            <a href="#status" className="text-secondary hover:underline">
               status page
             </a>{' '}
             or contact support.

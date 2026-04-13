@@ -1,6 +1,6 @@
 // Market data API client — wraps the backend's free public market endpoints
 
-const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8080';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:47291';
 
 export interface FXRates {
   success: boolean;

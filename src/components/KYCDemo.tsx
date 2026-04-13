@@ -40,14 +40,14 @@ const KYCDemo: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6">
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20  border border-outline-variant rounded-full px-6 py-3 mb-6">
             <Sparkles className="h-5 w-5 text-blue-400" />
-            <span className="text-white/90 font-medium">Enhanced KYC Demo</span>
+            <span className="text-primary font-medium">Enhanced KYC Demo</span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl md:text-6xl font-bold text-primary mb-4">
             Global Identity Verification
           </h1>
-          <p className="text-white/70 text-lg md:text-xl max-w-3xl mx-auto mb-8">
+          <p className="text-slate-500 text-lg md:text-xl max-w-3xl mx-auto mb-8">
             Experience next-generation KYC with support for 220+ countries, powered by Didit's 
             AI-driven verification technology and enterprise-grade security.
           </p>
@@ -66,13 +66,13 @@ const KYCDemo: React.FC = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 + index * 0.1 }}
-              className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 text-center"
+              className="bg-surface  border border-outline-variant rounded-2xl p-6 text-center"
             >
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <stat.icon className="h-6 w-6 text-white" />
+                <stat.icon className="h-6 w-6 text-primary" />
               </div>
-              <div className="text-2xl md:text-3xl font-bold text-white mb-2">{stat.value}</div>
-              <div className="text-white/60 text-sm">{stat.label}</div>
+              <div className="text-2xl md:text-3xl font-bold text-primary mb-2">{stat.value}</div>
+              <div className="text-slate-500 text-sm">{stat.label}</div>
             </motion.div>
           ))}
         </motion.div>
@@ -87,8 +87,8 @@ const KYCDemo: React.FC = () => {
             transition={{ delay: 0.4 }}
             className="space-y-6"
           >
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 overflow-visible">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+            <div className="bg-surface  border border-outline-variant rounded-2xl p-8 overflow-visible">
+              <h2 className="text-2xl font-bold text-primary mb-6 flex items-center gap-3">
                 <Globe className="h-6 w-6 text-blue-400" />
                 Step 1: Select Your Country
               </h2>
@@ -104,9 +104,9 @@ const KYCDemo: React.FC = () => {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   transition={{ delay: 0.2 }}
-                  className="mt-6 p-6 bg-white/5 rounded-xl border border-white/10"
+                  className="mt-6 p-6 bg-surface rounded-xl border border-outline-variant"
                 >
-                  <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                  <h3 className="text-primary font-semibold mb-4 flex items-center gap-2">
                     <FileText className="h-5 w-5 text-purple-400" />
                     Available Documents for {selectedCountry.country}
                   </h3>
@@ -114,10 +114,10 @@ const KYCDemo: React.FC = () => {
                     {getAvailableDocuments(selectedCountry.countryCode).map((docType) => (
                       <div
                         key={docType}
-                        className="flex items-center gap-2 p-3 bg-white/5 rounded-lg border border-white/10"
+                        className="flex items-center gap-2 p-3 bg-surface rounded-lg border border-outline-variant"
                       >
-                        <Check className="h-4 w-4 text-brand-300" />
-                        <span className="text-white/80 text-sm">{formatDocumentName(docType)}</span>
+                        <Check className="h-4 w-4 text-secondary" />
+                        <span className="text-slate-700 text-sm">{formatDocumentName(docType)}</span>
                       </div>
                     ))}
                   </div>
@@ -133,25 +133,25 @@ const KYCDemo: React.FC = () => {
             transition={{ delay: 0.6 }}
             className="space-y-6"
           >
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                <Shield className="h-6 w-6 text-brand-300" />
+            <div className="bg-surface  border border-outline-variant rounded-2xl p-8">
+              <h2 className="text-2xl font-bold text-primary mb-6 flex items-center gap-3">
+                <Shield className="h-6 w-6 text-secondary" />
                 Step 2: Document Verification
               </h2>
 
               {!selectedCountry ? (
                 <div className="text-center py-12">
-                  <Globe className="h-16 w-16 text-white/30 mx-auto mb-4" />
-                  <p className="text-white/60">Select a country to begin verification</p>
+                  <Globe className="h-16 w-16 text-primary/30 mx-auto mb-4" />
+                  <p className="text-slate-500">Select a country to begin verification</p>
                 </div>
               ) : !verificationComplete ? (
                 <div className="space-y-6">
                   <div className="text-center">
                     <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <FileText className="h-10 w-10 text-white" />
+                      <FileText className="h-10 w-10 text-primary" />
                     </div>
-                    <h3 className="text-white font-semibold mb-2">Ready to Verify</h3>
-                    <p className="text-white/70 text-sm mb-6">
+                    <h3 className="text-primary font-semibold mb-2">Ready to Verify</h3>
+                    <p className="text-slate-500 text-sm mb-6">
                       Upload your {formatDocumentName(getAvailableDocuments(selectedCountry.countryCode)[0])} 
                       to start the verification process
                     </p>
@@ -160,7 +160,7 @@ const KYCDemo: React.FC = () => {
                   <motion.button
                     onClick={handleStartVerification}
                     disabled={isVerifying}
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg shadow-blue-500/25"
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-primary font-semibold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg shadow-blue-500/25"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -169,7 +169,7 @@ const KYCDemo: React.FC = () => {
                         <motion.div
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                          className="w-5 h-5 border-2 border-outline-variant border-t-white rounded-full"
                         />
                         Verifying with Didit AI...
                       </>
@@ -188,26 +188,26 @@ const KYCDemo: React.FC = () => {
                   className="text-center py-8"
                 >
                   <div className="w-20 h-20 bg-gradient-to-r from-brand-500 to-brand-300 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Check className="h-10 w-10 text-white" />
+                    <Check className="h-10 w-10 text-primary" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">Verification Complete!</h3>
+                  <h3 className="text-2xl font-bold text-primary mb-4">Verification Complete!</h3>
                   <div className="bg-brand-500/15 border border-brand-500/25 rounded-xl p-6 space-y-4">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="text-left">
-                        <div className="text-white/60">Document Type:</div>
-                        <div className="text-white font-medium">Passport</div>
+                        <div className="text-slate-500">Document Type:</div>
+                        <div className="text-primary font-medium">Passport</div>
                       </div>
                       <div className="text-left">
-                        <div className="text-white/60">Status:</div>
-                        <div className="text-brand-300 font-medium">Verified ✓</div>
+                        <div className="text-slate-500">Status:</div>
+                        <div className="text-secondary font-medium">Verified ✓</div>
                       </div>
                       <div className="text-left">
-                        <div className="text-white/60">Risk Score:</div>
-                        <div className="text-white font-medium">Low (95/100)</div>
+                        <div className="text-slate-500">Risk Score:</div>
+                        <div className="text-primary font-medium">Low (95/100)</div>
                       </div>
                       <div className="text-left">
-                        <div className="text-white/60">Processing Time:</div>
-                        <div className="text-white font-medium">1.2s</div>
+                        <div className="text-slate-500">Processing Time:</div>
+                        <div className="text-primary font-medium">1.2s</div>
                       </div>
                     </div>
                   </div>
@@ -216,8 +216,8 @@ const KYCDemo: React.FC = () => {
             </div>
 
             {/* Features List */}
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+            <div className="bg-surface  border border-outline-variant rounded-2xl p-6">
+              <h3 className="text-primary font-semibold mb-4 flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-yellow-400" />
                 Key Features
               </h3>
@@ -235,7 +235,7 @@ const KYCDemo: React.FC = () => {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.8 + index * 0.1 }}
-                    className="flex items-center gap-3 text-white/80 text-sm"
+                    className="flex items-center gap-3 text-slate-700 text-sm"
                   >
                     <div className="w-2 h-2 bg-blue-400 rounded-full" />
                     {feature}
@@ -253,16 +253,16 @@ const KYCDemo: React.FC = () => {
           transition={{ delay: 1 }}
           className="text-center mt-16"
         >
-          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-8">
-            <h2 className="text-2xl font-bold text-white mb-4">Ready to implement?</h2>
-            <p className="text-white/70 mb-6">
+          <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20  border border-outline-variant rounded-2xl p-8">
+            <h2 className="text-2xl font-bold text-primary mb-4">Ready to implement?</h2>
+            <p className="text-slate-500 mb-6">
               Integrate this enhanced KYC system into your application with our comprehensive documentation.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300">
+              <button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-primary font-semibold py-3 px-6 rounded-xl transition-all duration-300">
                 View Documentation
               </button>
-              <button className="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-xl border border-white/20 transition-all duration-300">
+              <button className="bg-surface hover:bg-white text-primary font-semibold py-3 px-6 rounded-xl border border-outline-variant transition-all duration-300">
                 Get API Key
               </button>
             </div>

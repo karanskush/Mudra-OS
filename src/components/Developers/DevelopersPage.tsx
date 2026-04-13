@@ -1,165 +1,205 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { 
-  BeakerIcon,
-  DocumentTextIcon,
-  CodeBracketIcon,
-  RocketLaunchIcon,
-  ArrowRightIcon
-} from '@heroicons/react/24/outline';
+import { Beaker, FileText, Code2, Rocket, ArrowRight, Zap, Shield, Globe, Terminal } from 'lucide-react';
 
-const DevelopersPage: React.FC = () => {
-  return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Fixed spacing from navbar */}
-      <div className="pt-16 sm:pt-20">
-        {/* Hero Section */}
-        <section className="relative py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center mb-12 lg:mb-16"
-            >
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 leading-tight">
-                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  Developer Hub
-                </span>
-              </h1>
-              <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed px-4">
-                Build the future of finance with our comprehensive developer platform
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                <Link
-                  to="/developers/api-explorer"
-                  className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
-                >
-                  <BeakerIcon className="h-5 w-5 mr-2" />
-                  Explore APIs
-                  <ArrowRightIcon className="h-5 w-5 ml-2" />
-                </Link>
-                <button className="inline-flex items-center px-8 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300">
-                  <DocumentTextIcon className="h-5 w-5 mr-2" />
-                  View Documentation
-                </button>
-              </div>
-            </motion.div>
+const resources = [
+  {
+    title: 'API Explorer',
+    description: 'Interactive playground to explore and test our comprehensive REST & gRPC APIs',
+    icon: Beaker,
+    link: '/developers/api-explorer',
+    badge: 'Interactive',
+  },
+  {
+    title: 'Documentation',
+    description: 'Complete guides, tutorials, and reference materials for every endpoint',
+    icon: FileText,
+    link: '#',
+    badge: 'Reference',
+  },
+  {
+    title: 'Code Examples',
+    description: 'Ready-to-use code snippets, SDKs, and integration samples',
+    icon: Code2,
+    link: '#',
+    badge: 'SDK',
+  },
+  {
+    title: 'Quick Start',
+    description: 'Get up and running with MudraCore OS in under 5 minutes',
+    icon: Rocket,
+    link: '#',
+    badge: '5 min',
+  },
+];
+
+const capabilities = [
+  {
+    icon: Zap,
+    title: 'REST + gRPC',
+    description: 'Dual protocol support — low-latency gRPC for high-throughput and familiar REST for flexibility.',
+  },
+  {
+    icon: Shield,
+    title: 'JWT Auth',
+    description: 'Industry-standard JWT tokens with refresh logic, rate limiting, and RBAC out of the box.',
+  },
+  {
+    icon: Globe,
+    title: 'Global CDN',
+    description: 'Requests routed to the nearest edge node for sub-20ms response times worldwide.',
+  },
+  {
+    icon: Terminal,
+    title: 'Webhooks',
+    description: 'Real-time event streams via signed webhooks with replay, filtering, and retry logic.',
+  },
+];
+
+const DevelopersPage: React.FC = () => (
+  <div className="min-h-screen">
+    {/* Hero */}
+    <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-14"
+        >
+          <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-6 text-xs font-semibold tracking-widest uppercase bg-accent/10 border border-accent/20 text-secondary">
+            <Code2 className="h-3 w-3" />
+            Developer Hub
           </div>
-        </section>
-
-        {/* Developer Resources */}
-        <section className="py-12 sm:py-16 lg:py-10 px-4 sm:px-6 lg:px-8 relative">
-          <div className="max-w-7xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center mb-12 lg:mb-16"
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-primary mb-5 tracking-tight">
+            Build the future{' '}
+            <span style={{
+              background: 'linear-gradient(95deg, #0A1128 0%, #006d43 50%, #00FF94 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
+              of finance
+            </span>
+          </h1>
+          <p className="text-lg text-slate-500 max-w-3xl mx-auto leading-relaxed">
+            Everything you need to integrate MudraCore OS into your applications — REST APIs, gRPC streams, webhooks, and SDKs.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <Link
+              to="/developers/api-explorer"
+              className="inline-flex items-center gap-2 px-7 py-3.5 bg-primary text-white font-bold rounded-xl hover:shadow-lg hover:shadow-primary/20 active:scale-95 transition-all"
             >
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Developer Resources
-              </h2>
-              <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                Everything you need to integrate our MudraCore platform into your applications
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-              {[
-                {
-                  title: '🧪 API Explorer',
-                  description: 'Interactive playground to explore our comprehensive APIs',
-                  icon: BeakerIcon,
-                  link: '/developers/api-explorer',
-                  color: 'from-purple-500 to-indigo-600'
-                },
-                {
-                  title: '📚 Documentation',
-                  description: 'Complete guides and reference materials',
-                  icon: DocumentTextIcon,
-                  link: '/developers/docs',
-                  color: 'from-blue-500 to-cyan-600'
-                },
-                {
-                  title: '💻 Code Examples',
-                  description: 'Ready-to-use code snippets and SDKs',
-                  icon: CodeBracketIcon,
-                  link: '/developers/examples',
-                  color: 'from-brand-500 to-brand-300'
-                },
-                {
-                  title: '🚀 Quick Start',
-                  description: 'Get up and running in under 5 minutes',
-                  icon: RocketLaunchIcon,
-                  link: '/developers/quickstart',
-                  color: 'from-orange-500 to-red-600'
-                }
-              ].map((resource, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                >
-                  <Link
-                    to={resource.link}
-                    className="block p-6 lg:p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-700 transition-all duration-300 group"
-                  >
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className={`w-12 h-12 bg-gradient-to-r ${resource.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                        <resource.icon className="h-6 w-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {resource.title}
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-300 mt-1">
-                          {resource.description}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
+              <Beaker className="h-4 w-4" />
+              Explore APIs
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <button className="inline-flex items-center gap-2 px-7 py-3.5 border border-outline-variant text-primary font-bold rounded-xl hover:bg-surface active:scale-95 transition-all">
+              <FileText className="h-4 w-4" />
+              View Documentation
+            </button>
           </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8 relative bg-gradient-to-r from-blue-600 to-purple-600">
-          <div className="max-w-7xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-6">
-                Ready to get started?
-              </h2>
-              <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-                Join thousands of developers building the next generation of financial applications with our platform.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  to="/developers/api-explorer"
-                  className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
-                >
-                  Start Exploring
-                </Link>
-                <button className="inline-flex items-center px-8 py-4 border-2 border-white/30 text-white font-semibold rounded-xl hover:bg-white/10 transition-all duration-300">
-                  Schedule Demo
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        </section>
+        </motion.div>
       </div>
-    </div>
-  );
-};
+    </section>
 
-export default DevelopersPage; 
+    {/* Resources grid */}
+    <section className="py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <p className="text-xs font-black text-accent uppercase tracking-[0.3em] mb-3">Resources</p>
+          <h2 className="text-3xl font-black text-primary tracking-tight">Developer Resources</h2>
+          <p className="text-slate-500 mt-3 max-w-xl mx-auto">
+            Everything you need to integrate MudraCore into your applications
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {resources.map((res, i) => (
+            <motion.div
+              key={res.title}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+            >
+              <Link
+                to={res.link}
+                className="flex items-start gap-5 p-6 bg-white border border-outline-variant rounded-2xl shadow-premium hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+              >
+                <div className="w-12 h-12 bg-surface border border-outline-variant rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-accent/10 group-hover:border-accent/30 transition-colors">
+                  <res.icon className="h-5 w-5 text-secondary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-base font-bold text-primary group-hover:text-secondary transition-colors">
+                      {res.title}
+                    </h3>
+                    <span className="text-[0.7rem] font-black px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-secondary">
+                      {res.badge}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-500">{res.description}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-secondary group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* Capabilities */}
+    <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <p className="text-xs font-black text-accent uppercase tracking-[0.3em] mb-3">Platform</p>
+          <h2 className="text-3xl font-black text-primary tracking-tight">Built for scale</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {capabilities.map((cap, i) => (
+            <motion.div
+              key={cap.title}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+              className="bg-white border border-outline-variant rounded-2xl p-6 shadow-premium"
+            >
+              <div className="w-10 h-10 bg-surface border border-outline-variant rounded-xl flex items-center justify-center mb-4">
+                <cap.icon className="h-5 w-5 text-secondary" />
+              </div>
+              <h3 className="font-bold text-primary mb-2">{cap.title}</h3>
+              <p className="text-sm text-slate-500 leading-relaxed">{cap.description}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* CTA */}
+    <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-primary rounded-[2rem] p-10 text-center">
+          <h2 className="text-3xl font-black text-white mb-4">Ready to get started?</h2>
+          <p className="text-slate-300 mb-8 max-w-xl mx-auto">
+            Join developers building the next generation of financial applications with MudraCore OS.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/developers/api-explorer"
+              className="inline-flex items-center gap-2 px-7 py-3.5 bg-accent text-primary font-black rounded-xl hover:shadow-glow active:scale-95 transition-all"
+            >
+              Start Exploring
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <button className="inline-flex items-center gap-2 px-7 py-3.5 border border-white/20 text-white font-bold rounded-xl hover:bg-white/10 active:scale-95 transition-all">
+              Schedule Demo
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+);
+
+export default DevelopersPage;

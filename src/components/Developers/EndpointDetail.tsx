@@ -85,9 +85,9 @@ const EndpointDetail: React.FC<EndpointDetailProps> = ({ endpoint }) => {
   };
 
   return (
-    <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-2">{endpoint.method} <span className="font-mono text-blue-600 dark:text-blue-400">{endpoint.path}</span></h2>
-      <p className="mb-4 text-gray-700 dark:text-gray-300">{endpoint.description}</p>
+    <div className="p-6 bg-white  rounded-2xl shadow-xl border border-gray-200  max-w-2xl mx-auto">
+      <h2 className="text-2xl font-bold mb-2">{endpoint.method} <span className="font-mono text-blue-600 ">{endpoint.path}</span></h2>
+      <p className="mb-4 text-gray-700 ">{endpoint.description}</p>
       {endpoint.parameters && (
         <div className="mb-4">
           <h3 className="font-semibold mb-2">Parameters</h3>
@@ -95,12 +95,12 @@ const EndpointDetail: React.FC<EndpointDetailProps> = ({ endpoint }) => {
             {endpoint.parameters.map(param => (
               <div key={param.name} className="flex items-center gap-2">
                 <input
-                  className="border rounded px-2 py-1 font-mono text-xs w-32 bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700"
+                  className="border rounded px-2 py-1 font-mono text-xs w-32 bg-gray-50  border-gray-200 "
                   placeholder={param.name}
                   value={paramValues[param.name] || ''}
                   onChange={e => handleParamChange(param.name, e.target.value)}
                 />
-                <span className="text-xs text-gray-500 dark:text-gray-400">{param.type}{param.required ? ' (required)' : ''} - {param.description}</span>
+                <span className="text-xs text-gray-500 ">{param.type}{param.required ? ' (required)' : ''} - {param.description}</span>
               </div>
             ))}
           </div>
@@ -109,7 +109,7 @@ const EndpointDetail: React.FC<EndpointDetailProps> = ({ endpoint }) => {
       <div className="mb-4">
         <label className="block font-semibold mb-1">API Key / Token</label>
         <input
-          className="border rounded px-2 py-1 font-mono text-xs w-full bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700"
+          className="border rounded px-2 py-1 font-mono text-xs w-full bg-gray-50  border-gray-200 "
           placeholder="Paste your API key or token here"
           value={apiKey}
           onChange={e => setApiKey(e.target.value)}
@@ -117,26 +117,26 @@ const EndpointDetail: React.FC<EndpointDetailProps> = ({ endpoint }) => {
       </div>
       <div className="mb-4">
         <button
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow transition-all"
+          className="bg-blue-600 hover:bg-blue-700 text-primary font-bold py-2 px-6 rounded-lg shadow transition-all"
           onClick={handleSend}
           disabled={loading}
         >
           {loading ? 'Sending...' : 'Send Request'}
         </button>
       </div>
-      {error && <div className="mb-4 text-red-600 dark:text-red-400 font-mono text-xs">{error}</div>}
+      {error && <div className="mb-4 text-red-600  font-mono text-xs">{error}</div>}
       <div className="mb-4">
         <h3 className="font-semibold mb-2">Request Example</h3>
-        <pre className="bg-gray-100 dark:bg-slate-800 rounded p-3 text-xs overflow-x-auto"><code>{endpoint.requestExample || '...'}</code></pre>
+        <pre className="bg-gray-100  rounded p-3 text-xs overflow-x-auto"><code>{endpoint.requestExample || '...'}</code></pre>
       </div>
       <div className="mb-4">
         <h3 className="font-semibold mb-2">Response Example</h3>
-        <pre className="bg-gray-100 dark:bg-slate-800 rounded p-3 text-xs overflow-x-auto"><code>{response || endpoint.responseExample || '...'}</code></pre>
+        <pre className="bg-gray-100  rounded p-3 text-xs overflow-x-auto"><code>{response || endpoint.responseExample || '...'}</code></pre>
       </div>
       {endpoint.errorCodes && (
         <div className="mb-4">
           <h3 className="font-semibold mb-2">Error Codes</h3>
-          <ul className="list-disc ml-6 text-xs text-red-600 dark:text-red-400">
+          <ul className="list-disc ml-6 text-xs text-red-600 ">
             {endpoint.errorCodes.map(err => (
               <li key={err.code}><span className="font-mono">{err.code}</span>: {err.message}</li>
             ))}

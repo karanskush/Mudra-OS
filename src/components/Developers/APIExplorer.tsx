@@ -686,13 +686,13 @@ const CopyButton: React.FC<{ text: string }> = ({ text }) => {
   return (
     <motion.button
       onClick={handleCopy}
-      className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+      className="p-2 rounded-lg hover:bg-surface transition-colors"
       style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
       {copied ? (
-        <CheckCircleIcon className="h-4 w-4 text-brand-300" />
+        <CheckCircleIcon className="h-4 w-4 text-secondary" />
       ) : (
         <ClipboardDocumentIcon className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.45)' }} />
       )}
@@ -711,7 +711,7 @@ const APIExplorer: React.FC = () => {
   }, [selectedCategory]);
 
   return (
-    <div className="min-h-screen" style={{ background: '#0B0C0E' }}>
+    <div className="min-h-screen" style={{ background: 'transparent' }}>
       <div className="pt-16 sm:pt-20">
         {/* Hero */}
         <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
@@ -729,7 +729,7 @@ const APIExplorer: React.FC = () => {
                 <CodeBracketIcon className="h-3 w-3" />
                 Developer Tools
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-4 leading-tight">
                 API{' '}
                 <span style={{
                   background: 'linear-gradient(95deg, #ffffff 0%, #CFFFDC 45%, #68BA7F 100%)',
@@ -753,12 +753,12 @@ const APIExplorer: React.FC = () => {
               ].map((item, i) => (
                 <AnimatedCard key={i} delay={i * 0.08}>
                   <motion.button
-                    className="w-full p-5 glass-card rounded-xl text-left group"
+                    className="w-full p-5 bg-white border border-outline-variant shadow-premium rounded-xl text-left group"
                     whileHover={{ y: -4 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <item.icon className="h-6 w-6 mb-3 group-hover:scale-110 transition-transform duration-300" style={{ color: '#68BA7F' }} />
-                    <h3 className="text-base font-semibold text-white mb-1">{item.name}</h3>
+                    <h3 className="text-base font-semibold text-primary mb-1">{item.name}</h3>
                     <p className="text-sm" style={{ color: 'rgba(255,255,255,0.42)' }}>{item.description}</p>
                     <ChevronRightIcon className="h-4 w-4 mt-2 group-hover:translate-x-1 transition-transform duration-300" style={{ color: 'rgba(255,255,255,0.25)' }} />
                   </motion.button>
@@ -775,8 +775,8 @@ const APIExplorer: React.FC = () => {
               {/* Sidebar */}
               <div className="xl:col-span-1">
                 <AnimatedCard>
-                  <div className="glass-card rounded-2xl p-5 xl:sticky xl:top-8">
-                    <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                  <div className="bg-white border border-outline-variant shadow-premium rounded-2xl p-5 xl:sticky xl:top-8">
+                    <h3 className="text-base font-semibold text-primary mb-4 flex items-center gap-2">
                       <CubeIcon className="h-4 w-4" style={{ color: '#68BA7F' }} />
                       API Categories
                     </h3>
@@ -827,16 +827,16 @@ const APIExplorer: React.FC = () => {
               <div className="xl:col-span-2 space-y-5">
                 {/* Category header + endpoints */}
                 <AnimatedCard>
-                  <div className="glass-card rounded-2xl p-6">
+                  <div className="bg-white border border-outline-variant shadow-premium rounded-2xl p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
                       <div
                         className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
                         style={{ background: 'linear-gradient(135deg, #2E6F40, #68BA7F)' }}
                       >
-                        <CategoryIcon className="h-7 w-7 text-white" />
+                        <CategoryIcon className="h-7 w-7 text-primary" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-white">{apiCategories[selectedCategory].name}</h3>
+                        <h3 className="text-xl font-bold text-primary">{apiCategories[selectedCategory].name}</h3>
                         <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
                           {apiCategories[selectedCategory].description}
                         </p>
@@ -878,9 +878,9 @@ const APIExplorer: React.FC = () => {
 
                 {/* Code example */}
                 <AnimatedCard>
-                  <div className="glass-card rounded-2xl p-6">
+                  <div className="bg-white border border-outline-variant shadow-premium rounded-2xl p-6">
                     <div className="flex items-center justify-between mb-5">
-                      <h4 className="text-base font-semibold text-white flex items-center gap-2">
+                      <h4 className="text-base font-semibold text-primary flex items-center gap-2">
                         <CodeBracketIcon className="h-4 w-4" style={{ color: '#68BA7F' }} />
                         Code Example
                       </h4>
@@ -899,8 +899,8 @@ const APIExplorer: React.FC = () => {
 
                 {/* Request & Response */}
                 <AnimatedCard>
-                  <div className="glass-card rounded-2xl p-6">
-                    <h4 className="text-base font-semibold text-white mb-5 flex items-center gap-2">
+                  <div className="bg-white border border-outline-variant shadow-premium rounded-2xl p-6">
+                    <h4 className="text-base font-semibold text-primary mb-5 flex items-center gap-2">
                       <DocumentTextIcon className="h-4 w-4" style={{ color: '#68BA7F' }} />
                       Request &amp; Response
                     </h4>

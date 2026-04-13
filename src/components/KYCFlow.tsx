@@ -197,7 +197,7 @@ const KYCFlow: React.FC = () => {
       icon: Globe, 
       description: 'Choose your verification region',
       color: 'from-[#2E6F40] via-[#2E6F40] to-[#68BA7F]',
-      bgPattern: 'bg-[rgba(255,255,255,0.03)]',
+      bgPattern: 'bg-surface',
       shadowColor: 'shadow-blue-500/20',
       borderColor: 'border-[rgba(104,186,127,0.20)]',
       estimatedTime: '30s'
@@ -207,7 +207,7 @@ const KYCFlow: React.FC = () => {
       icon: Upload, 
       description: 'Secure document verification',
       color: 'from-[#253D2C] to-[#2E6F40]',
-      bgPattern: 'bg-[rgba(255,255,255,0.03)]',
+      bgPattern: 'bg-surface',
       shadowColor: 'shadow-purple-500/20',
       borderColor: 'border-purple-200/50',
       estimatedTime: '2m'
@@ -658,15 +658,15 @@ const KYCFlow: React.FC = () => {
       </motion.div>
       {/* Trust indicators */}
       <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center gap-8 pt-8 w-full">
-        <div className="flex items-center gap-2 text-white/60">
-          <ShieldCheck className="h-5 w-5 text-brand-300" />
+        <div className="flex items-center gap-2 text-slate-500">
+          <ShieldCheck className="h-5 w-5 text-secondary" />
           <span className="text-sm">Enterprise-Grade Security</span>
         </div>
-        <div className="flex items-center gap-2 text-white/60">
+        <div className="flex items-center gap-2 text-slate-500">
           <Zap className="h-5 w-5 text-yellow-400" />
           <span className="text-sm">Instant Processing</span>
         </div>
-        <div className="flex items-center gap-2 text-white/60">
+        <div className="flex items-center gap-2 text-slate-500">
           <Award className="h-5 w-5 text-[#CFFFDC]" />
           <span className="text-sm">Globally Compliant</span>
         </div>
@@ -682,14 +682,14 @@ const KYCFlow: React.FC = () => {
       className="space-y-8"
     >
       <motion.div variants={itemVariants} className="text-center space-y-4">
-        <div className="inline-flex items-center gap-3 bg-[rgba(46,111,64,0.08)] backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6">
+        <div className="inline-flex items-center gap-3 bg-accent/10  border border-outline-variant rounded-full px-6 py-3 mb-6">
           <FileText className="h-5 w-5 text-[#CFFFDC]" />
-          <span className="text-white/90 font-medium">Document Verification</span>
+          <span className="text-primary font-medium">Document Verification</span>
         </div>
-        <h3 className="text-3xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+        <h3 className="text-3xl font-bold text-primary">
           Upload Your Documents
         </h3>
-        <p className="text-white/70 text-lg max-w-md mx-auto">
+        <p className="text-slate-500 text-lg max-w-md mx-auto">
           Upload clear, high-quality photos of your documents for instant verification
         </p>
       </motion.div>
@@ -699,14 +699,14 @@ const KYCFlow: React.FC = () => {
           <motion.div 
             key={docType} 
             variants={cardVariants}
-            className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 space-y-4"
+            className="bg-surface  border border-outline-variant rounded-2xl p-6 space-y-4"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-lg flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-white" />
+                  <FileText className="h-5 w-5 text-primary" />
                 </div>
-                <h4 className="text-lg font-semibold text-white">
+                <h4 className="text-lg font-semibold text-primary">
                   {formatDocumentName(docType)}
                 </h4>
               </div>
@@ -716,8 +716,8 @@ const KYCFlow: React.FC = () => {
                   animate={{ scale: 1 }}
                   className="flex items-center gap-2 bg-brand-500/15 border border-brand-500/30 rounded-full px-3 py-1"
                 >
-                  <CheckCircle className="h-4 w-4 text-brand-300" />
-                  <span className="text-brand-300 text-sm font-medium">Uploaded</span>
+                  <CheckCircle className="h-4 w-4 text-secondary" />
+                  <span className="text-secondary text-sm font-medium">Uploaded</span>
                 </motion.div>
               )}
             </div>
@@ -727,7 +727,7 @@ const KYCFlow: React.FC = () => {
                 border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer
                 ${dragOver === docType 
                   ? 'border-purple-400 bg-purple-500/10' 
-                  : 'border-white/20 hover:border-white/40 hover:bg-white/5'
+                  : 'border-outline-variant hover:border-outline-variant hover:bg-surface'
                 }
               `}
               onDragOver={(e) => handleDragOver(e, docType)}
@@ -749,22 +749,22 @@ const KYCFlow: React.FC = () => {
                   {documentUploads[docType] ? (
                     <div className="space-y-3">
                       <div className="w-16 h-16 bg-gradient-to-r from-brand-500 to-brand-300 rounded-full flex items-center justify-center mx-auto">
-                        <Image className="h-8 w-8 text-white" />
+                        <Image className="h-8 w-8 text-primary" />
                       </div>
-                      <p className="text-brand-300 font-medium">
+                      <p className="text-secondary font-medium">
                         {documentUploads[docType]?.name}
                       </p>
-                      <p className="text-white/60 text-sm">File uploaded successfully</p>
+                      <p className="text-slate-500 text-sm">File uploaded successfully</p>
                     </div>
                   ) : (
                     <div className="space-y-3">
                       <div className="w-16 h-16 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-full flex items-center justify-center mx-auto">
-                        <Camera className="h-8 w-8 text-white" />
+                        <Camera className="h-8 w-8 text-primary" />
                       </div>
-                      <p className="text-white/80 font-medium">
+                      <p className="text-slate-700 font-medium">
                         Drop your file here or click to upload
                       </p>
-                      <p className="text-white/60 text-sm">
+                      <p className="text-slate-500 text-sm">
                         PNG, JPG up to 5MB • Ensure document is clearly visible
                       </p>
                     </div>
@@ -786,9 +786,9 @@ const KYCFlow: React.FC = () => {
             )}
 
             {/* Document requirements */}
-            <div className="bg-white/5 rounded-lg p-4 space-y-2">
-              <h5 className="text-white/90 font-medium text-sm">Requirements:</h5>
-              <ul className="text-white/70 text-xs space-y-1">
+            <div className="bg-surface rounded-lg p-4 space-y-2">
+              <h5 className="text-primary font-medium text-sm">Requirements:</h5>
+              <ul className="text-slate-500 text-xs space-y-1">
                 <li>• Clear, readable text</li>
                 <li>• All corners visible</li>
                 <li>• No glare or shadows</li>
@@ -809,24 +809,24 @@ const KYCFlow: React.FC = () => {
       className="space-y-8"
     >
       <motion.div variants={itemVariants} className="text-center space-y-4">
-        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-brand-500/20 to-brand-300/20 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6">
-          <Fingerprint className="h-5 w-5 text-brand-300" />
-          <span className="text-white/90 font-medium">Identity Verification</span>
+        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-brand-500/20 to-brand-300/20  border border-outline-variant rounded-full px-6 py-3 mb-6">
+          <Fingerprint className="h-5 w-5 text-secondary" />
+          <span className="text-primary font-medium">Identity Verification</span>
         </div>
-        <h3 className="text-3xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+        <h3 className="text-3xl font-bold text-primary">
           Aadhaar Verification
         </h3>
-        <p className="text-white/70 text-lg max-w-md mx-auto">
+        <p className="text-slate-500 text-lg max-w-md mx-auto">
           Enter your 12-digit Aadhaar number for secure identity verification
         </p>
       </motion.div>
 
       <motion.div variants={itemVariants} className="max-w-lg mx-auto">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 space-y-6">
+        <div className="bg-surface  border border-outline-variant rounded-2xl p-8 space-y-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
-                <Shield className="h-4 w-4 text-brand-300" />
+              <label className="block text-slate-700 text-sm font-medium mb-3 flex items-center gap-2">
+                <Shield className="h-4 w-4 text-secondary" />
                 Aadhaar Number
               </label>
               <div className="relative">
@@ -840,18 +840,18 @@ const KYCFlow: React.FC = () => {
                   }}
                   placeholder="XXXX XXXX XXXX"
                   className={`
-                    w-full bg-white/5 border rounded-xl px-4 py-4 text-white placeholder-white/40 
+                    w-full bg-surface border rounded-xl px-4 py-4 text-primary placeholder:text-slate-400 
                     focus:outline-none focus:ring-2 transition-all duration-300 text-lg tracking-wider
                     ${errors.aadhaar 
                       ? 'border-red-500/50 focus:border-red-400 focus:ring-red-400/20' 
-                      : 'border-white/20 focus:border-green-400 focus:ring-green-400/20'
+                      : 'border-outline-variant focus:border-green-400 focus:ring-green-400/20'
                     }
                   `}
                 />
                 <motion.button
                   type="button"
                   onClick={() => setShowAadhaar(!showAadhaar)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white transition-colors duration-200"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 hover:text-primary transition-colors duration-200"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -868,8 +868,8 @@ const KYCFlow: React.FC = () => {
                 >
                   {aadhaarNumber.replace(/\s/g, '').length === 12 ? (
                     <>
-                      <CheckCircle className="h-4 w-4 text-brand-300" />
-                      <span className="text-brand-300 text-sm">Valid format</span>
+                      <CheckCircle className="h-4 w-4 text-secondary" />
+                      <span className="text-secondary text-sm">Valid format</span>
                     </>
                   ) : (
                     <>
@@ -902,14 +902,14 @@ const KYCFlow: React.FC = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => verifyDocument('aadhaar', aadhaarNumber.replace(/\s/g, ''))}
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg shadow-brand-500/25"
+                className="w-full bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-600 text-primary font-semibold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg shadow-brand-500/25"
               >
                 {isLoading ? (
                   <>
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                      className="w-5 h-5 border-2 border-outline-variant border-t-white rounded-full"
                     />
                     Verifying...
                   </>
@@ -924,12 +924,12 @@ const KYCFlow: React.FC = () => {
           </div>
 
           {/* Security notice */}
-          <div className="bg-[rgba(46,111,64,0.12)] border border-[rgba(104,186,127,0.22)] rounded-xl p-4 space-y-2">
+          <div className="bg-accent/10 border border-[rgba(104,186,127,0.22)] rounded-xl p-4 space-y-2">
             <div className="flex items-center gap-2">
               <Lock className="h-4 w-4 text-[#68BA7F]" />
               <span className="text-[#68BA7F] font-medium text-sm">Security Notice</span>
             </div>
-            <p className="text-white/70 text-xs">
+            <p className="text-slate-500 text-xs">
               Your Aadhaar information is encrypted and processed securely. We never store your complete Aadhaar number.
             </p>
           </div>
@@ -942,10 +942,10 @@ const KYCFlow: React.FC = () => {
             className="mt-6 bg-gradient-to-r from-brand-500/20 to-brand-300/20 border border-brand-500/30 rounded-2xl p-6 flex items-center space-x-4"
           >
             <div className="w-12 h-12 bg-gradient-to-r from-brand-500 to-brand-300 rounded-full flex items-center justify-center">
-              <BadgeCheck className="h-6 w-6 text-white" />
+              <BadgeCheck className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <p className="text-brand-300 font-semibold">Aadhaar Verified Successfully</p>
+              <p className="text-secondary font-semibold">Aadhaar Verified Successfully</p>
               <p className="text-brand-200/80 text-sm">Your identity has been confirmed securely</p>
             </div>
           </motion.div>
@@ -962,23 +962,23 @@ const KYCFlow: React.FC = () => {
       className="space-y-8"
     >
       <motion.div variants={itemVariants} className="text-center space-y-4">
-        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6">
+        <div className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-500/20 to-red-500/20  border border-outline-variant rounded-full px-6 py-3 mb-6">
           <CreditCard className="h-5 w-5 text-orange-400" />
-          <span className="text-white/90 font-medium">Tax Verification</span>
+          <span className="text-primary font-medium">Tax Verification</span>
         </div>
-        <h3 className="text-3xl font-bold bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+        <h3 className="text-3xl font-bold text-primary">
           PAN Verification
         </h3>
-        <p className="text-white/70 text-lg max-w-md mx-auto">
+        <p className="text-slate-500 text-lg max-w-md mx-auto">
           Enter your PAN card number for tax compliance verification
         </p>
       </motion.div>
 
       <motion.div variants={itemVariants} className="max-w-lg mx-auto">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 space-y-6">
+        <div className="bg-surface  border border-outline-variant rounded-2xl p-8 space-y-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
+              <label className="block text-slate-700 text-sm font-medium mb-3 flex items-center gap-2">
                 <CreditCard className="h-4 w-4 text-orange-400" />
                 PAN Number
               </label>
@@ -991,11 +991,11 @@ const KYCFlow: React.FC = () => {
                 }}
                 placeholder="ABCDE1234F"
                 className={`
-                  w-full bg-white/5 border rounded-xl px-4 py-4 text-white placeholder-white/40 
+                  w-full bg-surface border rounded-xl px-4 py-4 text-primary placeholder:text-slate-400 
                   focus:outline-none focus:ring-2 transition-all duration-300 text-lg tracking-wider uppercase
                   ${errors.pan 
                     ? 'border-red-500/50 focus:border-red-400 focus:ring-red-400/20' 
-                    : 'border-white/20 focus:border-orange-400 focus:ring-orange-400/20'
+                    : 'border-outline-variant focus:border-orange-400 focus:ring-orange-400/20'
                   }
                 `}
               />
@@ -1008,8 +1008,8 @@ const KYCFlow: React.FC = () => {
                 >
                   {panNumber.length === 10 ? (
                     <>
-                      <CheckCircle className="h-4 w-4 text-brand-300" />
-                      <span className="text-brand-300 text-sm">Valid format</span>
+                      <CheckCircle className="h-4 w-4 text-secondary" />
+                      <span className="text-secondary text-sm">Valid format</span>
                     </>
                   ) : (
                     <>
@@ -1042,14 +1042,14 @@ const KYCFlow: React.FC = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => verifyDocument('pan', panNumber)}
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg shadow-orange-500/25"
+                className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-primary font-semibold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg shadow-orange-500/25"
               >
                 {isLoading ? (
                   <>
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                      className="w-5 h-5 border-2 border-outline-variant border-t-white rounded-full"
                     />
                     Verifying...
                   </>
@@ -1069,7 +1069,7 @@ const KYCFlow: React.FC = () => {
               <FileText className="h-4 w-4 text-orange-400" />
               <span className="text-orange-400 font-medium text-sm">PAN Format</span>
             </div>
-            <p className="text-white/70 text-xs">
+            <p className="text-slate-500 text-xs">
               Format: 5 letters + 4 digits + 1 letter (e.g., ABCDE1234F)
             </p>
           </div>
@@ -1082,7 +1082,7 @@ const KYCFlow: React.FC = () => {
             className="mt-6 bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-2xl p-6 flex items-center space-x-4"
           >
             <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-              <BadgeCheck className="h-6 w-6 text-white" />
+              <BadgeCheck className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-orange-400 font-semibold">PAN Verified Successfully</p>
@@ -1106,25 +1106,25 @@ const KYCFlow: React.FC = () => {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
-          className="inline-flex items-center gap-3 bg-gradient-to-r from-brand-500/15 to-brand-300/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 mb-6"
+          className="inline-flex items-center gap-3 bg-gradient-to-r from-brand-500/15 to-brand-300/10  border border-outline-variant rounded-full px-6 py-3 mb-6"
         >
-          <Sparkles className="h-5 w-5 text-brand-300" />
-          <span className="text-white/90 font-medium">Verification Complete</span>
+          <Sparkles className="h-5 w-5 text-secondary" />
+          <span className="text-primary font-medium">Verification Complete</span>
         </motion.div>
-        <h3 className="text-4xl font-bold bg-gradient-to-r from-brand-300 to-brand-400 bg-clip-text text-transparent">
+        <h3 className="text-4xl font-bold text-secondary">
           Welcome to the Future!
         </h3>
-        <p className="text-white/70 text-lg max-w-md mx-auto">
+        <p className="text-slate-500 text-lg max-w-md mx-auto">
           Your identity verification is complete. Welcome to our fintech ecosystem.
         </p>
       </motion.div>
 
       <motion.div variants={itemVariants} className="max-w-2xl mx-auto">
-        <div className="glass-card backdrop-blur-xl border border-white/20 rounded-3xl p-8 relative overflow-hidden">
+        <div className="bg-white border border-outline-variant shadow-premium  border border-outline-variant rounded-3xl p-8 relative overflow-hidden">
           {/* Animated background elements */}
           <div className="absolute inset-0">
             <div className="absolute top-4 right-4 w-32 h-32 bg-gradient-to-r from-brand-500/15 to-brand-300/10 rounded-full blur-2xl animate-pulse" />
-            <div className="absolute bottom-4 left-4 w-24 h-24 bg-[rgba(46,111,64,0.06)] rounded-full blur-xl animate-pulse" style={{ animationDelay: '1s' }} />
+            <div className="absolute bottom-4 left-4 w-24 h-24 bg-accent/10 rounded-full blur-xl animate-pulse" style={{ animationDelay: '1s' }} />
           </div>
 
           <div className="relative text-center space-y-8">
@@ -1134,12 +1134,12 @@ const KYCFlow: React.FC = () => {
               transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
               className="w-24 h-24 bg-gradient-to-r from-brand-300 to-brand-400 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-brand-500/40"
             >
-              <Sparkles className="h-12 w-12 text-white" />
+              <Sparkles className="h-12 w-12 text-primary" />
             </motion.div>
             
             <div className="space-y-4">
-              <h4 className="text-2xl font-bold text-white">Account Successfully Verified!</h4>
-              <p className="text-white/80 max-w-md mx-auto">
+              <h4 className="text-2xl font-bold text-primary">Account Successfully Verified!</h4>
+              <p className="text-slate-700 max-w-md mx-auto">
                 You now have full access to all premium features. Start exploring our comprehensive financial platform.
               </p>
             </div>
@@ -1149,35 +1149,35 @@ const KYCFlow: React.FC = () => {
               variants={containerVariants}
               className="grid grid-cols-2 gap-4 max-w-md mx-auto"
             >
-              <motion.div variants={itemVariants} className="bg-white/10 rounded-2xl p-4 space-y-2">
+              <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-4 space-y-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-brand-500 to-brand-300 rounded-lg flex items-center justify-center mx-auto">
-                  <Shield className="h-4 w-4 text-white" />
+                  <Shield className="h-4 w-4 text-primary" />
                 </div>
-                <p className="text-white text-sm font-medium">Identity</p>
-                <p className="text-brand-300 text-xs">Verified</p>
+                <p className="text-primary text-sm font-medium">Identity</p>
+                <p className="text-secondary text-xs">Verified</p>
               </motion.div>
               
-              <motion.div variants={itemVariants} className="bg-white/10 rounded-2xl p-4 space-y-2">
+              <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-4 space-y-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center mx-auto">
-                  <CreditCard className="h-4 w-4 text-white" />
+                  <CreditCard className="h-4 w-4 text-primary" />
                 </div>
-                <p className="text-white text-sm font-medium">Tax Info</p>
+                <p className="text-primary text-sm font-medium">Tax Info</p>
                 <p className="text-orange-400 text-xs">Verified</p>
               </motion.div>
               
-              <motion.div variants={itemVariants} className="bg-white/10 rounded-2xl p-4 space-y-2">
+              <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-4 space-y-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-lg flex items-center justify-center mx-auto">
-                  <FileText className="h-4 w-4 text-white" />
+                  <FileText className="h-4 w-4 text-primary" />
                 </div>
-                <p className="text-white text-sm font-medium">Documents</p>
+                <p className="text-primary text-sm font-medium">Documents</p>
                 <p className="text-[#CFFFDC] text-xs">Validated</p>
               </motion.div>
               
-              <motion.div variants={itemVariants} className="bg-white/10 rounded-2xl p-4 space-y-2">
+              <motion.div variants={itemVariants} className="bg-surface rounded-2xl p-4 space-y-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] rounded-lg flex items-center justify-center mx-auto">
-                  <BadgeCheck className="h-4 w-4 text-white" />
+                  <BadgeCheck className="h-4 w-4 text-primary" />
                 </div>
-                <p className="text-white text-sm font-medium">Account</p>
+                <p className="text-primary text-sm font-medium">Account</p>
                 <p className="text-[#68BA7F] text-xs">Active</p>
               </motion.div>
             </motion.div>
@@ -1187,7 +1187,7 @@ const KYCFlow: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex-1 bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-brand-500/25"
+                className="flex-1 bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 text-primary font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-brand-500/25"
               >
                 <Zap className="h-5 w-5" />
                 Access Dashboard
@@ -1197,7 +1197,7 @@ const KYCFlow: React.FC = () => {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] hover:from-[#253D2C] hover:to-[#2E6F40] text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-[rgba(37,61,44,0.25)]"
+                  className="w-full bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] hover:from-[#253D2C] hover:to-[#2E6F40] text-primary font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-[rgba(37,61,44,0.25)]"
                 >
                   <Settings className="h-5 w-5" />
                   Admin Panel
@@ -1211,16 +1211,16 @@ const KYCFlow: React.FC = () => {
       {/* Success metrics */}
       <motion.div variants={itemVariants} className="flex items-center justify-center gap-8 pt-8">
         <div className="text-center">
-          <div className="text-2xl font-bold text-brand-300">30s</div>
-          <div className="text-white/60 text-sm">Avg. Verification Time</div>
+          <div className="text-2xl font-bold text-secondary">30s</div>
+          <div className="text-slate-500 text-sm">Avg. Verification Time</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-brand-300">99.9%</div>
-          <div className="text-white/60 text-sm">Success Rate</div>
+          <div className="text-2xl font-bold text-secondary">99.9%</div>
+          <div className="text-slate-500 text-sm">Success Rate</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-[#68BA7F]">24/7</div>
-          <div className="text-white/60 text-sm">Support Available</div>
+          <div className="text-slate-500 text-sm">Support Available</div>
         </div>
       </motion.div>
     </motion.div>
@@ -1250,13 +1250,9 @@ const KYCFlow: React.FC = () => {
         >
           <div className="flex-1 text-center md:text-left">
             <motion.h1 
-              className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
+              className="text-4xl md:text-6xl lg:text-7xl font-bold text-primary mb-6 leading-tight"
               style={{
-                textShadow: '0 4px 20px rgba(0, 0, 0, 0.3), 0 0 40px rgba(59, 130, 246, 0.3)',
-                background: 'linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #c7d2fe 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
+                className: 'text-primary'
               }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1265,7 +1261,7 @@ const KYCFlow: React.FC = () => {
               Know Your Customer
             </motion.h1>
             <motion.p 
-              className="text-lg md:text-xl text-white/60 mb-8 max-w-2xl leading-relaxed"
+              className="text-lg md:text-xl text-slate-500 mb-8 max-w-2xl leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
@@ -1296,7 +1292,7 @@ const KYCFlow: React.FC = () => {
                 }}
               >
                 {/* Glowing background effect */}
-                <div className="absolute inset-0 bg-[rgba(46,111,64,0.10)] rounded-full blur-3xl animate-pulse" />
+                <div className="absolute inset-0 bg-accent/10 rounded-full blur-3xl animate-pulse" />
                 
                 {/* Security Shield with Neon Effect */}
                 <div className="relative w-full h-full flex items-center justify-center">
@@ -1498,8 +1494,8 @@ const KYCFlow: React.FC = () => {
                     className={`
                       w-14 h-14 rounded-full flex items-center justify-center border-2 mb-3 relative overflow-hidden
                       ${index <= currentStep 
-                        ? `bg-gradient-to-r ${step.color} border-transparent text-white shadow-lg` 
-                        : 'border-white/30 text-white/50 bg-white/5'
+                        ? `bg-gradient-to-r ${step.color} border-transparent text-primary shadow-lg` 
+                        : 'border-outline-variant text-slate-400 bg-surface'
                       }
                     `}
                     whileHover={{ scale: 1.1 }}
@@ -1515,13 +1511,13 @@ const KYCFlow: React.FC = () => {
                     )}
                   </motion.div>
                   <div className="text-center max-w-24">
-                    <span className="text-xs text-white/70 font-medium block">{step.title}</span>
-                    <span className="text-xs text-white/50 block mt-1">{step.description}</span>
+                    <span className="text-xs text-slate-500 font-medium block">{step.title}</span>
+                    <span className="text-xs text-slate-400 block mt-1">{step.description}</span>
                   </div>
                   
                   {/* Progress connector */}
                   {index < steps.length - 1 && (
-                    <div className="absolute top-7 left-full w-full h-0.5 bg-white/20 -z-10">
+                    <div className="absolute top-7 left-full w-full h-0.5 bg-white -z-10">
                       <motion.div 
                         className="h-full bg-gradient-to-r from-[#2E6F40] to-[#68BA7F]"
                         initial={{ width: 0 }}
@@ -1535,7 +1531,7 @@ const KYCFlow: React.FC = () => {
             </div>
             
             {/* Overall progress bar */}
-            <div className="w-full bg-white/10 rounded-full h-2 backdrop-blur-sm">
+            <div className="w-full bg-surface rounded-full h-2 ">
               <motion.div 
                 className="bg-gradient-to-r from-[#2E6F40] via-[#68BA7F] to-[#CFFFDC] h-2 rounded-full shadow-lg shadow-[rgba(46,111,64,0.25)]"
                 variants={progressVariants}
@@ -1547,10 +1543,10 @@ const KYCFlow: React.FC = () => {
             
             {/* Progress text */}
             <div className="flex justify-between items-center mt-3">
-              <span className="text-white/60 text-sm">
+              <span className="text-slate-500 text-sm">
                 Step {currentStep + 1} of {steps.length}
               </span>
-              <span className="text-white/60 text-sm">
+              <span className="text-slate-500 text-sm">
                 {Math.round((currentStep / (steps.length - 1)) * 100)}% Complete
               </span>
             </div>
@@ -1564,12 +1560,12 @@ const KYCFlow: React.FC = () => {
               initial={{ opacity: 0, y: -20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.9 }}
-              className="bg-gradient-to-r from-brand-500/20 to-brand-300/20 border border-brand-500/30 rounded-2xl p-4 mb-6 flex items-center space-x-3 backdrop-blur-xl"
+              className="bg-gradient-to-r from-brand-500/20 to-brand-300/20 border border-brand-500/30 rounded-2xl p-4 mb-6 flex items-center space-x-3 "
             >
               <div className="w-8 h-8 bg-gradient-to-r from-brand-500 to-brand-300 rounded-full flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 text-white" />
+                <CheckCircle className="h-5 w-5 text-primary" />
               </div>
-              <p className="text-brand-300 font-medium flex-1">{successMessage}</p>
+              <p className="text-secondary font-medium flex-1">{successMessage}</p>
               <motion.button 
                 onClick={() => setSuccessMessage('')}
                 className="text-brand-200 hover:text-brand-100 transition-colors"
@@ -1586,10 +1582,10 @@ const KYCFlow: React.FC = () => {
               initial={{ opacity: 0, y: -20, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.9 }}
-              className="bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-500/30 rounded-2xl p-4 mb-6 flex items-center space-x-3 backdrop-blur-xl"
+              className="bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-500/30 rounded-2xl p-4 mb-6 flex items-center space-x-3 "
             >
               <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
-                <AlertCircle className="h-5 w-5 text-white" />
+                <AlertCircle className="h-5 w-5 text-primary" />
               </div>
               <p className="text-red-400 font-medium flex-1">{errors.general}</p>
               <motion.button 
@@ -1606,14 +1602,14 @@ const KYCFlow: React.FC = () => {
 
         {/* Main content card */}
         <motion.div 
-          className="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/20 relative overflow-visible max-w-4xl mx-auto mt-12"
+          className="bg-surface backdrop-blur-2xl border border-outline-variant rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/20 relative overflow-visible max-w-4xl mx-auto mt-12"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           {/* Card background pattern */}
           <div className="absolute inset-0 opacity-5 rounded-3xl overflow-hidden">
-            <div className="absolute inset-0 bg-[rgba(46,111,64,0.06)]" />
+            <div className="absolute inset-0 bg-accent/10" />
             <div 
               className="absolute inset-0" 
               style={{
@@ -1639,14 +1635,14 @@ const KYCFlow: React.FC = () => {
             {/* Navigation Buttons */}
             {currentStep > 0 && currentStep < 4 && (
               <motion.div 
-                className="flex justify-between items-center mt-12 pt-8 border-t border-white/10"
+                className="flex justify-between items-center mt-12 pt-8 border-t border-outline-variant"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
                 <motion.button
                   onClick={handlePrevious}
-                  className="flex items-center space-x-3 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/20 text-white rounded-xl transition-all duration-300 backdrop-blur-sm"
+                  className="flex items-center space-x-3 px-6 py-3 bg-surface hover:bg-surface border border-outline-variant text-primary rounded-xl transition-all duration-300 "
                   whileHover={{ scale: 1.02, x: -4 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -1660,7 +1656,7 @@ const KYCFlow: React.FC = () => {
                     (currentStep === 2 && kycStatus?.documents.aadhaar?.status !== 'verified') ||
                     (currentStep === 3 && kycStatus?.documents.pan?.status !== 'verified')
                   }
-                  className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] hover:from-[#2E6F40] hover:to-[#68BA7F] text-white rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[rgba(46,111,64,0.25)]"
+                  className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-[#2E6F40] to-[#68BA7F] hover:from-[#2E6F40] hover:to-[#68BA7F] text-primary rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[rgba(46,111,64,0.25)]"
                   whileHover={{ scale: 1.02, x: 4 }}
                   whileTap={{ scale: 0.98 }}
                 >

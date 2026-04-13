@@ -1,102 +1,73 @@
 /**
- * Design System — Single Source of Truth
- *
- * This file is the canonical reference for every color, surface, and
- * semantic token used across the app.  All pages MUST derive their
- * palette from these values so the UI stays consistent with the
- * Landing Page aesthetic.
- *
- * Palette: "Lush Forest" dark
- *   Background family  → near-black neutrals (no blue tint)
- *   Brand family       → forest green  (#2E6F40 → #68BA7F → #CFFFDC)
- *   Semantic           → amber (warn), red (danger), slate (text)
+ * MudraCore OS Design System
+ * Single source of truth for all design tokens.
+ * Mirrors tailwind.config.js theme.extend values.
  */
 
-// ─── Brand ────────────────────────────────────────────────────────────────────
-export const brand = {
-  /** Pale mint — used for gradient text highlights */
-  50:  '#CFFFDC',
-  100: '#b8f5c8',
-  200: '#96e8ac',
-  /** Mid accent — icon fills, active text, badges */
-  300: '#68BA7F',
-  400: '#4ea368',
-  /** Primary brand — button bg, focus rings, glows */
-  500: '#2E6F40',
-  600: '#265c35',
-  700: '#1f4a2a',
-  800: '#253D2C',
-  900: '#1a2d1f',
-  950: '#0D1F13',
-} as const;
+export const colors = {
+  primary:        '#0A1128',   // deep navy — headings, buttons, dark bg
+  accent:         '#00FF94',   // neon emerald — highlights, active states
+  secondary:      '#006d43',   // forest green — labels, secondary text
+  surface:        '#F8FAFC',   // off-white page background
+  surfaceDark:    '#050914',   // near-black — dark sections
+  white:          '#FFFFFF',
+  onSurface:      '#0F172A',
+  outlineVariant: '#E2E8F0',   // card borders, dividers
 
-// ─── Surface (backgrounds) ────────────────────────────────────────────────────
-export const surface = {
-  /** Page root — matches landing page */
-  base:    '#0B0C0E',
-  /** Sidebar / nav panel */
-  sidebar: '#0F1012',
-  /** Cards, table rows, raised panels */
-  raised:  '#111315',
-  /** Hover state for raised surfaces */
-  hover:   '#161819',
-  /** Modals / overlays */
-  overlay: 'rgba(11,12,14,0.92)',
-} as const;
-
-// ─── Border ───────────────────────────────────────────────────────────────────
-export const border = {
-  subtle:  'rgba(255,255,255,0.06)',
-  default: 'rgba(255,255,255,0.08)',
-  strong:  'rgba(255,255,255,0.12)',
-  brand:   `rgba(46,111,64,0.30)`,
-  brandHover: `rgba(104,186,127,0.40)`,
-} as const;
-
-// ─── Glow / shadow ────────────────────────────────────────────────────────────
-export const glow = {
-  brand: '0 0 24px rgba(46,111,64,0.35)',
-  brandStrong: '0 0 36px rgba(46,111,64,0.55)',
-  brandSm: '0 0 12px rgba(46,111,64,0.25)',
-} as const;
-
-// ─── Semantic ─────────────────────────────────────────────────────────────────
-export const semantic = {
-  success: { text: '#68BA7F', bg: 'rgba(46,111,64,0.12)', border: 'rgba(104,186,127,0.25)' },
-  warning: { text: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.25)' },
-  danger:  { text: '#ef4444', bg: 'rgba(239,68,68,0.12)',  border: 'rgba(239,68,68,0.25)' },
-  info:    { text: '#68BA7F', bg: 'rgba(46,111,64,0.10)',  border: 'rgba(104,186,127,0.20)' },
-} as const;
-
-// ─── Gradient helpers ─────────────────────────────────────────────────────────
-export const gradient = {
-  brand:     'linear-gradient(135deg, #2E6F40, #68BA7F)',
-  brandText: 'linear-gradient(95deg, #ffffff 0%, #CFFFDC 45%, #68BA7F 100%)',
-  spotlight: 'radial-gradient(ellipse 70% 40% at 50% 0%, rgba(46,111,64,0.22) 0%, transparent 70%)',
-} as const;
-
-// ─── Tailwind class shortcuts (use in className strings) ─────────────────────
-/**
- * Pre-composed Tailwind class strings for common patterns.
- * Import and spread into className to guarantee brand-consistent styles.
- */
-export const tw = {
-  // Active sidebar nav item
-  navActive:   'bg-brand-500/10 text-brand-300',
-  navInactive: 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]',
-
-  // KPI / metric card
-  card: 'bg-surface-raised rounded-2xl border border-white/[0.06] hover:border-white/[0.10] transition-all',
-
-  // Status badges
-  badge: {
-    success: 'bg-brand-500/10 text-brand-300 border border-brand-500/25',
-    warning: 'bg-amber-500/10 text-amber-300 border border-amber-500/25',
-    danger:  'bg-red-500/10 text-red-300 border border-red-500/25',
-    neutral: 'bg-white/5 text-slate-400 border border-white/10',
+  text: {
+    primary:   '#0A1128',
+    secondary: '#475569',   // slate-600
+    muted:     '#94A3B8',   // slate-400
+    disabled:  '#CBD5E1',
+    onDark:    '#F1F5F9',
   },
 
-  // Primary action button
-  btnPrimary: 'bg-brand-500 hover:bg-brand-400 text-brand-50 font-semibold rounded-xl px-5 py-2.5 transition-all shadow-[0_0_20px_rgba(46,111,64,0.30)]',
-  btnSecondary: 'bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium rounded-xl px-5 py-2.5 transition-all',
+  state: {
+    success: '#00FF94',
+    warning: '#FBBF24',
+    error:   '#EF4444',
+    info:    '#38BDF8',
+  },
+} as const;
+
+export const shadows = {
+  premium: '0 10px 30px -10px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.02)',
+  glow:    '0 0 20px rgba(0,255,148,0.2)',
+  card:    '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+  lg:      '0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.05)',
+} as const;
+
+export const radii = {
+  sm:   '0.5rem',
+  md:   '0.75rem',
+  lg:   '1rem',
+  xl:   '1.25rem',
+  '2xl':'1.5rem',
+  '3xl':'1.875rem',
+  full: '9999px',
+} as const;
+
+export const typography = {
+  fontFamily: 'Inter, sans-serif',
+  weights: { regular: 400, medium: 500, semibold: 600, bold: 700, black: 900 },
+} as const;
+
+/** Reusable Tailwind class strings */
+export const cx = {
+  card:        'bg-white border border-outline-variant rounded-2xl shadow-premium',
+  cardSurface: 'bg-surface border border-outline-variant rounded-2xl hover:shadow-premium transition-all',
+  iconBox:     'w-12 h-12 bg-surface rounded-xl flex items-center justify-center',
+  btnPrimary:  'bg-primary text-white rounded-xl font-bold active:scale-95 transition-all hover:shadow-lg hover:shadow-primary/20',
+  btnOutline:  'bg-white border border-outline-variant text-primary rounded-xl font-bold active:scale-95 transition-all hover:bg-slate-50',
+  label:       'text-[0.75rem] font-black text-accent uppercase tracking-[0.3em]',
+  heading:     'text-3xl font-black tracking-tight text-primary',
+  body:        'text-slate-500 leading-relaxed',
+  badge: {
+    accent:  'bg-accent/10 border border-accent/20 text-secondary text-[0.7rem] font-black px-2 py-0.5 rounded-full',
+    neutral: 'bg-slate-100 text-slate-600 text-[0.7rem] font-black px-2 py-0.5 rounded-full',
+    blue:    'bg-blue-50 text-blue-600 text-[0.7rem] font-black px-2 py-0.5 rounded-full',
+    amber:   'bg-amber-50 text-amber-700 text-[0.7rem] font-black px-2 py-0.5 rounded-full',
+    red:     'bg-red-50 text-red-600 text-[0.7rem] font-black px-2 py-0.5 rounded-full',
+    purple:  'bg-purple-50 text-purple-600 text-[0.7rem] font-black px-2 py-0.5 rounded-full',
+  },
 } as const;

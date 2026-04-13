@@ -84,9 +84,9 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
       {/* Selected Country Display / Search Trigger */}
       <motion.div
         className={`
-          w-full bg-white/10 backdrop-blur-2xl border border-white/30 rounded-2xl p-6 cursor-pointer
-          transition-all duration-300 hover:bg-white/20 hover:border-blue-400/50 shadow-xl
-          ${isOpen ? 'border-blue-400/80 bg-white/20' : ''}
+          w-full bg-surface backdrop-blur-2xl border border-outline-variant rounded-2xl p-6 cursor-pointer
+          transition-all duration-300 hover:bg-white hover:border-blue-400/50 shadow-xl
+          ${isOpen ? 'border-blue-400/80 bg-white' : ''}
         `}
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.03 }}
@@ -100,8 +100,8 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
               <>
                 <div className="text-2xl animate-bounce-gentle">{selectedCountry.flag}</div>
                 <div>
-                  <h3 className="text-white font-semibold text-lg">{selectedCountry.country}</h3>
-                  <p className="text-white/60 text-sm">
+                  <h3 className="text-primary font-semibold text-lg">{selectedCountry.country}</h3>
+                  <p className="text-slate-500 text-sm">
                     {getAvailableDocuments(selectedCountry.countryCode).length} document types supported
                   </p>
                 </div>
@@ -109,11 +109,11 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
             ) : (
               <>
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center animate-bounce-gentle">
-                  <Globe className="h-6 w-6 text-white" />
+                  <Globe className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-white font-semibold text-lg">Select Your Country</h3>
-                  <p className="text-white/60 text-sm">Choose your region for verification</p>
+                  <h3 className="text-primary font-semibold text-lg">Select Your Country</h3>
+                  <p className="text-slate-500 text-sm">Choose your region for verification</p>
                 </div>
               </>
             )}
@@ -123,7 +123,7 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
             transition={{ duration: 0.2 }}
             className="ml-2"
           >
-            <ChevronDown className="h-5 w-5 text-white/80" />
+            <ChevronDown className="h-5 w-5 text-slate-700" />
           </motion.div>
         </div>
       </motion.div>
@@ -150,13 +150,13 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search countries..."
-                  className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200"
+                  className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl pl-12 pr-4 py-3 text-primary placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200"
                   autoFocus
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-primary transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -192,7 +192,7 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-lg animate-bounce-gentle">{country.flag}</span>
-                          <span className="text-white text-sm font-medium truncate">{country.country}</span>
+                          <span className="text-primary text-sm font-medium truncate">{country.country}</span>
                         </div>
                       </motion.button>
                     ))}
@@ -231,7 +231,7 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
                             <span className="text-xl">{country.flag}</span>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="text-white font-medium truncate">{country.country}</span>
+                                <span className="text-primary font-medium truncate">{country.country}</span>
                                 <span className="text-slate-300 text-xs bg-slate-700/50 px-2 py-1 rounded-full">
                                   {country.countryCode}
                                 </span>
@@ -244,8 +244,8 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <Shield className="h-3 w-3 text-brand-300" />
-                                  <span className="text-brand-300 text-xs">Verified</span>
+                                  <Shield className="h-3 w-3 text-secondary" />
+                                  <span className="text-secondary text-xs">Verified</span>
                                 </div>
                               </div>
                             </div>
@@ -308,13 +308,13 @@ const EnhancedCountrySelector: React.FC<EnhancedCountrySelectorProps> = ({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute inset-0 bg-black/20 backdrop-blur-sm rounded-2xl flex items-center justify-center"
+          className="absolute inset-0 bg-black/20  rounded-2xl flex items-center justify-center"
           style={{ zIndex: 10001 }}
         >
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full"
+            className="w-6 h-6 border-2 border-outline-variant border-t-white rounded-full"
           />
         </motion.div>
       )}

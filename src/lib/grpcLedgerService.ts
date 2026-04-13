@@ -101,7 +101,7 @@ class GrpcLedgerService {
   private eventListeners: Array<(event: LedgerStreamResponse) => void> = [];
   private activeStreams: Map<string, EventSource> = new Map();
 
-  constructor(baseUrl: string = 'http://localhost:8080') {
+  constructor(baseUrl: string = 'http://localhost:47291') {
     this.baseUrl = baseUrl;
   }
 

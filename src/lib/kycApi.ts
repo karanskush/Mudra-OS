@@ -58,7 +58,7 @@ export class KYCApi {
         : `${BASE_URL}/countries`;
 
       // Use public fetch — this endpoint does not require authentication
-      const apiBase = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8080';
+      const apiBase = (import.meta as any).env?.VITE_API_URL || 'http://localhost:47291';
       const response = await fetch(`${apiBase}${url}`);
       const data = await response.json();
 
