@@ -1,4 +1,4 @@
-package api
+package handler
 
 import (
 	"encoding/json"
@@ -332,15 +332,25 @@ func createLedgerTransfer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	transaction, err := service.CreateTransfer(user.UserID, req.FromAccountID, req.ToAccountID, req.Amount, req.Currency, req.Description, req.Reference)
+	result, err := service.CreateTransfer(user.UserID, req.FromAccountID, req.ToAccountID, req.Amount, req.Currency, req.Description, req.Reference)
 	if err != nil {
 		jsonError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	// Auto-post the transaction
+	if txn, ok := result["transaction"].(*models.LedgerTransaction); ok && txn != nil {
+		if postErr := service.PostTransaction(txn.ID); postErr == nil {
+			txn.Status = models.LedgerTransactionStatusPosted
+			now := time.Now()
+			txn.PostedAt = &now
+			result["transaction"] = txn
+		}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]interface{}{"success": true, "data": transaction})
+	json.NewEncoder(w).Encode(map[string]interface{}{"success": true, "data": result})
 }
 
 // createLedgerDeposit creates a deposit transaction

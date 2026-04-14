@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"fintech-backend/api"
+	handler "fintech-backend/api"
 	"fintech-backend/internal/config"
 	"fintech-backend/internal/database"
 	"fintech-backend/pkg/logger"
@@ -41,7 +41,7 @@ func main() {
 	}
 
 	// Initialize KYC service after database is ready
-	api.InitializeKYCService()
+	handler.InitializeKYCService()
 
 	// Seed database with initial data if needed
 	if err := seedDatabase(); err != nil {
@@ -410,7 +410,7 @@ func setupRoutes(router *gin.Engine, cfg *config.Config) {
 	{
 		kyc.Any("/*any", func(c *gin.Context) {
 			// Convert Gin context to standard http.ResponseWriter and http.Request
-			api.KYCHandler(c.Writer, c.Request)
+			handler.KYCHandler(c.Writer, c.Request)
 		})
 	}
 

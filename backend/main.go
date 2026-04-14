@@ -3,8 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
-	"fintech-backend/api"
+	handler "fintech-backend/api"
 	"fintech-backend/internal/config"
 	"fintech-backend/internal/database"
 	"fintech-backend/pkg/logger"
@@ -45,9 +46,14 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Route all API requests to the api.Handler
-	mux.HandleFunc("/", api.Handler)
+	mux.HandleFunc("/", handler.Handler)
 
-	addr := ":" + cfg.Server.Port
+	// Vercel (and most PaaS) inject PORT; fall back to configured port
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = cfg.Server.Port
+	}
+	addr := ":" + port
 	log.Printf("Server running at http://localhost%s\n", addr)
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		log.Fatalf("Server failed: %v", err)

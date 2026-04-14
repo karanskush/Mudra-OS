@@ -70,3 +70,4 @@ build/
 
 # Kubernetes
 *.kubeconfig 
+.vercel

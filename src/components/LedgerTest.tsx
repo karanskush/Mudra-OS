@@ -39,7 +39,8 @@ interface Transaction {
   id: string;
   type: string;
   status: string;
-  amount: number;
+  amount?: number;
+  total_amount?: number;
   currency: string;
   description: string;
   reference: string;
@@ -739,18 +740,31 @@ const LedgerTest: React.FC = () => {
     }
   };
 
-  // Load accounts on component mount
+  // Load all transactions for stats
+  const loadAllTransactions = async () => {
+    try {
+      const res = await apiClient.getAllTransactions({ limit: 100 });
+      const envelope = res as any;
+      const txns = envelope?.data ?? envelope;
+      if (Array.isArray(txns)) setTransactions(txns);
+    } catch (e) {
+      console.error('Failed to load transactions', e);
+    }
+  };
+
+  // Load accounts and transactions on component mount
   useEffect(() => {
     let mounted = true;
-    
-    const loadAccounts = async () => {
+
+    const init = async () => {
       if (mounted) {
         await loadAvailableAccounts();
+        await loadAllTransactions();
       }
     };
-    
-    loadAccounts();
-    
+
+    init();
+
     return () => {
       mounted = false;
     };
@@ -808,27 +822,26 @@ const LedgerTest: React.FC = () => {
       } else {
         // Fallback to REST API
         const response = await apiClient.createTransfer(transferForm);
-        // The response is the transfer object directly, not wrapped in a data field
-        const data = response as any;
-        
+        // Backend wraps result: { success: true, data: { transaction, rail, fee, fx_rate, latency } }
+        const envelope = response as any;
+        const data = envelope?.data ?? envelope;
+
         // If the response includes rail info, use it
-        if (data.rail) {
+        if (data?.rail) {
           setLastTransferRailInfo(data as TransferRailInfo);
-          setTransactions([...transactions, data.transaction]);
-          setResponse(JSON.stringify(data, null, 2));
           setShowTransferSuccess(true);
-          await loadAvailableAccounts();
-          toast.success('Transfer created successfully!');
-        } else if (data.id) {
-          // fallback for old response
-          setTransactions([...transactions, data]);
-          setResponse(JSON.stringify(data, null, 2));
+          await Promise.all([loadAvailableAccounts(), loadAllTransactions()]);
+          toast.success('Transfer successful!');
+          setTimeout(() => { setActiveForm(null); setShowTransferSuccess(false); }, 1500);
+        } else if (data?.id || data?.transaction?.id) {
           setShowTransferSuccess(true);
-          await loadAvailableAccounts();
-          toast.success('Transfer created successfully!');
+          await Promise.all([loadAvailableAccounts(), loadAllTransactions()]);
+          toast.success('Transfer successful!');
+          setTimeout(() => { setActiveForm(null); setShowTransferSuccess(false); }, 1500);
         } else {
-          setResponse(`Error: ${data.error || 'Failed to create transfer'}`);
-          toast.error('Failed to create transfer');
+          const errMsg = envelope?.error ?? data?.error ?? 'Failed to create transfer';
+          setResponse(`Error: ${errMsg}`);
+          toast.error(errMsg);
         }
       }
     } catch (error) {
@@ -849,9 +862,8 @@ const LedgerTest: React.FC = () => {
       const response = await apiClient.createDeposit(depositForm);
       // The response is the deposit object directly, not wrapped in a data field
       setResponse(JSON.stringify(response, null, 2));
-      setTransactions([...transactions, response as any]);
-      // Refresh available accounts after deposit
-      await loadAvailableAccounts();
+      // Refresh accounts and transactions after deposit
+      await Promise.all([loadAvailableAccounts(), loadAllTransactions()]);
       toast.success('Deposit created successfully!');
     } catch (error) {
       console.error('Deposit creation error:', error);
@@ -1248,7 +1260,7 @@ const LedgerTest: React.FC = () => {
                   },
                   {
                     label: 'Volume',
-                    value: `$${transactions.reduce((t, tx) => t + (tx.amount || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+                    value: `$${transactions.reduce((t, tx) => t + ((tx as any).total_amount ?? tx.amount ?? 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
                     sub: 'Total processed',
                     icon: TrendingUp,
                     color: 'purple',
@@ -1299,8 +1311,9 @@ const LedgerTest: React.FC = () => {
                         <p className="text-sm text-slate-500">No transactions yet</p>
                         <p className="text-xs text-slate-600 mt-1">Create a deposit to get started</p>
                       </div>
-                    ) : transactions.slice(0, 5).map(tx => (
-                      tx && typeof tx.amount === 'number' ? (
+                    ) : transactions.slice(0, 5).map(tx => {
+                      const amt = tx.total_amount ?? tx.amount ?? 0;
+                      return (
                         <div key={tx.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-surface transition-colors">
                           <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
                             tx.type === 'deposit' ? 'bg-brand-500/15 text-secondary' :
@@ -1318,7 +1331,7 @@ const LedgerTest: React.FC = () => {
                           </div>
                           <div className="text-right flex-shrink-0">
                             <p className={`text-sm font-semibold ${tx.type === 'withdrawal' ? 'text-red-400' : 'text-primary'}`}>
-                              {tx.type === 'withdrawal' ? '-' : '+'}${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              {tx.type === 'withdrawal' ? '-' : '+'}${amt.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </p>
                             <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded-md mt-1 font-medium ${
                               tx.status === 'posted' ? 'bg-brand-500/10 text-secondary' :
@@ -1329,8 +1342,8 @@ const LedgerTest: React.FC = () => {
                             </span>
                           </div>
                         </div>
-                      ) : null
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1523,8 +1536,10 @@ const LedgerTest: React.FC = () => {
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/[0.04]">
-                      {transactions.filter(tx => tx && typeof tx.amount === 'number').map(tx => (
+                    <tbody className="divide-y divide-outline-variant">
+                      {transactions.filter(tx => tx && tx.id).map(tx => {
+                        const amt = tx.total_amount ?? tx.amount ?? 0;
+                        return (
                         <tr key={tx.id} className="hover:bg-surface transition-colors">
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-2.5">
@@ -1543,7 +1558,7 @@ const LedgerTest: React.FC = () => {
                           </td>
                           <td className="px-5 py-3.5 text-sm text-slate-400 max-w-[160px] truncate">{tx.description || '—'}</td>
                           <td className="px-5 py-3.5 text-xs font-mono text-slate-500">{tx.reference || '—'}</td>
-                          <td className="px-5 py-3.5 text-sm font-semibold text-primary">${tx.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                          <td className="px-5 py-3.5 text-sm font-semibold text-primary">${amt.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                           <td className="px-5 py-3.5">
                             <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-md ${
                               tx.status === 'posted' ? 'bg-brand-500/10 text-secondary' :
@@ -1577,7 +1592,8 @@ const LedgerTest: React.FC = () => {
                             </div>
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 )}
@@ -2062,10 +2078,23 @@ const LedgerTest: React.FC = () => {
                   )}
                 </div>
 
-                {/* Response */}
-                {response && (
-                  <div className="mx-6 mb-6 p-3 bg-surface rounded-xl border border-outline-variant">
-                    <pre className="text-xs text-secondary overflow-auto max-h-32">{response}</pre>
+                {/* Success banner */}
+                {showTransferSuccess && activeForm === 'transfer' && (
+                  <div className="mx-6 mb-6 flex items-center gap-3 p-4 bg-accent/10 border border-accent/30 rounded-xl">
+                    <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-4 h-4 text-secondary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-secondary">Transfer Successful</p>
+                      <p className="text-xs text-slate-500">Funds moved via {lastTransferRailInfo?.rail ?? 'payment rail'}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Error response */}
+                {response && response.startsWith('Error') && (
+                  <div className="mx-6 mb-6 p-3 bg-red-50 rounded-xl border border-red-200">
+                    <pre className="text-xs text-red-600 overflow-auto max-h-32">{response}</pre>
                   </div>
                 )}
               </div>

@@ -1,4 +1,4 @@
-package api
+package handler
 
 import (
 	"context"
@@ -174,10 +174,11 @@ func handleAccountRoutes(w http.ResponseWriter, r *http.Request, pathParts []str
 		return
 	}
 
-	// pathParts for /api/v1/accounts       → ["api","v1","accounts",""]  len=4
+	// pathParts for /api/v1/accounts       → ["api","v1","accounts"]      len=3
+	// pathParts for /api/v1/accounts/      → ["api","v1","accounts",""]  len=4
 	// pathParts for /api/v1/accounts/{id}  → ["api","v1","accounts","<id>"] len=4
 	switch {
-	case len(pathParts) == 4 && pathParts[3] == "":
+	case len(pathParts) == 3 || (len(pathParts) == 4 && pathParts[3] == ""):
 		if r.Method == http.MethodGet {
 			ListAccounts(w, r)
 		} else if r.Method == http.MethodPost {
