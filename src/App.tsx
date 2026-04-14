@@ -20,6 +20,7 @@ import GRPCDemo from './components/GRPCDemo';
 import GRPCTest from './components/GRPCTest';
 import RouterTest from './components/RouterTest';
 import RealTimePayments from './components/RealTimePayments';
+import QuickStartPage from './components/Developers/QuickStartPage';
 
 
 // Layout component that includes Navbar and Footer
@@ -52,6 +53,7 @@ function App() {
               <Route path="/kyc" element={<ProtectedRoute><Layout><KYCFlow /></Layout></ProtectedRoute>} />
               <Route path="/kyc/dashboard" element={<ProtectedRoute><Layout><KYCDashboard /></Layout></ProtectedRoute>} />
               <Route path="/developers" element={<Developers />} />
+              <Route path="/developers/quickstart" element={<QuickStartPage />} />
               <Route path="/developers/api-explorer" element={<APIExplorer />} />
               <Route path="/grpc-demo" element={<Layout><GRPCDemo /></Layout>} />
               <Route path="/grpc-test" element={<Layout><GRPCTest /></Layout>} />

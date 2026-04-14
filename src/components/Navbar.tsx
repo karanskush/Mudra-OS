@@ -92,7 +92,7 @@ const NAV_ITEMS: MenuItem[] = [
       { name: 'Explore API',      href: '/developers/api-explorer', icon: Code,     description: 'Interactive API testing & exploration', badge: 'Interactive', status: 'active',  category: 'Development' },
       { name: 'Documentation',    href: '/developers',              icon: Database, description: 'Comprehensive API documentation',        badge: 'Complete',    status: 'stable',  category: 'Development' },
       { name: 'gRPC Demo',        href: '/grpc-demo',               icon: Zap,      description: 'Real-time bidirectional streaming',      badge: 'New',         status: 'beta',    category: 'Infrastructure' },
-      { name: 'Quick Start',      href: '/developers',              icon: Sparkles, description: 'Get started in minutes',                 badge: 'Guide',       status: 'stable',  category: 'Getting Started' },
+      { name: 'Quick Start',      href: '/developers/quickstart',   icon: Sparkles, description: 'Get started in minutes',                 badge: 'Guide',       status: 'stable',  category: 'Getting Started' },
     ],
   },
   { name: 'Status', href: '/status', icon: Activity, description: 'System status & uptime' },
