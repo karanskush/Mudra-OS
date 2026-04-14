@@ -51,8 +51,8 @@ function App() {
               <Route path="/ledger" element={<ProtectedRoute><Layout><LedgerTest /></Layout></ProtectedRoute>} />
               <Route path="/kyc" element={<ProtectedRoute><Layout><KYCFlow /></Layout></ProtectedRoute>} />
               <Route path="/kyc/dashboard" element={<ProtectedRoute><Layout><KYCDashboard /></Layout></ProtectedRoute>} />
-              <Route path="/developers" element={<Layout><Developers /></Layout>} />
-              <Route path="/developers/api-explorer" element={<Layout><APIExplorer /></Layout>} />
+              <Route path="/developers" element={<Developers />} />
+              <Route path="/developers/api-explorer" element={<APIExplorer />} />
               <Route path="/grpc-demo" element={<Layout><GRPCDemo /></Layout>} />
               <Route path="/grpc-test" element={<Layout><GRPCTest /></Layout>} />
               <Route path="/router-test" element={<Layout><RouterTest /></Layout>} />

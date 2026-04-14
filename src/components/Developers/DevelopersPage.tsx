@@ -9,6 +9,7 @@ import {
   History, HelpCircle, Mail, Github, FileText, ChevronDown,
   Activity,
 } from 'lucide-react';
+import Navbar from '../Navbar';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -194,10 +195,13 @@ const DevelopersPage: React.FC = () => {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex min-h-screen bg-surface">
+    <div className="min-h-screen bg-surface">
+      <Navbar />
+
+      <div className="flex pt-[80px]">
 
       {/* ════ LEFT SIDEBAR ════ */}
-      <aside className="w-64 flex-shrink-0 bg-white border-r border-outline-variant sticky top-[80px] h-[calc(100vh-80px)] overflow-y-auto">
+      <aside className="w-64 flex-shrink-0 bg-white border-r border-outline-variant self-start sticky top-[80px] max-h-[calc(100vh-80px)] overflow-y-auto">
         <div className="px-4 py-5 border-b border-outline-variant">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
@@ -946,6 +950,8 @@ app.post('/webhook', (req, res) => {
 
         </article>
       </div>
+
+      </div>{/* end flex row */}
     </div>
   );
 };

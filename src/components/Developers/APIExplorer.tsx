@@ -7,6 +7,7 @@ import {
   CheckCircle2, XCircle, AlertCircle, Hash, RefreshCw,
   Database, Layers, BarChart2, FileText, Wifi,
 } from 'lucide-react';
+import Navbar from '../Navbar';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:47291';
 
@@ -637,7 +638,9 @@ const data = await response.json();`;
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-[calc(100vh-80px)] bg-surface overflow-hidden">
+    <div className="min-h-screen bg-surface">
+      <Navbar />
+    <div className="flex h-[calc(100vh-80px)] mt-[80px] bg-surface overflow-hidden">
 
       {/* ════ LEFT SIDEBAR ════ */}
       <aside className="w-72 flex-shrink-0 bg-white border-r border-outline-variant flex flex-col overflow-hidden">
@@ -749,6 +752,7 @@ const data = await response.json();`;
           <Overview categories={CATEGORIES} onSelect={selectEndpoint} />
         )}
       </div>
+    </div>
     </div>
   );
 };
