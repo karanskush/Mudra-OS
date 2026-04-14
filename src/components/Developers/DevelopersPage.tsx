@@ -754,7 +754,7 @@ result = requests.post(f"{BASE}/api/v1/payments", headers=headers, json={
 }).json()
 
 fee = result['data']['fee']
-print(f"Rail: {result['data']['rail']}, Fee: ${fee}")`}</Code>
+print(f"Rail: {result['data']['rail']}, Fee: \${fee}")`}</Code>
 
           {/* ── WEBHOOKS ─────────────────────────────────────────────── */}
           <SectionHeading id="webhooks"><Activity className="w-5 h-5 text-indigo-500" /> Webhooks</SectionHeading>
