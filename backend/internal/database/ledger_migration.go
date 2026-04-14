@@ -15,9 +15,22 @@ func MigrateLedgerTables(db *gorm.DB) error {
 		fmt.Printf("Warning: Failed to fix reference constraint: %v\n", err)
 	}
 
-	// Check if ledger tables are already set up
+	// Always run AutoMigrate first — it is idempotent and adds any new columns
+	// (e.g. fee/rail on ledger_transaction, provider/institution_name on ledger_account)
+	// even on databases that were set up before these fields were added.
+	if err := db.AutoMigrate(&models.LedgerAccount{}); err != nil {
+		fmt.Printf("Warning: AutoMigrate LedgerAccount failed: %v\n", err)
+	}
+	if err := db.AutoMigrate(&models.LedgerTransaction{}); err != nil {
+		fmt.Printf("Warning: AutoMigrate LedgerTransaction failed: %v\n", err)
+	}
+	if err := db.AutoMigrate(&models.LedgerEntry{}); err != nil {
+		fmt.Printf("Warning: AutoMigrate LedgerEntry failed: %v\n", err)
+	}
+
+	// Check if ledger indexes/constraints are already set up — if so, stop here
 	if isLedgerAlreadySetup(db) {
-		fmt.Println("Ledger tables already set up, skipping migration")
+		fmt.Println("Ledger tables already set up, skipping index/constraint creation")
 		return nil
 	}
 
@@ -25,21 +38,6 @@ func MigrateLedgerTables(db *gorm.DB) error {
 	if err := FixAccountNumberConstraint(db); err != nil {
 		// Log but don't fail if this doesn't work (might be a fresh install)
 		fmt.Printf("Warning: Failed to fix account number constraint (might be fresh install): %v\n", err)
-	}
-
-	// Create ledger_account table
-	if err := db.AutoMigrate(&models.LedgerAccount{}); err != nil {
-		return err
-	}
-
-	// Create ledger_transaction table
-	if err := db.AutoMigrate(&models.LedgerTransaction{}); err != nil {
-		return err
-	}
-
-	// Create ledger_entry table
-	if err := db.AutoMigrate(&models.LedgerEntry{}); err != nil {
-		return err
 	}
 
 	// Create additional indexes for better performance

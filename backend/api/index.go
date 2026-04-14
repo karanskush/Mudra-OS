@@ -52,6 +52,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 			handleUserRoutes(w, r, pathParts)
 		})(w, r)
 
+	// Seed demo accounts — must be registered before the generic accounts prefix
+	case path == "api/v1/accounts/seed-demo":
+		log.Printf("Routing to SeedDemoAccounts")
+		middleware.CORSMiddlewareWithAuth(SeedDemoAccounts)(w, r)
+
 	// Account routes (authentication required)
 	case strings.HasPrefix(path, "api/v1/accounts"):
 		log.Printf("Routing to handleAccountRoutes (authenticated)")

@@ -61,7 +61,9 @@ type LedgerAccount struct {
 	Name          string              `json:"name" gorm:"not null"`
 	Description   string              `json:"description"`
 	ParentID      *uuid.UUID          `json:"parent_id" gorm:"type:uuid"`
-	IsSystem      bool                `json:"is_system" gorm:"default:false"`
+	IsSystem       bool                `json:"is_system" gorm:"default:false"`
+	Provider       string              `json:"provider"          gorm:"default:''"`
+	InstitutionName string             `json:"institution_name"  gorm:"default:''"`
 	CreatedAt     time.Time           `json:"created_at"`
 	UpdatedAt     time.Time           `json:"updated_at"`
 	DeletedAt     gorm.DeletedAt      `json:"-" gorm:"index"`

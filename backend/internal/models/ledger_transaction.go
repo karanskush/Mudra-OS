@@ -46,6 +46,8 @@ type LedgerTransaction struct {
 	ExchangeRate float64                 `json:"exchange_rate" gorm:"default:1.0"`
 	BaseCurrency string                  `json:"base_currency" gorm:"default:'USD'"`
 	BaseAmount   float64                 `json:"base_amount" gorm:"default:0"`
+	Fee          float64                 `json:"fee"  gorm:"default:0"`
+	Rail         string                  `json:"rail" gorm:"default:''"`
 	PostedAt     *time.Time              `json:"posted_at"`
 	Timestamp    time.Time               `json:"timestamp" gorm:"not null"`
 	CreatedAt    time.Time               `json:"created_at"`

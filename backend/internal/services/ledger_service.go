@@ -42,6 +42,25 @@ func (ls *LedgerService) CreateAccount(userID uuid.UUID, accountNumber, name, de
 	return account, nil
 }
 
+// CreateConnectedAccount creates a ledger account with provider metadata (e.g. "revolut", "paypal").
+func (ls *LedgerService) CreateConnectedAccount(userID uuid.UUID, accountNumber, name, description, currency string, accountType models.LedgerAccountType, provider, institutionName string) (*models.LedgerAccount, error) {
+	account := &models.LedgerAccount{
+		UserID:          userID,
+		AccountNumber:   accountNumber,
+		Type:            accountType,
+		Currency:        currency,
+		Name:            name,
+		Description:     description,
+		Status:          models.LedgerAccountStatusActive,
+		Provider:        provider,
+		InstitutionName: institutionName,
+	}
+	if err := ls.db.Create(account).Error; err != nil {
+		return nil, fmt.Errorf("failed to create connected account: %w", err)
+	}
+	return account, nil
+}
+
 // CreateTransaction creates a new ledger transaction with entries
 func (ls *LedgerService) CreateTransaction(userID uuid.UUID, transactionType models.LedgerTransactionType, description, reference string, entries []models.LedgerEntry) (*models.LedgerTransaction, error) {
 	// Calculate total amount - in double-entry accounting, we only count debits to avoid doubling
@@ -266,15 +285,8 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 		return nil, errors.New("currency conversion not yet implemented")
 	}
 
-	// Validate sender has sufficient balance
-	fromBalance, err := fromAccount.GetBalance(ls.db)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get sender balance: %w", err)
-	}
-	if fromBalance < amount {
-		return nil, fmt.Errorf("insufficient balance: available %.2f, requested %.2f", fromBalance, amount)
-	}
-
+	// Select payment rail and calculate fee BEFORE the balance check so we can
+	// verify the sender can cover amount + fee.
 	country := ""
 	payment := paymentrails.Payment{
 		FromAccount: fromAccount.AccountNumber,
@@ -296,11 +308,11 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 		latency = "1s"
 	case paymentrails.RailSEPA:
 		fee = 1 + 0.005*amount
-		fxRate = 1 // Simulate no FX for now
+		fxRate = 1
 		latency = "30s"
 	case paymentrails.RailCrypto:
 		fee = 0.001*amount + 2 // 0.1% + gas
-		fxRate = 1             // Simulate no FX for now
+		fxRate = 1
 		latency = "5s"
 	default:
 		fee = 2
@@ -308,15 +320,28 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 		latency = "60s"
 	}
 
+	// Validate sender has sufficient balance to cover amount + fee
+	fromBalance, err := fromAccount.GetBalance(ls.db)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get sender balance: %w", err)
+	}
+	if fromBalance < amount+fee {
+		return nil, fmt.Errorf("insufficient balance: available %.2f, requested %.2f (incl. %.2f %s fee)", fromBalance, amount+fee, fee, string(railType))
+	}
+
 	if railErr := orchestrator.Transfer(payment, &railType); railErr != nil {
 		return nil, fmt.Errorf("payment rail transfer failed: %w", railErr)
 	}
 
-	// Single balanced journal entry:
-	//   Debit  toAccount   → increases recipient's asset balance
-	//   Credit fromAccount → decreases sender's asset balance
-	// Using CreateTransactionWithoutValidation because ValidateBalance checks
-	// EntryType labels, not account positions — one entry IS balanced by design.
+	// Get or create the system fee revenue account so fee has somewhere to land.
+	feeAccount, feeAccErr := ls.GetOrCreateSystemAccount(userID, "SYSTEM-FEE", "Fee Revenue", models.LedgerAccountTypeRevenue)
+	if feeAccErr != nil {
+		return nil, fmt.Errorf("failed to get fee account: %w", feeAccErr)
+	}
+
+	// Build ledger entries:
+	//   Entry 1 (transfer): Debit recipient, Credit sender — moves the principal.
+	//   Entry 2 (fee):      Debit sender,    Credit SYSTEM-FEE — deducts the fee.
 	entries := []models.LedgerEntry{
 		{
 			DebitAccountID:  toAccountID,
@@ -329,11 +354,31 @@ func (ls *LedgerService) CreateTransfer(userID uuid.UUID, fromAccountID, toAccou
 			Timestamp:       time.Now(),
 		},
 	}
+	if fee > 0 {
+		entries = append(entries, models.LedgerEntry{
+			DebitAccountID:  fromAccountID,
+			CreditAccountID: feeAccount.ID,
+			Amount:          fee,
+			Currency:        currency,
+			EntryType:       models.EntryTypeDebit,
+			Description:     fmt.Sprintf("Rail fee (%s): %s", string(railType), fromAccount.Name),
+			Reference:       "FEE-" + reference,
+			Timestamp:       time.Now(),
+		})
+	}
 
 	transaction, err := ls.CreateTransactionWithoutValidation(userID, models.LedgerTransactionTypeTransfer, description, reference, entries)
 	if err != nil {
 		return nil, err
 	}
+
+	// Persist fee and rail on the transaction record so they appear in history.
+	ls.db.Model(transaction).Updates(map[string]interface{}{
+		"fee":  fee,
+		"rail": string(railType),
+	})
+	transaction.Fee = fee
+	transaction.Rail = string(railType)
 
 	return map[string]interface{}{
 		"transaction": transaction,

@@ -33,15 +33,17 @@ type CreateAccountRequest struct {
 
 // AccountData represents account data in response
 type AccountData struct {
-	ID            string    `json:"id"`
-	AccountNumber string    `json:"account_number"`
-	Type          string    `json:"type"`
-	Status        string    `json:"status"`
-	Balance       float64   `json:"balance"`
-	Currency      string    `json:"currency"`
-	Name          string    `json:"name"`
-	Description   string    `json:"description"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID              string    `json:"id"`
+	AccountNumber   string    `json:"account_number"`
+	Type            string    `json:"type"`
+	Status          string    `json:"status"`
+	Balance         float64   `json:"balance"`
+	Currency        string    `json:"currency"`
+	Name            string    `json:"name"`
+	Description     string    `json:"description"`
+	Provider        string    `json:"provider"`
+	InstitutionName string    `json:"institution_name"`
+	CreatedAt       time.Time `json:"created_at"`
 }
 
 // getDB returns the database connection
@@ -88,15 +90,17 @@ func ListAccounts(w http.ResponseWriter, r *http.Request) {
 	for i, la := range ledgerAccounts {
 		balance := balances[la.ID]
 		accounts[i] = AccountData{
-			ID:            la.ID.String(),
-			AccountNumber: la.AccountNumber,
-			Type:          string(la.Type),
-			Status:        string(la.Status),
-			Balance:       balance,
-			Currency:      la.Currency,
-			Name:          la.Name,
-			Description:   la.Description,
-			CreatedAt:     la.CreatedAt,
+			ID:              la.ID.String(),
+			AccountNumber:   la.AccountNumber,
+			Type:            string(la.Type),
+			Status:          string(la.Status),
+			Balance:         balance,
+			Currency:        la.Currency,
+			Name:            la.Name,
+			Description:     la.Description,
+			Provider:        la.Provider,
+			InstitutionName: la.InstitutionName,
+			CreatedAt:       la.CreatedAt,
 		}
 	}
 
@@ -181,15 +185,17 @@ func CreateAccount(w http.ResponseWriter, r *http.Request) {
 
 	// Convert to AccountData format
 	newAccount := AccountData{
-		ID:            ledgerAccount.ID.String(),
-		AccountNumber: ledgerAccount.AccountNumber,
-		Type:          string(ledgerAccount.Type),
-		Status:        string(ledgerAccount.Status),
-		Balance:       req.InitialBalance,
-		Currency:      ledgerAccount.Currency,
-		Name:          ledgerAccount.Name,
-		Description:   ledgerAccount.Description,
-		CreatedAt:     ledgerAccount.CreatedAt,
+		ID:              ledgerAccount.ID.String(),
+		AccountNumber:   ledgerAccount.AccountNumber,
+		Type:            string(ledgerAccount.Type),
+		Status:          string(ledgerAccount.Status),
+		Balance:         req.InitialBalance,
+		Currency:        ledgerAccount.Currency,
+		Name:            ledgerAccount.Name,
+		Description:     ledgerAccount.Description,
+		Provider:        ledgerAccount.Provider,
+		InstitutionName: ledgerAccount.InstitutionName,
+		CreatedAt:       ledgerAccount.CreatedAt,
 	}
 
 	response.Created(w, r, newAccount, "Account created successfully")
@@ -205,17 +211,109 @@ func generateAccountNumber() string {
 // convertToLedgerAccountType converts string account type to ledger account type
 func convertToLedgerAccountType(accountType string) models.LedgerAccountType {
 	switch accountType {
-	case "checking":
-		return models.LedgerAccountTypeBank
-	case "savings":
+	case "checking", "savings":
 		return models.LedgerAccountTypeBank
 	case "investment":
 		return models.LedgerAccountTypeInvestment
 	case "credit":
 		return models.LedgerAccountTypeLiability
+	// Provider-based types
+	case "revolut", "paypal", "wise", "chase", "stripe":
+		return models.LedgerAccountTypeBank
+	case "coinbase", "metamask", "binance":
+		return models.LedgerAccountTypeInvestment
 	default:
 		return models.LedgerAccountTypeBank
 	}
+}
+
+// demoAccount describes a pre-seeded connected account
+type demoAccount struct {
+	Name            string
+	Provider        string
+	InstitutionName string
+	AccountType     models.LedgerAccountType
+	InitialBalance  float64
+	Currency        string
+	Description     string
+}
+
+var demoAccounts = []demoAccount{
+	{"Revolut Account", "revolut", "Revolut", models.LedgerAccountTypeBank, 1200, "USD", "Revolut digital banking account"},
+	{"PayPal Balance", "paypal", "PayPal", models.LedgerAccountTypeBank, 340, "USD", "PayPal payments balance"},
+	{"Wise Account", "wise", "Wise", models.LedgerAccountTypeBank, 890, "USD", "Wise international transfer account"},
+	{"Chase Checking", "chase", "Chase Bank", models.LedgerAccountTypeBank, 5000, "USD", "Chase Bank checking account"},
+	{"Coinbase Wallet", "coinbase", "Coinbase", models.LedgerAccountTypeInvestment, 2100, "USD", "Coinbase crypto wallet"},
+	{"MetaMask Wallet", "metamask", "MetaMask", models.LedgerAccountTypeInvestment, 450, "USD", "MetaMask self-custody wallet"},
+	{"Binance Account", "binance", "Binance", models.LedgerAccountTypeInvestment, 780, "USD", "Binance crypto exchange account"},
+	{"Stripe Balance", "stripe", "Stripe", models.LedgerAccountTypeBank, 210, "USD", "Stripe payments balance"},
+}
+
+// SeedDemoAccounts creates a set of pre-connected dummy accounts for the user.
+// It is idempotent — accounts already present (matched by name) are skipped.
+func SeedDemoAccounts(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, `{"error":"method not allowed"}`, http.StatusMethodNotAllowed)
+		return
+	}
+
+	user, err := middleware.GetUserFromContext(r)
+	if err != nil {
+		http.Error(w, `{"error":"authentication required"}`, http.StatusUnauthorized)
+		return
+	}
+
+	service := getLedgerService()
+	if service == nil {
+		http.Error(w, `{"error":"database not initialized"}`, http.StatusServiceUnavailable)
+		return
+	}
+
+	db := getDB()
+	var created, skipped int
+
+	for _, demo := range demoAccounts {
+		// Idempotency: skip if an account with this name already exists for this user
+		var existing models.LedgerAccount
+		if err := db.Where("user_id = ? AND name = ?", user.UserID, demo.Name).First(&existing).Error; err == nil {
+			skipped++
+			continue
+		}
+
+		acct, err := service.CreateConnectedAccount(
+			user.UserID,
+			generateAccountNumber(),
+			demo.Name,
+			demo.Description,
+			demo.Currency,
+			demo.AccountType,
+			demo.Provider,
+			demo.InstitutionName,
+		)
+		if err != nil {
+			// Log but continue — don't fail the whole seed for one account
+			fmt.Printf("Warning: failed to seed account %q: %v\n", demo.Name, err)
+			continue
+		}
+
+		if demo.InitialBalance > 0 {
+			if _, err := service.CreateDeposit(user.UserID, acct.ID, demo.InitialBalance, demo.Currency,
+				fmt.Sprintf("Initial %s balance", demo.InstitutionName),
+				"SEED-"+acct.AccountNumber,
+			); err != nil {
+				fmt.Printf("Warning: failed to deposit into %q: %v\n", demo.Name, err)
+			}
+		}
+		created++
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"message": fmt.Sprintf("Seeded %d demo accounts (%d already existed)", created, skipped),
+		"created": created,
+		"skipped": skipped,
+	})
 }
 
 // GetAccount handles getting a specific account by ID.
