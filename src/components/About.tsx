@@ -5,7 +5,8 @@ import {
   ArrowRight, Github, Mail, Linkedin, Code2, Database, Shield,
   Zap, CreditCard, Layers, Globe, Cpu, GitBranch, Sparkles,
   Workflow, Network, LineChart, Lock, ExternalLink, Rocket,
-  CheckCircle2, Terminal,
+  CheckCircle2, Terminal, Repeat, Scale, Route, KeyRound,
+  Radio, RefreshCw, Target,
 } from 'lucide-react';
 import Navbar from './Navbar';
 import Footer from './Footer';
@@ -269,6 +270,120 @@ const About: React.FC = () => {
                 </ul>
               </motion.div>
             ))}
+          </div>
+        </section>
+
+        {/* ── Product Vision (The Why) ──────────────────────────────── */}
+        <section className="max-w-[1200px] mx-auto px-6 lg:px-8 mt-28">
+          <div className="grid lg:grid-cols-12 gap-10 items-start">
+            {/* Left — the problem statement */}
+            <div className="lg:col-span-7">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5 border border-primary/10 mb-5">
+                <Target className="h-3.5 w-3.5 text-secondary" />
+                <span className="text-[11px] font-black tracking-wider uppercase text-secondary">
+                  The Why — Product Vision
+                </span>
+              </div>
+
+              <h2 className="text-3xl md:text-5xl font-black text-primary tracking-tight leading-[1.05]">
+                Every fintech team{' '}
+                <span className="relative inline-block">
+                  <span className="relative z-10">rebuilds</span>
+                  <span className="absolute left-0 right-0 bottom-1 h-3 bg-accent/40 -z-0" />
+                </span>{' '}
+                the same stack.
+              </h2>
+
+              <p className="mt-5 text-base md:text-lg text-slate-600 leading-relaxed max-w-2xl">
+                Companies burn months re-inventing KYC, wiring payment rails, and bolting on ledgers
+                — every team in a silo, every time. I built this to make fintech primitives
+                <span className="text-primary font-semibold"> interoperable and reusable</span>:
+                verify a customer once, move money on the cheapest rail, keep books that actually balance.
+              </p>
+            </div>
+
+            {/* Right — 3 pillars */}
+            <div className="lg:col-span-5 space-y-3">
+              {[
+                { icon: Repeat, title: 'Reuse, don\'t rebuild', desc: 'KYC verified once, portable across products.' },
+                { icon: Route,  title: 'Cheapest path wins',    desc: 'Rail orchestrator picks the best route by currency & country.' },
+                { icon: Scale,  title: 'Books that balance',    desc: 'Double-entry by default — every debit has a credit, always.' },
+              ].map((p, i) => (
+                <motion.div
+                  key={p.title}
+                  initial="hidden" whileInView="visible" viewport={{ once: true }}
+                  variants={fadeUp} custom={i}
+                  className="group flex gap-4 bg-white border border-outline-variant rounded-2xl p-5 hover:border-accent/50 hover:shadow-premium transition-all"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-accent/20 transition-colors">
+                    <p.icon className="h-5 w-5 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-primary">{p.title}</p>
+                    <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{p.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Tech Vision (The How) ─────────────────────────────────── */}
+        <section className="max-w-[1200px] mx-auto px-6 lg:px-8 mt-28">
+          <div className="bg-[#050914] rounded-[32px] p-8 md:p-12 relative overflow-hidden">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent/10 rounded-full blur-3xl -translate-y-1/2" />
+            {/* Grid pattern */}
+            <div
+              className="absolute inset-0 opacity-[0.04]"
+              style={{
+                backgroundImage: 'linear-gradient(rgba(255,255,255,.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.4) 1px, transparent 1px)',
+                backgroundSize: '32px 32px',
+              }}
+            />
+
+            <div className="relative">
+              <div className="text-center mb-10">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 mb-5">
+                  <Cpu className="h-3.5 w-3.5 text-accent" />
+                  <span className="text-[11px] font-black tracking-wider uppercase text-accent">
+                    The How — Tech Vision
+                  </span>
+                </div>
+                <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight leading-tight">
+                  Built like real{' '}
+                  <span className="text-accent">infrastructure.</span>
+                </h2>
+                <p className="mt-4 text-slate-400 text-base max-w-xl mx-auto">
+                  Opinionated defaults. Boring-tech core. Every decision earns its place.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {[
+                  { icon: Lock,      title: 'Security first',        desc: 'OWASP-hardened, JWT + bcrypt, PII isolated, audit trails on by default.' },
+                  { icon: Radio,     title: 'gRPC streaming',        desc: 'Bidirectional streams for real-time payments, reconciliation, and webhooks.' },
+                  { icon: Database,  title: 'Double-entry core',     desc: 'Every transaction is a balanced journal — the ledger is the source of truth.' },
+                  { icon: KeyRound,  title: 'Zero-trust auth',       desc: 'Short-lived tokens, RBAC, and protected routes — no implicit trust.' },
+                  { icon: LineChart, title: 'Observable by default', desc: 'Structured logs, health endpoints, tracing — debug production, not hope.' },
+                  { icon: RefreshCw, title: 'Idempotent APIs',       desc: 'Safe retries on every money-moving endpoint. Replays never double-spend.' },
+                ].map((t, i) => (
+                  <motion.div
+                    key={t.title}
+                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-40px' }}
+                    variants={fadeUp} custom={i * 0.6}
+                    className="group bg-white/[0.04] border border-white/10 rounded-2xl p-5 hover:bg-white/[0.07] hover:border-accent/40 transition-all"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0">
+                        <t.icon className="h-4 w-4 text-accent" />
+                      </div>
+                      <p className="text-sm font-bold text-white">{t.title}</p>
+                    </div>
+                    <p className="text-xs text-slate-400 leading-relaxed">{t.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
