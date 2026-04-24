@@ -142,7 +142,7 @@ const About: React.FC = () => {
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
                 <a
-                  href="mailto:kkaransingh0112@gmail.com"
+                  href="mailto:karansinghkachwah@gmail.com"
                   className="inline-flex items-center gap-2 bg-white border border-outline-variant text-primary px-5 py-3 rounded-xl text-sm font-bold hover:bg-surface transition-all"
                 >
                   <Mail className="h-4 w-4" />
@@ -151,15 +151,15 @@ const About: React.FC = () => {
               </div>
 
               <div className="mt-6 flex items-center gap-4 text-slate-500">
-                <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors inline-flex items-center gap-1.5 text-xs font-semibold">
+                <a href="https://github.com/karanskush" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors inline-flex items-center gap-1.5 text-xs font-semibold">
                   <Github className="h-4 w-4" /> GitHub
                 </a>
                 <span className="text-outline-variant">·</span>
-                <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors inline-flex items-center gap-1.5 text-xs font-semibold">
+                <a href="https://www.linkedin.com/in/karanskush/" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors inline-flex items-center gap-1.5 text-xs font-semibold">
                   <Linkedin className="h-4 w-4" /> LinkedIn
                 </a>
                 <span className="text-outline-variant">·</span>
-                <a href="mailto:kkaransingh0112@gmail.com" className="hover:text-primary transition-colors inline-flex items-center gap-1.5 text-xs font-semibold">
+                <a href="mailto:karansinghkachwah@gmail.com" className="hover:text-primary transition-colors inline-flex items-center gap-1.5 text-xs font-semibold">
                   <Mail className="h-4 w-4" /> Email
                 </a>
               </div>
@@ -170,23 +170,61 @@ const About: React.FC = () => {
               initial="hidden" animate="visible" variants={fadeUp} custom={2}
               className="lg:col-span-4"
             >
-              <div className="bg-white border border-outline-variant rounded-3xl p-6 shadow-premium relative overflow-hidden">
-                <div className="absolute -top-16 -right-16 w-40 h-40 bg-accent/10 rounded-full blur-3xl" />
-                <p className="text-[11px] font-black tracking-wider uppercase text-secondary mb-4">
-                  Snapshot
-                </p>
-                <div className="space-y-4 relative">
-                  {[
-                    { k: 'Production projects',   v: '12+' },
-                    { k: 'Languages & runtimes',   v: '6'   },
-                    { k: 'Payment rails integrated', v: '8' },
-                    { k: 'Years shipping software', v: '5+' },
-                  ].map((s) => (
-                    <div key={s.k} className="flex items-end justify-between border-b border-outline-variant/60 pb-3 last:border-0 last:pb-0">
-                      <span className="text-sm text-slate-500">{s.k}</span>
-                      <span className="text-2xl font-black text-primary">{s.v}</span>
+              <div className="relative">
+                {/* Currently building pill */}
+                <div className="absolute -top-3 left-5 z-10 inline-flex items-center gap-1.5 px-3 py-1 bg-primary text-white rounded-full text-[10px] font-black tracking-wider uppercase shadow-lg">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                  Currently shipping
+                </div>
+
+                <div className="bg-gradient-to-br from-white to-surface border border-outline-variant rounded-3xl p-5 shadow-premium relative overflow-hidden">
+                  <div className="absolute -top-20 -right-20 w-48 h-48 bg-accent/10 rounded-full blur-3xl" />
+                  <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl" />
+
+                  {/* 2x2 stat grid */}
+                  <div className="relative grid grid-cols-2 gap-3">
+                    {[
+                      { k: 'Projects shipped',    v: '12+', icon: Rocket,     accent: 'text-accent',     bg: 'bg-accent/10' },
+                      { k: 'Languages',           v: '6',   icon: Code2,      accent: 'text-secondary',  bg: 'bg-secondary/10' },
+                      { k: 'Payment rails',       v: '8',   icon: CreditCard, accent: 'text-primary',    bg: 'bg-primary/10' },
+                      { k: 'Years shipping',      v: '5+',  icon: GitBranch,  accent: 'text-accent',     bg: 'bg-accent/10' },
+                    ].map((s) => (
+                      <div
+                        key={s.k}
+                        className="group bg-white border border-outline-variant/80 rounded-2xl p-4 hover:border-accent/50 hover:-translate-y-0.5 transition-all"
+                      >
+                        <div className={`w-8 h-8 ${s.bg} rounded-lg flex items-center justify-center mb-2.5`}>
+                          <s.icon className={`h-4 w-4 ${s.accent}`} />
+                        </div>
+                        <div className="text-2xl font-black text-primary leading-none tracking-tight">{s.v}</div>
+                        <div className="text-[11px] text-slate-500 mt-1.5 font-medium">{s.k}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="relative mt-5 pt-4 border-t border-outline-variant/60">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="flex -space-x-1">
+                          <span className="w-2 h-2 rounded-full bg-accent ring-2 ring-white" />
+                          <span className="w-2 h-2 rounded-full bg-secondary ring-2 ring-white" />
+                          <span className="w-2 h-2 rounded-full bg-primary ring-2 ring-white" />
+                        </div>
+                        <span className="text-[11px] font-bold text-primary">MudraCore OS</span>
+                      </div>
+                      <span className="text-[10px] font-black text-secondary tracking-wider uppercase">v1.0 · live</span>
                     </div>
-                  ))}
+                    <div className="mt-2 h-1 bg-outline-variant/60 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: '92%' }}
+                        transition={{ duration: 1.4, delay: 0.6, ease: 'easeOut' }}
+                        className="h-full bg-gradient-to-r from-accent to-secondary rounded-full"
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1.5">Ledger · Rails · KYC · gRPC — 92% complete</p>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -358,11 +396,11 @@ const About: React.FC = () => {
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <a
-                  href="mailto:kkaransingh0112@gmail.com"
+                  href="mailto:karansinghkachwah@gmail.com"
                   className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3.5 rounded-xl text-sm font-bold active:scale-95 transition-all hover:shadow-lg hover:shadow-primary/20"
                 >
                   <Mail className="h-4 w-4" />
-                  kkaransingh0112@gmail.com
+                  karansinghkachwah@gmail.com
                 </a>
                 <Link
                   to="/developers"
