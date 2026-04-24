@@ -96,6 +96,7 @@ const NAV_ITEMS: MenuItem[] = [
     ],
   },
   { name: 'Status', href: '/status', icon: Activity, description: 'System status & uptime' },
+  { name: 'My Work', href: '/about', icon: Sparkles, description: 'About me & capabilities' },
 ];
 
 /* ─── Component ─────────────────────────────────────────────────────────── */

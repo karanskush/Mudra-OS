@@ -21,6 +21,7 @@ import GRPCTest from './components/GRPCTest';
 import RouterTest from './components/RouterTest';
 import RealTimePayments from './components/RealTimePayments';
 import QuickStartPage from './components/Developers/QuickStartPage';
+import About from './components/About';
 
 
 // Layout component that includes Navbar and Footer
@@ -48,6 +49,8 @@ function App() {
           <ToastProvider>
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/work" element={<About />} />
               <Route path="/status" element={<ProtectedRoute><Layout><StatusPage /></Layout></ProtectedRoute>} />
               <Route path="/ledger" element={<ProtectedRoute><Layout><LedgerTest /></Layout></ProtectedRoute>} />
               <Route path="/kyc" element={<ProtectedRoute><Layout><KYCFlow /></Layout></ProtectedRoute>} />
