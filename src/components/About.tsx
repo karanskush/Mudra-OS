@@ -185,10 +185,10 @@ const About: React.FC = () => {
                   {/* 2x2 stat grid */}
                   <div className="relative grid grid-cols-2 gap-3">
                     {[
-                      { k: 'Projects shipped',    v: '12+', icon: Rocket,     accent: 'text-accent',     bg: 'bg-accent/10' },
-                      { k: 'Languages',           v: '6',   icon: Code2,      accent: 'text-secondary',  bg: 'bg-secondary/10' },
-                      { k: 'Payment rails',       v: '8',   icon: CreditCard, accent: 'text-primary',    bg: 'bg-primary/10' },
-                      { k: 'Years shipping',      v: '5+',  icon: GitBranch,  accent: 'text-accent',     bg: 'bg-accent/10' },
+                      { k: 'Projects shipped',    v: '20+', icon: Rocket,    accent: 'text-accent',    bg: 'bg-accent/10' },
+                      { k: 'Years of dev',        v: '6+',  icon: GitBranch, accent: 'text-secondary', bg: 'bg-secondary/10' },
+                      { k: '0 → 1 Engineer',      v: '4×',  icon: Sparkles,  accent: 'text-primary',   bg: 'bg-primary/10' },
+                      { k: 'Coding since age',    v: '6',   icon: Code2,     accent: 'text-accent',    bg: 'bg-accent/10' },
                     ].map((s) => (
                       <div
                         key={s.k}
