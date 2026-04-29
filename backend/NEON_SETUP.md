@@ -19,7 +19,7 @@ Create a `.env` file in the `backend/` directory with your Neon connection strin
 
 ```bash
 # Neon Database Configuration
-DATABASE_URL=postgresql://neondb_owner:npg_BwsfdVYuh83k@ep-little-band-a8oxeh05-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_URL=postgresql://your_user:your_password@your-neon-host.neon.tech/neondb?sslmode=require&channel_binding=require
 
 # Other configuration...
 SERVER_PORT=8080

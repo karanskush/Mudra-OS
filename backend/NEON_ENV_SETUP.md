@@ -12,13 +12,13 @@ ENVIRONMENT=development
 
 # Neon Database Configuration
 # Use your Neon connection string from: https://console.neon.tech/
-DATABASE_URL=postgresql://neondb_owner:npg_BwsfdVYuh83k@ep-long-night-a8tj4ial-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_URL=postgresql://your_user:your_password@your-neon-host.neon.tech/neondb?sslmode=require&channel_binding=require
 
 # Legacy Database Configuration (fallback) - Parsed from Neon URL
-PGUSER=neondb_owner
-PGHOST=ep-long-night-a8tj4ial-pooler.eastus2.azure.neon.tech
+PGUSER=your_user
+PGHOST=your-neon-host.neon.tech
 PGDATABASE=neondb
-PGPASSWORD=npg_BwsfdVYuh83k
+PGPASSWORD=your_password
 PGPORT=5432
 
 # Legacy Database Configuration (fallback)
@@ -60,10 +60,10 @@ RATE_LIMIT_WINDOW=1m
 
 Your Neon connection URL has been parsed into the following components:
 
-- **PGUSER**: `neondb_owner`
-- **PGHOST**: `ep-long-night-a8tj4ial-pooler.eastus2.azure.neon.tech`
+- **PGUSER**: Your Neon database user
+- **PGHOST**: Your Neon pooler endpoint
 - **PGDATABASE**: `neondb`
-- **PGPASSWORD**: `npg_BwsfdVYuh83k`
+- **PGPASSWORD**: Your Neon database password
 - **PGPORT**: `5432`
 
 ## Test the Connection

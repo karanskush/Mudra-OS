@@ -56,14 +56,14 @@ Your fintech application has been successfully integrated with [Neon](https://ne
 ## Your Neon Connection String
 
 ```
-postgresql://neondb_owner:npg_BwsfdVYuh83k@ep-little-band-a8oxeh05-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require
+postgresql://your_user:your_password@your-neon-host.neon.tech/neondb?sslmode=require&channel_binding=require
 ```
 
 **Connection Details:**
-- **Host**: `ep-little-band-a8oxeh05-pooler.eastus2.azure.neon.tech`
+- **Host**: Your Neon pooler endpoint (found in Neon Console)
 - **Database**: `neondb`
-- **User**: `neondb_owner`
-- **Region**: East US 2 (Azure)
+- **User**: Your Neon database user
+- **Region**: As configured in Neon
 - **SSL**: Required with channel binding
 
 ## How to Use
@@ -74,7 +74,7 @@ Create a `.env` file in the `backend/` directory:
 
 ```bash
 # Neon Database Configuration
-DATABASE_URL=postgresql://neondb_owner:npg_BwsfdVYuh83k@ep-little-band-a8oxeh05-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require
+DATABASE_URL=postgresql://your_user:your_password@your-neon-host.neon.tech/neondb?sslmode=require&channel_binding=require
 
 # Other configuration...
 SERVER_PORT=8080
